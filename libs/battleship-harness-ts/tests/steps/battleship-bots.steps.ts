@@ -18,7 +18,7 @@ function difficultyNamed(text: string): BattleshipBotDifficulty {
 }
 
 Given(
-  '{actor} is ready for a custom game of Battleship against the {word} bot',
+  '{actor} is ready for a game session of Battleship against the {word} bot',
   async (w, actor: string, difficulty: string) => {
     await w.s.apply(
       establishBattleshipBots,
@@ -29,7 +29,7 @@ Given(
   }
 );
 Given(
-  '{actor} has started a custom game of Battleship between two {word} bots',
+  '{actor} has started a game session of Battleship between two {word} bots',
   async (w, actor: string, difficulty: string) => {
     await w.s.apply(
       establishBattleshipBots,

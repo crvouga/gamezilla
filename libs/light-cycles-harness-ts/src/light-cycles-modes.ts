@@ -3,7 +3,7 @@ import {
   opponentSearchView,
   seekGameOpponent,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
-import { openCustomGames } from '@libs/game-session-harness-ts/game-navigation';
+import { openGameSessions } from '@libs/game-session-harness-ts/game-navigation';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import { selectedSetupMode } from '@libs/harness-ts/game-tiles';
@@ -33,7 +33,7 @@ import {
 
 const PAIRED_MS = 5000;
 
-/** `person` takes `rider` in the creator's custom game, invited and accepting. */
+/** `person` takes `rider` in the creator's game session, invited and accepting. */
 export const takeLightCyclesSeat = scenarioAction({
   name: 'takeLightCyclesSeat',
   act: (s, person: string, rider: LightCyclesRiderName) =>
@@ -115,11 +115,11 @@ export const joinSpaceOf = scenarioAction({
   },
 });
 
-/** The host chooses the mode on the custom game's setup. */
+/** The host chooses the mode on the game session's setup. */
 export const pickLightCyclesMode = scenarioAction({
   name: 'pickLightCyclesMode',
   act: (s, host: string, count: LightCyclesCount) =>
-    openCustomGames.act(s, host, lightCyclesGameId(count)),
+    openGameSessions.act(s, host, lightCyclesGameId(count)),
 });
 
 export async function customModeChosen(
@@ -129,7 +129,7 @@ export async function customModeChosen(
 ): Promise<boolean> {
   const ui = await actorUi(s, actor);
   return (
-    (await ui.get('custom-game-content').isVisible()) &&
+    (await ui.get('game-session-content').isVisible()) &&
     (await selectedSetupMode(ui, lightCyclesGameId(count)))
   );
 }

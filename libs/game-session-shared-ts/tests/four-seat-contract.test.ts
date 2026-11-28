@@ -1,10 +1,10 @@
 import { expect, test } from 'bun:test';
-import { customGameCancelRefusal } from '@libs/game-session-shared-ts/custom-game-refusal';
+import { gameSessionCancelRefusal } from '@libs/game-session-shared-ts/game-session-refusal';
 import {
-  CustomGamesAttr,
-  customGameStartable,
-  newCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-state';
+  GameSessionsAttr,
+  gameSessionStartable,
+  newGameSession,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { fourSeatRoom, PEOPLE } from './four-seat-room';
 
 // regression: four-seat-noncreator-cancel
@@ -17,7 +17,7 @@ test('a noncreator cannot cancel a four-seat round before its first move and may
   expect(room.send('bob', { operation: 'cancel' }).ok).toBe(false);
   expect(room.current()).toEqual(before);
   // The rendered cancel affordance uses this same public permission predicate.
-  expect(customGameCancelRefusal(before, 'bob')).toBe('only the creator');
+  expect(gameSessionCancelRefusal(before, 'bob')).toBe('only the creator');
   expect(room.send('bob', { operation: 'resign' }).ok).toBe(true);
   expect(room.current()).toMatchObject({
     status: 'completed',
@@ -30,31 +30,32 @@ test('the creator retains cancellation and a two-person participant retains earl
   const room = fourSeatRoom();
   room.fill();
   room.send('alice', { operation: 'start' });
-  expect(customGameCancelRefusal(room.current(), 'alice')).toBe('');
+  expect(gameSessionCancelRefusal(room.current(), 'alice')).toBe('');
   expect(room.send('alice', { operation: 'cancel' }).ok).toBe(true);
   expect(room.current().status).toBe('cancelled');
   const pair = {
-    ...newCustomGame('pair', 'alice', 'pair:0'),
+    ...newGameSession({ id: 'pair', creator: 'alice', position: 'pair:0' }),
     status: 'active' as const,
     black: { kind: 'person' as const, person: 'bob' },
   };
-  expect(customGameCancelRefusal(pair, 'bob')).toBe('');
+  expect(gameSessionCancelRefusal(pair, 'bob')).toBe('');
 });
 
 test('a declared roster needs every participant and readiness before activation', () => {
   const room = fourSeatRoom();
-  room.send('alice', { operation: 'create' });
+  room.send('alice', { operation: 'create', mode: 'vs-human' });
   expect(room.current().sides).toEqual(['white', 'black', 'red', 'blue']);
-  room.send('alice', { operation: 'bot', side: 'black' });
+  room.send('bob', { operation: 'claim', side: 'black' });
   room.send('alice', { operation: 'ready' });
-  expect(customGameStartable(room.current())).toBe(false);
+  expect(gameSessionStartable(room.current())).toBe(false);
   const before = room.current();
   expect(room.send('alice', { operation: 'start' }).ok).toBe(false);
   expect(room.current()).toEqual(before);
-  room.send('alice', { operation: 'bot', side: 'red' });
-  room.send('alice', { operation: 'bot', side: 'blue' });
+  room.send('carol', { operation: 'claim', side: 'red' });
+  room.send('dave', { operation: 'claim', side: 'blue' });
   room.send('alice', { operation: 'ready' });
-  expect(customGameStartable(room.current())).toBe(true);
+  for (const person of PEOPLE) room.send(person, { operation: 'ready' });
+  expect(gameSessionStartable(room.current())).toBe(true);
   expect(room.send('alice', { operation: 'start' }).ok).toBe(true);
 });
 
@@ -136,8 +137,8 @@ test('all clocks are initialized and multiplayer expiry or withdrawal records a 
     outcomeReason: 'participant withdrew',
   });
   expect(
-    CustomGamesAttr.from(
-      CustomGamesAttr({ current: room.current(), history: [] })
+    GameSessionsAttr.from(
+      GameSessionsAttr({ current: room.current(), history: [] })
     ).current
   ).toEqual(room.current());
 });

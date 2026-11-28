@@ -263,14 +263,6 @@ function range(count: number): readonly number[] {
   return Array.from({ length: count }, (_, n) => n);
 }
 
-function Header(props: { label: string }): JSX.Element {
-  return (
-    <span class={styles['header']} aria-hidden="true">
-      {props.label}
-    </span>
-  );
-}
-
 /**
  * A labelled square grid of cell buttons under column and row headers. One
  * cell is the tab stop; arrow keys move between cells, Home / End to a row's
@@ -282,18 +274,13 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
   // Numbers, not objects: a new label array never remounts a cell.
   const rows = createMemo(() => range(props.rowLabels.length));
   const columns = createMemo(() => range(props.columnLabels.length));
-  // A checkered board writes its labels inside the edge squares.
-  const inset = (): boolean => props.boardTheme === 'checkered';
-  const coordinates = (row: number, column: number): CellCoordinates =>
-    inset()
-      ? {
-          row: column === 0 ? props.rowLabels[row] : undefined,
-          column:
-            row === props.rowLabels.length - 1
-              ? props.columnLabels[column]
-              : undefined,
-        }
-      : {};
+  const coordinates = (row: number, column: number): CellCoordinates => ({
+    row: column === 0 ? props.rowLabels[row] : undefined,
+    column:
+      row === props.rowLabels.length - 1
+        ? props.columnLabels[column]
+        : undefined,
+  });
   let root: HTMLDivElement | undefined;
   const onKey = (event: KeyboardEvent, index: number): void => {
     const size = {
@@ -329,18 +316,9 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
       {...dataAttrs({ component: 'CellGridBoard' })}
       style={{ '--cell-grid-columns': props.columnLabels.length }}
     >
-      <Show when={!inset()}>
-        <span class={styles['header']} aria-hidden="true" />
-        <For each={props.columnLabels}>
-          {(label) => <Header label={label} />}
-        </For>
-      </Show>
       <For each={rows()}>
         {(row) => (
           <>
-            <Show when={!inset()}>
-              <Header label={props.rowLabels[row] ?? ''} />
-            </Show>
             <For each={columns()}>
               {(column) => (
                 <GridCell

@@ -39,7 +39,7 @@ function stripProbe(text: string | null | undefined): string {
 /** The History and stats hub, for a game keeping played games and puzzles. */
 const HISTORY_HUB_MARK = 'game-history-home';
 
-/** Whether one of the game's shared screens (custom games, …) is shown. */
+/** Whether one of the game's shared screens (game sessions, …) is shown. */
 async function sharedScreenShown(
   s: ProductHarness,
   actorId: string

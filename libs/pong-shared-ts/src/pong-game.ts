@@ -144,9 +144,9 @@ export const pongGameShared = defineGame({
   simulation,
   continuousAutomation: pongAutomation(simulation),
   capabilities: {
-    'custom-games': {
+    'vs-human': { localPlayers: true },
+    'vs-bot': {
       bots: { difficulties: ['easy', 'medium', 'hard'] },
-      localPlayers: true,
     },
     matchmaking: {
       namespace: 'pong/',

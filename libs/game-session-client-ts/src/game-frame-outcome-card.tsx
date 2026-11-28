@@ -5,9 +5,9 @@ import {
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
-import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameResultView } from './game-frame-result-view';
 import type { FrameResult } from './game-frame-view-types';
+import type { FramePlaceProps } from './game-session-screen-view';
 
 type Props = FramePlaceProps;
 
@@ -103,8 +103,8 @@ export function FrameOutcomeCard(props: Props): JSX.Element {
       eyebrow={eyebrow(props)}
       title={title()}
       caption={outcomeCaption(props)}
-      titleDataSet={{ testid: 'custom-game-result-headline' }}
-      dataSet={{ testid: 'custom-game-outcome' }}
+      titleDataSet={{ testid: 'game-session-result-headline' }}
+      dataSet={{ testid: 'game-session-outcome' }}
     >
       <Show when={props.result}>
         {(result) => (

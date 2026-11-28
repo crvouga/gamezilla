@@ -275,7 +275,7 @@ async function chooseThree(canvasElement: HTMLElement): Promise<void> {
   const canvas = within(canvasElement);
   for (const card of PASSED)
     await userEvent.click(
-      await canvas.findByTestId(`custom-game-board-card-${card}`)
+      await canvas.findByTestId(`game-session-board-card-${card}`)
     );
   await checkInitialHeartsDeal(canvasElement);
 }
@@ -288,7 +288,7 @@ export const PassThreeCards: Story = {
   play: async ({ args, canvasElement }) => {
     await chooseThree(canvasElement);
     const pass = await within(canvasElement).findByTestId(
-      'custom-game-board-pass'
+      'game-session-board-pass'
     );
     await expect(pass).toBeEnabled();
     await expect(pass).toHaveAttribute('data-variant', 'solid');
@@ -301,7 +301,7 @@ export const PassSending: Story = {
   play: async ({ args, canvasElement }) => {
     await chooseThree(canvasElement);
     await userEvent.click(
-      await within(canvasElement).findByTestId('custom-game-board-pass')
+      await within(canvasElement).findByTestId('game-session-board-pass')
     );
     await expect(args.onAction).toHaveBeenCalledWith(writeCards(PASSED));
   },
@@ -360,18 +360,18 @@ export const CompleteTrick: Story = {
       )[0];
       if (card === undefined) throw new Error('No legal card');
       await userEvent.click(
-        await canvas.findByTestId(`custom-game-board-card-${card}`)
+        await canvas.findByTestId(`game-session-board-card-${card}`)
       );
-      await expect(canvas.getByTestId('custom-game-board')).toHaveAttribute(
+      await expect(canvas.getByTestId('game-session-board')).toHaveAttribute(
         'data-position',
         encodeHearts(playing(count + 1).position)
       );
       await expect(
-        canvas.queryByTestId(`custom-game-board-card-${card}`)
+        canvas.queryByTestId(`game-session-board-card-${card}`)
       ).toBeNull();
     }
     await expect(
-      canvas.getByTestId('custom-game-board-center')
+      canvas.getByTestId('game-session-board-center')
     ).toHaveTextContent('took the trick');
   },
 };
@@ -400,18 +400,18 @@ export const PassAcknowledged: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await chooseThree(canvasElement);
-    await userEvent.click(await canvas.findByTestId('custom-game-board-pass'));
-    await expect(canvas.queryByTestId('custom-game-board-pass')).toBeNull();
+    await userEvent.click(await canvas.findByTestId('game-session-board-pass'));
+    await expect(canvas.queryByTestId('game-session-board-pass')).toBeNull();
     for (const card of PASSED) {
       await expect(
-        canvas.getByTestId(`custom-game-board-card-${card}`)
+        canvas.getByTestId(`game-session-board-card-${card}`)
       ).toHaveAttribute('aria-pressed', 'true');
       await expect(
-        canvas.getByTestId(`custom-game-board-card-${card}`)
+        canvas.getByTestId(`game-session-board-card-${card}`)
       ).toHaveAttribute('aria-disabled', 'true');
     }
     await expect(
-      canvas.getByTestId('custom-game-board-center')
+      canvas.getByTestId('game-session-board-center')
     ).toHaveTextContent('Waiting for every player to pass');
   },
 };
@@ -422,7 +422,7 @@ export const PassThroughFirstTrick: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const initial = canvas
-      .getByTestId('custom-game-board-hand')
+      .getByTestId('game-session-board-hand')
       .querySelectorAll('button');
     await expect(initial).toHaveLength(13);
     assertHeartsHandBounds(
@@ -433,7 +433,7 @@ export const PassThroughFirstTrick: Story = {
       }
     );
     await chooseThree(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-pass'));
+    await userEvent.click(canvas.getByTestId('game-session-board-pass'));
     const hands = receivedHands(PASSED);
     let position: HeartsPosition = {
       ...INITIAL_HEARTS,
@@ -449,7 +449,7 @@ export const PassThroughFirstTrick: Story = {
       await expect(tableBounds.top).toBeGreaterThanOrEqual(0);
       await expect(tableBounds.bottom).toBeLessThanOrEqual(window.innerHeight);
       const buttons = canvas
-        .getByTestId('custom-game-board-hand')
+        .getByTestId('game-session-board-hand')
         .querySelectorAll('button');
       await expect(buttons).toHaveLength(journeyValue(hands[seat]).length);
       assertHeartsHandBounds(
@@ -461,17 +461,17 @@ export const PassThroughFirstTrick: Story = {
       );
       for (const card of journeyValue(hands[seat]))
         await expect(
-          canvas.getByTestId(`custom-game-board-card-${card}`)
+          canvas.getByTestId(`game-session-board-card-${card}`)
         ).toBeVisible();
       const card = journeyValue(
         legalCards(position, seat, journeyValue(hands[seat]))[0]
       );
       await userEvent.click(
-        canvas.getByTestId(`custom-game-board-card-${card}`)
+        canvas.getByTestId(`game-session-board-card-${card}`)
       );
       hands[seat] = journeyValue(hands[seat]).filter((held) => held !== card);
       position = { ...position, plays: [...position.plays, card] };
-      await expect(canvas.getByTestId('custom-game-board')).toHaveAttribute(
+      await expect(canvas.getByTestId('game-session-board')).toHaveAttribute(
         'data-position',
         encodeHearts(position)
       );
@@ -479,7 +479,7 @@ export const PassThroughFirstTrick: Story = {
         const identity = journeyValue(
           ['avery', 'jordan_plays', 'morgan', 'robin_42'][index]
         );
-        const plate = canvas.getByTestId(`custom-game-board-seat-${side}`);
+        const plate = canvas.getByTestId(`game-session-board-seat-${side}`);
         await expect(plate).toHaveTextContent(identity);
         await expect(
           plate.querySelectorAll('[data-component="GameTableSeat"]')
@@ -487,7 +487,7 @@ export const PassThroughFirstTrick: Story = {
       }
     }
     await expect(
-      canvas.getByTestId('custom-game-board-center')
+      canvas.getByTestId('game-session-board-center')
     ).toHaveTextContent('took the trick');
   },
 };

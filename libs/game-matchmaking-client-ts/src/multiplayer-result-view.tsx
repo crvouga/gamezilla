@@ -211,7 +211,7 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
         actions={
           <GameActionBar aria-label={t`What next`} items={[]} width="content">
             {/* Someone who watched has no next game here: their one way on
-                is back, filled, as a custom game's watcher's is. */}
+                is back, filled, as a game session's watcher's is. */}
             <Show
               when={
                 !props.game.newOpponent &&

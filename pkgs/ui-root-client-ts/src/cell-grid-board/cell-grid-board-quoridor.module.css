@@ -28,9 +28,7 @@
 @container game-column (min-width: 880px) {
   .board[data-fill="true"][data-board-theme="quoridor"] {
     --chrome: 300px;
-    grid-template-columns:
-      minmax(1rem, 0.35fr)
-      repeat(var(--cell-grid-columns), minmax(0, 1fr));
+    grid-template-columns: repeat(var(--cell-grid-columns), minmax(0, 1fr));
     padding-inline: var(--ui-space-1);
   }
 }

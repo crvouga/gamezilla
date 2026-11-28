@@ -37,8 +37,8 @@ test('storybook integration: Hearts 320px thirteen-card hand keeps full touch ta
   await cards.nth(2).tap();
   await cards.nth(3).tap();
   await captureHearts(page, info, 'narrow-touch-revised');
-  await page.getByTestId('custom-game-board-pass').tap();
-  await expect(page.getByTestId('custom-game-board-pass')).toHaveAttribute(
+  await page.getByTestId('game-session-board-pass').tap();
+  await expect(page.getByTestId('game-session-board-pass')).toHaveAttribute(
     'aria-busy',
     'true'
   );
@@ -50,7 +50,7 @@ test('storybook integration: Hearts 320x568 initial hand and pass fit before scr
 }, info) => {
   await openHearts(page, 'screens-games-hearts-board--passing', 'dark');
   const targets = page.locator(
-    '[data-testid="custom-game-board-hand"] button, [data-testid="custom-game-board-pass"]'
+    '[data-testid="game-session-board-hand"] button, [data-testid="game-session-board-pass"]'
   );
   await expect(targets).toHaveCount(14);
   for (const target of await targets.all()) {

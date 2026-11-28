@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { privacyTimePasses } from '@libs/account-privacy-harness-ts/privacy-actions';
-import { playCustomGameHistory } from '@libs/game-session-harness-ts/custom-game-history';
+import { playGameSessionHistory } from '@libs/game-session-harness-ts/game-session-history';
 import { attemptHostPuzzleCommand } from '@libs/game-session-harness-ts/puzzle-room-probe';
 import { queueRoomDraws } from '@libs/game-session-harness-ts/room-draws';
 import {
@@ -55,7 +55,7 @@ describe('what a stack host cannot do ends the scenario as a host limit', () => 
   // regression: stack-history-has-no-room
   test("a history's moves cannot be sent to the stack room from the test process", async () => {
     const outcome = await outcomeOf(() =>
-      playCustomGameHistory.act(stackHarness(), {
+      playGameSessionHistory.act(stackHarness(), {
         spaceId: 'space-1',
         white: 'alice',
         black: 'bob',

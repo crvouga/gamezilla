@@ -159,7 +159,7 @@ At the authoring checkpoint the model-parameter execution path was not implement
 The documented strict flag cannot pass through the root wrapper: it reaches
 Turbo as its own option. The equivalent package-owned task was run as
 `bunx turbo run @libs/tools-harness-ts#ci:specs -- --strict-duplicates`. It additionally
-reports nine existing B14 pairs in custom-game wording, friends space
+reports nine existing B14 pairs in game-session wording, friends space
 wording and the matched-game repeated-move phrase. They are not dismissed
 as passes; the strict audit remains incomplete until addressed.
 

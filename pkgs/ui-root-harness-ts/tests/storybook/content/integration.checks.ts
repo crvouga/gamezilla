@@ -240,18 +240,18 @@ test('storybook integration: literal won Connect Four retains its move record', 
  */
 async function expectFinishedRecord(page: Page) {
   const moves = page
-    .getByTestId('custom-game-record')
+    .getByTestId('game-session-record')
     .getByRole('list', { name: 'Moves played' })
     .getByRole('button', { includeHidden: true });
   await expect(moves.last()).toBeVisible();
-  const earlier = page.getByTestId('custom-game-earlier-moves');
+  const earlier = page.getByTestId('game-session-earlier-moves');
   const left =
     (await earlier.count()) === 0
       ? 0
       : Number.parseInt((await earlier.textContent()) ?? '', 10);
   await expect(moves.first()).toHaveAttribute(
     'data-testid',
-    `custom-game-review-move-${left + 1}`
+    `game-session-review-move-${left + 1}`
   );
   await moves.first().scrollIntoViewIfNeeded();
   await expect(moves.first()).toBeVisible();

@@ -34,7 +34,7 @@ export type GameClientPuzzles<C> = 'puzzles' extends keyof C
 
 /**
  * Everything a game supplies to the shared game experience. The platform
- * owns every screen: the menu and its order, the puzzle, custom-game,
+ * owns every screen: the menu and its order, the puzzle, game-session,
  * opponent, history and settings screens, the space-wide navigation and
  * links. A game supplies its board, its copy and its data, never a screen.
  * Which shared screens appear follows the capabilities its shared
@@ -120,7 +120,7 @@ class DefinedGameClient implements GameClientDefinition {
     this.motif = game.tile;
     this.bots =
       'capabilities' in game.shared &&
-      game.shared.capabilities['custom-games'] !== undefined;
+      game.shared.capabilities['vs-bot'] !== undefined;
     const rules = game.shared.registration?.rules;
     // A game with no rules of its own (puzzles only) is played alone.
     this.players = rules === undefined ? 1 : gameSides(rules).length;

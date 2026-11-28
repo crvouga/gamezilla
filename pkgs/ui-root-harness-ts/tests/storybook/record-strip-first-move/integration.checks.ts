@@ -11,12 +11,12 @@ async function boardGeometry(page: Page, story: string) {
     'data-story-ready',
     'true'
   );
-  await expect(page.getByTestId('custom-game-record')).toBeVisible();
+  await expect(page.getByTestId('game-session-record')).toBeVisible();
   return page.evaluate(() => {
     const box = (selector: string) =>
       document.querySelector(selector)?.getBoundingClientRect() ?? null;
-    const board = box('[data-testid="custom-game-board"]');
-    const record = box('[data-testid="custom-game-record"]');
+    const board = box('[data-testid="game-session-board"]');
+    const record = box('[data-testid="game-session-record"]');
     return {
       boardTop: (board?.top ?? Number.NaN) + window.scrollY,
       recordHeight: record?.height ?? Number.NaN,
@@ -37,11 +37,11 @@ test('storybook integration: the phone board stays where it is from no moves to 
   await page.setViewportSize({ width: 390, height: 844 });
   // Opening has no moves ("No moves yet."); Your turn has recorded volleys.
   const empty = await boardGeometry(page, 'opening');
-  await expect(page.getByTestId('custom-game-record')).toContainText(
+  await expect(page.getByTestId('game-session-record')).toContainText(
     'No moves yet.'
   );
   const played = await boardGeometry(page, 'your-turn');
-  await expect(page.getByTestId('custom-game-record')).not.toContainText(
+  await expect(page.getByTestId('game-session-record')).not.toContainText(
     'No moves yet.'
   );
   expect([empty.recordBeforeBoard, played.recordBeforeBoard]).toEqual([

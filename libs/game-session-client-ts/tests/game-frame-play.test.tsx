@@ -5,8 +5,8 @@ import {
   frameStandingRows,
 } from '@libs/game-session-client-ts/game-frame-headline';
 import {
-  customGameDrawReason,
-  customGameWinner,
+  gameSessionDrawReason,
+  gameSessionWinner,
 } from '@libs/game-session-client-ts/game-frame-result';
 import { FrameWatchingView } from '@libs/game-session-client-ts/game-frame-status-view';
 import {
@@ -15,9 +15,9 @@ import {
 } from '@libs/game-session-client-ts/game-frame-table';
 import { seatedPeople } from '@libs/game-session-client-ts/game-frame-watchers';
 import {
-  type CustomGame,
-  newCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-state';
+  type GameSession,
+  newGameSession,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import {
   standingsByScore,
@@ -90,8 +90,11 @@ describe('the table around the board', () => {
   });
 });
 
-function activeGame(): CustomGame {
-  return { ...newCustomGame('g', 'alice', 'position'), status: 'active' };
+function activeGame(): GameSession {
+  return {
+    ...newGameSession({ id: 'g', creator: 'alice', position: 'position' }),
+    status: 'active',
+  };
 }
 
 describe('watching a game', () => {
@@ -111,7 +114,7 @@ describe('watching a game', () => {
   });
 
   test('the people seated at the game never count as watching', () => {
-    const game: CustomGame = {
+    const game: GameSession = {
       ...activeGame(),
       black: { kind: 'person', person: 'bob' },
     };
@@ -166,14 +169,14 @@ describe('the game-over headline', () => {
 
   test('the result follows the stored outcome', () => {
     const over = { ...activeGame(), status: 'completed' as const };
-    expect(customGameWinner({ ...over, outcome: 'draw' })).toBe('draw');
+    expect(gameSessionWinner({ ...over, outcome: 'draw' })).toBe('draw');
     expect(
-      customGameWinner({ ...over, outcome: 'black wins by resignation' })
+      gameSessionWinner({ ...over, outcome: 'black wins by resignation' })
     ).toBe('black');
-    expect(customGameWinner(activeGame())).toBeNull();
+    expect(gameSessionWinner(activeGame())).toBeNull();
   });
 
-  // regression: custom-draw-rule-unnamed — a custom game drawn by its rules
+  // regression: custom-draw-rule-unnamed — a game session drawn by its rules
   // said only "Drawn by the game's own rules.", so players could not tell
   // which rule. The game names the rule its final position shows; a
   // recorded cause still comes first, and the generic words stay the
@@ -188,15 +191,15 @@ describe('the game-over headline', () => {
       rulesDrawDescription: (position: string) =>
         position === 'position' ? 'The board filled up.' : undefined,
     };
-    expect(customGameDrawReason(drawn, named)).toBe('The board filled up.');
-    expect(customGameDrawReason({ ...drawn, fen: 'other' }, named)).toBe(
+    expect(gameSessionDrawReason(drawn, named)).toBe('The board filled up.');
+    expect(gameSessionDrawReason({ ...drawn, fen: 'other' }, named)).toBe(
       "Drawn by the game's own rules."
     );
-    expect(customGameDrawReason(drawn)).toBe("Drawn by the game's own rules.");
+    expect(gameSessionDrawReason(drawn)).toBe("Drawn by the game's own rules.");
     expect(
-      customGameDrawReason({ ...drawn, outcomeReason: 'agreement' }, named)
+      gameSessionDrawReason({ ...drawn, outcomeReason: 'agreement' }, named)
     ).toBe('Drawn by agreement.');
-    expect(customGameDrawReason(activeGame(), named)).toBeNull();
+    expect(gameSessionDrawReason(activeGame(), named)).toBeNull();
   });
 });
 
@@ -229,10 +232,10 @@ describe('the standings', () => {
     ));
     const items = screen.getAllByRole('listitem');
     expect(items.map((item) => item.getAttribute('data-testid'))).toEqual([
-      'custom-game-standing-black',
-      'custom-game-standing-red',
-      'custom-game-standing-white',
-      'custom-game-standing-blue',
+      'game-session-standing-black',
+      'game-session-standing-red',
+      'game-session-standing-white',
+      'game-session-standing-blue',
     ]);
     expect(items[1]).toHaveAttribute('aria-current', 'true');
   });

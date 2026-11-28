@@ -118,15 +118,15 @@ When('{actor} returns to her/his matched game', async (w, actor: string) => {
   await w.s.apply(returnToGame, actor);
 });
 
-Then('{actor} is offered to return to the custom game', (w, actor: string) =>
+Then('{actor} is offered to return to the game session', (w, actor: string) =>
   offered(w, actor, 'custom')
 );
 Then(
-  '{actor} is offered to return to the custom game on her/his other device',
+  '{actor} is offered to return to the game session on her/his other device',
   (w, actor: string) => offered(w, otherDevice(actor), 'custom')
 );
 Then(
-  '{actor} is not offered to return to the custom game',
+  '{actor} is not offered to return to the game session',
   (w, actor: string) => notOffered(w, actingDevice(w, actor), 'custom')
 );
 Then(

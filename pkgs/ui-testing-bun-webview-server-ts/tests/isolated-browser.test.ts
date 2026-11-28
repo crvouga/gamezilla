@@ -119,7 +119,7 @@ test('a missing element in the browser process is still an ElementNotFoundError'
     if (request.call?.method !== 'text') return post(raw);
     receive({
       id: request.id,
-      error: 'Element not found: testId("custom-game-debug")',
+      error: 'Element not found: testId("game-session-debug")',
       errorName: 'ElementNotFoundError',
     });
   };
@@ -129,12 +129,12 @@ test('a missing element in the browser process is still an ElementNotFoundError'
     dataStore: { directory: '/device' },
   });
   const missing = await browser.driver
-    .get('custom-game-debug')
+    .get('game-session-debug')
     .text()
     .catch((error: unknown) => error);
   expect(missing).toBeInstanceOf(ElementNotFoundError);
   expect((missing as Error).name).toBe('ElementNotFoundError');
-  expect((missing as Error).message).toContain('custom-game-debug');
+  expect((missing as Error).message).toContain('game-session-debug');
   await browser.close();
   await process.close();
 });

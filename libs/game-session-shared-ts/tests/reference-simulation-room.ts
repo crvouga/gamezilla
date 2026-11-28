@@ -41,7 +41,7 @@ export async function simulationRoom(simulation = raceSimulation()) {
   const time = createHarnessClock();
   const definition = defineGame({
     rules,
-    capabilities: { 'custom-games': { bots } },
+    capabilities: { 'vs-human': {}, 'vs-bot': { bots } },
     turnAutomation: { choose: () => null, perform: async () => {} },
   });
   const composed = createSpaceModule(

@@ -11,7 +11,8 @@ import {
 export const connectFourGameShared = defineGame({
   rules: connectFourRules,
   capabilities: {
-    'custom-games': { bots: connectFourBots },
+    'vs-human': {},
+    'vs-bot': { bots: connectFourBots },
     matchmaking: {
       clockChoices: true as const,
       namespace: 'connect-four/',

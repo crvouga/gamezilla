@@ -4,7 +4,7 @@ import axe from 'axe-core';
 
 /** A real device can touch an ARIA-disabled inspection control. */
 export async function touchSpectatorColumn(page: Page) {
-  const column = page.getByTestId('custom-game-board-column-4');
+  const column = page.getByTestId('game-session-board-column-4');
   await expect(column).toHaveAttribute('aria-disabled', 'true');
   await column.scrollIntoViewIfNeeded();
   const box = await column.boundingBox();
@@ -80,7 +80,7 @@ export async function measureDrop(
       'click',
       () => {
         const start = performance.now();
-        const board = root.querySelector('[data-testid="custom-game-board"]');
+        const board = root.querySelector('[data-testid="game-session-board"]');
         const before = board?.getAttribute('data-cells');
         requestAnimationFrame(() => {
           listeners.abort();
@@ -102,9 +102,9 @@ export async function measureDrop(
     );
     root.removeAttribute('data-input-frame-ms');
   });
-  const board = page.getByTestId('custom-game-board');
+  const board = page.getByTestId('game-session-board');
   const before = await board.getAttribute('data-cells');
-  const control = page.getByTestId(`custom-game-board-column-${column}`);
+  const control = page.getByTestId(`game-session-board-column-${column}`);
   if (input === 'touch') await control.tap();
   else if (input === 'keyboard') await control.press('Space');
   else await control.click();

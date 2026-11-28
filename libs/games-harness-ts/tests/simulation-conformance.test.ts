@@ -11,7 +11,7 @@ test('a simulation-only game owes its actual shared capabilities without fabrica
   expect(
     offersAll(PONG_HARNESS_GAME, [
       'rules',
-      'custom-games',
+      'vs-human',
       'matchmaking',
       'history',
     ])

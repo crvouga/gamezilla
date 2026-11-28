@@ -1,7 +1,7 @@
 /**
  * The test-only private-setup consumer, written as any game is: a guessing
  * game whose sides each hide a number (`secret-pick-rules.ts`). It offers
- * custom games, finding an opponent and history, so every shared suite and
+ * game sessions, finding an opponent and history, so every shared suite and
  * specification for private setups runs for a second game beside
  * Battleship, through the same public contracts — and, its known victory
  * taking seven moves, so do the whole-game models Battleship's longer
@@ -97,7 +97,8 @@ const notice = {
 };
 
 const CAPABILITIES = {
-  'custom-games': { bots: SECRET_PICK_BOTS },
+  'vs-human': {},
+  'vs-bot': { bots: SECRET_PICK_BOTS },
   matchmaking: {
     clockChoices: true as const,
     namespace: 'secret-pick/',

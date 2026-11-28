@@ -36,7 +36,7 @@ const COUNTDOWN_MS = 3000;
 const CAUGHT_UP_MS = 5000;
 
 Given(
-  '{actor} has a Light Cycles {lightCyclesMode} custom game with every rider ready',
+  '{actor} has a Light Cycles {lightCyclesMode} game session with every rider ready',
   (w, _host: string, count: LightCyclesCount) =>
     w.s.apply(establishEveryRiderReady, count)
 );

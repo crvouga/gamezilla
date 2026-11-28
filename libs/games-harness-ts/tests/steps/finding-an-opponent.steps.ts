@@ -307,7 +307,7 @@ Then(
   }
 );
 Then(
-  '{actor} is told to finish her custom game first',
+  '{actor} is told to finish her game session first',
   async (w, actor: string) => {
     expect(await w.s.read(multiplayerRefusalCode, actingDevice(w, actor))).toBe(
       'restricted'

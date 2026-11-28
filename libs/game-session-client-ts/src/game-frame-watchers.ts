@@ -1,9 +1,9 @@
-import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
+import type { GameSession } from '@libs/game-session-shared-ts/game-session-state';
 import { useConnectedSpaceRoster } from '@libs/spaces-client-ts/use-connected-space-roster';
 import { type Accessor, createMemo } from 'solid-js';
 
 /** The people sitting at the game: everyone holding a side, never a bot. */
-export function seatedPeople(game: CustomGame | null): ReadonlySet<string> {
+export function seatedPeople(game: GameSession | null): ReadonlySet<string> {
   if (game === null) return new Set();
   return new Set(
     game.sides
@@ -17,7 +17,7 @@ export function seatedPeople(game: CustomGame | null): ReadonlySet<string> {
  * Seam: how many people are watching the game, for the frame's watcher
  * count.
  *
- * Nothing records who watches a custom game, so the count is read from the
+ * Nothing records who watches a game session, so the count is read from the
  * space: the people connected to it right now (`useConnectedSpaceRoster`,
  * one entry per person however many devices they use) minus the people
  * sitting at the game. Someone in the space looking at another screen
@@ -26,7 +26,7 @@ export function seatedPeople(game: CustomGame | null): ReadonlySet<string> {
  * `docs/ui-overhaul/DECISIONS.md`.
  */
 export function useFrameWatcherCount(
-  game: Accessor<CustomGame | null>
+  game: Accessor<GameSession | null>
 ): Accessor<number> {
   const roster = useConnectedSpaceRoster();
   return createMemo(() => {

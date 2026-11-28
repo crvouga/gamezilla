@@ -17,8 +17,8 @@ test('storybook integration: the phone record keeps the board still on the first
         'data-story-ready',
         'true'
       );
-      await expect(page.getByTestId('custom-game-record')).toBeVisible();
-      const box = await page.getByTestId('custom-game-board').boundingBox();
+      await expect(page.getByTestId('game-session-record')).toBeVisible();
+      const box = await page.getByTestId('game-session-board').boundingBox();
       measured.push({ width, story, top: box?.y ?? -1 });
       const path = info.outputPath(`first-move-${story}-${String(width)}.png`);
       await page.screenshot({ path });

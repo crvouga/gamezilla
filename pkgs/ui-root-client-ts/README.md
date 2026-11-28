@@ -166,7 +166,7 @@ protocol. Import each from its matching kebab-case module export.
 | `SpaceStageTemplate` + `SpaceLauncher` | The space's row 1, its people row and a page in the stage; the launcher is the page while a game is chosen | The space's game choice |
 | `MainMenuScreen` | Intro, one destination panel, helper and footer | A game's own menu (`GameMenuScreen`) |
 | `GameScreen` + `GameSessionLayout` | Intro, title row, notices, setup, play stage, status, actions, optional record rail and watching footer (`docs/GAME_UI.md`) | Custom and matchmaking games |
-| `GameSetupPanel` | Choices, primary commands, secondary options | Create a custom game, find an opponent |
+| `GameSetupPanel` | Choices, primary commands, secondary options | Create a game session, find an opponent |
 | `PuzzleScreen` | Fixed feed / coaching, fitted board, legend, timeline, actions and overlay | Puzzle play |
 | `GameReviewScreen` | Review stage, timeline, actions and optional record rail | Puzzle review |
 | `FormScreen` | Scrolling editor, shared Save / Cancel footer | Username and avatar editors |

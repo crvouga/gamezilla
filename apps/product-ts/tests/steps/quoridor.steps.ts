@@ -3,14 +3,14 @@ import {
   QUORIDOR_PLAYABLE,
 } from '@libs/quoridor-harness-ts/quoridor-playable';
 import {
-  observeCustomGamePartyJourney,
-  type PublicCustomGame,
-  playCustomGamePartyJourney,
-} from '@libs/runtime-harness-ts/custom-game-party-journey';
-import {
   observeGameJourney,
   playGameJourney,
 } from '@libs/runtime-harness-ts/game-journey';
+import {
+  observeGameSessionPartyJourney,
+  type PublicGameSession,
+  playGameSessionPartyJourney,
+} from '@libs/runtime-harness-ts/game-session-party-journey';
 import { Then, When } from './define';
 
 When('the team checks Classic Quoridor in this environment', async (w) => {
@@ -33,7 +33,7 @@ When(
   async (w) => {
     w.memo.set(
       'quoridor-hill-finished',
-      await playCustomGamePartyJourney(w.journey, QUORIDOR_HILL_PLAYABLE)
+      await playGameSessionPartyJourney(w.journey, QUORIDOR_HILL_PLAYABLE)
     );
   }
 );
@@ -41,10 +41,10 @@ Then(
   'two people and two bots can complete Four-Player King of the Hill with the same result',
   async (w) => {
     const finished = w.memo.get('quoridor-hill-finished') as
-      | PublicCustomGame
+      | PublicGameSession
       | undefined;
     if (finished === undefined)
       throw new Error('King of the Hill did not finish');
-    await observeCustomGamePartyJourney(w.journey, finished);
+    await observeGameSessionPartyJourney(w.journey, finished);
   }
 );

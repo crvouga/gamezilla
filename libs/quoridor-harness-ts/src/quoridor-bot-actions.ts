@@ -1,4 +1,4 @@
-import { configureCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+import { configureGameSession } from '@libs/game-session-harness-ts/game-session-ui';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { QuoridorMode } from '@libs/quoridor-shared-ts/quoridor';
 import { establishQuoridor } from './quoridor-actions';
@@ -12,7 +12,7 @@ export const establishQuoridorBotVictory = scenarioAction({
     if (mode === 'classic') {
       const replies = ['d9', 'd8', 'd7', 'd6', 'd5', 'd4', 'd3'];
       for (const [index, uci] of replies.entries()) {
-        await configureCustomGame(s, 'bob', {
+        await configureGameSession(s, 'bob', {
           operation: 'move',
           uci,
           ply: index * 2 + 1,
@@ -33,7 +33,7 @@ export const establishQuoridorBotVictory = scenarioAction({
         'a2h',
       ];
       for (const [index, uci] of walls.entries()) {
-        await configureCustomGame(s, actors[index % 3]!, {
+        await configureGameSession(s, actors[index % 3]!, {
           operation: 'move',
           uci,
           ply: index + Math.floor(index / 3) + 1,

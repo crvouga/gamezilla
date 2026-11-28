@@ -1,13 +1,13 @@
-import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
+import type { GameSession } from '@libs/game-session-shared-ts/game-session-state';
 import { t } from '@lingui/core/macro';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 
 /**
  * MOCK seam: who is ready for a rematch, as the game-over standings show it.
  *
- * Custom games record no rematch readiness: the person who created the game
- * starts the rematch (`custom-game-rematch`) and everyone keeps their seat,
- * so there is nothing per player to show. Until custom games store each
+ * Game sessions record no rematch readiness: the person who created the game
+ * starts the rematch (`game-session-rematch`) and everyone keeps their seat,
+ * so there is nothing per player to show. Until game sessions store each
  * player's readiness (a data-model change, deferred), this seam says so
  * once (`note`) and gives every row no readiness (`of` is `null`). Replace
  * the body with the stored readiness when it exists; callers stay as they
@@ -25,8 +25,8 @@ export type FrameReadiness = {
   readonly ready: boolean;
 };
 
-export function customGameRematchReadiness(
-  game: () => CustomGame | null
+export function gameSessionRematchReadiness(
+  game: () => GameSession | null
 ): FrameRematchReadiness {
   return {
     of: () => null,

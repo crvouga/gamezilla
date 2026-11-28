@@ -1,0 +1,380 @@
+import {
+  gameSessionOutcomeReason,
+  gameSessionWinners,
+} from '@libs/game-session-shared-ts/game-session-outcome';
+import type {
+  GameSession,
+  GameSessionSide,
+} from '@libs/game-session-shared-ts/game-session-state';
+import {
+  GAME_SESSION_SIDES,
+  gameSessionStartable,
+  gameSessionTimeLeft,
+} from '@libs/game-session-shared-ts/game-session-state';
+import { useModeration } from '@libs/moderation-client-ts/moderation-context';
+import { usernameText } from '@libs/moderation-shared-ts/display';
+import type { AppModeration } from '@libs/moderation-shared-ts/policy';
+import { useProfileColumn } from '@libs/profile-client-ts/use-profile-column';
+import { t } from '@lingui/core/macro';
+import { createTimedValue } from '@pkgs/clock-client-ts/solid';
+import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
+import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
+import type { GamePlayerName } from '@pkgs/turn-game-shared-ts/game-frame';
+import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
+import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
+import type {
+  GameTurnPillEmphasis,
+  GameTurnPillTone,
+} from '@pkgs/ui-root-client-ts/game-turn-pill';
+import { type Accessor, createMemo } from 'solid-js';
+import type {
+  FrameClock,
+  FrameConnection,
+  FrameStatus,
+} from './game-frame-view-types';
+import { botName } from './game-session-bot-name';
+import { useBotLevel } from './game-session-person';
+import { sideNames } from './side-names';
+import type { GameSessionScreenModel } from './use-game-session-screen';
+
+/**
+ * The words and clocks the frame shows about the game session, read from
+ * the screen's model for `PlayFriendScreenView`.
+ */
+
+/** Moderated name for display, or `null` while it is unknown. */
+function shownName(
+  moderation: AppModeration,
+  username: string | null,
+  profileId: string
+): string | null {
+  const text = usernameText(moderation, username, profileId);
+  return text.length > 0 ? text : null;
+}
+
+function participantName(
+  game: GameSession,
+  side: GameSessionSide,
+  name: string | null,
+  level: BotDifficulty | undefined
+): string {
+  switch (game[side].kind) {
+    case 'person':
+      return name ?? t`Person`;
+    case 'invitation':
+      return t`Invited person: ${name ?? t`Person`}`;
+    case 'bot':
+      return botName(level);
+    case 'local':
+      return t`Player on this device`;
+    case 'open':
+      return t`Open place`;
+    case 'closed':
+      return t`Closed place`;
+  }
+}
+
+function drawnDescription(reason: string): string {
+  if (reason === 'timeout')
+    return t`Game drawn because a participant ran out of time.`;
+  if (reason === 'participant withdrew')
+    return t`Game drawn because a participant withdrew.`;
+  if (reason === 'agreement') return t`Game drawn by agreement.`;
+  return t`Game drawn.`;
+}
+
+/**
+ * A game played in real time, in one line: paused, else how play goes on
+ * where the game has words for it (`Round 2`); its arena shows the rest.
+ */
+function realTimeDescription(
+  game: GameSession,
+  presentation: GamePresentation,
+  viewer: GameSessionSide | null,
+  nameOf: GamePlayerName
+): string {
+  if (game.execution?.phase === 'paused')
+    return t`Paused while a player returns.`;
+  return (
+    presentation.frame.turnStatus(game.fen, viewer, game.committed, nameOf) ??
+    t`Game in progress.`
+  );
+}
+
+/**
+ * How the game stands, in one line. While a side is to move, the game's own
+ * line about the turn (`frame.turnStatus`) replaces the default
+ * `<Side> to move.` wherever it has one.
+ */
+function gameStateDescription(
+  game: GameSession,
+  presentation: GamePresentation,
+  viewer: GameSessionSide | null,
+  nameOf: GamePlayerName
+): string {
+  if (game.status === 'cancelled') return t`Game cancelled.`;
+  if (game.status === 'completed') {
+    if (game.outcome === 'draw') return drawnDescription(game.outcomeReason);
+    return completedGameDescription(game, presentation);
+  }
+  if (game.status === 'active') {
+    if (game.awaiting.length > 0) {
+      const chosen = game.committed.length;
+      const total = game.awaiting.length + chosen;
+      // The person the game still waits on is told where to choose.
+      return viewer !== null && game.awaiting.includes(viewer)
+        ? t`Secret choices: ${chosen} of ${total} made. Make yours on the board.`
+        : t`Secret choices: ${chosen} of ${total} made.`;
+    }
+    if (game.execution !== undefined)
+      return realTimeDescription(game, presentation, viewer, nameOf);
+    const player = presentation.sideLabel(game.turn);
+    if (game.standIns.includes(game.turn))
+      return t`${player} to move, played by a stand-in bot.`;
+    return (
+      presentation.frame.turnStatus(game.fen, viewer, game.committed, nameOf) ??
+      t`${player} to move.`
+    );
+  }
+  return gameSessionStartable(game)
+    ? t`Ready to start.`
+    : t`Waiting for participants and readiness.`;
+}
+
+/** Who holds the side, in plain words: as a listener hears it, and on a chip. */
+export function useSeatName(
+  model: GameSessionScreenModel,
+  side: GameSessionSide
+): () => string {
+  const person = () => model.current()?.[side].person ?? '';
+  const name = useProfileColumn(person, 'username');
+  const moderation = useModeration();
+  const level = useBotLevel({ model, side });
+  return () => {
+    const game = model.current();
+    return game === null
+      ? ''
+      : participantName(
+          game,
+          side,
+          shownName(moderation(), name(), person()),
+          level()
+        );
+  };
+}
+
+/** What every side's seat calls whoever holds it, as plain words. */
+export function useSeatNames(
+  model: GameSessionScreenModel
+): Readonly<Record<GameSessionSide, () => string>> {
+  return Object.fromEntries(
+    GAME_SESSION_SIDES.map((side) => [side, useSeatName(model, side)])
+  ) as Record<GameSessionSide, () => string>;
+}
+
+function useLineupDescription(model: GameSessionScreenModel): () => string {
+  const gameSideLabel = useGameSideLabel();
+  const names = useSeatNames(model);
+  return createMemo(() => {
+    const game = model.current();
+    return game === null
+      ? ''
+      : game.sides
+          .map((side) => `${gameSideLabel(game.fen, side)}: ${names[side]()}.`)
+          .join(' ');
+  });
+}
+
+function completedGameDescription(
+  game: GameSession,
+  presentation: GamePresentation
+): string {
+  const winners = gameSessionWinners(game);
+  const reason = game.outcome.includes('resignation')
+    ? t`resignation`
+    : game.outcome.includes('time')
+      ? t`time`
+      : game.outcome.includes('stayed away')
+        ? t`opponent staying away`
+        : presentation.endingLabel(gameSessionOutcomeReason(game.outcome));
+  if (winners.length > 1) {
+    const names = sideNames(winners.map(presentation.sideLabel));
+    return t`${names} win by ${reason}.`;
+  }
+  const winner = presentation.sideLabel(winners[0] ?? 'white');
+  return t`${winner} wins by ${reason}.`;
+}
+
+function clockLabel(seconds: number): string {
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}
+
+/** Seconds left on `side`'s clock now; the full time while set up. */
+function secondsLeft(
+  game: GameSession | null,
+  side: GameSessionSide,
+  now: number
+): number {
+  if (game === null || game.minutes <= 0 || !game.sides.includes(side))
+    return 0;
+  return game.status === 'configuring'
+    ? game.minutes * 60
+    : Math.ceil(gameSessionTimeLeft(game, side, now) / 1000);
+}
+
+/** What `side`'s clock shows now (`4:59`), ticking while it runs. */
+export function useSideClock(
+  model: GameSessionScreenModel,
+  side: GameSessionSide
+): Accessor<FrameClock | null> {
+  const seconds = createTimedValue(
+    (now) => secondsLeft(model.current(), side, now),
+    (left, now) => {
+      const game = model.current();
+      return game !== null &&
+        game.minutes > 0 &&
+        game.status === 'active' &&
+        game.turn === side &&
+        left > 0
+        ? now + gameSessionTimeLeft(game, side, now) - (left - 1) * 1000
+        : null;
+    }
+  );
+  return () => {
+    const game = model.current();
+    if (game === null || game.minutes <= 0) return null;
+    return {
+      value: clockLabel(seconds()),
+      active: game.status === 'active' && game.turn === side,
+    };
+  };
+}
+
+/** Every side's clock, ticking while it runs. */
+export function useSideClocks(
+  model: GameSessionScreenModel
+): Readonly<Record<GameSessionSide, Accessor<FrameClock | null>>> {
+  return Object.fromEntries(
+    GAME_SESSION_SIDES.map((side) => [side, useSideClock(model, side)])
+  ) as Record<GameSessionSide, Accessor<FrameClock | null>>;
+}
+
+/**
+ * The line is only a default (`<Side> to move.`, or `Game in progress.`
+ * while a real-time game runs): the game has no line of its own about the
+ * turn (see `gameStateDescription`).
+ */
+function plainTurnLine(
+  game: GameSession,
+  presentation: GamePresentation,
+  viewer: GameSessionSide | null,
+  nameOf: GamePlayerName
+): boolean {
+  return (
+    game.status === 'active' &&
+    game.awaiting.length === 0 &&
+    game.execution?.phase !== 'paused' &&
+    !game.standIns.includes(game.turn) &&
+    presentation.frame.turnStatus(game.fen, viewer, game.committed, nameOf) ===
+      null
+  );
+}
+
+/** Where the game stands, in one line; `null` with no game. */
+export function useFrameStatus(
+  model: GameSessionScreenModel
+): Accessor<FrameStatus | null> {
+  const lineup = useLineupDescription(model);
+  const names = useSeatNames(model);
+  const nameOf: GamePlayerName = (side) => names[side]() || null;
+  const presentation = useGamePresentation();
+  return createMemo(() => {
+    const game = model.current();
+    if (game === null) return null;
+    const plainTurn = plainTurnLine(
+      game,
+      presentation(game.fen),
+      model.mySide(),
+      nameOf
+    );
+    // The viewer's own turn while the connection is needed: theirs, but not
+    // yet, so the line says both instead of naming their side.
+    const turnOffline =
+      plainTurn &&
+      game.turn === model.mySide() &&
+      frameConnection(model) === 'needed';
+    return {
+      lineup: lineup(),
+      description: turnOffline
+        ? t`Your move, once you are back online.`
+        : gameStateDescription(
+            game,
+            presentation(game.fen),
+            model.mySide(),
+            nameOf
+          ),
+      plainTurn: plainTurn && !turnOffline,
+      // While the viewer's choice is sent, it is no longer their turn to act.
+      emphasis: frameViewerHeld(model)
+        ? 'neutral'
+        : statusEmphasis(game, model.mySide()),
+      tone: statusTone(game),
+      sending: model.submitting(),
+      minutes: game.minutes,
+      increment: game.increment,
+      target: presentation(game.fen).frame.target?.(game.fen),
+    };
+  });
+}
+
+/** The connection, as the offline notice words it. */
+export function frameConnection(
+  model: Pick<GameSessionScreenModel, 'connected' | 'waiting' | 'canSubmit'>
+): FrameConnection {
+  if (model.connected()) return 'online';
+  if (model.waiting()) return 'waiting';
+  return model.canSubmit() ? 'offline-local' : 'needed';
+}
+
+/**
+ * The viewer cannot act now, so nothing may say it is their move: their
+ * choice is being sent, waits for the connection, or needs it. A local
+ * game that can go on offline is not held.
+ */
+export function frameViewerHeld(
+  model: Pick<
+    GameSessionScreenModel,
+    'submitting' | 'connected' | 'waiting' | 'canSubmit'
+  >
+): boolean {
+  if (model.submitting()) return true;
+  const connection = frameConnection(model);
+  return connection === 'needed' || connection === 'waiting';
+}
+
+/** The viewer's own turn (or their own choice still awaited) is theirs. */
+function statusEmphasis(
+  game: GameSession,
+  mySide: GameSessionSide | null
+): GameTurnPillEmphasis {
+  return game.status === 'active' &&
+    mySide !== null &&
+    (game.awaiting.length > 0
+      ? game.awaiting.includes(mySide)
+      : game.turn === mySide)
+    ? 'yours'
+    : 'neutral';
+}
+
+function statusTone(game: GameSession): GameTurnPillTone {
+  return game.status === 'configuring' && gameSessionStartable(game)
+    ? 'success'
+    : 'neutral';
+}
+
+/** A person's moderated username, or `''` while it is unknown. */
+export function usePersonName(person: () => string): () => string {
+  const name = useProfileColumn(person, 'username');
+  const moderation = useModeration();
+  return () => shownName(moderation(), name(), person()) ?? '';
+}

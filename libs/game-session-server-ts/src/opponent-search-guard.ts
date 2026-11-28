@@ -1,6 +1,6 @@
 import { findOpponentMutation } from '@libs/game-matchmaking-shared-ts/find-opponent-mutation';
 import { MultiplayerGameRepository } from '@libs/game-matchmaking-shared-ts/game-repository';
-import { activeCustomGamesOf } from '@libs/game-session-sub-shared-ts/custom-game-participation';
+import { activeGameSessionsOf } from '@libs/game-session-sub-shared-ts/game-session-participation';
 import { requireUnfinishedGamesInMutation } from '@libs/permissions-shared-ts/unfinished-games-permission';
 import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared-ts/mutations-types';
@@ -21,7 +21,7 @@ export function opponentSearchGuard(
       multiplayer: await new MultiplayerGameRepository(ctx.tx).unfinishedCount(
         person
       ),
-      customGames: await activeCustomGamesOf(ctx.tx, rooms, person),
+      gameSessions: await activeGameSessionsOf(ctx.tx, rooms, person),
     });
   };
 }

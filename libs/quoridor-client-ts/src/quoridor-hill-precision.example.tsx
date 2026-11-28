@@ -12,7 +12,7 @@ import {
 /** Full-size choices move all four pawns in turn. */
 export async function playHillPreciseCoordinates(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
-  await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
+  await userEvent.click(canvas.getByTestId('game-session-board-coordinates'));
   await expectQuoridorSpatialArea(canvasElement);
   await expectQuoridorGoalMarker(canvasElement, 'e5');
   await expectHillDestinationVisible(canvasElement);
@@ -26,7 +26,7 @@ export async function playHillPreciseCoordinates(canvasElement: HTMLElement) {
     await expectHillDestinationVisible(canvasElement);
     await chooseQuoridorCoordinate(canvasElement, square);
     await expect(
-      canvas.getByTestId(`custom-game-board-action-${square}`)
+      canvas.getByTestId(`game-session-board-action-${square}`)
     ).toHaveAccessibleName(new RegExp(pawn));
   }
 }
@@ -37,38 +37,40 @@ export async function playHillPreciseCoordinates(canvasElement: HTMLElement) {
  */
 export async function playHillWallPreview(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
-  await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
+  await userEvent.click(canvas.getByTestId('game-session-board-coordinates'));
   await expectQuoridorSpatialArea(canvasElement);
-  await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
+  await userEvent.click(canvas.getByTestId('game-session-board-mode-h'));
   await expectQuoridorSpatialArea(canvasElement);
   await chooseQuoridorCoordinate(canvasElement, 'd4');
-  const horizontal = canvas.getByTestId('custom-game-board-action-d4h');
+  const horizontal = canvas.getByTestId('game-session-board-action-d4h');
   await expectQuoridorWallPreview(canvasElement);
   await userEvent.hover(horizontal);
   await userEvent.unhover(horizontal);
   await expect(horizontal).toHaveAttribute('data-preview-edge-top', 'true');
   await expect(horizontal).toHaveAttribute('data-edge-top', 'false');
   await expectQuoridorWallPreview(canvasElement);
-  await userEvent.click(canvas.getByTestId('custom-game-board-mode-v'));
-  const vertical = canvas.getByTestId('custom-game-board-action-d4v');
+  await userEvent.click(canvas.getByTestId('game-session-board-mode-v'));
+  const vertical = canvas.getByTestId('game-session-board-action-d4v');
   await expect(vertical).toHaveAttribute('data-preview-edge-right', 'true');
   await expect(vertical).toHaveAttribute('data-edge-right', 'false');
   await expectQuoridorWallPreview(canvasElement);
-  await userEvent.click(canvas.getByTestId('custom-game-board-wall-cancel'));
+  await userEvent.click(canvas.getByTestId('game-session-board-wall-cancel'));
   await expect(vertical).toHaveAttribute('data-preview-edge-right', 'false');
   await expect(vertical).toHaveAttribute('data-edge-right', 'false');
   await chooseQuoridorCoordinate(canvasElement, 'd4');
   await expectQuoridorWallPreview(canvasElement);
-  await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
+  await userEvent.click(canvas.getByTestId('game-session-board-mode-h'));
   await expect(
-    canvas.getByTestId('custom-game-board-action-d4h')
+    canvas.getByTestId('game-session-board-action-d4h')
   ).toHaveAttribute('data-preview-edge-top', 'true');
   await expectQuoridorWallPreview(canvasElement);
-  await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
-  await expect(canvas.getByTestId('custom-game-board-action-a3')).toBeEnabled();
-  await expectQuoridorSpatialArea(canvasElement);
-  await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
+  await userEvent.click(canvas.getByTestId('game-session-board-wall-commit'));
   await expect(
-    canvas.getByTestId('custom-game-board-action-d4h')
+    canvas.getByTestId('game-session-board-action-a3')
+  ).toBeEnabled();
+  await expectQuoridorSpatialArea(canvasElement);
+  await userEvent.click(canvas.getByTestId('game-session-board-mode-h'));
+  await expect(
+    canvas.getByTestId('game-session-board-action-d4h')
   ).toHaveAttribute('data-edge-top', 'true');
 }

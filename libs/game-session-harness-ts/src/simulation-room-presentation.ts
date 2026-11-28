@@ -1,6 +1,6 @@
-import { connectCustomSimulation } from '@libs/game-session-client-ts/custom-simulation-session';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+import { connectRoomSimulation } from '@libs/game-session-client-ts/room-simulation-session';
 import type { GameRegistration } from '@libs/game-session-shared-ts/game-definition';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
 import type { RoomFaultProfile } from '@pkgs/room-root-harness-ts/network';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -8,11 +8,11 @@ import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 /** The production room/epoch/readiness and document lifecycle adapter, with explicit harness ports. */
 export function connectSimulationRoomFixture(
   game: GameRegistration,
-  options: Omit<Parameters<typeof connectCustomSimulation>[0], 'game' | 'rules'>
+  options: Omit<Parameters<typeof connectRoomSimulation>[0], 'game' | 'rules'>
 ) {
-  const current = CustomGamesAttr.from(options.room.getSnapshot()).current;
+  const current = GameSessionsAttr.from(options.room.getSnapshot()).current;
   if (current === null) throw new Error('The simulation room has no game');
-  return connectCustomSimulation({
+  return connectRoomSimulation({
     ...options,
     // A harness screen refreshes on the session's own time, never the wall's.
     frames: options.frames ?? virtualFrames(options),

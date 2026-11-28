@@ -135,7 +135,7 @@ test('storybook integration: word-tiles gesture phone opens tools immediately af
   await fitBoard(page);
   await assertPlacement(page);
   await expectRackRelease(page);
-  const nextTile = page.getByTestId('custom-game-board-rack-0');
+  const nextTile = page.getByTestId('game-session-board-rack-0');
   await nextTile.tap();
   await expect(nextTile).toHaveAttribute('aria-pressed', 'true');
 });
@@ -154,7 +154,7 @@ async function fitBoard(page: Page) {
   await expect(viewport(page)).toHaveAttribute('data-enlarged', 'false');
   for (const square of ['a1', 'o15']) {
     await expect(
-      page.getByTestId(`custom-game-board-cell-${square}`)
+      page.getByTestId(`game-session-board-cell-${square}`)
     ).toBeInViewport({ ratio: 1 });
   }
 }

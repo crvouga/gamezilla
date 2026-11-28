@@ -1,15 +1,15 @@
 /**
  * The shared history of every game offering it records what happened to a
- * custom game, and nothing that did not.
+ * game session, and nothing that did not.
  */
 
 import { expect, test } from 'bun:test';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { attemptCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
 import {
   gameHistoryStatistics,
   openGameHistory,
 } from '@libs/game-session-harness-ts/game-history-actions';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
+import { attemptGameSession } from '@libs/game-session-harness-ts/game-session-ui';
 import { openConformanceHarness } from '../../conformance-world';
 import { forEveryGame } from '../game-suite';
 
@@ -19,11 +19,11 @@ forEveryGame(
     // regression: cancelled-history-invents-bot
     test('a cancelled game with an unfilled place records no invented bot or result', async () => {
       await using s = await openConformanceHarness();
-      await s.apply(establishCustomGame, game.shared.id, {
+      await s.apply(establishGameSession, game.shared.id, {
         second: 'open',
         active: false,
       });
-      await s.apply(attemptCustomGame, 'alice', { operation: 'cancel' });
+      await s.apply(attemptGameSession, 'alice', { operation: 'cancel' });
       await s.apply(openGameHistory, 'alice');
       const history = await s.read(gameHistoryStatistics, 'alice');
       expect(history.record).toContain('Nobody else joined');
@@ -32,5 +32,5 @@ forEveryGame(
       expect([history.wins, history.losses, history.draws]).toEqual([0, 0, 0]);
     }, 120_000);
   },
-  ['custom-games', 'two seats']
+  ['vs-human', 'two seats']
 );

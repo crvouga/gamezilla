@@ -11,9 +11,11 @@ test('a continuous game registers without turn methods and retains the shared pr
   expect(continuousRaceGame.turnGame).toBeUndefined();
   expect(continuousRaceGame.automation).toBeUndefined();
   expect(continuousRaceGame.registration.simulation).toBeDefined();
-  expect(
-    continuousRaceGame.capabilities['custom-games'].bots.difficulties
-  ).toEqual(['easy', 'medium', 'hard']);
+  expect(continuousRaceGame.capabilities['vs-bot'].bots.difficulties).toEqual([
+    'easy',
+    'medium',
+    'hard',
+  ]);
 });
 
 // regression: room-live-method-context

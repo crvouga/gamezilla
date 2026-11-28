@@ -10,10 +10,10 @@ import {
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import {
-  noCustomGameDrawOffer,
-  offeredCustomGameDraw,
-} from './custom-game-play-world';
-import { choose, toldOf } from './custom-game-set-up-world';
+  noGameSessionDrawOffer,
+  offeredGameSessionDraw,
+} from './game-session-play-world';
+import { choose, toldOf } from './game-session-set-up-world';
 import { drawnAfterFirstMoves, pairedAt, seenOn, told } from './matched-game';
 
 /** Both people see a draw offer from `offerer`. */
@@ -41,7 +41,7 @@ Given(
   }
 );
 
-// A matched game's draw offer, else the custom game's.
+// A matched game's draw offer, else the game session's.
 When('{actor} offers a draw', async (w, actor: string) => {
   if (inMatchedGame(w)) await gameCommand(w, actor, 'offerMultiplayerDraw');
   else await choose(w, actor, { operation: 'offer' });
@@ -58,10 +58,10 @@ When('{actor} declines the draw', async (w, actor: string) => {
 Then('{actor} is (still )offered a draw', (w, actor: string) =>
   inMatchedGame(w)
     ? drawOfferedBy(w, opponentOf(w, actor))
-    : offeredCustomGameDraw(w, actor)
+    : offeredGameSessionDraw(w, actor)
 );
 Then('neither person is offered a draw', async (w) => {
-  if (!inMatchedGame(w)) return noCustomGameDrawOffer(w);
+  if (!inMatchedGame(w)) return noGameSessionDrawOffer(w);
   const game = await bothBoards(w, (g) => (g.draw_offer_by ?? '') === '');
   expect(game.draw_offer_by ?? '').toBe('');
 });

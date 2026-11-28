@@ -7,10 +7,10 @@
  * game's author wrote, so every game reaches it its own way.
  */
 
-import { playCustomGameHistory } from '@libs/game-session-harness-ts/custom-game-history';
-import type { CustomGameLineup } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-moves';
-import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
+import { playGameSessionHistory } from '@libs/game-session-harness-ts/game-session-history';
+import type { GameSessionLineup } from '@libs/game-session-harness-ts/game-session-lineup';
+import { makeGameSessionMove } from '@libs/game-session-harness-ts/game-session-moves';
+import { gameSessionView } from '@libs/game-session-harness-ts/game-session-probe';
 import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
   playedRulesOf,
@@ -30,8 +30,8 @@ import type {
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   hostOf,
-  rememberCustomGame,
-  setupCustomGame,
+  rememberGameSession,
+  setupGameSession,
   spaceLinkOf,
   turnGameOf,
 } from './game-world';
@@ -131,7 +131,7 @@ export function roundAfterMoveBy(
   return ply;
 }
 
-/** The known line the custom game follows, its game's known victory unless a scenario chose another. */
+/** The known line the game session follows, its game's known victory unless a scenario chose another. */
 export function knownLine(w: HarnessWorld): readonly string[] {
   return (
     (w.memo.get(KNOWN_LINE) as readonly string[] | undefined) ??
@@ -153,27 +153,27 @@ export function knownNextMove(
 }
 
 /**
- * A custom game of `lineup` that has followed `line`'s first `ply`
+ * A game session of `lineup` that has followed `line`'s first `ply`
  * proposals: played as an earlier history, then followed by the scenario.
  */
 export async function followKnownLine(
   w: HarnessWorld,
-  lineup: CustomGameLineup,
+  lineup: GameSessionLineup,
   line: readonly string[],
   ply: number
 ): Promise<void> {
   w.memo.set(KNOWN_LINE, line);
-  await setupCustomGame(w, {
+  await setupGameSession(w, {
     ...lineup,
     ...(ply === 0 ? {} : { history: line.slice(0, ply) }),
   });
 }
 
 /**
- * The custom game under way at its start follows `line` to its last move:
+ * The game session under way at its start follows `line` to its last move:
  * the proposals before it are played as an earlier history through the
  * room under each seat's device, the devices cut off meanwhile and then
- * caught up, as a custom game set up with a history is.
+ * caught up, as a game session set up with a history is.
  */
 export async function playToLastMove(
   w: HarnessWorld,
@@ -181,9 +181,9 @@ export async function playToLastMove(
 ): Promise<void> {
   w.memo.set(KNOWN_LINE, line);
   const host = hostOf(w);
-  const game = (await w.s.read(customGameView, host)).current;
+  const game = (await w.s.read(gameSessionView, host)).current;
   if (game === null || game.moves.length !== 0)
-    throw new Error('The custom game is not at its start');
+    throw new Error('The game session is not at its start');
   const seats = Object.fromEntries(
     await Promise.all(
       game.sides.map(async (side) => [
@@ -198,7 +198,7 @@ export async function playToLastMove(
     await w.s.apply(partition, person);
     await w.s.apply(refreshActorConnection, person);
   }
-  await w.s.apply(playCustomGameHistory, {
+  await w.s.apply(playGameSessionHistory, {
     spaceId,
     white: seats.white,
     black: seats.black,
@@ -208,12 +208,12 @@ export async function playToLastMove(
   });
   await w.s.apply(restoreNetwork);
   for (const person of people)
-    await w.s.until((s) => customGameView(s, person), {
+    await w.s.until((s) => gameSessionView(s, person), {
       pred: (shown) =>
         shown.connected && shown.current?.moves.length === line.length - 1,
       maxMs: 30_000,
     });
-  await rememberCustomGame(w);
+  await rememberGameSession(w);
 }
 
 /** The scenario's person whose member identity is `id`. */
@@ -221,7 +221,7 @@ export async function personOn(w: HarnessWorld, id: string): Promise<string> {
   for (const person of ['alice', 'bob', 'carol', 'dave', 'eve'])
     if (
       (await w.s.read((s) => s.actors.has(person))) &&
-      (await w.s.read(customGameView, person)).myId === id
+      (await w.s.read(gameSessionView, person)).myId === id
     )
       return person;
   throw new Error(`Nobody in the scenario is ${id}`);
@@ -237,25 +237,25 @@ export async function playKnownLineTo(
 ): Promise<void> {
   const line = knownLine(w);
   for (;;) {
-    const game = (await w.s.read(customGameView, hostOf(w))).current;
-    if (game === null) throw new Error('The host sees no custom game');
+    const game = (await w.s.read(gameSessionView, hostOf(w))).current;
+    if (game === null) throw new Error('The host sees no game session');
     const at = game.moves.length;
     if (at >= ply) return;
     const mover = await personOn(w, game[game.turn].person);
     await w.s.apply(
-      makeCustomGameMove,
+      makeGameSessionMove,
       mover,
       turnGameOf(w).shared.id,
       line[at]!
     );
-    await w.s.until((s) => customGameView(s, hostOf(w)), {
+    await w.s.until((s) => gameSessionView(s, hostOf(w)), {
       pred: (shown) => (shown.current?.moves.length ?? 0) > at,
       maxMs: 10_000,
     });
   }
 }
 
-/** Remember that the custom game follows `line`, set up by the scenario's own steps. */
+/** Remember that the game session follows `line`, set up by the scenario's own steps. */
 export function followsKnownLine(
   w: HarnessWorld,
   line: readonly string[]

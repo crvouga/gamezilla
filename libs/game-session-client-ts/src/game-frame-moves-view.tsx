@@ -27,11 +27,11 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, For, Show, untrack } from 'solid-js';
-import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
 import { FrameStage } from './game-frame-stage';
 import { FrameErrorView, FrameStatusView } from './game-frame-status-view';
 import type { FrameRecord } from './game-frame-view-types';
+import type { FramePlaceProps } from './game-session-screen-view';
 
 /** Moving through the record: to a numbered position, back to the live one, or another game. */
 export type FrameReviewHandlers = {
@@ -77,7 +77,7 @@ function EarlierMoves(props: { readonly count: number }): JSX.Element {
       <P
         variant="caption"
         tone="secondary"
-        dataSet={{ testid: 'custom-game-earlier-moves' }}
+        dataSet={{ testid: 'game-session-earlier-moves' }}
       >
         <Plural
           value={props.count}
@@ -125,7 +125,7 @@ function RecordMoves(
         label,
         swatch: mover?.swatch,
         accessibleName: moveName(ply, label, props.record, mover?.sideLabel),
-        testId: `custom-game-review-move-${ply}`,
+        testId: `game-session-review-move-${ply}`,
       };
     })
   );
@@ -154,7 +154,7 @@ function RecordMoves(
  */
 function RecordOutline(props: { readonly record: FrameRecord }): JSX.Element {
   return (
-    <StackVertical gap="xs" testId="custom-game-record-outline">
+    <StackVertical gap="xs" testId="game-session-record-outline">
       <For each={props.record.outline ?? []}>
         {(step) => (
           <StackHorizontal align="center" justify="between" gap="sm">
@@ -186,8 +186,8 @@ export function FrameMovesCard(props: Props): JSX.Element {
         <GameSection
           title={<Trans>Moves</Trans>}
           dataSet={{
-            component: 'CustomGameReview',
-            testid: 'custom-game-record',
+            component: 'GameSessionReview',
+            testid: 'game-session-record',
           }}
         >
           <Show
@@ -222,7 +222,7 @@ function RecordSteps(props: RecordProps): JSX.Element {
       gap="sm"
       align="center"
       justify="center"
-      testId="custom-game-record-steps"
+      testId="game-session-record-steps"
     >
       <IconButton
         label={t`Go to the start`}
@@ -230,7 +230,7 @@ function RecordSteps(props: RecordProps): JSX.Element {
         background={STEP_PLATE}
         disabled={shown() === 0}
         onClick={() => props.onSeek(0)}
-        dataSet={{ testid: 'custom-game-review-first' }}
+        dataSet={{ testid: 'game-session-review-first' }}
       >
         <ChevronsLeftIcon />
       </IconButton>
@@ -240,7 +240,7 @@ function RecordSteps(props: RecordProps): JSX.Element {
         background={STEP_PLATE}
         disabled={shown() === 0}
         onClick={() => props.onSeek(shown() - 1)}
-        dataSet={{ testid: 'custom-game-review-back' }}
+        dataSet={{ testid: 'game-session-review-back' }}
       >
         <ChevronLeftIcon />
       </IconButton>
@@ -250,7 +250,7 @@ function RecordSteps(props: RecordProps): JSX.Element {
         background={STEP_PLATE}
         disabled={shown() >= last()}
         onClick={() => props.onSeek(shown() + 1)}
-        dataSet={{ testid: 'custom-game-review-forward' }}
+        dataSet={{ testid: 'game-session-review-forward' }}
       >
         <ChevronRightIcon />
       </IconButton>
@@ -260,7 +260,7 @@ function RecordSteps(props: RecordProps): JSX.Element {
         background={STEP_PLATE}
         disabled={!recordReviewing(props.record)}
         onClick={() => props.onReturnLive()}
-        dataSet={{ testid: 'custom-game-review-live' }}
+        dataSet={{ testid: 'game-session-review-live' }}
       >
         <ChevronsRightIcon />
       </IconButton>
@@ -283,7 +283,7 @@ function ReviewJumpField(props: RecordProps): JSX.Element {
           label={<Trans>Go to move number</Trans>}
           value={jump()}
           onChangeText={setJump}
-          dataSet={{ testid: 'custom-game-review-ply' }}
+          dataSet={{ testid: 'game-session-review-ply' }}
         />
       </StackVertical>
       <Button
@@ -291,7 +291,7 @@ function ReviewJumpField(props: RecordProps): JSX.Element {
         variant="outline"
         intent="neutral"
         onClick={() => props.onSeek(Number(jump()))}
-        dataSet={{ testid: 'custom-game-review-seek' }}
+        dataSet={{ testid: 'game-session-review-seek' }}
       />
     </StackHorizontal>
   );
@@ -313,7 +313,7 @@ function RecordSelect(props: RecordProps): JSX.Element {
         options={options()}
         value={props.record.selection}
         onValueChange={(value) => props.onSelectRecord(String(value))}
-        dataSet={{ testid: 'custom-game-history' }}
+        dataSet={{ testid: 'game-session-history' }}
       />
     </Show>
   );
@@ -341,7 +341,7 @@ function ReviewingLine(props: { readonly record: FrameRecord }): JSX.Element {
           {(look) => <GameSeatSwatch look={look()} />}
         </Show>
       }
-      dataSet={{ testid: 'custom-game-reviewing' }}
+      dataSet={{ testid: 'game-session-reviewing' }}
       title={
         <Show
           when={props.record.displayedPly > 0}
@@ -390,14 +390,14 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
     props.phase === 'completed' || props.phase === 'cancelled';
   return (
     <GameScreen
-      screenId="custom-game-stage-moves"
+      screenId="game-session-stage-moves"
       title={<Trans>Moves</Trans>}
       compactInset={props.table.compactInset}
     >
       <FixedGameSession
         dataSet={{
-          component: 'CustomGameContent',
-          testid: 'custom-game-content',
+          component: 'GameSessionContent',
+          testid: 'game-session-content',
           phase: props.phase,
           place: props.place.screen,
         }}
@@ -417,7 +417,7 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
               variant="solid"
               fullWidth
               onClick={() => props.onClose()}
-              dataSet={{ testid: 'custom-game-back-to-live' }}
+              dataSet={{ testid: 'game-session-back-to-live' }}
             />
           </>
         }
@@ -426,7 +426,10 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
             <Show when={recordPlayed(props.record)}>
               <RecordMoves {...props} onSelect={props.onSeek} />
             </Show>
-            <StageDetails label={t`Go to move`} testId="custom-game-go-to-move">
+            <StageDetails
+              label={t`Go to move`}
+              testId="game-session-go-to-move"
+            >
               <RecordSelect {...props} />
               <ReviewJumpField {...props} />
               <FrameErrorView text={props.record.error} />

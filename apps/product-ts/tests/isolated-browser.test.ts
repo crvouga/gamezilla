@@ -162,13 +162,13 @@ test('journey diagnostics retain a remote failure’s method and control without
   try {
     const message = String(
       await device.driver
-        .get('custom-game')
-        .get('custom-game-black-release')
+        .get('game-session')
+        .get('game-session-black-release')
         .expect.text('private argument', { timeoutMs: 20000 })
         .catch(String)
     );
     expect(message).toContain(
-      'node custom-game/custom-game-black-release expect.text'
+      'node game-session/game-session-black-release expect.text'
     );
     expect(message).toContain('Timed out waiting for text');
     expect(message).not.toContain('private argument');

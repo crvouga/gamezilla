@@ -1,4 +1,4 @@
 {
-  "summary": "After Alice moved and offered a draw again, the custom game harness tried to press shell Back behind the game menu. It timed out before checking Bob's offer.",
+  "summary": "After Alice moved and offered a draw again, the game session harness tried to press shell Back behind the game menu. It timed out before checking Bob's offer.",
   "regressionTest": "libs/game-session-harness-ts/tests/draw-offer-menu.test.ts"
 }

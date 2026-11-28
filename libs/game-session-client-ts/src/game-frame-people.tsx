@@ -3,8 +3,8 @@ import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
 import { createMemo, Match, Switch } from 'solid-js';
-import { botName } from './custom-game-bot-name';
 import type { FrameHolder, FramePeople } from './game-frame-view-types';
+import { botName } from './game-session-bot-name';
 
 /** Up to two initials of a plain name, for a story's stand-in picture. */
 function initialsOf(name: string): string {

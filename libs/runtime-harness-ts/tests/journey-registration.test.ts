@@ -5,7 +5,7 @@ import { matchStep } from '@pkgs/gherkin-shared-ts/registry';
 
 test('shared journey discovery preserves existing families and registers every bot start', () => {
   const examples = [
-    'they start a custom game against a bot',
+    'they start a game session against a bot',
     'Alice and Bob play Connect Four from fresh devices',
     'White and Black open with e4 and e5 in multiplayer chess',
     'Alice authors, playtests and publishes a Numberlink pack from a fresh device',

@@ -1,4 +1,4 @@
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
+import type { GameSessionInput } from '@libs/game-session-shared-ts/game-session-choice';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type {
@@ -16,24 +16,24 @@ import {
   Show,
   untrack,
 } from 'solid-js';
-import { customGameCanMove } from './custom-game-can-move';
-import { useSeatNames } from './custom-game-status';
 import { frameTable } from './game-frame-table';
 import type { FrameStatus } from './game-frame-view-types';
-import type { CustomGameReview } from './use-custom-game-review';
-import type { CustomGameScreenModel } from './use-custom-game-screen';
+import { gameSessionCanMove } from './game-session-can-move';
+import { useSeatNames } from './game-session-status';
+import type { GameSessionReview } from './use-game-session-review';
+import type { GameSessionScreenModel } from './use-game-session-screen';
 
 /** The board's test id; the board's own actions are `${BOARD_TEST_ID}-${id}`. */
-export const BOARD_TEST_ID = 'custom-game-board';
+export const BOARD_TEST_ID = 'game-session-board';
 
 /**
  * The board's gesture as a choice: while every side commits it is this
  * side's own commitment; otherwise it is a move.
  */
 function gestureChoice(
-  model: CustomGameScreenModel,
+  model: GameSessionScreenModel,
   action: string
-): CustomGameInput {
+): GameSessionInput {
   const game = model.current();
   const ply = game?.moves.length ?? 0;
   const side = model.mySide();
@@ -46,7 +46,9 @@ function gestureChoice(
  * Whether a draw the other participant offered waits for this person's
  * answer: they play, did not offer it and have not accepted it yet.
  */
-export function customGameDrawToAnswer(model: CustomGameScreenModel): boolean {
+export function gameSessionDrawToAnswer(
+  model: GameSessionScreenModel
+): boolean {
   const game = model.current();
   if (game === null || model.mySide() === null || !model.canPlay())
     return false;
@@ -83,8 +85,8 @@ type BoardState = {
  * position reviewed shows without them.
  */
 function useFrameBoardProps(
-  model: CustomGameScreenModel,
-  review: CustomGameReview,
+  model: GameSessionScreenModel,
+  review: GameSessionReview,
   state: BoardState
 ): GameFrameBoardProps {
   const sounds = useSoundsPreference();
@@ -129,7 +131,7 @@ function useFrameBoardProps(
       return live() ? model.ownCommitment() : null;
     },
     get drawToAnswer() {
-      return live() && customGameDrawToAnswer(model);
+      return live() && gameSessionDrawToAnswer(model);
     },
     get viewer() {
       return model.mySide();
@@ -153,8 +155,8 @@ function useFrameBoardProps(
  * share one session. A refused gesture resets the board to the position.
  */
 export function useFrameBoard(
-  model: CustomGameScreenModel,
-  review: CustomGameReview
+  model: GameSessionScreenModel,
+  review: GameSessionReview
 ): FrameBoard {
   const presentation = useGamePresentation();
   const simulation = model.simulation;
@@ -164,7 +166,7 @@ export function useFrameBoard(
       ? (simulation.position() ?? review.fen())
       : review.fen()
   );
-  const interactive = createMemo(() => customGameCanMove(model, review));
+  const interactive = createMemo(() => gameSessionCanMove(model, review));
   const orientation = createMemo(
     () =>
       frameTable(model.current()?.sides ?? [], model.mySide()).near ?? 'white'

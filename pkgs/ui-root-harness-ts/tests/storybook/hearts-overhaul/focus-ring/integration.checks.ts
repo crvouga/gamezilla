@@ -61,7 +61,7 @@ test('storybook integration: Hearts pass button keeps its whole focus ring at 14
     .getByRole('toolbar', { name: 'Your hand' })
     .getByRole('button');
   for (const index of [0, 1, 2]) await cards.nth(index).click();
-  const pass = page.getByTestId('custom-game-board-pass');
+  const pass = page.getByTestId('game-session-board-pass');
   await pass.focus();
   await expect(pass).toBeFocused();
   expect(await clippedRing(pass)).toEqual(NONE);

@@ -6,9 +6,9 @@ export async function point(locator: Locator) {
   return { x: b.x + b.width / 2, y: b.y + b.height / 2 };
 }
 export const centerCell = (page: Page) =>
-  page.getByTestId('custom-game-board-cell-h8');
+  page.getByTestId('game-session-board-cell-h8');
 export const rackTile = (page: Page) =>
-  page.getByTestId('custom-game-board-rack-11');
+  page.getByTestId('game-session-board-rack-11');
 export const viewport = (page: Page) =>
   page.getByRole('region', { name: 'Scrollable word board' });
 

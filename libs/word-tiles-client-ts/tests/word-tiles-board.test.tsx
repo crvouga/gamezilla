@@ -110,7 +110,7 @@ test('the board, its actions and its controls share one draft', () => {
               interactive: true,
               sound: false,
               syncKey: 0,
-              testId: 'custom-game-board',
+              testId: 'game-session-board',
               setup: null,
               hand: '11,0,82,98,25,77,69',
               committed: [],
@@ -128,26 +128,26 @@ test('the board, its actions and its controls share one draft', () => {
       </IdProvider>
     </ClockProvider>
   ));
-  fireEvent.click(view.getByTestId('custom-game-board-more'));
+  fireEvent.click(view.getByTestId('game-session-board-more'));
   expect(
-    view.getByTestId('custom-game-board-recall').hasAttribute('disabled')
+    view.getByTestId('game-session-board-recall').hasAttribute('disabled')
   ).toBe(true);
-  fireEvent.click(view.getByTestId('custom-game-board-rack-11'));
-  fireEvent.click(view.getByTestId('custom-game-board-cell-h8'));
+  fireEvent.click(view.getByTestId('game-session-board-rack-11'));
+  fireEvent.click(view.getByTestId('game-session-board-cell-h8'));
   expect(
-    view.getByTestId('custom-game-board-recall').hasAttribute('disabled')
+    view.getByTestId('game-session-board-recall').hasAttribute('disabled')
   ).toBe(false);
-  expect(view.getByTestId('custom-game-board-preview')).not.toBeNull();
-  fireEvent.click(view.getByTestId('custom-game-board-recall'));
+  expect(view.getByTestId('game-session-board-preview')).not.toBeNull();
+  fireEvent.click(view.getByTestId('game-session-board-recall'));
   expect(
-    view.getByTestId('custom-game-board-cell-h8').getAttribute('data-state')
+    view.getByTestId('game-session-board-cell-h8').getAttribute('data-state')
   ).not.toBe('tentative');
-  fireEvent.click(view.getByTestId('custom-game-board-more'));
-  fireEvent.click(view.getByTestId('custom-game-board-exchange'));
-  expect(view.getByTestId('custom-game-board-exchange-cancel')).not.toBeNull();
-  fireEvent.click(view.getByTestId('custom-game-board-rack-11'));
-  expect(view.queryByTestId('custom-game-board-submit')).toBeNull();
-  fireEvent.click(view.getByTestId('custom-game-board-exchange-confirm'));
+  fireEvent.click(view.getByTestId('game-session-board-more'));
+  fireEvent.click(view.getByTestId('game-session-board-exchange'));
+  expect(view.getByTestId('game-session-board-exchange-cancel')).not.toBeNull();
+  fireEvent.click(view.getByTestId('game-session-board-rack-11'));
+  expect(view.queryByTestId('game-session-board-submit')).toBeNull();
+  fireEvent.click(view.getByTestId('game-session-board-exchange-confirm'));
   expect(actions).toEqual(['swap:11']);
 });
 

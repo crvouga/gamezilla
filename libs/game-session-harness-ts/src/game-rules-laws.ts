@@ -1,4 +1,4 @@
-import { DEFAULT_BOT_DIFFICULTY } from '@libs/game-session-shared-ts/custom-game-state';
+import { DEFAULT_BOT_DIFFICULTY } from '@libs/game-session-shared-ts/game-session-state';
 import {
   type AssertPropertyParams,
   assertProperty,
@@ -297,14 +297,11 @@ function takesTurns(game: TurnHarnessGame): void {
  * Only experiences whose shared specifications promise alternating
  * participants, and only for a game whose turns rotate: a game whose rules
  * name the next side (`turnOrder: 'rules'`, a trick's winner leading) is
- * held to the side its rules name, which every custom game seats.
+ * held to the side its rules name, which every game session seats.
  */
 function duelRulesLaws(game: TurnHarnessGame): readonly GameLaw[] {
   const offered = game.shared.turnGame.capabilities;
-  if (
-    offered['custom-games'] === undefined &&
-    offered.matchmaking === undefined
-  )
+  if (offered['vs-human'] === undefined && offered.matchmaking === undefined)
     return [];
   const rotating = game.shared.turnGame.rules.turnOrder !== 'rules';
   return [
@@ -778,15 +775,15 @@ export function gameRulesLaws(
   ];
 }
 
-/** The laws of a game's bots, for a game offering custom games. */
+/** The laws of a game's bots, for a game offering game sessions. */
 export function gameBotLaws(
   game: TurnHarnessGame,
   params?: AssertPropertyParams
 ): readonly GameLaw[] {
   const rules = playedRulesOf(game);
-  const customGames = game.shared.turnGame.capabilities['custom-games'];
-  if (customGames === undefined) return [];
-  const { bots } = customGames;
+  const gameSessions = game.shared.turnGame.capabilities['vs-bot'];
+  if (gameSessions === undefined) return [];
+  const { bots } = gameSessions;
   const choose = bots.choose;
   if (choose === undefined)
     throw new Error('turn-game bot laws require turn choices');

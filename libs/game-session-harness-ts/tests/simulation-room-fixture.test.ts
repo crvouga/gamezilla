@@ -5,10 +5,10 @@ import {
   simulationRoomGame,
 } from '@libs/game-session-harness-ts/simulation-room-fixture';
 import {
-  ChangeCustomGame,
-  ChangeLocalCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-commands';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+  ChangeGameSession,
+  ChangeLocalGameSession,
+} from '@libs/game-session-shared-ts/game-session-commands';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import { networkRace } from './network-race';
 
@@ -31,7 +31,7 @@ function stateOf(players?: readonly (string | null)[]) {
 function current(players?: readonly (string | null)[]) {
   const state = stateOf(players);
   return {
-    game: CustomGamesAttr.from(state).current!,
+    game: GameSessionsAttr.from(state).current!,
     members: Object.keys(SpaceMembersRoomAttr.seats.from(state)).sort(),
   };
 }
@@ -66,7 +66,7 @@ test('the fixture reads its game and sends a choice where the screen would', () 
     status: 'active',
   });
   const online = simulationRoomChoice(networkRace, shared, 'rematch', 5);
-  expect(ChangeCustomGame.is(online)).toBe(true);
+  expect(ChangeGameSession.is(online)).toBe(true);
   expect(online.payload).toEqual({
     gameId: 'race-1',
     revision: 0,
@@ -78,7 +78,7 @@ test('the fixture reads its game and sends a choice where the screen would', () 
     'start',
     5
   );
-  expect(ChangeLocalCustomGame.is(practice)).toBe(true);
+  expect(ChangeLocalGameSession.is(practice)).toBe(true);
   expect(practice.payload).toEqual({
     choice: { gameId: 'race-1', revision: 0, operation: 'start' },
     at: 5,

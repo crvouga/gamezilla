@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { battleshipFleetsSeenBeyondShots } from '@libs/runtime-harness-ts/battleship-journey';
-import { acceptBlack } from '@libs/runtime-harness-ts/custom-game-journey';
+import { acceptBlack } from '@libs/runtime-harness-ts/game-session-journey';
 import { journeyDiagnosticDriver } from './journey-diagnostic-driver';
 
 // regression: native-journey-failures-omit-public-context
@@ -53,16 +53,16 @@ test('journey diagnostics distinguish an unavailable snapshot from an absent fle
 test('journey diagnostics keep the failed readiness control and public refusal', async () => {
   const { ui, taps } = journeyDiagnosticDriver({
     html: null,
-    visible: ['custom-game-black-invitation'],
-    refusedVisible: 'custom-game-black-you',
+    visible: ['game-session-black-invitation'],
+    refusedVisible: 'game-session-black-you',
     captions: {},
     texts: {
-      'custom-game-error': 'The choice could not be confirmed. Try again.',
-      'custom-game-status': 'Waiting for participants and readiness.',
+      'game-session-error': 'The choice could not be confirmed. Try again.',
+      'game-session-status': 'Waiting for participants and readiness.',
     },
   });
   const message = String(await acceptBlack(ui).catch(String));
-  expect(message).toContain('custom-game-black-you expect.visible');
+  expect(message).toContain('game-session-black-you expect.visible');
   expect(message).toContain('Timed out after 20000ms waiting for visible');
   expect(message).toContain('The choice could not be confirmed. Try again.');
   expect(message).toContain('"role":"invited to black"');
@@ -70,8 +70,8 @@ test('journey diagnostics keep the failed readiness control and public refusal',
   expect(message).toContain('Waiting for participants and readiness.');
   // A choice that did not take is chosen again, a bounded number of times.
   expect(taps).toEqual([
-    'custom-game-black-accept',
-    'custom-game-black-accept',
-    'custom-game-black-accept',
+    'game-session-black-accept',
+    'game-session-black-accept',
+    'game-session-black-accept',
   ]);
 });

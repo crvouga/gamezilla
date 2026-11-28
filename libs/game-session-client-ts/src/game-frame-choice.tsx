@@ -40,7 +40,7 @@ export function createFrameChoices(accepted: () => void): FrameChoices {
  */
 export function FrameChoiceRow(props: {
   readonly choices: FrameChoices;
-  /** The choice's handle (`custom-game-white-bot`). */
+  /** The choice's handle (`game-session-white-bot`). */
   readonly id: string;
   /** What tells this choice from others sharing its handle (a person); the handle when absent. */
   readonly choice?: string | undefined;

@@ -67,10 +67,10 @@ export const FindPlayers: Story = {
 };
 
 /**
- * A custom game is under way: seeking is not offered, and returning to the
- * custom game is, in its place.
+ * A game session is under way: seeking is not offered, and returning to the
+ * game session is, in its place.
  */
-export const ReturnToCustomGame: Story = {
+export const ReturnToGameSession: Story = {
   args: {
     returnTo: {
       kind: 'custom',

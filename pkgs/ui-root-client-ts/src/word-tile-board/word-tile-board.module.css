@@ -50,9 +50,7 @@
 .board {
   display: grid;
   /* Row labels 10 to 15 keep their own gutter instead of running into column a. */
-  grid-template-columns:
-    minmax(1.5rem, 0.6fr)
-    repeat(var(--word-tile-columns), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--word-tile-columns), minmax(0, 1fr));
   width: 100%;
   max-width: 40rem;
   gap: var(--ui-space-hairline);
@@ -62,15 +60,19 @@
   color: var(--ui-color-text);
   container-type: inline-size;
 }
-.header {
-  display: grid;
-  place-items: center;
-  min-width: 0;
+.coordinate {
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-end: 0;
   font-size: var(--ui-font-size-xs);
   line-height: 1;
-  /* Row and column numbers sit on the tray, not on a tile: its muted ink. */
-  color: var(--ui-color-game-word-tiles-muted);
-  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.coordinate[data-axis="column"] {
+  inset-inline-start: auto;
+  inset-inline-end: 0;
+  inset-block-start: 0;
+  inset-block-end: auto;
 }
 .cell {
   position: relative;
@@ -184,28 +186,12 @@
   max-width: none;
   /* No padding, so the first and last squares meet the window's edges. */
   padding: 0;
-  grid-template-columns: var(--ui-space-4) repeat(
+  grid-template-columns: repeat(
       var(--word-tile-columns),
       var(--word-tile-cell-size, var(--ui-control-size-md))
     );
 }
 
-.header[data-axis] {
-  position: sticky;
-  background: var(--ui-color-game-word-tiles-canvas);
-  z-index: 2;
-}
-.header[data-axis="column"],
-.header[data-axis="corner"] {
-  top: 0;
-}
-.header[data-axis="row"],
-.header[data-axis="corner"] {
-  left: 0;
-}
-.header[data-axis="corner"] {
-  z-index: 3;
-}
 .board[data-enlarged="true"] .cell {
   /* Clear of the sticky labels and their hairline, for focus and snapping. */
   scroll-margin-top: calc(var(--ui-space-6) + var(--ui-space-hairline));

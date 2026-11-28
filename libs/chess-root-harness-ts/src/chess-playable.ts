@@ -2,7 +2,7 @@ import { chessGameShared } from '@libs/chess-sub-shared-ts/chess-game';
 import type { PlayableGame } from '@libs/game-session-harness-ts/harness-game';
 import type { PuzzleFixture } from '@libs/game-session-harness-ts/known-puzzles';
 import { extraPuzzleRating } from '@libs/game-session-harness-ts/known-puzzles';
-import { CUSTOM_GAME_MATERIAL } from './custom-game-histories';
+import { GAME_SESSION_MATERIAL } from './game-session-histories';
 
 /** Chess's game id, as the space's game choice and finding an opponent name it. */
 export const CHESS_GAME_ID = chessGameShared.id;
@@ -60,7 +60,7 @@ export const CHESS_PLAYABLE: PlayableGame<
     refusedOpenings: ['e2e5', 'g1g3', 'e7e5', 'e2'],
     // White's king and queen against Black's bare king, which can never
     // mate (FIDE 6.9); White's last move, Qh6-f6, keeps it so.
-    secondSideCannotWin: CUSTOM_GAME_MATERIAL.slice(0, 53),
+    secondSideCannotWin: GAME_SESSION_MATERIAL.slice(0, 53),
     // Both knights out and home twice: the starting position stands for the
     // third time, with White to move, which draws by repetition (FIDE 9.2).
     drawByRules: [

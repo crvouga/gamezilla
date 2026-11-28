@@ -114,7 +114,7 @@ for (const phone of [true, false]) {
         'screens-games-hearts-interaction--pass-and-play',
         'light'
       );
-      const board = page.getByTestId('custom-game-board');
+      const board = page.getByTestId('game-session-board');
       const rate = phone ? 4 : 1;
       const cdp = await page.context().newCDPSession(page);
       await cdp.send('Emulation.setCPUThrottlingRate', { rate });
@@ -128,7 +128,7 @@ for (const phone of [true, false]) {
       for (const i of [0, 1, 2]) await drag(page, cards.nth(i), phone, false);
       await expect(board.locator('[aria-pressed="true"]')).toHaveCount(3);
       await board.screenshot({ path: info.outputPath('gesture-pass.png') });
-      await page.getByTestId('custom-game-board-pass').click();
+      await page.getByTestId('game-session-board-pass').click();
       const legal = cards.and(board.locator('[aria-disabled="false"]')).first();
       await drag(page, legal, phone, true);
       const card = await legal.getAttribute('data-card');
@@ -149,12 +149,12 @@ test('Hearts gestures show the queen-bearing trick beside its winner', async ({
 }, info) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openHearts(page, 'screens-games-hearts-board--queen-taken', 'light');
-  const board = page.getByTestId('custom-game-board');
-  const seat = page.getByTestId('custom-game-board-seat-black');
+  const board = page.getByTestId('game-session-board');
+  const seat = page.getByTestId('game-session-board-seat-black');
   await expect(seat).toContainText('This trick +13');
   await expect(seat).toContainText('Score 20');
   await expect(board.locator('[data-table-felt] [data-card]')).toHaveCount(4);
-  await expect(page.getByTestId('custom-game-board-center')).toContainText(
+  await expect(page.getByTestId('game-session-board-center')).toContainText(
     'This trick added 13 deal points.'
   );
   await board.screenshot({ path: info.outputPath('queen-taken.png') });

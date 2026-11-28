@@ -6,7 +6,7 @@ test.use({ trace: 'on', hasTouch: true });
 async function openNarrowPlay(page: Page) {
   await page.setViewportSize({ width: 320, height: 640 });
   await page.goto(
-    '/iframe.html?id=screens-custom-games-stage--move-waiting&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-game-sessions-stage--move-waiting&viewMode=story&globals=theme:light'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -28,12 +28,14 @@ test('storybook integration: game frame 320 keeps its latest move whole on the l
     page.locator('[data-component="GameSessionPinned"]')
   ).toHaveCount(0);
   const edges = await page.evaluate(() => {
-    const record = document.querySelector('[data-testid="custom-game-record"]');
+    const record = document.querySelector(
+      '[data-testid="game-session-record"]'
+    );
     const stage = document.querySelector('[data-game-board]');
     if (!record || !stage) throw new Error('Missing the moves line or board');
     const line = record.getBoundingClientRect();
     const moves = [
-      ...record.querySelectorAll('[data-testid^="custom-game-review-move-"]'),
+      ...record.querySelectorAll('[data-testid^="game-session-review-move-"]'),
     ];
     const latest = moves.at(-1);
     if (!latest) throw new Error('Missing the latest move');

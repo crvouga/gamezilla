@@ -1,11 +1,11 @@
 import type {
-  CustomGame,
-  CustomGameSide,
-} from '@libs/game-session-shared-ts/custom-game-state';
+  GameSession,
+  GameSessionSide,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { type Accessor, createMemo } from 'solid-js';
 
 /**
- * Who is looking at a custom game while it is set up, as the frame words
+ * Who is looking at a game session while it is set up, as the frame words
  * it. Read only from the screen's permission decisions (`canConfigure`,
  * `canJoin`) and where the person sits: never from who they are.
  *
@@ -32,7 +32,7 @@ export function frameViewerRole(facts: FrameViewerFacts): FrameViewerRole {
 }
 
 /** The seats nobody holds yet that anyone in the space may take. */
-export function frameOpenSides(game: CustomGame | null): CustomGameSide[] {
+export function frameOpenSides(game: GameSession | null): GameSessionSide[] {
   return game === null
     ? []
     : game.sides.filter((side) => game[side].kind === 'open');
@@ -40,15 +40,15 @@ export function frameOpenSides(game: CustomGame | null): CustomGameSide[] {
 
 /** The facts the screen's model offers, read reactively. */
 export type FrameViewerModel = {
-  readonly current: Accessor<CustomGame | null>;
-  readonly mySide: Accessor<CustomGameSide | null>;
+  readonly current: Accessor<GameSession | null>;
+  readonly mySide: Accessor<GameSessionSide | null>;
   readonly canConfigure: Accessor<boolean>;
   readonly canJoin: Accessor<boolean>;
 };
 
 export function useFrameViewer(model: FrameViewerModel): {
   readonly role: Accessor<FrameViewerRole>;
-  readonly openSides: Accessor<CustomGameSide[]>;
+  readonly openSides: Accessor<GameSessionSide[]>;
 } {
   const openSides = createMemo(() => frameOpenSides(model.current()));
   const role = createMemo(() =>

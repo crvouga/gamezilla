@@ -216,6 +216,6 @@ test('the pass-three-cards story stops before passing; another story sends the p
   expect(ready).toContain("toHaveAttribute('data-variant', 'solid')");
   expect(ready).toContain('not.toHaveBeenCalled()');
   const sending = story('PassSending');
-  expect(sending).toContain("findByTestId('custom-game-board-pass')");
+  expect(sending).toContain("findByTestId('game-session-board-pass')");
   expect(sending).toContain('toHaveBeenCalledWith(writeCards(PASSED))');
 });

@@ -74,10 +74,10 @@ export function ReturnOffer(props: OfferProps): JSX.Element {
   const title = () => {
     if (props.finishFirst)
       return custom()
-        ? t`Finish your custom game first`
+        ? t`Finish your game first`
         : t`Finish your matched game first`;
     return custom()
-      ? t`Your custom game is under way`
+      ? t`Your game is under way`
       : t`Your matched game is waiting for you`;
   };
   return (
@@ -87,9 +87,7 @@ export function ReturnOffer(props: OfferProps): JSX.Element {
         <ReturnToGame
           title={title()}
           action={
-            custom()
-              ? t`Return to the custom game`
-              : t`Return to your matched game`
+            custom() ? t`Return to your game` : t`Return to your matched game`
           }
           placement={props.placement}
           kind={props.game.kind}
@@ -191,7 +189,7 @@ export function ReturnToGameDock(): JSX.Element {
 
 /**
  * In a space, over whatever it shows, unless it shows the game's own board:
- * the custom game's own space stays on it, and a space showing finding an
+ * the game session's own space stays on it, and a space showing finding an
  * opponent shows the matched game (or offers it there, in place of
  * seeking). A seek refused for the game is told even on its board.
  */

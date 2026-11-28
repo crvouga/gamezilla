@@ -76,7 +76,7 @@ per slice.
 | Team tools | 2 | availability | [`specs/runtime/team-tools.openslo.yaml`](../specs/runtime/team-tools.openslo.yaml) → `the-team-can-see-what-happened` (90%) | Health, by check | 0 runs | pushes only | |
 | Certificates (web, API, broker) | 0 | expiry | companion rule (no objective) | SM | | 14 days (push), 3 days (page) | |
 | Telemetry pipeline | n/a | heartbeat, export, schema, outbox | pipeline alerts | work | heartbeat absent in prd | 5 min | |
-| Profiles, notifications, friends, search, puzzles, matchmaking, custom games | via journeys | | `journeys.critical-journeys` and the game journeys, each its own slice | Health | | about 4 h, per journey | No objective of their own |
+| Profiles, notifications, friends, search, puzzles, matchmaking, game sessions | via journeys | | `journeys.critical-journeys` and the game journeys, each its own slice | Health | | about 4 h, per journey | No objective of their own |
 
 Harness-only objectives (`specs/sync-engine/note-delivery.openslo.yaml`,
 `specs/games/*.openslo.yaml`) are judged on the simulated app in `bun

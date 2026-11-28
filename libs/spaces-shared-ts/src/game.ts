@@ -190,7 +190,7 @@ export type GameDefinition = GameOwnRoom & {
   ) => HandleResult | null;
   /**
    * The screen the definition keeps the space on while its game lasts (a
-   * custom game under way), or `null`: the host can neither pick another
+   * game session under way), or `null`: the host can neither pick another
    * game nor show another screen until it is finished.
    */
   readonly holdsSpace?: (state: RoomState) => string | null;

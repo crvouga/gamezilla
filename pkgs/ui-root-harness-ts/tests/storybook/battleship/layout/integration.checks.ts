@@ -21,9 +21,9 @@ test('storybook integration: battleship targeting instructions label their surfa
     // The region instruction heads the map; the cell instruction is the
     // Fire control directly under the cells it asks for.
     const heading = page.getByText('Choose a region', { exact: true });
-    const map = page.getByTestId('custom-game-board-target-grid');
-    const aim = page.getByTestId('custom-game-board-aim-grid');
-    const fire = page.getByTestId('custom-game-board-fire');
+    const map = page.getByTestId('game-session-board-target-grid');
+    const aim = page.getByTestId('game-session-board-aim-grid');
+    const fire = page.getByTestId('game-session-board-fire');
     await expect(fire).toHaveText('Choose a cell in A1–E2');
     const headingBounds = await heading.boundingBox();
     const mapBounds = await map.boundingBox();
@@ -57,10 +57,10 @@ test('storybook integration: battleship shot history keeps the own seat on a pho
     info
   );
   try {
-    await expect(page.getByTestId('custom-game-record')).toBeVisible();
+    await expect(page.getByTestId('game-session-record')).toBeVisible();
     for (const id of [
-      'custom-game-board-target-key',
-      'custom-game-seat-near',
+      'game-session-board-target-key',
+      'game-session-seat-near',
     ]) {
       const bounds = await page.getByTestId(id).boundingBox();
       if (!bounds) throw new Error(`${id} is not visible`);
@@ -88,13 +88,13 @@ test('storybook integration: battleship placement heading sits with its guidance
     info
   );
   const heading = await page
-    .getByTestId('custom-game-setup-region-heading')
+    .getByTestId('game-session-setup-region-heading')
     .boundingBox();
   const guidance = await page
-    .getByTestId('custom-game-setup-guidance')
+    .getByTestId('game-session-setup-guidance')
     .boundingBox();
   const grid = await page
-    .getByTestId('custom-game-setup-precision')
+    .getByTestId('game-session-setup-precision')
     .boundingBox();
   if (!heading || !guidance || !grid) throw new Error('Placement not shown');
   expect(guidance.y - (heading.y + heading.height)).toBeLessThanOrEqual(8);
@@ -114,7 +114,7 @@ test('storybook integration: battleship own seat stays on a phone after the riva
     'light',
     info
   );
-  for (const id of ['custom-game-board-fire', 'custom-game-seat-near']) {
+  for (const id of ['game-session-board-fire', 'game-session-seat-near']) {
     const box = await page.getByTestId(id).boundingBox();
     if (!box) throw new Error(`${id} is not shown`);
     expect(box.y + box.height).toBeLessThanOrEqual(844);
@@ -150,7 +150,7 @@ test('storybook integration: battleship finished game keeps the switch and own s
     expect(boardBox.x).toBeGreaterThanOrEqual(12);
     expect(boardBox.x + boardBox.width).toBeLessThanOrEqual(378);
     const segments = page
-      .getByTestId('custom-game-board-view')
+      .getByTestId('game-session-board-view')
       .getByRole('radio');
     await expect(segments).toHaveCount(2);
     for (const button of await segments.all()) {
@@ -164,7 +164,7 @@ test('storybook integration: battleship finished game keeps the switch and own s
       ).toBe(true);
     }
     const layout = await captureBattleLayout(page, info);
-    for (const id of ['custom-game-board-view', 'custom-game-seat-near']) {
+    for (const id of ['game-session-board-view', 'game-session-seat-near']) {
       const box = await page.getByTestId(id).boundingBox();
       if (!box) throw new Error(`${story}: ${id} is not shown`);
       if (box.y + box.height > 844)

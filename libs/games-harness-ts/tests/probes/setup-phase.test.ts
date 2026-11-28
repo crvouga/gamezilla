@@ -4,7 +4,7 @@
  * Supported (executable), as ordinary turns: each side's setup choice is an
  * action of the rules and the setup is part of the position, so replay,
  * legality, the move list, bots and automation, review and history carry it
- * with no framework change, and the game inherits every custom-game suite
+ * with no framework change, and the game inherits every game-session suite
  * and specification.
  *
  * Limitation (design-only): the platform has no notion of a phase. A setup
@@ -37,8 +37,12 @@ test('setup actions are moves: listed, replayed and refused before play like any
   ).toEqual(['stride 2', 'stride 1', 'run to 2']);
 });
 
-test('it inherits the custom-game specifications and owes nothing for what it does not offer', () => {
-  expect(areasOf(SETUP_RACE_GAME).bound).toEqual(['rules', 'custom-games']);
+test('it inherits the game-session specifications and owes nothing for what it does not offer', () => {
+  expect(areasOf(SETUP_RACE_GAME).bound).toEqual([
+    'rules',
+    'vs-human',
+    'vs-bot',
+  ]);
   const specifications = inheritedSpecifications(SETUP_RACE_GAME);
   expect(specifications).toContain('specs/games/game-turns.feature');
   expect(specifications).not.toContain('specs/games/game-history.feature');

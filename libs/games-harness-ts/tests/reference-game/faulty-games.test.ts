@@ -127,7 +127,8 @@ test('a bot choosing an action the rules do not offer is refused', () => {
   const reckless = definedWith({
     capabilities: {
       ...COUNTING_RACE_TURN_GAME.capabilities,
-      'custom-games': {
+      'vs-human': {},
+      'vs-bot': {
         bots: { difficulties: ['easy'], choose: () => 'retreat' },
       },
     },
@@ -158,14 +159,18 @@ test('a strength offered twice is refused when the game is defined, and by the b
   expect(() =>
     definedWith({
       capabilities: {
-        'custom-games': { bots: { difficulties: ['easy', 'easy'], choose } },
+        'vs-human': {},
+        'vs-bot': { bots: { difficulties: ['easy', 'easy'], choose } },
       },
     })
   ).toThrow('counting-race: a bot difficulty is offered twice');
   // A game changing its strengths after it was defined meets the law.
   const difficulties: BotDifficulty[] = ['easy'];
   const changed = definedWith({
-    capabilities: { 'custom-games': { bots: { difficulties, choose } } },
+    capabilities: {
+      'vs-human': {},
+      'vs-bot': { bots: { difficulties, choose } },
+    },
   });
   difficulties.push('easy');
   expectRefusedBy(

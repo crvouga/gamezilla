@@ -1,4 +1,4 @@
 {
-  "summary": "Reading custom-game-board-square-a1 and custom-game-board-square-h8 concurrently raised Invalid state: an evaluate() is already pending in the deployed journey's Bun WebView driver.",
-  "regressionTest": "libs/runtime-harness-ts/tests/custom-game-journey-board-orientation.test.ts"
+  "summary": "Reading game-session-board-square-a1 and game-session-board-square-h8 concurrently raised Invalid state: an evaluate() is already pending in the deployed journey's Bun WebView driver.",
+  "regressionTest": "libs/runtime-harness-ts/tests/game-session-journey-board-orientation.test.ts"
 }

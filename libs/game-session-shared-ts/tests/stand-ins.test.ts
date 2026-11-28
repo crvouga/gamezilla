@@ -1,14 +1,14 @@
 import { expect, test } from 'bun:test';
 import {
-  PlayCustomGameBot,
-  StandInCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-commands';
-import { CUSTOM_GAME_STAND_IN_MS } from '@libs/game-session-shared-ts/custom-game-stand-in';
+  PlayGameSessionBot,
+  StandInGameSession,
+} from '@libs/game-session-shared-ts/game-session-commands';
+import { GAME_SESSION_STAND_IN_MS } from '@libs/game-session-shared-ts/game-session-stand-in';
 import { ROOM_SCHEDULER_IDENTITY } from '@pkgs/room-root-shared-ts/builtin';
 import { fourSeatRoom } from './four-seat-room';
 
 const AWAY_AT = 2_000;
-const DUE = AWAY_AT + CUSTOM_GAME_STAND_IN_MS;
+const DUE = AWAY_AT + GAME_SESSION_STAND_IN_MS;
 
 /** A four-seat game with Bob (black) to move, everyone here. */
 function bobToMove() {
@@ -26,7 +26,7 @@ function bobToMove() {
 const standIn = (room: ReturnType<typeof fourSeatRoom>, at: number) =>
   room.deliver(
     ROOM_SCHEDULER_IDENTITY,
-    StandInCustomGame({ gameId: room.current().id }),
+    StandInGameSession({ gameId: room.current().id }),
     at
   );
 
@@ -39,7 +39,7 @@ test("the creator cannot choose the move a stand-in makes for an away person's s
   const before = room.current();
   const dictated = room.deliver(
     'alice',
-    PlayCustomGameBot({
+    PlayGameSessionBot({
       gameId: before.id,
       ply: before.moves.length,
       side: 'black',
@@ -53,7 +53,7 @@ test("the creator cannot choose the move a stand-in makes for an away person's s
   // The room itself decides for the stand-in.
   const decided = room.deliver(
     ROOM_SCHEDULER_IDENTITY,
-    PlayCustomGameBot({
+    PlayGameSessionBot({
       gameId: before.id,
       ply: before.moves.length,
       side: 'black',
@@ -66,7 +66,7 @@ test("the creator cannot choose the move a stand-in makes for an away person's s
 
 test("the creator's device still predicts its own bots' moves", () => {
   const room = fourSeatRoom();
-  room.send('alice', { operation: 'create' });
+  room.send('alice', { operation: 'create', mode: 'vs-bot' });
   for (const side of ['black', 'red', 'blue'] as const)
     expect(room.send('alice', { operation: 'bot', side }).ok).toBe(true);
   room.send('alice', { operation: 'ready' });
@@ -74,7 +74,7 @@ test("the creator's device still predicts its own bots' moves", () => {
   room.send('alice', { operation: 'move', uci: 'advance', ply: 0 }, AWAY_AT);
   const played = room.deliver(
     'alice',
-    PlayCustomGameBot({
+    PlayGameSessionBot({
       gameId: room.current().id,
       ply: 1,
       side: 'black',
@@ -110,7 +110,7 @@ test('nobody gets a stand-in while the host is away, and the pause never counts 
 // regression: stand-in-without-another-person
 test('a person alone with bots, or with everyone else away, gets no stand-in', () => {
   const solo = fourSeatRoom();
-  solo.send('alice', { operation: 'create' });
+  solo.send('alice', { operation: 'create', mode: 'vs-bot' });
   for (const side of ['black', 'red', 'blue'] as const)
     solo.send('alice', { operation: 'bot', side });
   solo.send('alice', { operation: 'ready' });

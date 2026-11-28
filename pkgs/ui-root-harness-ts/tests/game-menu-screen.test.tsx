@@ -24,7 +24,7 @@ function threeChoices(width: number) {
         moreTestId="choice-more"
         choices={[
           {
-            key: 'custom-game',
+            key: 'game-session',
             title: 'Play with friends',
             caption: 'With the people in this space, or bots',
             icon: UsersIcon,
@@ -70,7 +70,7 @@ function menu(width: number, onPlay: () => void) {
         moreTestId="choice-more"
         choices={[
           {
-            key: 'custom-game',
+            key: 'game-session',
             title: 'Play with friends or bots',
             caption: 'Choose who plays',
             icon: UsersIcon,
@@ -112,13 +112,13 @@ describe('GameMenuScreen', () => {
     expect(view.getByRole('heading', { level: 1 }).textContent).toBe(
       'Connect Four'
     );
-    expect(view.getByText('Drop discs and line up four')).toBeTruthy();
+    expect(view.queryByText('Drop discs and line up four')).toBeNull();
     const play = view.getByTestId('choice-play');
     expect(play.getAttribute('data-emphasis')).toBe('primary');
     expect(play.getAttribute('data-component')).toBe('GameMenuChoice');
     expect(play.closest('[data-layout="primary"]')).not.toBeNull();
     expect(play.textContent).toContain('Play with friends or bots');
-    expect(play.textContent).toContain('Choose who plays');
+    expect(play.textContent).not.toContain('Choose who plays');
     fireEvent.click(play);
     expect(onPlay).toHaveBeenCalledTimes(1);
     view.unmount();
@@ -192,8 +192,8 @@ describe('GameMenuScreen', () => {
       expect(body(row)).not.toContain('--ui-color-on-primary');
     }
     const primary = body('.primary');
-    expect(primary).toContain('background: var(--ui-color-tint-active);');
-    expect(primary).toContain('color: var(--ui-color-on-primary);');
+    expect(primary).toContain('background: var(--ui-color-surface);');
+    expect(primary).toContain('color: var(--ui-color-text);');
     expect(primary).toContain('width: 100%;');
   });
 
@@ -202,7 +202,7 @@ describe('GameMenuScreen', () => {
     expect(view.getByTestId('choice-play').getAttribute('data-component')).toBe(
       'GameMenuChoice'
     );
-    expect(view.getByText('Drop discs and line up four')).toBeTruthy();
+    expect(view.queryByText('Drop discs and line up four')).toBeNull();
     view.unmount();
   });
 
@@ -325,8 +325,10 @@ describe('GameMenuScreen', () => {
   test('phone: every row is its title over its caption, with no tag anywhere', () => {
     const view = threeChoices(390);
     fireEvent.click(view.getByTestId('choice-more'));
-    const caption = view.getByText('With the people in this space, or bots');
-    expect(caption.textContent).toBe('With the people in this space, or bots');
+    expect(
+      view.queryByText('With the people in this space, or bots')
+    ).toBeNull();
+    expect(view.getByText('Play with friends')).toBeTruthy();
     for (const id of ['choice-play', 'choice-find', 'choice-history'])
       expect(
         view.getByTestId(id).querySelector('[data-component="Badge"]')

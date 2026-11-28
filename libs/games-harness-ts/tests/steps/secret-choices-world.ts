@@ -1,5 +1,5 @@
 /**
- * Secret choices in a four-player custom game: Alice, Bob, Carol and Dave
+ * Secret choices in a four-player game session: Alice, Bob, Carol and Dave
  * sit first to fourth, a round of secret choices is found on the game's
  * known line, and each person's own secret choice is the one the known line
  * makes for their side (another is one the game's rules also take from their
@@ -7,24 +7,24 @@
  */
 
 import { expect } from 'bun:test';
-import type { CustomGameProbe } from '@libs/game-session-harness-ts/custom-game-probe';
+import type { GameSessionProbe } from '@libs/game-session-harness-ts/game-session-probe';
 import {
-  customGameView,
-  readCustomGameProbe,
-} from '@libs/game-session-harness-ts/custom-game-probe';
+  gameSessionView,
+  readGameSessionProbe,
+} from '@libs/game-session-harness-ts/game-session-probe';
 import {
-  makeCustomGameSecretChoice,
-  ownCustomGameSecretChoiceShown,
+  makeGameSessionSecretChoice,
+  ownGameSessionSecretChoiceShown,
   secretChoiceOnScreen,
-} from '@libs/game-session-harness-ts/custom-game-secret-choice';
+} from '@libs/game-session-harness-ts/game-session-secret-choice';
 import { privateSetupsReaching } from '@libs/game-session-harness-ts/private-setup-reach';
-import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
+import type { GameSession } from '@libs/game-session-shared-ts/game-session-state';
 import { restoreActorConnection } from '@libs/harness-ts/actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
-import { current } from './custom-game-set-up-world';
-import { rememberCustomGame, turnGameOf, view } from './game-world';
+import { current } from './game-session-set-up-world';
+import { rememberGameSession, turnGameOf, view } from './game-world';
 import {
   followKnownLine,
   knownLine,
@@ -32,7 +32,7 @@ import {
   secretChoicesOf,
 } from './known-line';
 
-/** The four people of a four-player custom game, first side to fourth. */
+/** The four people of a four-player game session, first side to fourth. */
 export const FOUR_PEOPLE = { third: 'carol', fourth: 'dave' } as const;
 
 const SECOND_MS = 1_000;
@@ -50,7 +50,7 @@ export async function sideShown(
 }
 
 /**
- * Alice, Bob, Carol and Dave in a custom game that followed the known line
+ * Alice, Bob, Carol and Dave in a game session that followed the known line
  * to the round of secret choices opening after `ply` moves, every side
  * still to choose.
  */
@@ -99,7 +99,7 @@ export async function makeSecretChoice(
   commitment: string,
   ply: number
 ): Promise<void> {
-  await w.s.apply(makeCustomGameSecretChoice, actor, {
+  await w.s.apply(makeGameSessionSecretChoice, actor, {
     gameId: turnGameOf(w).shared.id,
     commitment,
     ply,
@@ -151,15 +151,15 @@ export async function rememberScreen(
   w: HarnessWorld,
   actor: string
 ): Promise<void> {
-  w.memo.set(`screen-before:${actor}`, await w.s.read(customGameView, actor));
+  w.memo.set(`screen-before:${actor}`, await w.s.read(gameSessionView, actor));
 }
 
 /** `actor`'s own screen as remembered before the act. */
-export function screenBefore(w: HarnessWorld, actor: string): CustomGameProbe {
+export function screenBefore(w: HarnessWorld, actor: string): GameSessionProbe {
   const remembered = w.memo.get(`screen-before:${actor}`);
   if (remembered === undefined)
     throw new Error(`${actor}'s screen was not remembered`);
-  return remembered as CustomGameProbe;
+  return remembered as GameSessionProbe;
 }
 
 /** `viewer`'s screen shows `person`'s side among the sides that have chosen. */
@@ -169,7 +169,7 @@ export async function seesChosen(
   person: string
 ): Promise<void> {
   const side = await sideShown(w, person);
-  const seen = await w.s.until((s) => customGameView(s, viewer), {
+  const seen = await w.s.until((s) => gameSessionView(s, viewer), {
     pred: (shown) => shown.current?.committed.includes(side) === true,
     maxMs: SHOWN_WITHIN_MS,
   });
@@ -186,7 +186,7 @@ export async function seesOwnSecretChoice(
 ): Promise<void> {
   const made = rememberedSecretChoice(w, actor);
   const shown = await w.s.until(
-    (s) => ownCustomGameSecretChoiceShown(s, actor),
+    (s) => ownGameSessionSecretChoiceShown(s, actor),
     {
       pred: (own) => (made === null ? own !== null : own === made),
       maxMs: SHOWN_WITHIN_MS,
@@ -203,7 +203,7 @@ export async function seesSameSecretChoice(
 ): Promise<void> {
   const earlier = secretChoiceOnScreen(screenBefore(w, actor));
   expect(earlier).not.toBeNull();
-  expect(await w.s.read(ownCustomGameSecretChoiceShown, actor)).toBe(earlier);
+  expect(await w.s.read(ownGameSessionSecretChoiceShown, actor)).toBe(earlier);
 }
 
 /** None of `hidden` reaches `viewer`: not on their screen, not to their device. */
@@ -217,32 +217,32 @@ export async function reachesNone(
   expect(await w.s.read(privateSetupsReaching, viewer, secret)).toEqual([]);
 }
 
-/** `actor`'s device has its connection back and shows the live custom game. */
+/** `actor`'s device has its connection back and shows the live game session. */
 export async function backOnline(
   w: HarnessWorld,
   actor: string
 ): Promise<void> {
   await w.s.apply(restoreActorConnection, actor);
-  await w.s.until((s) => customGameView(s, actor), {
+  await w.s.until((s) => gameSessionView(s, actor), {
     pred: (shown) => shown.connected,
     maxMs: SHOWN_WITHIN_MS,
   });
-  await rememberCustomGame(w);
+  await rememberGameSession(w);
 }
 
 /**
- * The custom game as the room shows it to the people in it: the screen of
+ * The game session as the room shows it to the people in it: the screen of
  * the first person other than `actor` who has a connection, or the host's
  * when nobody else is connected (a person alone with bots).
  */
 export async function gameShownToOthers(
   w: HarnessWorld,
   actor: string
-): Promise<CustomGame> {
+): Promise<GameSession> {
   for (const person of ['alice', 'bob', 'carol', 'dave', 'eve']) {
     if (person === actor || !(await w.s.read((s) => s.actors.has(person))))
       continue;
-    const seen = await w.s.read(readCustomGameProbe, person);
+    const seen = await w.s.read(readGameSessionProbe, person);
     if (seen?.connected === true && seen.current !== null) return seen.current;
   }
   return current(w);

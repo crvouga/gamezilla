@@ -1,9 +1,9 @@
 import { expect, test } from 'bun:test';
 import { BATTLESHIP_HARNESS_GAME } from '@libs/battleship-harness-ts/battleship-harness-game';
-import { leaveCustomGameSpace } from '@libs/game-session-harness-ts/custom-game-departure';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
-import { configureCustomGameChoice } from '@libs/game-session-harness-ts/custom-game-ui';
+import { leaveGameSessionSpace } from '@libs/game-session-harness-ts/game-session-departure';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
+import { gameSessionView } from '@libs/game-session-harness-ts/game-session-probe';
+import { configureGameSessionChoice } from '@libs/game-session-harness-ts/game-session-ui';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import { leaveSpace } from '@libs/spaces-harness-ts/space-actions';
 import { openConformanceHarness } from './conformance-world';
@@ -27,7 +27,7 @@ const releaseUpload = scenarioAction({
 async function finishBattleship(
   s: Awaited<ReturnType<typeof openConformanceHarness>>
 ) {
-  await s.apply(establishCustomGame, BATTLESHIP_HARNESS_GAME.shared.id, {
+  await s.apply(establishGameSession, BATTLESHIP_HARNESS_GAME.shared.id, {
     history: BATTLESHIP_HARNESS_GAME.fixtures.firstSideVictory,
   });
 }
@@ -36,12 +36,12 @@ async function finishBattleship(
 test("the rematch fixture waits for Bob's delayed departure to reach Alice", async () => {
   await using s = await openConformanceHarness();
   await finishBattleship(s);
-  const bob = (await s.read(customGameView, 'bob')).myId;
+  const bob = (await s.read(gameSessionView, 'bob')).myId;
   await s.apply(holdUpload, 'bob', 1_000);
-  await s.apply(leaveCustomGameSpace, 'bob', 'alice');
-  expect((await s.read(customGameView, 'alice')).members).not.toContain(bob);
-  await s.apply(configureCustomGameChoice, 'alice', { operation: 'rematch' });
-  const seen = await s.read(customGameView, 'alice');
+  await s.apply(leaveGameSessionSpace, 'bob', 'alice');
+  expect((await s.read(gameSessionView, 'alice')).members).not.toContain(bob);
+  await s.apply(configureGameSessionChoice, 'alice', { operation: 'rematch' });
+  const seen = await s.read(gameSessionView, 'alice');
   expect(seen.current?.white).toEqual({ kind: 'open', person: '' });
   expect(seen.current?.black).toEqual({ kind: 'person', person: seen.myId });
 }, 120_000);
@@ -49,8 +49,8 @@ test("the rematch fixture waits for Bob's delayed departure to reach Alice", asy
 test("a Battleship rematch opens the departing player's seat when Leave arrives after the rematch", async () => {
   await using s = await openConformanceHarness();
   await finishBattleship(s);
-  const before = (await s.read(customGameView, 'alice')).current;
-  const bob = (await s.read(customGameView, 'bob')).myId;
+  const before = (await s.read(gameSessionView, 'alice')).current;
+  const bob = (await s.read(gameSessionView, 'bob')).myId;
   if (before === null) throw new Error('No Battleship game to rematch');
   expect(before.status).toBe('completed');
   expect(before.black).toEqual({ kind: 'person', person: bob });
@@ -59,8 +59,10 @@ test("a Battleship rematch opens the departing player's seat when Leave arrives 
   let rematchId: string;
   try {
     await s.apply(leaveSpace, 'bob');
-    await s.apply(configureCustomGameChoice, 'alice', { operation: 'rematch' });
-    const rematch = await s.read(customGameView, 'alice');
+    await s.apply(configureGameSessionChoice, 'alice', {
+      operation: 'rematch',
+    });
+    const rematch = await s.read(gameSessionView, 'alice');
     if (rematch.current === null) throw new Error('Alice sees no rematch');
     rematchId = rematch.current.id;
     expect(rematch.members).toContain(bob);
@@ -71,7 +73,7 @@ test("a Battleship rematch opens the departing player's seat when Leave arrives 
   } finally {
     await s.apply(releaseUpload, 'bob');
   }
-  const settled = await s.until((world) => customGameView(world, 'alice'), {
+  const settled = await s.until((world) => gameSessionView(world, 'alice'), {
     pred: (host) =>
       host.connected &&
       host.members.includes(host.myId) &&

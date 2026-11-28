@@ -89,7 +89,7 @@ Given('{actor} has a random fleet', async (w, actor: string) => {
   await remember(w);
 });
 Given(
-  '{actor} is ready for the custom game with a random fleet',
+  '{actor} is ready for the game session with a random fleet',
   async (w, actor: string) => {
     await setupPlacing(w);
     await readyWithRandomFleet(w, actor);
@@ -97,7 +97,7 @@ Given(
   }
 );
 Given(
-  '{actor} and {actor} are ready for the custom game with random fleets',
+  '{actor} and {actor} are ready for the game session with random fleets',
   async (w, first: string, second: string) => {
     await setupPlacing(w);
     await readyWithRandomFleet(w, first);
@@ -136,10 +136,10 @@ When(
 When('{actor} asks for a random fleet', async (w, actor: string) => {
   await w.s.apply(askForRandomFleet, actor);
 });
-When('{actor} becomes ready for the custom game', async (w, actor: string) => {
+When('{actor} becomes ready for the game session', async (w, actor: string) => {
   await w.s.apply(becomeBattleshipReady, actor);
 });
-When('{actor} starts the custom game', async (w, actor: string) => {
+When('{actor} starts the game session', async (w, actor: string) => {
   await w.s.apply(startBattleship, actor);
 });
 
@@ -205,11 +205,11 @@ Then(
     }
   }
 );
-Then('{actor} is ready for the custom game', async (w, actor: string) => {
+Then('{actor} is ready for the game session', async (w, actor: string) => {
   const side = await sideOf(w, actor);
   expect((await sees(w, actor)).screen.current?.ready).toContain(side);
 });
-Then('{actor} is not ready for the custom game', async (w, actor: string) => {
+Then('{actor} is not ready for the game session', async (w, actor: string) => {
   const side = await sideOf(w, actor);
   expect((await sees(w, actor)).screen.current?.ready).not.toContain(side);
 });

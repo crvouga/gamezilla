@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { askForRandomFleet } from '@libs/battleship-harness-ts/battleship-actions';
 
-const RANDOM = 'custom-game-setup-random';
+const RANDOM = 'game-session-setup-random';
 
 // regression: battleship-random-fleet-disabled-tap
 test('asking for a random fleet while ready leaves the disabled control unpressed', async () => {

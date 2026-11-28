@@ -49,7 +49,7 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   // 42724814828); the scenarios run one at a time on one monitor account.
   '@apps/product-ts#health': 720,
   // regression: games-spec-part-two-exceeds-task-budget
-  // Hashed to this part: custom-game-away.feature (unsliced, every
+  // Hashed to this part: game-session-away.feature (unsliced, every
   // conformance game) alongside slices of matched-game-without-turns,
   // multi-seat-stand-ins and puzzle-play — each also run once per game.
   // `specWeight` counts only the Gherkin text's scenario lines, not the

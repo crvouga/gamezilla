@@ -2,7 +2,7 @@
  * Probe: a setup phase before play. Each side first picks its stride
  * (`pick-1` or `pick-2`, the first side first); then each in turn runs its
  * own counter on by its stride, and who reaches three wins. The setup is
- * ordinary actions in ordinary positions. Offers custom games only.
+ * ordinary actions in ordinary positions. Offers game sessions only.
  *
  * A position is `setup-race:<first stride><second stride>:<first><second><w|b>`,
  * an unpicked stride `_` (`setup-race:__:00w` at the start).
@@ -110,7 +110,8 @@ export const SETUP_RACE_RULES: GameRules = {
 };
 
 const CAPABILITIES = {
-  'custom-games': {
+  'vs-human': {},
+  'vs-bot': {
     bots: {
       difficulties: [],
       choose: (position) => legal(position)[0] ?? null,

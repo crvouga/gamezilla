@@ -1,4 +1,4 @@
-import { openCustomGames } from '@libs/game-session-harness-ts/game-navigation';
+import { openGameSessions } from '@libs/game-session-harness-ts/game-navigation';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
@@ -41,7 +41,7 @@ export const switchDevices = scenarioAction({
       if (link === null) throw new Error(`${host} has no space link`);
       await Promise.resolve(joinViaLink.act(s, to, link));
       await Promise.resolve(
-        openCustomGames.act(s, to, lightCyclesGameId(count))
+        openGameSessions.act(s, to, lightCyclesGameId(count))
       );
     }
     await bringToFront(s, to);

@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { hybridRaceGame, timedRaceCodec } from './reference-hybrid-race';
@@ -30,7 +30,7 @@ test('a persisted local choice supersedes an older live recovery value after pro
     await local.flush();
     await requestLocalState(local);
     const prior = new Map(bytes);
-    const current = () => CustomGamesAttr.from(room.getSnapshot()).current!;
+    const current = () => GameSessionsAttr.from(room.getSnapshot()).current!;
     await local.choose({
       gameId: current().id,
       revision: current().revision,
@@ -52,7 +52,7 @@ test('a persisted local choice supersedes an older live recovery value after pro
     expect(frame.tick).toBe(6);
     expect(frame.state).toBe(accepted);
     expect(
-      CustomGamesAttr.from(restored.getSnapshot()).current?.moves
+      GameSessionsAttr.from(restored.getSnapshot()).current?.moves
     ).toHaveLength(1);
     expect(errors).toEqual([]);
     expect(rig.errors).toEqual([]);

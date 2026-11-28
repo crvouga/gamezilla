@@ -1,11 +1,11 @@
 import { DEVICE_ID_KEY } from '@libs/auth-shared-ts/auth-storage-keys';
 import { hostedSpaceId } from '@libs/game-matchmaking-harness-ts/multiplayer-spaces';
-import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-choice';
+import type { GameSessionChoice } from '@libs/game-session-shared-ts/game-session-choice';
 import {
-  ChangeCustomGame,
-  customGameChangeAnswer,
-} from '@libs/game-session-shared-ts/custom-game-commands';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+  ChangeGameSession,
+  gameSessionChangeAnswer,
+} from '@libs/game-session-shared-ts/game-session-commands';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import type { HarnessRoomNode } from '@libs/harness-ts/composition';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { harnessRoomGateway } from '@libs/harness-ts/room-gateway';
@@ -16,8 +16,8 @@ import {
   ROOM_WIRE_KIND,
   WIRE_VERSION,
 } from '@pkgs/room-root-shared-ts/wire';
-import { readCustomGameIdentity } from './custom-game-identity';
-import { readCustomGameProbe } from './custom-game-probe';
+import { readGameSessionIdentity } from './game-session-identity';
+import { readGameSessionProbe } from './game-session-probe';
 
 export type PrivateSetupCheckpoint = {
   readonly topic: string;
@@ -41,9 +41,9 @@ export async function privateSetupCheckpoint(
 ): Promise<PrivateSetupCheckpoint> {
   await s.session.waitForIdle();
   const spaceId = await hostedSpaceId(s, creator);
-  const game = (await readCustomGameProbe(s, creator))?.current;
+  const game = (await readGameSessionProbe(s, creator))?.current;
   if (spaceId === null || game == null)
-    throw new Error('A paired setup needs an existing custom game');
+    throw new Error('A paired setup needs an existing game session');
   if (game.status !== 'configuring' || game.ready.length !== 0)
     throw new Error('The paired checkpoint must precede every private choice');
   const topic = `space:${spaceId}`;
@@ -57,7 +57,7 @@ export async function privateSetupCheckpoint(
     if (installId === null) throw new Error(`${actor} has no install identity`);
     identities.push({
       actor,
-      identity: await readCustomGameIdentity(s, actor),
+      identity: await readGameSessionIdentity(s, actor),
       installId,
     });
   }
@@ -145,7 +145,7 @@ async function choose(
   node: HarnessRoomNode,
   checkpoint: PrivateSetupCheckpoint,
   peer: Peer,
-  command: { readonly id: string; readonly choice: CustomGameChoice }
+  command: { readonly id: string; readonly choice: GameSessionChoice }
 ): Promise<void> {
   const { id, choice } = command;
   peer.transport.sendJson({
@@ -153,7 +153,7 @@ async function choose(
     kind: ROOM_WIRE_KIND.command,
     id,
     ts: checkpoint.at,
-    payload: ChangeCustomGame(choice),
+    payload: ChangeGameSession(choice),
   });
   await awaitFrame(node, checkpoint.topic, peer.frames, (raw) => {
     const frame = parseServerToClientWire(raw);
@@ -167,7 +167,7 @@ async function choose(
     const frame = parseServerToClientWire(raw);
     return frame?.kind === ROOM_WIRE_KIND.committed && frame.commandId === id
       ? frame.entries.flatMap((entry) => {
-          const answer = customGameChangeAnswer(entry.event);
+          const answer = gameSessionChangeAnswer(entry.event);
           return answer === null ? [] : [answer];
         })
       : [];
@@ -239,7 +239,7 @@ export async function privateSetupWireFromCheckpoint(
       id: 'start',
       choice: { ...reference, operation: 'start' },
     });
-    const active = CustomGamesAttr.from(
+    const active = GameSessionsAttr.from(
       await fork.node.services.read(checkpoint.topic)
     ).current;
     if (active?.status !== 'active')

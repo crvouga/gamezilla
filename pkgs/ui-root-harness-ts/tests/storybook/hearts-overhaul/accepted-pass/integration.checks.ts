@@ -35,15 +35,17 @@ for (const width of [320, 390, 768, 1440]) {
           theme
         );
         await startHeartsMetrics(page);
-        const board = page.getByTestId('custom-game-board');
+        const board = page.getByTestId('game-session-board');
         const hand = page.getByRole('toolbar', { name: 'Your hand' });
         const cards = hand.getByRole('button');
         await expect(cards).toHaveCount(13);
         await captureHearts(page, info, 'before-pass');
         for (const index of [0, 1, 2]) await activate(cards.nth(index), touch);
-        await activate(page.getByTestId('custom-game-board-pass'), touch);
+        await activate(page.getByTestId('game-session-board-pass'), touch);
         await expect(board).toHaveAttribute('data-position', /:play:/);
-        await expect(page.getByTestId('custom-game-board-pass')).toHaveCount(0);
+        await expect(page.getByTestId('game-session-board-pass')).toHaveCount(
+          0
+        );
         await expect(cards).toHaveCount(13);
         await captureHearts(page, info, 'pass-accepted');
         const before = await board.getAttribute('data-position');
@@ -54,7 +56,7 @@ for (const width of [320, 390, 768, 1440]) {
         );
         await expect(board).toHaveAttribute('data-position', before ?? '');
         await expect(
-          page.getByTestId('custom-game-board-refusal')
+          page.getByTestId('game-session-board-refusal')
         ).not.toBeEmpty();
         await captureHearts(page, info, 'illegal-play-explained');
         for (const count of [1, 2, 3, 4]) {
@@ -65,7 +67,7 @@ for (const width of [320, 390, 768, 1440]) {
           await captureHearts(page, info, `trick-card-${count}`);
         }
         await expect(
-          page.getByTestId('custom-game-board-center')
+          page.getByTestId('game-session-board-center')
         ).toContainText('took the trick');
         await saveHeartsMetrics(page, info, rate);
         await auditHearts(page, info);

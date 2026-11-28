@@ -16,21 +16,21 @@ import { openHarness } from './open-pong-harness';
 function reopenedCourt(): Driver {
   let drawn = false;
   const values: Record<string, Record<string, string>> = {
-    'custom-game-board-status': { 'data-stage': 'playing' },
-    'custom-game-board-ball': {
+    'game-session-board-status': { 'data-stage': 'playing' },
+    'game-session-board-ball': {
       'data-ball-size': '20',
       'data-ball-x': '500',
       'data-ball-y': '300',
     },
-    'custom-game-board-drawing': { viewBox: '0 0 1000 600' },
-    'custom-game-board-first-paddle': { x: '20', width: '10' },
-    'custom-game-board-second-paddle': { x: '970', width: '10' },
+    'game-session-board-drawing': { viewBox: '0 0 1000 600' },
+    'game-session-board-first-paddle': { x: '20', width: '10' },
+    'game-session-board-second-paddle': { x: '970', width: '10' },
   };
   const texts: Record<string, string> = {
-    'custom-game-board-status': 'Playing',
-    'custom-game-board-score-left': 'Left 1',
-    'custom-game-board-score-right': 'Right 0',
-    'custom-game-board-target': 'First to 3',
+    'game-session-board-status': 'Playing',
+    'game-session-board-score-left': 'Left 1',
+    'game-session-board-score-right': 'Right 0',
+    'game-session-board-target': 'First to 3',
   };
   const node = (id: string) =>
     ({
@@ -54,7 +54,7 @@ function reopenedCourt(): Driver {
 
 test('a reopened app is read once its court is shown', async () => {
   // regression: pong-court-read-before-reopened-board
-  const court = await readPongCourt(reopenedCourt(), 'custom-game-board');
+  const court = await readPongCourt(reopenedCourt(), 'game-session-board');
   expect(court.score).toEqual({ left: 1, right: 0 });
   expect(court.targetScore).toBe(3);
   expect(court.stage).toBe('playing');
@@ -66,7 +66,7 @@ function takenAwayControl(): DriverNode {
     input: () =>
       Promise.reject(
         new Error(
-          'node custom-game-board-white-control input: Timed out after 5000ms waiting for testId("custom-game-board-white-control") wait "visible"'
+          'node game-session-board-white-control input: Timed out after 5000ms waiting for testId("game-session-board-white-control") wait "visible"'
         )
       ),
   } as unknown as DriverNode;
@@ -82,7 +82,7 @@ test('holding a paddle the deciding point took away is the victory', async () =>
 test('holding a paddle that fails while the game goes on still fails', async () => {
   await expect(
     holdPaddleUnlessFinished(takenAwayControl(), '0', async () => false)
-  ).rejects.toThrow('custom-game-board-white-control');
+  ).rejects.toThrow('game-session-board-white-control');
 });
 
 // regression: pong-short-match-ends-while-joining

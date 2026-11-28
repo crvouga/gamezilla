@@ -5,19 +5,19 @@ import {
   multiplayerSides,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import {
-  CustomGameHandsAttr,
-  ownCustomGameHand,
-} from '@libs/game-session-shared-ts/custom-game-hands';
-import { customGameWinners } from '@libs/game-session-shared-ts/custom-game-outcome';
+  GameSessionHandsAttr,
+  ownGameSessionHand,
+} from '@libs/game-session-shared-ts/game-session-hands';
+import { gameSessionWinners } from '@libs/game-session-shared-ts/game-session-outcome';
 import {
-  CustomGameSetupsAttr,
-  ownCustomGameSetup,
-} from '@libs/game-session-shared-ts/custom-game-setup';
+  GameSessionSetupsAttr,
+  ownGameSessionSetup,
+} from '@libs/game-session-shared-ts/game-session-setup';
 import {
-  type CustomGame,
-  type CustomGames,
-  CustomGamesAttr,
-} from '@libs/game-session-shared-ts/custom-game-state';
+  type GameSession,
+  type GameSessions,
+  GameSessionsAttr,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { useSpaceRoomSelector } from '@libs/spaces-client-ts/use-space-room-selector';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
@@ -59,9 +59,9 @@ type FinishedMatch = MultiplayerGame & { readonly updated_at?: string | null };
 export function useGameRecords(gameId: () => string) {
   const myId = useMyId();
   const rules = useTurnGames();
-  const local = useSpaceRoomSelector(CustomGamesAttr.from);
-  const localSetups = useSpaceRoomSelector(CustomGameSetupsAttr.from);
-  const localHands = useSpaceRoomSelector(CustomGameHandsAttr.from);
+  const local = useSpaceRoomSelector(GameSessionsAttr.from);
+  const localSetups = useSpaceRoomSelector(GameSessionSetupsAttr.from);
+  const localHands = useSpaceRoomSelector(GameSessionHandsAttr.from);
   // Only the person's own setups ever reach this device.
   const ownSetups = createQuery(
     () => sql<{
@@ -121,19 +121,19 @@ export function useGameRecords(gameId: () => string) {
   return { records, statistics, isLoading: matches.isLoading };
 }
 
-/** The space's finished custom games of the game, each with the viewer's own setup. */
+/** The space's finished game sessions of the game, each with the viewer's own setup. */
 function customRecords(
-  custom: CustomGames,
+  sessions: GameSessions,
   context: {
-    readonly setups: ReturnType<typeof CustomGameSetupsAttr.from>;
-    readonly hands: ReturnType<typeof CustomGameHandsAttr.from>;
+    readonly setups: ReturnType<typeof GameSessionSetupsAttr.from>;
+    readonly hands: ReturnType<typeof GameSessionHandsAttr.from>;
     readonly gameRules: GamePositionRules;
     readonly myId: string;
   }
 ): GameHistoryRecord[] {
   return [
-    ...custom.history,
-    ...(custom.current === null ? [] : [custom.current]),
+    ...sessions.history,
+    ...(sessions.current === null ? [] : [sessions.current]),
   ]
     .filter(
       (g) =>
@@ -158,13 +158,13 @@ function customRecords(
             g.moves.map((move) => move.uci)
           )
         : [],
-      setup: ownCustomGameSetup(
-        CustomGameSetupsAttr(context.setups),
+      setup: ownGameSessionSetup(
+        GameSessionSetupsAttr(context.setups),
         g,
         context.myId
       ),
-      hand: ownCustomGameHand(
-        CustomGameHandsAttr(context.hands),
+      hand: ownGameSessionHand(
+        GameSessionHandsAttr(context.hands),
         g,
         context.myId
       ),
@@ -174,10 +174,10 @@ function customRecords(
 }
 
 function customResult(
-  game: CustomGame
+  game: GameSession
 ): Pick<GameHistoryRecord, 'result' | 'winners'> {
   if (game.status === 'cancelled') return { result: 'aborted', winners: [] };
-  const winners = customGameWinners(game);
+  const winners = gameSessionWinners(game);
   // An outcome naming no side reads as a draw, as it always has.
   return game.outcome === 'draw' || winners.length === 0
     ? { result: 'draw', winners: game.sides }

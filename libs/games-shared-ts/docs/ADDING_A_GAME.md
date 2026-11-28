@@ -50,14 +50,14 @@ in source, tests and steps alike (the full map and the reasons are in
 | `@libs/game-puzzle-shared-ts` (a game offering puzzles) | `puzzle-catalogue`, `sub`, `puzzle-link`, `completion`, `hint-stage`, `solve-status` |
 | `@libs/game-puzzle-client-ts` (a game offering puzzles) | `puzzle-client`, `puzzle-content-client`; for a game that loads its own catalogue, `catalogue-load-client` (its `CatalogueLoadClient`) and `catalogue-load-screen` (to mount the loader on a routed page of its own) |
 | `@libs/spaces-shared-ts` | `game` (only for a game with its own room behaviour) |
-| `@libs/game-session-harness-ts` (its `-harness`) | `harness-game`, `known-puzzles`, `game-system`, `game-navigation`, `space-game-choice`, `custom-game-ui`, `custom-game-controls`, `custom-game-lineup`, `custom-game-moves`, `custom-game-screen`, `custom-game-reads`, `custom-game-history`, `puzzle-session-probe`, `puzzle-fixtures`, `puzzle-screen`, `puzzle-records`, `puzzle-moves`, `puzzle-room-probe`, `puzzle-link`, `puzzle-finishes`, `puzzle-result-recovery`, `puzzle-listening`, `puzzle-sounds` |
+| `@libs/game-session-harness-ts` (its `-harness`) | `harness-game`, `known-puzzles`, `game-system`, `game-navigation`, `space-game-choice`, `game-session-ui`, `game-session-controls`, `game-session-lineup`, `game-session-moves`, `game-session-screen`, `game-session-reads`, `game-session-history`, `puzzle-session-probe`, `puzzle-fixtures`, `puzzle-screen`, `puzzle-records`, `puzzle-moves`, `puzzle-room-probe`, `puzzle-link`, `puzzle-finishes`, `puzzle-result-recovery`, `puzzle-listening`, `puzzle-sounds` |
 | `@libs/game-matchmaking-harness-ts` (its `-harness`) | `matched-game-world`, `matched-game-app.steps`, `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record`, `multiplayer-time`, `matched-game-fixtures` |
 
 Nothing else: not the platform's screens, consumers or storage, and never
 a stored type, a probe, a table or a transport client. A game reads its
-Custom Game through `custom-game-screen` and its matched game through
+Game Session through `game-session-screen` and its matched game through
 `matched-game-world`. Its board gesture goes through
-`playOnCustomGameBoard` or `sendMoveFromBoard`, and a scenario's given
+`playOnGameSessionBoard` or `sendMoveFromBoard`, and a scenario's given
 position through `matched-game-fixtures`. If the game needs something the
 list does not offer, add a focused read, action or fixture helper to a
 public module, or move the test to the framework when it checks the
@@ -90,7 +90,8 @@ export const raceGameShared = defineTurnGame({
   capabilities: {
     // Each capability is offered by supplying what it needs; leave one out
     // and the platform neither shows nor accepts it.
-    'custom-games': { bots: { difficulties: ['easy'], choose: chooseStep } },
+    'vs-human': {},
+    'vs-bot': { bots: { difficulties: ['easy'], choose: chooseStep } },
     history: { record: (position, history, metadata) => raceRecord(position, metadata) },
     // Finding an opponent needs history beside it: every finished matched
     // game offers its game record.
@@ -232,7 +233,7 @@ supply it in the rules and nowhere else — the platform does the rest
   the game stores it; every known line is the proposals people make,
   resolved against them (Battleship: `libs/battleship-harness-ts`).
 
-The platform then gives the game private readiness in custom games, a setup
+The platform then gives the game private readiness in game sessions, a setup
 phase with its own deadline in matched games, the private-setup
 specifications and privacy suites, and the test-only consumer secret pick
 as its game-independent twin. Such a game offers no puzzles.
@@ -258,7 +259,7 @@ and nowhere else
   the hidden state they deal; every known line is the proposals people make
   from that deal (Word Tiles: `libs/word-tiles-harness-ts`).
 
-The platform then gives the game private hands in custom games and finding
+The platform then gives the game private hands in game sessions and finding
 an opponent, practice against bots on one device (also offline), the
 dealt-hands laws and privacy suites. Such a game offers no rated puzzle feed;
 it may offer
@@ -289,9 +290,9 @@ example. On top of dealt hands:
   `four seats`, `dealt hands`, `secret choices`, `a shared victory`; the
   shared stand-in, secret-choice and shared-victory features then bind it.
 
-Both secret choices and turns by the rules are custom-game capabilities:
+Both secret choices and turns by the rules are game-session capabilities:
 `defineGame` refuses them in a game offering matchmaking. A person away
-from a custom game of more than two sides is replaced by a disclosed
+from a game session of more than two sides is replaced by a disclosed
 stand-in until they take their seat back; the game supplies nothing for it
 beyond its bots.
 
@@ -305,7 +306,7 @@ export const RACE_PLAYABLE: PlayableGame = {
   shared: raceGameShared,
   fixtures: {
     // Written from the game's laws, never computed by its implementation.
-    // Seven moves: the victory every custom-game and matched-game model follows.
+    // Seven moves: the victory every game-session and matched-game model follows.
     firstSideVictory: ['step', 'step', 'step', 'step', 'step', 'step', 'step'],
     // How the game writes each of those moves in its move list and its
     // game record, as its rules label them.
@@ -400,7 +401,7 @@ A game's own Gherkin parameter types join `libs/harness-ts/src/parameter-types.t
 | A harness game omitted from execution; duplicate execution identities; a suite missing any eligible game's case or claiming another game's case | the conformance plan; another suite's pass cannot fill the missing case |
 | Fixtures the game's rules contradict (a known puzzle's line, labels, solver, wrong, refused or opponent's move included), ids that differ between the definitions, a game offering puzzles without known puzzles (or naming them without offering them), none of two solver moves, a known puzzle outside its namespace | type checking (`GameFixtures`), and `assertHarnessGame` |
 | A puzzle its validation refuses or another game's it accepts, a line its judge does not follow to the solve, a wrong move judged otherwise, a legal move judged illegal, marks that name no cell, a board its automation cannot play the solution on | `tests/conformance/puzzles` |
-| Rules that break a shared law (replay, isolation, legality, sides taking turns, automation, bots) | `tests/conformance/rules`, `…/custom-games` |
+| Rules that break a shared law (replay, isolation, legality, sides taking turns, automation, bots) | `tests/conformance/rules`, `…/game-sessions` |
 | Endings or side names the shared screens cannot show | `tests/conformance/rules/presentation` |
 | A game record with the wrong people, result, clock or moves | `tests/conformance/history/game-record` |
 | A game depending on another game or a registry; a framework package depending on a game | the package's `lint` (`gameViolations`) |

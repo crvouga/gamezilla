@@ -25,7 +25,7 @@ export type MultiplayerMovesShown = {
   readonly reviewing: { readonly after: string | null } | null;
   /**
    * The word naming every move once when the game's notation is a bare
-   * number (`Column`), as a custom game's record says it; absent otherwise.
+   * number (`Column`), as a game session's record says it; absent otherwise.
    */
   readonly heading?: string | undefined;
 };

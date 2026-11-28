@@ -30,10 +30,10 @@ test('storybook integration: Hearts short passing view keeps scores and selected
   await toggle.focus();
   await page.keyboard.press('Enter');
   await expect(toggle).toHaveAttribute('aria-expanded', 'true');
-  await expect(page.getByTestId('custom-game-board-seat-red')).toContainText(
+  await expect(page.getByTestId('game-session-board-seat-red')).toContainText(
     'morgan'
   );
-  await expect(page.getByTestId('custom-game-board-seat-red')).toContainText(
+  await expect(page.getByTestId('game-session-board-seat-red')).toContainText(
     'Score 0'
   );
   await captureHearts(page, info, 'short-phone-scores-open');
@@ -43,8 +43,8 @@ test('storybook integration: Hearts short passing view keeps scores and selected
   await cards.nth(1).tap();
   await cards.nth(2).tap();
   await captureHearts(page, info, 'short-phone-pass-ready');
-  await page.getByTestId('custom-game-board-pass').tap();
-  await expect(page.getByTestId('custom-game-board')).toHaveAttribute(
+  await page.getByTestId('game-session-board-pass').tap();
+  await expect(page.getByTestId('game-session-board')).toHaveAttribute(
     'data-position',
     /:play:/
   );

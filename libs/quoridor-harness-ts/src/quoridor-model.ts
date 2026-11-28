@@ -1,8 +1,8 @@
 import {
-  CUSTOM_GAME_BOARD,
-  playOnCustomGameBoard,
-} from '@libs/game-session-harness-ts/custom-game-moves';
-import { chooseCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+  GAME_SESSION_BOARD,
+  playOnGameSessionBoard,
+} from '@libs/game-session-harness-ts/game-session-moves';
+import { chooseGameSession } from '@libs/game-session-harness-ts/game-session-ui';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import type { QuoridorMode } from '@libs/quoridor-shared-ts/quoridor';
@@ -34,7 +34,7 @@ export const placeQuoridorModelWall = scenarioAction({
     const { player, column, row, direction } = placement;
     const actor = QUORIDOR_ACTORS[player]!;
     const view = await quoridorView(s, actor);
-    await chooseCustomGame(s, actor, {
+    await chooseGameSession(s, actor, {
       operation: 'move',
       uci: `${String.fromCharCode(97 + column)}${row + 1}${direction === 0 ? 'h' : 'v'}`,
       ply: view.current!.moves.length,
@@ -47,14 +47,14 @@ export const passQuoridorTurn = scenarioAction({
   act: async (s, actor: string) => {
     const view = await quoridorView(s, actor);
     const ui = await actorUi(s, actor);
-    const pass = ui.get(`${CUSTOM_GAME_BOARD}-action-pass`);
+    const pass = ui.get(`${GAME_SESSION_BOARD}-action-pass`);
     if (view.mySide === view.current?.turn && (await pass.isVisible())) {
-      await playOnCustomGameBoard(s, actor, async () => {
+      await playOnGameSessionBoard(s, actor, async () => {
         await pass.key('enter');
         return 'made';
       });
     } else
-      await chooseCustomGame(s, actor, {
+      await chooseGameSession(s, actor, {
         operation: 'move',
         uci: 'pass',
         ply: view.current!.moves.length,

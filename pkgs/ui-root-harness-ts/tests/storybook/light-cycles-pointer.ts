@@ -12,7 +12,7 @@ export async function verifySharedSwipeCapture(page: Page): Promise<void> {
     'data-story-ready',
     'true'
   );
-  const arena = page.getByTestId('custom-game-board-arena');
+  const arena = page.getByTestId('game-session-board-arena');
   await arena.scrollIntoViewIfNeeded();
   const bounds = await arena.boundingBox();
   if (!bounds) throw new Error('Missing shared arena');
@@ -30,7 +30,7 @@ export async function verifySharedSwipeCapture(page: Page): Promise<void> {
     await page.mouse.move(x + distance, y, { steps: 4 });
     await page.mouse.up();
     await expect(
-      page.getByTestId(`custom-game-board-arena-rider-${rider}`)
+      page.getByTestId(`game-session-board-arena-rider-${rider}`)
     ).toHaveAttribute('data-heading', heading);
   }
   expect(failures).toEqual([]);

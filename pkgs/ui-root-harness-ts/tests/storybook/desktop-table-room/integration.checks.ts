@@ -12,10 +12,10 @@ test('Quoridor desktop keeps the opening grid and wall targets in the first view
     globals: {},
     suffix: '',
   });
-  const grid = page.getByTestId('custom-game-board');
+  const grid = page.getByTestId('game-session-board');
   const opening = await grid.boundingBox();
   expect(opening?.width).toBeGreaterThanOrEqual(440);
-  await page.getByTestId('custom-game-board-coordinates').click();
+  await page.getByTestId('game-session-board-coordinates').click();
   await page.getByRole('button', { name: 'Horizontal wall' }).click();
   await grid.locator('[data-cell="d4"]').click();
   await expect(grid.locator('[data-cell="d4"]')).toHaveAttribute(
@@ -25,9 +25,9 @@ test('Quoridor desktop keeps the opening grid and wall targets in the first view
   expect(await grid.boundingBox()).toEqual(opening);
   for (const control of [
     grid,
-    page.getByTestId('custom-game-board-precise-target'),
-    page.getByTestId('custom-game-board-wall-commit'),
-    page.getByTestId('custom-game-board-wall-cancel'),
+    page.getByTestId('game-session-board-precise-target'),
+    page.getByTestId('game-session-board-wall-commit'),
+    page.getByTestId('game-session-board-wall-cancel'),
     page.locator('[data-game-slot="controls"]'),
   ])
     await expect(control).toBeInViewport({ ratio: 1 });
@@ -55,7 +55,7 @@ test('Hearts desktop keeps all thirteen cards and the pass action in the first v
   await expect(cards).toHaveCount(13);
   for (const card of await cards.all())
     await expect(card).toBeInViewport({ ratio: 1 });
-  const pass = page.getByTestId('custom-game-board-pass');
+  const pass = page.getByTestId('game-session-board-pass');
   await expect(pass).toBeEnabled();
   await expect(pass).toBeInViewport({ ratio: 1 });
   await expect(page.locator('[data-table-felt]')).toBeInViewport({ ratio: 1 });

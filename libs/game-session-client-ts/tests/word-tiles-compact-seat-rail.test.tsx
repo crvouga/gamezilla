@@ -87,7 +87,7 @@ function mount(
 // regression: word-tiles-compact-local-score-below-board
 test('Word Tiles opt-in compact rail keeps the two-player local score above the board', () => {
   mount(2, 'white');
-  const own = screen.getByTestId('custom-game-seat-near');
+  const own = screen.getByTestId('game-session-seat-near');
   expect(
     own.compareDocumentPosition(screen.getByTestId('word-board')) &
       Node.DOCUMENT_POSITION_FOLLOWING
@@ -107,7 +107,7 @@ test('Word Tiles compact spectators retain every score without claiming the near
       document.querySelectorAll('[data-component="GamePlayerChip"]')
     ).toHaveLength(count);
     expect(screen.queryByText('You')).toBeNull();
-    expect(screen.getAllByTestId('custom-game-seat-near')).toHaveLength(1);
+    expect(screen.getAllByTestId('game-session-seat-near')).toHaveLength(1);
     expect(
       screen.getByText('Avery with a very long player name')
     ).toBeInTheDocument();
@@ -125,7 +125,7 @@ test('default two-player tables and wide opt-in tables retain opposed strips', (
     const board = screen.getByTestId('word-board');
     expect(
       board.compareDocumentPosition(
-        screen.getByTestId('custom-game-seat-near')
+        screen.getByTestId('game-session-seat-near')
       ) & Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
     expect(
@@ -148,7 +148,7 @@ test('all Word Tiles table sizes identify the seated viewer once beside every sc
 // regression: word-tiles-active-own-chip-badge-contrast
 test('the active own chip fills its You badge so it stays legible on the turn tint', () => {
   mount(2, 'white');
-  const badge = within(screen.getByTestId('custom-game-seat-near'))
+  const badge = within(screen.getByTestId('game-session-seat-near'))
     .getByText('You')
     .closest('[data-component="Badge"]');
   expect(badge?.getAttribute('data-tone')).toBe('solid');
@@ -158,10 +158,10 @@ test('the active own chip fills its You badge so it stays legible on the turn ti
 test('a timed Word Tiles table on a phone shows every clock beside every score', () => {
   for (const count of [2, 3, 4]) {
     mount(count, 'white', { timed: true });
-    expect(screen.getByTestId('custom-game-white-clock').textContent).toBe(
+    expect(screen.getByTestId('game-session-white-clock').textContent).toBe(
       '0:57'
     );
-    expect(screen.getByTestId('custom-game-black-clock').textContent).toBe(
+    expect(screen.getByTestId('game-session-black-clock').textContent).toBe(
       '1:00'
     );
     expect(screen.getByText('9999')).toBeInTheDocument();
@@ -175,10 +175,10 @@ test('a Word Tiles table on a phone names every seat live, as its full strip doe
   const people: FramePeople = { name: (person) => `${person} (renamed)` };
   for (const count of [2, 3, 4]) {
     mount(count, 'white', { people });
-    expect(screen.getByTestId('custom-game-white-person').textContent).toBe(
+    expect(screen.getByTestId('game-session-white-person').textContent).toBe(
       'white (renamed)'
     );
-    expect(screen.getByTestId('custom-game-black-person').textContent).toBe(
+    expect(screen.getByTestId('game-session-black-person').textContent).toBe(
       'black (renamed)'
     );
     cleanup();

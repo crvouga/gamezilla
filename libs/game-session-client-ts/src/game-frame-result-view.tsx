@@ -57,7 +57,7 @@ export function FrameResultView(props: {
     }))
   );
   return (
-    <StackVertical gap="md" testId="custom-game-result">
+    <StackVertical gap="md" testId="game-session-result">
       <GameStandings
         aria-label={t`Standings`}
         scoreLabel={props.result.scoreLabel}
@@ -75,7 +75,7 @@ export function FrameResultHeadlineView(props: {
     <GameResultHeadline
       title={props.result.headline}
       caption={props.result.note ?? undefined}
-      dataSet={{ testid: 'custom-game-result-headline' }}
+      dataSet={{ testid: 'game-session-result-headline' }}
     />
   );
 }

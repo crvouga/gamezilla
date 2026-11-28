@@ -1,0 +1,4 @@
+{
+  "summary": "A simulated connection cut must settle before starting a ready host game against a bot. Once the device notices it is offline, the host can still start their local game.",
+  "regressionTest": "specs/journeys/game-session.feature"
+}

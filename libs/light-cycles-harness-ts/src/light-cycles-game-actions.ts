@@ -21,7 +21,7 @@ import {
   ridingPeople,
   startedLightCycles,
 } from './light-cycles-lineup';
-import { customGameStatusShown } from './light-cycles-reads';
+import { gameSessionStatusShown } from './light-cycles-reads';
 import { crashRiders } from './light-cycles-riding-actions';
 import { arrangeRoundWins } from './light-cycles-round-actions';
 
@@ -124,7 +124,8 @@ export const callOffLightCycles = scenarioAction({
     await pollUntil(
       s,
       async () =>
-        (await customGameStatusShown(s, lightCyclesObserver(s))) === 'cancelled'
+        (await gameSessionStatusShown(s, lightCyclesObserver(s))) ===
+        'cancelled'
           ? true
           : null,
       { maxMs: SETTLED_MS, stepMs: 50, description: 'the called-off game' }
@@ -149,7 +150,7 @@ export async function stageShown(
   s: ProductHarness,
   actor?: string
 ): Promise<string> {
-  const status = await customGameStatusShown(
+  const status = await gameSessionStatusShown(
     s,
     actor ?? lightCyclesObserver(s)
   );
@@ -162,12 +163,12 @@ export async function stageShown(
         : status;
 }
 
-/** What the custom game's status says to `actor`: its lineup, then how the game stands. */
+/** What the game session's status says to `actor`: its lineup, then how the game stands. */
 export async function gameStatusText(
   s: ProductHarness,
   actor: string
 ): Promise<string> {
   return (
-    (await (await actorUi(s, actor)).get('custom-game-status').text()) ?? ''
+    (await (await actorUi(s, actor)).get('game-session-status').text()) ?? ''
   );
 }

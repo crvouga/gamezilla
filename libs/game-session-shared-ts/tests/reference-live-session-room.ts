@@ -3,12 +3,12 @@ import {
   matchRoomGame,
   matchRoomTopic,
 } from '@libs/game-matchmaking-shared-ts/match-room';
-import { CUSTOM_GAME_GRANT_KEYS } from '@libs/game-session-shared-ts/custom-game-permissions';
-import {
-  CustomGamesAttr,
-  newCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-state';
 import type { GameRegistration } from '@libs/game-session-shared-ts/game-definition';
+import { GAME_SESSION_GRANT_KEYS } from '@libs/game-session-shared-ts/game-session-permissions';
+import {
+  GameSessionsAttr,
+  newGameSession,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { gameModules } from '@libs/spaces-shared-ts/game-modules';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
@@ -52,12 +52,12 @@ export async function liveSessionRoom(
   const extra = (side: 'red' | 'blue', person: string) =>
     sides.includes(side) ? { [side]: { kind: 'person' as const, person } } : {};
   const game = {
-    ...newCustomGame(
-      'race-1',
-      'alice',
-      definition.registration.rules.initial(),
-      sides
-    ),
+    ...newGameSession({
+      id: 'race-1',
+      creator: 'alice',
+      position: definition.registration.rules.initial(),
+      sides,
+    }),
     ...extra('red', 'carol'),
     ...extra('blue', 'dave'),
     black:
@@ -101,7 +101,7 @@ export async function liveSessionRoom(
         dave: { joinedAt: '2026-10-23' },
         eve: { joinedAt: '2026-10-23' },
       }),
-      ...CustomGamesAttr({ current: game, history: [] }),
+      ...GameSessionsAttr({ current: game, history: [] }),
     }),
   };
   const storage = restored?.storage ?? new InMemoryRoomStorage();
@@ -136,7 +136,7 @@ export async function liveSessionRoom(
   ) => {
     const grants = [
       PERMISSION.spacesLeave,
-      ...CUSTOM_GAME_GRANT_KEYS,
+      ...GAME_SESSION_GRANT_KEYS,
       ...(identity === 'alice' ? [PERMISSION.spacesSelectGame] : []),
       ...(matched
         ? [
@@ -201,7 +201,7 @@ export async function liveSessionRoom(
     connect,
     settle,
     advance,
-    current: () => CustomGamesAttr.from(server.getCommittedState()).current!,
+    current: () => GameSessionsAttr.from(server.getCommittedState()).current!,
     match: () => matchRoomGame(server.getCommittedState())!,
     dispose: () => {
       for (const room of clients.values()) room.destroy();

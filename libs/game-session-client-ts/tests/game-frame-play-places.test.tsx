@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test';
-import type { CustomGamePlace } from '@libs/game-session-client-ts/custom-game-places';
 import { FRAME_NO_PLAY } from '@libs/game-session-client-ts/game-frame-empty';
+import type { GameSessionPlace } from '@libs/game-session-client-ts/game-session-places';
 import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { cleanup, fireEvent, screen, within } from '@solidjs/testing-library';
 import { createSignal, untrack } from 'solid-js';
@@ -32,7 +32,7 @@ const stage = (): Element => {
 /** A game played in real time: no turns, so no moves. */
 const REAL_TIME = record([], { turns: false });
 
-const over = (place: CustomGamePlace = { screen: 'result' }) =>
+const over = (place: GameSessionPlace = { screen: 'result' }) =>
   frameProps({
     phase: 'completed',
     place,
@@ -54,11 +54,11 @@ const over = (place: CustomGamePlace = { screen: 'result' }) =>
 // regression: offline-local-chess-turn-hidden
 test('White can see their turn in an offline local game against a bot', () => {
   mountFrame(() => frameProps({ connection: 'offline-local' }), 390);
-  expect(screen.getByTestId('custom-game-status').textContent).toContain(
+  expect(screen.getByTestId('game-session-status').textContent).toContain(
     'Your turn.'
   );
   expect(screen.getByText(/Your local game can continue/)).toBeDefined();
-  expect(shown('custom-game-connection-needed')).toBe(false);
+  expect(shown('game-session-connection-needed')).toBe(false);
 });
 
 describe('the play place', () => {
@@ -76,19 +76,19 @@ describe('the play place', () => {
     'at %ipx it holds the board, the seats, one line and one way to the commands',
     (width) => {
       mountFrame(() => frameProps(), width);
-      expect(shown('custom-game-seat-near')).toBe(true);
-      expect(shown('custom-game-black')).toBe(true);
-      expect(shown('custom-game-commands')).toBe(true);
+      expect(shown('game-session-seat-near')).toBe(true);
+      expect(shown('game-session-black')).toBe(true);
+      expect(shown('game-session-commands')).toBe(true);
       for (const absent of [
-        'custom-game-review-first',
-        'custom-game-review-back',
-        'custom-game-review-forward',
-        'custom-game-review-live',
-        'custom-game-review-ply',
-        'custom-game-resign',
-        'custom-game-offer',
-        'custom-game-cancel',
-        'custom-game-history-stats',
+        'game-session-review-first',
+        'game-session-review-back',
+        'game-session-review-forward',
+        'game-session-review-live',
+        'game-session-review-ply',
+        'game-session-resign',
+        'game-session-offer',
+        'game-session-cancel',
+        'game-session-history-stats',
       ])
         expect(shown(absent)).toBe(false);
     }
@@ -103,14 +103,14 @@ describe('the play place', () => {
         },
       })
     );
-    fireEvent.click(screen.getByTestId('custom-game-offer-draw'));
+    fireEvent.click(screen.getByTestId('game-session-offer-draw'));
     expect(chosen).toEqual([{ operation: 'offer' }]);
-    fireEvent.click(screen.getByTestId('custom-game-resign-now'));
+    fireEvent.click(screen.getByTestId('game-session-resign-now'));
     expect(chosen).toHaveLength(1);
     expect(view.queryByRole('dialog')).not.toBeNull();
   });
 
-  // regression: custom-game-result-covers-resign-done
+  // regression: game-session-result-covers-resign-done
   test('the result opens after the resigning player dismisses Done', async () => {
     const [finished, setFinished] = createSignal(false);
     mountFrame(() =>
@@ -122,9 +122,9 @@ describe('the play place', () => {
             },
           })
     );
-    fireEvent.click(screen.getByTestId('custom-game-resign-now'));
-    fireEvent.click(screen.getByTestId('custom-game-resign-confirm'));
-    const done = await screen.findByTestId('custom-game-resign-done');
+    fireEvent.click(screen.getByTestId('game-session-resign-now'));
+    fireEvent.click(screen.getByTestId('game-session-resign-confirm'));
+    const done = await screen.findByTestId('game-session-resign-done');
     expect(shown('game-result-close')).toBe(false);
     fireEvent.click(done);
     expect(await screen.findByTestId('game-result-close')).toBeDefined();
@@ -132,8 +132,8 @@ describe('the play place', () => {
 
   test('someone who may neither offer a draw nor resign is shown neither', () => {
     mountFrame(() => frameProps({ play: FRAME_NO_PLAY }));
-    expect(shown('custom-game-offer-draw')).toBe(false);
-    expect(shown('custom-game-resign-now')).toBe(false);
+    expect(shown('game-session-offer-draw')).toBe(false);
+    expect(shown('game-session-resign-now')).toBe(false);
   });
 
   // regression: battleship-own-seat-below-fold
@@ -155,10 +155,10 @@ describe('the play place', () => {
           }),
         width
       );
-      const lines = screen.getAllByTestId('custom-game-status');
+      const lines = screen.getAllByTestId('game-session-status');
       expect(lines).toHaveLength(1);
       const line = lines[0] as HTMLElement;
-      expect(precedes(screen.getByTestId('custom-game-seat-near'), line)).toBe(
+      expect(precedes(screen.getByTestId('game-session-seat-near'), line)).toBe(
         true
       );
       expect(precedes(line, screen.getByTestId('story-board'))).toBe(true);
@@ -170,7 +170,7 @@ describe('the play place', () => {
     mountFrame(() =>
       frameProps({ status: status({ sending: true, plainTurn: false }) })
     );
-    const lines = screen.getAllByTestId('custom-game-status');
+    const lines = screen.getAllByTestId('game-session-status');
     expect(lines).toHaveLength(1);
     expect(lines[0]?.textContent).toContain('Sending choice…');
   });
@@ -188,23 +188,23 @@ describe('the play place', () => {
     expect(
       document.querySelector('[data-component="GameSessionPinned"]')
     ).toBeNull();
-    const records = screen.getAllByTestId('custom-game-record');
+    const records = screen.getAllByTestId('game-session-record');
     expect(records).toHaveLength(1);
     expect(
       precedes(
-        screen.getByTestId('custom-game-record'),
+        screen.getByTestId('game-session-record'),
         screen.getByTestId('story-board')
       )
     ).toBe(true);
-    expect(shown('custom-game-move-strip')).toBe(false);
-    expect(shown('custom-game-review-move-3')).toBe(true);
+    expect(shown('game-session-move-strip')).toBe(false);
+    expect(shown('game-session-review-move-3')).toBe(true);
   });
 
   // regression: game-record-panel-stretched-empty
   test('wide: the moves card is as tall as its moves, never stretched to the board', () => {
     mountFrame(() => frameProps(), 1440);
     expect(
-      screen.getByTestId('custom-game-record').getAttribute('data-fill')
+      screen.getByTestId('game-session-record').getAttribute('data-fill')
     ).toBe('false');
   });
 
@@ -212,10 +212,10 @@ describe('the play place', () => {
   // regression: unplayed-game-record-card
   test('before the first move the moves card says there are none yet', () => {
     mountFrame(() => frameProps({ record: record([]) }));
-    expect(screen.getByTestId('custom-game-record').textContent).toContain(
+    expect(screen.getByTestId('game-session-record').textContent).toContain(
       'No moves yet.'
     );
-    expect(shown('custom-game-all-moves')).toBe(false);
+    expect(shown('game-session-all-moves')).toBe(false);
   });
 
   // regression: hearts-record-card-only-a-sentence
@@ -230,7 +230,7 @@ describe('the play place', () => {
         }),
       })
     );
-    const outline = screen.getByTestId('custom-game-record-outline');
+    const outline = screen.getByTestId('game-session-record-outline');
     expect(outline.textContent).toContain('Deal 1');
     expect(outline.textContent).toContain('Pass right');
     expect(outline.textContent?.match(/Now/g)).toHaveLength(1);
@@ -248,12 +248,12 @@ describe('the play place', () => {
     'at %ipx a real-time game has no moves card and its seats stay around the arena',
     (width) => {
       mountFrame(() => frameProps({ record: REAL_TIME }), width);
-      expect(shown('custom-game-record')).toBe(false);
-      expect(shown('custom-game-scoreboard')).toBe(false);
-      const near = screen.getByTestId('custom-game-seat-near');
+      expect(shown('game-session-record')).toBe(false);
+      expect(shown('game-session-scoreboard')).toBe(false);
+      const near = screen.getByTestId('game-session-seat-near');
       expect(stage().contains(near)).toBe(true);
       expect(near.textContent).toContain('avery');
-      expect(stage().contains(screen.getByTestId('custom-game-black'))).toBe(
+      expect(stage().contains(screen.getByTestId('game-session-black'))).toBe(
         true
       );
     }
@@ -270,7 +270,7 @@ describe('the play place', () => {
         }),
       })
     );
-    const line = screen.getByTestId('custom-game-status');
+    const line = screen.getByTestId('game-session-status');
     expect(
       line.closest('[data-component="VisuallyHidden"]') ??
         line.querySelector('[data-component="VisuallyHidden"]')
@@ -290,7 +290,7 @@ describe('the play place', () => {
       })
     );
     const pill = screen
-      .getByTestId('custom-game-status')
+      .getByTestId('game-session-status')
       .closest('[data-component="GameTurnPill"]');
     expect(pill?.getAttribute('data-look')).toBe('plain');
     expect(pill?.querySelector('.bg-surface-muted')).toBeNull();
@@ -330,8 +330,8 @@ describe('the play place', () => {
         },
       })
     );
-    expect(shown('custom-game-seat-near')).toBe(false);
-    expect(shown('custom-game-black')).toBe(false);
+    expect(shown('game-session-seat-near')).toBe(false);
+    expect(shown('game-session-black')).toBe(false);
   });
 
   // regression: hearts-seats-shown-twice
@@ -360,10 +360,10 @@ describe('the play place', () => {
     expect(
       document.querySelector('[data-component="GamePlayerRail"]')
     ).toBeNull();
-    expect(shown('custom-game-seat-near')).toBe(false);
-    const lent = screen.getByTestId('custom-game-black');
+    expect(shown('game-session-seat-near')).toBe(false);
+    const lent = screen.getByTestId('game-session-black');
     expect(lent.getAttribute('data-component')).toBe('GameTableSeat');
-    expect(screen.getAllByTestId('custom-game-black')).toHaveLength(1);
+    expect(screen.getAllByTestId('game-session-black')).toHaveLength(1);
     // regression: hearts-seat-dots-unexplained
     expect(lent.querySelector('[data-component="GameSeatSwatch"]')).toBeNull();
   });
@@ -379,13 +379,13 @@ describe('the play place', () => {
         },
       })
     );
-    expect(shown('custom-game-agree')).toBe(true);
-    expect(shown('custom-game-reject')).toBe(true);
+    expect(shown('game-session-agree')).toBe(true);
+    expect(shown('game-session-reject')).toBe(true);
     // regression: draw-offer-drops-turn-highlight — the person's seat lost
     // its turn tint while the offer waited, though the board still took
     // their move (playing on declines it). It stays the seat to move.
     expect(
-      screen.getByTestId('custom-game-white').getAttribute('aria-current')
+      screen.getByTestId('game-session-white').getAttribute('aria-current')
     ).toBe('step');
   });
 
@@ -397,7 +397,7 @@ describe('the play place', () => {
         onOpen: (place) => calls.push(`open ${place.screen}`),
       })
     );
-    fireEvent.click(screen.getByTestId('custom-game-review-move-2'));
+    fireEvent.click(screen.getByTestId('game-session-review-move-2'));
     expect(calls).toEqual(['seek 2', 'open moves']);
   });
 
@@ -409,8 +409,8 @@ describe('the play place', () => {
         record: record(['1'], { history: false }),
       })
     );
-    expect(shown('custom-game-commands')).toBe(false);
-    expect(shown('custom-game-watching')).toBe(true);
+    expect(shown('game-session-commands')).toBe(false);
+    expect(shown('game-session-watching')).toBe(true);
   });
 });
 
@@ -422,11 +422,11 @@ describe('the game menu', () => {
     mountFrame(() => frameProps({ place: { screen: 'commands' } }));
     const menu = screen.getByRole('dialog', { name: 'Game menu' });
     for (const row of [
-      'custom-game-offer',
-      'custom-game-review-moves',
-      'custom-game-history-stats',
-      'custom-game-resign',
-      'custom-game-resume',
+      'game-session-offer',
+      'game-session-review-moves',
+      'game-session-history-stats',
+      'game-session-resign',
+      'game-session-resume',
     ])
       expect(within(menu).getAllByTestId(row)).toHaveLength(1);
     // A few commands are a sheet, never a page: the board stays behind it.
@@ -442,7 +442,7 @@ describe('the game menu', () => {
         play: { ...FRAME_NO_PLAY, offerAgainLater: true, canResign: true },
       })
     );
-    const offer = screen.getByTestId('custom-game-offer');
+    const offer = screen.getByTestId('game-session-offer');
     expect(offer).toBeDisabled();
     expect(offer.textContent).toContain(
       'You may offer again after your next move.'
@@ -460,19 +460,19 @@ describe('the moves place', () => {
         onSeek: (ply) => sought.push(ply),
       })
     );
-    expect(screen.getByTestId('custom-game-reviewing').textContent).toContain(
+    expect(screen.getByTestId('game-session-reviewing').textContent).toContain(
       'After move 2 of 3'
     );
-    fireEvent.click(screen.getByTestId('custom-game-review-back'));
-    fireEvent.click(screen.getByTestId('custom-game-review-forward'));
-    fireEvent.click(screen.getByTestId('custom-game-review-first'));
+    fireEvent.click(screen.getByTestId('game-session-review-back'));
+    fireEvent.click(screen.getByTestId('game-session-review-forward'));
+    fireEvent.click(screen.getByTestId('game-session-review-first'));
     expect(sought).toEqual([1, 3, 0]);
-    expect(shown('custom-game-review-move-1')).toBe(true);
+    expect(shown('game-session-review-move-1')).toBe(true);
     // The players stay above the reviewed position; play commands stay on the live board.
-    const seat = screen.getByTestId('custom-game-seat-near');
+    const seat = screen.getByTestId('game-session-seat-near');
     expect(precedes(seat, screen.getByTestId('story-board'))).toBe(true);
     expect(seat.textContent).not.toContain('Your move');
-    expect(shown('custom-game-commands')).toBe(false);
+    expect(shown('game-session-commands')).toBe(false);
   });
 
   test('a move that was not played is refused in words, with the field still there', () => {
@@ -486,20 +486,20 @@ describe('the moves place', () => {
       })
     );
     fireEvent.click(screen.getByRole('button', { name: 'Go to move' }));
-    expect(screen.getByTestId('custom-game-error').textContent).toContain(
+    expect(screen.getByTestId('game-session-error').textContent).toContain(
       'Choose a position from the moves actually played.'
     );
-    expect(shown('custom-game-review-ply')).toBe(true);
+    expect(shown('game-session-review-ply')).toBe(true);
   });
 
   test('the way back leads to the game while it is played and to the result once it is over', () => {
     mountFrame(() => frameProps({ place: { screen: 'moves' } }));
-    expect(screen.getByTestId('custom-game-back-to-live').textContent).toBe(
+    expect(screen.getByTestId('game-session-back-to-live').textContent).toBe(
       'Back to the game'
     );
     cleanup();
     mountFrame(() => over({ screen: 'moves' }));
-    expect(screen.getByTestId('custom-game-back-to-live').textContent).toBe(
+    expect(screen.getByTestId('game-session-back-to-live').textContent).toBe(
       'Back to the result'
     );
   });
@@ -515,13 +515,13 @@ describe('the result place', () => {
     'at %ipx the outcome leads the commands beside the final board, with one real rematch',
     (width) => {
       mountFrame(() => over(), width);
-      const headline = screen.getByTestId('custom-game-result-headline');
-      const rematch = screen.getAllByTestId('custom-game-rematch');
+      const headline = screen.getByTestId('game-session-result-headline');
+      const rematch = screen.getAllByTestId('game-session-rematch');
       expect(rematch).toHaveLength(1);
       expect(stage().contains(headline)).toBe(false);
       expect(precedes(stage(), headline)).toBe(true);
       expect(precedes(headline, rematch[0] as HTMLElement)).toBe(true);
-      expect(screen.getAllByTestId('custom-game-history-stats')).toHaveLength(
+      expect(screen.getAllByTestId('game-session-history-stats')).toHaveLength(
         1
       );
       expect(document.body.textContent).not.toContain('Live');
@@ -534,10 +534,10 @@ describe('the result place', () => {
   // regression: completed-game-outcome-reason-missing
   test('the result keeps the reason the game ended', () => {
     mountFrame(() => over());
-    expect(screen.getByTestId('custom-game-outcome').textContent).toContain(
+    expect(screen.getByTestId('game-session-outcome').textContent).toContain(
       'Second side wins by resignation.'
     );
-    expect(screen.getByTestId('custom-game-outcome').textContent).toContain(
+    expect(screen.getByTestId('game-session-outcome').textContent).toContain(
       'You resigned.'
     );
   });
@@ -547,7 +547,7 @@ describe('the result place', () => {
     const dialog = screen.getByRole('dialog', { name: 'Game over' });
     // The dialog has room: the standings show in full, behind no control.
     expect(screen.queryByTestId('game-result-overlay-details')).toBeNull();
-    expect(dialog.contains(screen.getByTestId('custom-game-result'))).toBe(
+    expect(dialog.contains(screen.getByTestId('game-session-result'))).toBe(
       true
     );
     expect(shown('game-result-overlay-dismiss')).toBe(false);
@@ -558,8 +558,8 @@ describe('the result place', () => {
       ...over(),
       next: { plays: true, canCreate: false, reviewable: true },
     }));
-    expect(shown('custom-game-rematch')).toBe(false);
-    expect(shown('custom-game-back')).toBe(true);
+    expect(shown('game-session-rematch')).toBe(false);
+    expect(shown('game-session-back')).toBe(true);
   });
 
   test('a watcher goes back to the space or looks at the moves', () => {
@@ -568,24 +568,30 @@ describe('the result place', () => {
       viewerSide: null,
       next: { plays: false, canCreate: false, reviewable: true },
     }));
-    expect(shown('custom-game-rematch')).toBe(false);
-    expect(shown('custom-game-back')).toBe(true);
-    expect(shown('custom-game-review-start')).toBe(true);
+    expect(shown('game-session-rematch')).toBe(false);
+    expect(shown('game-session-back')).toBe(true);
+    expect(shown('game-session-review-start')).toBe(true);
   });
 
-  test('a cancelled game says so and offers the next one', () => {
+  // regression: new-game-after-cancel
+  test('New game after cancellation creates the next human table', () => {
+    const choices: unknown[] = [];
     mountFrame(() => ({
       ...over(),
+      onChoose: async (choice) => {
+        choices.push(choice);
+      },
       phase: 'cancelled' as const,
       result: null,
       status: status({ description: 'Game cancelled.', emphasis: 'neutral' }),
     }));
-    expect(screen.getByTestId('custom-game-result-headline').textContent).toBe(
+    expect(screen.getByTestId('game-session-result-headline').textContent).toBe(
       'The game was cancelled'
     );
-    const outcome = screen.getByTestId('custom-game-outcome').textContent;
+    const outcome = screen.getByTestId('game-session-outcome').textContent;
     expect(outcome).toContain('Cancelled');
     expect(outcome).toContain('Nobody won; the game was stopped');
-    expect(shown('custom-game-new')).toBe(true);
+    fireEvent.click(screen.getByTestId('game-session-new'));
+    expect(choices).toEqual([{ operation: 'create', mode: 'vs-human' }]);
   });
 });

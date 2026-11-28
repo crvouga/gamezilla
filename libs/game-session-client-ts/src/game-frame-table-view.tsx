@@ -1,4 +1,4 @@
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
+import type { GameSessionInput } from '@libs/game-session-shared-ts/game-session-choice';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
@@ -41,7 +41,7 @@ import type {
   FrameTable,
 } from './game-frame-view-types';
 
-type Choose = (input: CustomGameInput) => Promise<void>;
+type Choose = (input: GameSessionInput) => Promise<void>;
 
 /** One side's clock. An untimed game has none: its status line says so. */
 export function FrameSeatClock(props: {
@@ -53,7 +53,7 @@ export function FrameSeatClock(props: {
       active={props.clock.active}
       label={props.seat.sideLabel}
       value={props.clock.value}
-      dataSet={{ testid: `custom-game-${props.seat.side}-clock` }}
+      dataSet={{ testid: `game-session-${props.seat.side}-clock` }}
       ariaLabel={props.seat.sideLabel}
     />
   );
@@ -101,11 +101,11 @@ export function FrameSeatStripView(props: SeatProps): JSX.Element {
   return (
     <GamePlayerBar
       density="compact"
-      dataSet={{ testid: `custom-game-${props.seat.side}` }}
+      dataSet={{ testid: `game-session-${props.seat.side}` }}
       name={
         <Text
           variant="inherit"
-          testId={`custom-game-${props.seat.side}-person`}
+          testId={`game-session-${props.seat.side}-person`}
         >
           <GameSessionIdentity name={props.seat.plainName}>
             <FrameHolderName
@@ -155,7 +155,7 @@ export function FrameSeatStripView(props: SeatProps): JSX.Element {
         <GameActionButton
           title={<Trans>Take back my side</Trans>}
           variant="solid"
-          dataSet={{ testid: 'custom-game-reclaim' }}
+          dataSet={{ testid: 'game-session-reclaim' }}
           operation={() => props.onChoose({ operation: 'reclaim' })}
         />
       </Show>
@@ -185,10 +185,10 @@ export function FrameSeatChipView(
   return (
     <GameSessionParticipant name={props.seat.plainName}>
       <GamePlayerChip
-        dataSet={{ testid: `custom-game-${props.seat.side}` }}
+        dataSet={{ testid: `game-session-${props.seat.side}` }}
         placeTestId={
           props.own === true || props.near === true
-            ? 'custom-game-seat-near'
+            ? 'game-session-seat-near'
             : undefined
         }
         name={props.seat.plainName}
@@ -197,7 +197,7 @@ export function FrameSeatChipView(
         nameContent={
           <Text
             variant="inherit"
-            testId={`custom-game-${props.seat.side}-person`}
+            testId={`game-session-${props.seat.side}-person`}
           >
             <FrameHolderName
               holder={props.seat.holder}
@@ -391,7 +391,7 @@ export function FrameNearSeatView(props: TableProps): JSX.Element {
   return (
     <Show when={nearStrip(props)}>
       {(seat) => (
-        <StackVertical testId="custom-game-seat-near">
+        <StackVertical testId="game-session-seat-near">
           <FrameSeatStripView
             seat={seat()}
             own={seat().side === props.viewerSide}
@@ -432,16 +432,16 @@ export function FrameBoardSeatView(
         return (
           <GameTableSeat
             dataSet={
-              marked() ? { testid: `custom-game-${shown().side}` } : undefined
+              marked() ? { testid: `game-session-${shown().side}` } : undefined
             }
             placeTestId={
-              own() && marked() ? 'custom-game-seat-near' : undefined
+              own() && marked() ? 'game-session-seat-near' : undefined
             }
             name={
               <Text
                 variant="inherit"
                 testId={
-                  marked() ? `custom-game-${shown().side}-person` : undefined
+                  marked() ? `game-session-${shown().side}-person` : undefined
                 }
               >
                 <FrameHolderName

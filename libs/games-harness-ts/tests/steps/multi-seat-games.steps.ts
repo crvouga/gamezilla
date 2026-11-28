@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
+import { gameSessionView } from '@libs/game-session-harness-ts/game-session-probe';
 import { Given, Then } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -8,16 +8,16 @@ import {
   current,
   identityOf,
   toldOf,
-} from './custom-game-set-up-world';
+} from './game-session-set-up-world';
 
-import { hostOf, setupCustomGame, turnGameOf } from './game-world';
+import { hostOf, setupGameSession, turnGameOf } from './game-world';
 import { followsKnownLine, plyWithMover } from './known-line';
 import { gameShownToOthers } from './secret-choices-world';
 
 const PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
 
 /**
- * Alice, Bob, Carol and Dave in a custom game that followed its known
+ * Alice, Bob, Carol and Dave in a game session that followed its known
  * victory until the side at `seat` (0 for the first) is to move, no round of
  * secret choices open.
  */
@@ -26,7 +26,7 @@ async function toMove(w: HarnessWorld, seat: number): Promise<void> {
   const line = game.fixtures.firstSideVictory;
   const side = gameSides(game.shared.turnGame.rules)[seat]!;
   followsKnownLine(w, line);
-  await setupCustomGame(w, {
+  await setupGameSession(w, {
     third: 'carol',
     fourth: 'dave',
     moves: line.slice(0, plyWithMover(game, line, side)),
@@ -34,41 +34,41 @@ async function toMove(w: HarnessWorld, seat: number): Promise<void> {
 }
 
 Given(
-  'Alice, Bob, Carol and Dave are setting up a four-player custom game',
+  'Alice, Bob, Carol and Dave are setting up a four-player game session',
   async (w) =>
-    setupCustomGame(w, {
+    setupGameSession(w, {
       third: 'carol',
       fourth: 'dave',
       ready: false,
       active: false,
     })
 );
-Given('all four people are ready for the custom game', async (w) => {
+Given('all four people are ready for the game session', async (w) => {
   for (const person of PEOPLE) await chosen(w, person, { operation: 'ready' });
 });
 Given(
-  'Alice, Bob and Carol are ready in a four-player custom game with an open fourth side',
+  'Alice, Bob and Carol are ready in a four-player game session with an open fourth side',
   async (w) =>
-    setupCustomGame(w, { third: 'carol', fourth: 'open', active: false })
+    setupGameSession(w, { third: 'carol', fourth: 'open', active: false })
 );
 Given('Alice, Bob and Carol are ready but Dave is not ready', async (w) => {
   for (const person of PEOPLE.slice(0, -1))
     await chosen(w, person, { operation: 'ready' });
 });
 Given(
-  'Alice, Bob, Carol and Dave have a four-player custom game under way',
-  async (w) => setupCustomGame(w, { third: 'carol', fourth: 'dave' })
+  'Alice, Bob, Carol and Dave have a four-player game session under way',
+  async (w) => setupGameSession(w, { third: 'carol', fourth: 'dave' })
 );
 Given(
-  'Alice, Bob, Carol and Dave have a four-player custom game with Bob to move',
+  'Alice, Bob, Carol and Dave have a four-player game session with Bob to move',
   async (w) => toMove(w, 1)
 );
 Given(
-  'Alice, Bob, Carol and Dave have a four-player custom game with Alice to move',
+  'Alice, Bob, Carol and Dave have a four-player game session with Alice to move',
   async (w) => toMove(w, 0)
 );
 Given(
-  "Alice, Bob, Carol and Dave have a four-player custom game in Alice's space with Alice to move",
+  "Alice, Bob, Carol and Dave have a four-player game session in Alice's space with Alice to move",
   async (w) => {
     await toMove(w, 0);
     expect(hostOf(w)).toBe('alice');
@@ -84,9 +84,9 @@ Given('Alice has offered a draw accepted by Bob', async (w) => {
   await chosen(w, 'bob', { operation: 'agree' });
 });
 Given(
-  'Alice, Bob, Carol and Dave have a four-player custom game played at 1+0 with Carol to move',
+  'Alice, Bob, Carol and Dave have a four-player game session played at 1+0 with Carol to move',
   async (w) =>
-    setupCustomGame(w, {
+    setupGameSession(w, {
       third: 'carol',
       fourth: 'dave',
       clock: { minutes: 1, increment: 0 },
@@ -99,7 +99,7 @@ Then("the four sides follow the game's declared turn order", async (w) => {
     ...gameSides(turnGameOf(w).shared.turnGame.rules),
   ]);
   for (const [index, person] of PEOPLE.entries()) {
-    const seen = await w.s.read(customGameView, person);
+    const seen = await w.s.read(gameSessionView, person);
     expect(seen.mySide).toBe((await current(w)).sides[index]!);
   }
 });
@@ -108,17 +108,17 @@ Then(
   async (w, actor: string) => toldOf(w, actor, 'every side needs a participant')
 );
 // As the others see it: a person away keeps showing what they last saw.
-Then('{actor} keeps the custom game turn', async (w, actor: string) => {
+Then('{actor} keeps the game session turn', async (w, actor: string) => {
   const game = await gameShownToOthers(w, actor);
   expect(game.status).toBe('active');
   expect(game[game.turn].person).toBe(await identityOf(w, actor));
 });
-Then('Carol cannot make a custom game move before Bob', async (w) => {
-  const seen = await w.s.read(customGameView, 'carol');
+Then('Carol cannot make a game session move before Bob', async (w) => {
+  const seen = await w.s.read(gameSessionView, 'carol');
   expect(seen.gates['move']).toBe(false);
 });
 Then(
-  "the custom game is still under way awaiting Dave's agreement",
+  "the game session is still under way awaiting Dave's agreement",
   async (w) => {
     const game = await current(w);
     expect(game.status).toBe('active');
@@ -127,7 +127,7 @@ Then(
   }
 );
 Then(
-  'the custom game is finished as a draw because a participant withdrew',
+  'the game session is finished as a draw because a participant withdrew',
   async (w) => {
     expect(await current(w)).toMatchObject({
       status: 'completed',
@@ -137,7 +137,7 @@ Then(
   }
 );
 Then(
-  'the custom game is finished as a draw because a participant ran out of time',
+  'the game session is finished as a draw because a participant ran out of time',
   async (w) => {
     expect(await current(w)).toMatchObject({
       status: 'completed',

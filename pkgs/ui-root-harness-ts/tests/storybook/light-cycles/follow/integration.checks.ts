@@ -63,7 +63,7 @@ async function turn(
 async function visibleHead(arena: Locator, seat: number) {
   const rect = await arena.boundingBox();
   const head = await arena
-    .getByTestId(`custom-game-board-arena-rider-${seat}`)
+    .getByTestId(`game-session-board-arena-rider-${seat}`)
     .boundingBox();
   if (!rect || !head) throw new Error('Missing rider or arena');
   expect(head.x + head.width / 2).toBeGreaterThanOrEqual(rect.x);
@@ -75,7 +75,7 @@ async function visibleHead(arena: Locator, seat: number) {
 }
 
 async function selectView(arena: Locator, target: string) {
-  const head = arena.getByTestId('custom-game-board-arena-rider-0');
+  const head = arena.getByTestId('game-session-board-arena-rider-0');
   const position = await head.getAttribute('transform');
   const heading = await head.getAttribute('data-heading');
   const picker = arena.getByRole('combobox', { name: 'Arena camera' });
@@ -92,7 +92,7 @@ async function bends(
   phone: boolean,
   player: boolean
 ) {
-  const rider = arena.getByTestId('custom-game-board-arena-rider-0');
+  const rider = arena.getByTestId('game-session-board-arena-rider-0');
   if (player) await turn(page, arena, 'up', phone);
   await ride(page, 2);
   await expect(rider).toHaveAttribute('data-heading', 'up');
@@ -125,8 +125,8 @@ for (const phone of [true, false]) {
         'data-story-ready',
         'true'
       );
-      const arena = page.getByTestId('custom-game-board-arena');
-      const rider = arena.getByTestId('custom-game-board-arena-rider-0');
+      const arena = page.getByTestId('game-session-board-arena');
+      const rider = arena.getByTestId('game-session-board-arena-rider-0');
       const picker = arena.getByRole('combobox', { name: 'Arena camera' });
       await expect(arena).toHaveAttribute(
         'data-follow',
@@ -186,7 +186,7 @@ for (const phone of [true, false]) {
       'data-story-ready',
       'true'
     );
-    const arena = page.getByTestId('custom-game-board-arena');
+    const arena = page.getByTestId('game-session-board-arena');
     await selectView(arena, 'arena');
     await capture(arena, info, 'full-arena');
     await bends(page, arena, phone, phone);

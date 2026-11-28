@@ -34,7 +34,7 @@ for (const phone of [true, false]) {
         'system'
       );
       await expect(page.locator('[data-reduced-motion="true"]')).toHaveCount(0);
-      const board = page.getByTestId('custom-game-board');
+      const board = page.getByTestId('game-session-board');
       const box = await board.boundingBox();
       if (!box) throw new Error('Missing board');
       await info.attach('board-clip', {
@@ -75,16 +75,16 @@ for (const phone of [true, false]) {
       await capture('magnified');
       await driver.drag(anchor, { x: anchor.x + 55, y: anchor.y + 50 });
       await expect(cell('e1')).toHaveAttribute('data-identity', 'one');
-      await page.getByTestId('custom-game-board-coordinates').click();
-      await page.getByTestId('custom-game-board-mode-h').click();
+      await page.getByTestId('game-session-board-coordinates').click();
+      await page.getByTestId('game-session-board-mode-h').click();
       if (phone) await cell('e5').tap();
       else await cell('e5').click();
       await expect(cell('e5')).toHaveAttribute('data-preview-edge-top', 'true');
       await expect(cell('e5')).toHaveAttribute('data-edge-top', 'false');
-      await page.getByTestId('custom-game-board-wall-cancel').click();
+      await page.getByTestId('game-session-board-wall-cancel').click();
       await page.getByRole('button', { name: 'Fit board' }).click();
       await expect(board).toHaveCSS('transform', 'none');
-      await page.getByTestId('custom-game-board-mode-h').click();
+      await page.getByTestId('game-session-board-mode-h').click();
       await driver.drag(
         await center(cell('c4')),
         await center(cell('d4')),
@@ -97,11 +97,11 @@ for (const phone of [true, false]) {
         }
       );
       await expect(
-        page.getByTestId('custom-game-board-wall-commit')
+        page.getByTestId('game-session-board-wall-commit')
       ).toBeEnabled();
       await expect(cell('d4')).toHaveAttribute('data-edge-top', 'false');
-      await page.getByTestId('custom-game-board-wall-cancel').click();
-      await page.getByTestId('custom-game-board-mode-move').click();
+      await page.getByTestId('game-session-board-wall-cancel').click();
+      await page.getByTestId('game-session-board-mode-move').click();
       const pawn = await center(cell('e1'));
       const destination = await center(cell('e2'));
       if (phone) {

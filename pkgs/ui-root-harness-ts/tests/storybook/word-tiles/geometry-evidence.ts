@@ -14,10 +14,10 @@ export async function recordGeometry(
       height: rect.height,
     });
     const selectors = [
-      '[data-testid="custom-game-seat-near"]',
-      '[data-testid="custom-game-board-rack"]',
-      '[data-testid="custom-game-board-submit"]',
-      '[data-testid="custom-game-board-more"]',
+      '[data-testid="game-session-seat-near"]',
+      '[data-testid="game-session-board-rack"]',
+      '[data-testid="game-session-board-submit"]',
+      '[data-testid="game-session-board-more"]',
       '[aria-label="Scrollable word board"]',
     ];
     const elements = selectors.map((selector) => {

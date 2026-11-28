@@ -6,7 +6,7 @@
  * and a `HarnessGame` — and enrolled in every shared suite beside the
  * registered games (`tests/conformance-world.ts`). It proves a new game
  * needs no change to any shared screen, workflow, specification or suite;
- * it offers custom games, history and puzzles but not matchmaking, so the
+ * it offers game sessions, history and puzzles but not matchmaking, so the
  * matrix holds an unsupported capability too.
  *
  * A position is `race:<count><side to move>` (`race:3w`): the count alone
@@ -64,7 +64,7 @@ import type { JSX } from '@solidjs/web';
 import { createEffect, For, untrack } from 'solid-js';
 
 /**
- * Seven, the length of the victory every custom-game model follows
+ * Seven, the length of the victory every game-session model follows
  * (`tests/quint/model-game.ts`): seven advances, the first side counting the
  * last number.
  */
@@ -395,7 +395,8 @@ const sideLabel = (side: GameSide) =>
 const sideName = (side: GameSide) => sideLabel(side).toLowerCase();
 
 const CAPABILITIES = {
-  'custom-games': { bots: { difficulties: ['easy'], choose: advance } },
+  'vs-human': {},
+  'vs-bot': { bots: { difficulties: ['easy'], choose: advance } },
   history: { record: (position: string) => position },
   puzzles: COUNTING_RACE_PUZZLES,
 } satisfies TurnGameCapabilities;

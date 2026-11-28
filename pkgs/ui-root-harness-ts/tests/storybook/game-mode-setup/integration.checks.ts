@@ -5,7 +5,7 @@ const screens = [
   {
     story: 'screens-game-home--classic-quoridor',
     name: 'main-menu',
-    controls: ['game-choice-multiplayer', 'game-choice-custom-game'],
+    controls: ['game-choice-multiplayer', 'game-choice-vs-human'],
   },
   {
     story: 'screens-matchmaking-home--king-of-the-hill',
@@ -13,9 +13,9 @@ const screens = [
     controls: ['multiplayer-find'],
   },
   {
-    story: 'screens-custom-games-home--king-of-the-hill',
-    name: 'custom-games',
-    controls: ['custom-game-white-choices', 'custom-game-blue-choices'],
+    story: 'screens-game-sessions-home--king-of-the-hill',
+    name: 'game-sessions',
+    controls: ['game-session-white-choices', 'game-session-blue-choices'],
   },
 ];
 

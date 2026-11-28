@@ -5,7 +5,7 @@ import { observeBotGameJourney, startBotGameJourney } from './bot-game-journey';
 import { check, JOURNEY_WAIT_MS } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 
-const BOARD = 'custom-game-board';
+const BOARD = 'game-session-board';
 /** The table's turn line: whose turn it is, or who took the last trick. */
 const TURN_LINE = `${BOARD}-center`;
 /** One look at the turn line; the bots play on between looks. */

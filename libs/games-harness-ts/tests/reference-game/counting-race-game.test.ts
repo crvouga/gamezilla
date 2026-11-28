@@ -1,15 +1,12 @@
 /**
  * The extension contract, exercised end to end with a game no shared code
  * knows, in a world of its own: the shared menu offers exactly what it
- * declares, the shared custom-game screen plays it on its own board, and the
+ * declares, the shared game-session screen plays it on its own board, and the
  * shared history counts its result. (Beside the registered games, the same
  * game also runs every shared specification and suite it offers.)
  */
 
 import { expect, test } from 'bun:test';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-moves';
-import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
 import {
   gameHistoryStatistics,
   openGameHistory,
@@ -18,6 +15,9 @@ import {
   goBackInGame,
   offeredGameChoices,
 } from '@libs/game-session-harness-ts/game-navigation';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
+import { makeGameSessionMove } from '@libs/game-session-harness-ts/game-session-moves';
+import { gameSessionView } from '@libs/game-session-harness-ts/game-session-probe';
 import {
   gameSystem,
   openGameHarness,
@@ -28,11 +28,11 @@ const RACE_SYSTEM = gameSystem('counting-race', [COUNTING_RACE_GAME]);
 
 test('a game registered only through the public contracts is offered, played and counted by the shared platform', async () => {
   await using s = await openGameHarness(RACE_SYSTEM);
-  await s.apply(establishCustomGame, 'counting-race', {
+  await s.apply(establishGameSession, 'counting-race', {
     moves: COUNTING_RACE_GAME.fixtures.firstSideVictory.slice(0, -1),
   });
-  await s.apply(makeCustomGameMove, 'alice', 'counting-race', 'advance');
-  const finished = (await s.read(customGameView, 'alice')).current;
+  await s.apply(makeGameSessionMove, 'alice', 'counting-race', 'advance');
+  const finished = (await s.read(gameSessionView, 'alice')).current;
   expect(finished?.status).toBe('completed');
   expect(finished?.outcome).toBe('white wins by finish line');
 
@@ -50,7 +50,8 @@ test('a game registered only through the public contracts is offered, played and
   // opponent; its puzzles are offered, their stats behind History and stats.
   await s.apply(goBackInGame, 'alice');
   expect(await s.read(offeredGameChoices, 'alice')).toEqual([
-    'custom-game',
+    'vs-human',
+    'vs-bot',
     'history',
     'puzzle',
   ]);

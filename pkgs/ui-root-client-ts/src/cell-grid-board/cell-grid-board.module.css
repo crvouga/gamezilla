@@ -45,9 +45,7 @@
 }
 .board {
   display: grid;
-  grid-template-columns:
-    minmax(1.25rem, 0.6fr)
-    repeat(var(--cell-grid-columns), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--cell-grid-columns), minmax(0, 1fr));
   /* A 2.75rem (44px) cell where it fits; the grid shrinks on small screens. */
   width: 100%;
   max-width: calc(var(--cell-grid-columns) * 2.75rem + 2rem);
@@ -501,4 +499,14 @@
   font-size: 72cqw;
   font-weight: 700;
   color: var(--ui-color-game-quoridor-accent);
+}
+
+.board {
+  container-type: inline-size;
+}
+.cell {
+  position: relative;
+}
+.board:not([data-board-theme="checkered"]) .coordinate {
+  color: currentColor;
 }

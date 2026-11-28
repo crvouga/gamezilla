@@ -32,7 +32,7 @@ type PlayProps = MultiplayerPlaceFrame & {
   readonly onOpen: (place: MultiplayerPlace) => void;
   /**
    * No connection: offering a draw and resigning stay in their places, held
-   * back, as the custom-game stage holds them, under the line that says why.
+   * back, as the game-session stage holds them, under the line that says why.
    */
   readonly offline?: boolean | undefined;
 };
@@ -199,7 +199,7 @@ export function MatchmakingStageView(props: PlayProps): JSX.Element {
             {(moves) => (
               <GameSection
                 title={<Trans>Moves</Trans>}
-                // The same way into the moves as a custom game's card.
+                // The same way into the moves as a game session's card.
                 footer={
                   <GameActions>
                     <Button

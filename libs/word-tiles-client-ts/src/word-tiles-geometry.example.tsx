@@ -44,7 +44,7 @@ export async function checkExchangeGeometry(
 ): Promise<void> {
   // regression: word-tiles-exchange-history-occlusion
   const action = within(canvasElement).getByTestId(
-    'custom-game-board-exchange-confirm'
+    'game-session-board-exchange-confirm'
   );
   await assertClear(action);
   action.scrollIntoView({ block: 'start', behavior: 'instant' });
@@ -56,7 +56,7 @@ export async function checkCatStatusGeometry(
   canvasElement: HTMLElement
 ): Promise<void> {
   // regression: word-tiles-cat-status-clipping
-  const status = within(canvasElement).getByTestId('custom-game-board-status');
+  const status = within(canvasElement).getByTestId('game-session-board-status');
   await expect(status).toHaveTextContent(
     'CAT 5 × 2 = 10 points · checked when you play'
   );
@@ -102,18 +102,18 @@ export async function checkInitialWordWorkspace(
 ): Promise<void> {
   // regression: word-tiles-phone-action-overload
   const canvas = within(canvasElement);
-  await settledLayout(canvas.getByTestId('custom-game-board-rack'));
-  const primary = canvas.getByTestId('custom-game-board-submit');
+  await settledLayout(canvas.getByTestId('game-session-board-rack'));
+  const primary = canvas.getByTestId('game-session-board-submit');
   const more = canvas.getByRole('button', { name: 'More actions' });
   await expect(more).toHaveAttribute('aria-expanded', 'false');
   await expect(
-    canvas.queryByTestId('custom-game-board-recall')
+    canvas.queryByTestId('game-session-board-recall')
   ).not.toBeInTheDocument();
   // regression: word-tiles-precision-local-score-below-fold
-  await assertClear(canvas.getByTestId('custom-game-seat-near'));
+  await assertClear(canvas.getByTestId('game-session-seat-near'));
   await assertClear(primary);
   await assertClear(more);
-  await assertClear(canvas.getByTestId('custom-game-board-rack'));
+  await assertClear(canvas.getByTestId('game-session-board-rack'));
   const viewport = canvas.getByRole('region', {
     name: 'Scrollable word board',
   });
@@ -122,7 +122,7 @@ export async function checkInitialWordWorkspace(
   await expect(board.width).toBeGreaterThanOrEqual(308);
   await expect(board.height).toBeGreaterThanOrEqual(308);
   const rack = canvas
-    .getByTestId('custom-game-board-rack')
+    .getByTestId('game-session-board-rack')
     .getBoundingClientRect();
   await expect(board.top - rack.bottom).toBeLessThanOrEqual(160);
 }

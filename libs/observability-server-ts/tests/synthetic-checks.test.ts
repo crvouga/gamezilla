@@ -53,13 +53,13 @@ describe('the check names', () => {
           statuses: ['pass'],
         },
         {
-          featureUri: 'specs/journeys/recover-custom-game.feature',
+          featureUri: 'specs/journeys/recover-game-session.feature',
           statuses: ['fail'],
         },
       ])
     ).toEqual([
       { check: 'journeys.return-to-quoridor', passed: true },
-      { check: 'journeys.recover-custom-game', passed: false },
+      { check: 'journeys.recover-game-session', passed: false },
     ]);
   });
 

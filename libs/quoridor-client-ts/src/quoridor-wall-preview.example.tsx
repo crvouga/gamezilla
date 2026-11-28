@@ -8,7 +8,7 @@ import {
 export async function expectQuoridorSpatialArea(canvasElement: HTMLElement) {
   await expectQuoridorWorkingArea(canvasElement);
   const canvas = within(canvasElement);
-  const board = canvas.getByTestId('custom-game-board');
+  const board = canvas.getByTestId('game-session-board');
   const view = canvasElement.ownerDocument.defaultView;
   if (!view) throw new Error('The story requires a browser window');
   const minimum =
@@ -16,7 +16,7 @@ export async function expectQuoridorSpatialArea(canvasElement: HTMLElement) {
   await expect(board.getBoundingClientRect().width).toBeGreaterThanOrEqual(
     minimum
   );
-  if (canvas.queryByTestId('custom-game-board-coordinates')) return;
+  if (canvas.queryByTestId('game-session-board-coordinates')) return;
   for (const name of ['Horizontal wall', 'Vertical wall'])
     await expect(canvas.getByRole('button', { name })).toHaveTextContent(name);
 }
@@ -37,13 +37,13 @@ export async function expectQuoridorWallPreview(
   await expectQuoridorSpatialArea(canvasElement);
   for (const id of ['wall-commit', 'wall-cancel'])
     await expectQuoridorTargetVisible(
-      canvas.getByTestId(`custom-game-board-${id}`)
+      canvas.getByTestId(`game-session-board-${id}`)
     );
   const sides = ['top', 'right', 'bottom', 'left'] as const;
   const marked = (kind: 'edge' | 'preview-edge') =>
     [
       ...canvasElement.querySelectorAll(
-        '[data-testid^="custom-game-board-action-"]'
+        '[data-testid^="game-session-board-action-"]'
       ),
     ].flatMap((cell) =>
       sides

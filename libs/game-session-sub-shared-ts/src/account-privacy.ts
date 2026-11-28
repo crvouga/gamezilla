@@ -4,7 +4,7 @@ import {
 } from '@libs/game-matchmaking-shared-ts/account-privacy';
 import type { AccountPrivacyContribution } from '@libs/sub-shared-ts/account-privacy';
 import sql, { raw } from '@pkgs/sql-root-shared-ts/sql';
-import { snapshotCustomGames } from './custom-game-export';
+import { snapshotGameSessions } from './game-session-export';
 
 const PERSONAL_TABLES = [
   'chess_multiplayer_players',
@@ -30,7 +30,7 @@ export const GAME_SESSION_PRIVACY: AccountPrivacyContribution = {
         Record<string, unknown>
       >`SELECT * FROM chess_multiplayer_games WHERE white_id = ${ctx.env.actorId} OR black_id = ${ctx.env.actorId} OR red_id = ${ctx.env.actorId} OR blue_id = ${ctx.env.actorId}`
     );
-    rows['customGames'] = await snapshotCustomGames(ctx, rooms);
+    rows['gameSessions'] = await snapshotGameSessions(ctx, rooms);
     return rows;
   },
   withdraw: withdrawMultiplayer,

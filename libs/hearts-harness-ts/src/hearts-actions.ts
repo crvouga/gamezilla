@@ -1,5 +1,5 @@
 /**
- * Hearts as people play it on the Custom Game screen: a custom game set up
+ * Hearts as people play it on the Game Session screen: a game session set up
  * through ordinary choices and started from a deal the room is told to deal
  * (its documented random draws), an earlier history played fast through the
  * room boundary, and then passes and cards made with the board's own
@@ -8,24 +8,24 @@
  * product's, never the harness's.
  */
 
-import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
+import { operateGameSessionControls } from '@libs/game-session-harness-ts/game-session-controls';
 import {
-  type CustomGameSeat,
-  establishCustomGame,
-} from '@libs/game-session-harness-ts/custom-game-lineup';
+  establishGameSession,
+  type GameSessionSeat,
+} from '@libs/game-session-harness-ts/game-session-lineup';
 import {
-  CUSTOM_GAME_BOARD,
-  customGameBoardTakes,
-  playOnCustomGameBoard,
-} from '@libs/game-session-harness-ts/custom-game-moves';
+  GAME_SESSION_BOARD,
+  gameSessionBoardTakes,
+  playOnGameSessionBoard,
+} from '@libs/game-session-harness-ts/game-session-moves';
 import {
-  type CustomGameShown,
-  readCustomGameScreen,
-} from '@libs/game-session-harness-ts/custom-game-screen';
+  type GameSessionShown,
+  readGameSessionScreen,
+} from '@libs/game-session-harness-ts/game-session-screen';
 import {
-  chooseCustomGame,
-  configureCustomGame,
-} from '@libs/game-session-harness-ts/custom-game-ui';
+  chooseGameSession,
+  configureGameSession,
+} from '@libs/game-session-harness-ts/game-session-ui';
 import { partition, restoreActorConnection } from '@libs/harness-ts/actions';
 import { actorPage } from '@libs/harness-ts/actor-page';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
@@ -50,13 +50,13 @@ const STAND_IN_WAIT_MS = 300_000;
 /** The steps virtual time advances in while waiting for the room. */
 const WAIT_STEP_MS = 500;
 
-/** A Hearts custom game: who sits where, who else is in the space, and how far it has gone. */
+/** A Hearts game session: who sits where, who else is in the space, and how far it has gone. */
 export type HeartsLineup = {
   /** Whose space it is; they create the game (default: Alice). */
   readonly host?: string;
   /** Who takes each seat (default: Alice, Bob, Carol and Dave from South). */
-  readonly seats?: Readonly<Partial<Record<GameSide, CustomGameSeat>>>;
-  /** People watching the custom game from the start. */
+  readonly seats?: Readonly<Partial<Record<GameSide, GameSessionSeat>>>;
+  /** People watching the game session from the start. */
   readonly watchers?: readonly string[];
   /** People who join the space once the game is under way, without opening it. */
   readonly members?: readonly string[];
@@ -74,7 +74,7 @@ export type HeartsLineup = {
   readonly then?: readonly string[];
 };
 
-type Seats = Readonly<Record<GameSide, CustomGameSeat>>;
+type Seats = Readonly<Record<GameSide, GameSessionSeat>>;
 
 function seatsOf(lineup: HeartsLineup): Seats {
   return {
@@ -85,21 +85,21 @@ function seatsOf(lineup: HeartsLineup): Seats {
   };
 }
 
-function isPerson(seat: CustomGameSeat): boolean {
+function isPerson(seat: GameSessionSeat): boolean {
   return seat !== 'bot' && seat !== 'open';
 }
 
 async function gameOf(
   s: ProductHarness,
   actor: string
-): Promise<CustomGameShown> {
-  const game = (await readCustomGameScreen(s, actor))?.current;
+): Promise<GameSessionShown> {
+  const game = (await readGameSessionScreen(s, actor))?.current;
   if (game == null) throw new Error(`${actor} sees no Hearts game`);
   return game;
 }
 
 async function movesSeen(s: ProductHarness, actor: string): Promise<number> {
-  return (await readCustomGameScreen(s, actor))?.current?.moves.length ?? 0;
+  return (await readGameSessionScreen(s, actor))?.current?.moves.length ?? 0;
 }
 
 /** `person` signs in with Google, unless their device already has an account. */
@@ -109,7 +109,7 @@ async function signIn(s: ProductHarness, person: string): Promise<void> {
   await Promise.resolve(backToTabs.act(s, person));
 }
 
-/** `person` joins `host`'s space from its link, without opening the custom game. */
+/** `person` joins `host`'s space from its link, without opening the game session. */
 async function joinSpace(
   s: ProductHarness,
   host: string,
@@ -158,7 +158,9 @@ async function backOnline(s: ProductHarness, person: string): Promise<void> {
   await pollUntil(
     s,
     async () =>
-      (await readCustomGameScreen(s, person))?.connected === true ? true : null,
+      (await readGameSessionScreen(s, person))?.connected === true
+        ? true
+        : null,
     { maxMs: CATCH_UP_MS, stepMs: 10, description: `${person} reconnects` }
   );
 }
@@ -184,7 +186,7 @@ async function playThen(
     }
     const mover = seats[game.turn];
     if (!isPerson(mover)) throw new Error(`${game.turn} has no person to play`);
-    await configureCustomGame(s, String(mover), {
+    await configureGameSession(s, String(mover), {
       operation: 'move',
       uci: proposal,
       ply: moves,
@@ -192,7 +194,7 @@ async function playThen(
   }
 }
 
-/** A Hearts custom game reached through ordinary choices and a documented deal. */
+/** A Hearts game session reached through ordinary choices and a documented deal. */
 export const establishHearts = scenarioAction({
   name: 'establishHearts',
   act: async (s, lineup: HeartsLineup = {}) => {
@@ -200,7 +202,7 @@ export const establishHearts = scenarioAction({
     const seats = seatsOf(lineup);
     const line = lineup.line;
     await Promise.resolve(
-      establishCustomGame.act(s, 'hearts', {
+      establishGameSession.act(s, 'hearts', {
         host,
         first: seats.white,
         second: seats.black,
@@ -257,7 +259,7 @@ export const passHeartsCards = scenarioAction<
       cards.length === 3 &&
       cards.every((card) => held.get(card)?.allowed === true);
     if (!takes) {
-      await chooseCustomGame(s, actor, {
+      await chooseGameSession(s, actor, {
         operation: 'commit',
         commitment: cards.join(''),
         ply: await movesSeen(s, actor),
@@ -268,11 +270,11 @@ export const passHeartsCards = scenarioAction<
     for (const card of cards) {
       // A card chosen earlier (a choice still in progress) stays chosen.
       if (held.get(card)?.chosen === true) continue;
-      await press(ui.get(`${CUSTOM_GAME_BOARD}-card-${card}`), keyboard);
+      await press(ui.get(`${GAME_SESSION_BOARD}-card-${card}`), keyboard);
       await s.session.waitForIdle();
     }
-    await playOnCustomGameBoard(s, actor, async () => {
-      await press(ui.get(`${CUSTOM_GAME_BOARD}-pass`), keyboard);
+    await playOnGameSessionBoard(s, actor, async () => {
+      await press(ui.get(`${GAME_SESSION_BOARD}-pass`), keyboard);
       return 'made';
     });
   },
@@ -301,9 +303,9 @@ export const playHeartsCard = scenarioAction<
     if (
       shown?.allowed !== true ||
       view.pass !== null ||
-      !(await customGameBoardTakes(s, actor, card))
+      !(await gameSessionBoardTakes(s, actor, card))
     ) {
-      await chooseCustomGame(s, actor, {
+      await chooseGameSession(s, actor, {
         operation: 'move',
         uci: card,
         ply: await movesSeen(s, actor),
@@ -311,9 +313,9 @@ export const playHeartsCard = scenarioAction<
       return;
     }
     const target = (await actorUi(s, actor)).get(
-      `${CUSTOM_GAME_BOARD}-card-${card}`
+      `${GAME_SESSION_BOARD}-card-${card}`
     );
-    await playOnCustomGameBoard(s, actor, async () => {
+    await playOnGameSessionBoard(s, actor, async () => {
       await press(target, keyboard);
       return 'made';
     });
@@ -348,7 +350,7 @@ export const playDealsLastCard = scenarioAction({
     const game = await gameOf(s, observer);
     const person = game[game.turn].person;
     for (const actor of s.actors.keys())
-      if ((await readCustomGameScreen(s, actor))?.me === person) {
+      if ((await readGameSessionScreen(s, actor))?.me === person) {
         await Promise.resolve(playLastHeartsCard.act(s, actor));
         return;
       }
@@ -405,7 +407,7 @@ export const comeBackOnline = scenarioAction({
 export const takeBackHeartsSide = scenarioAction({
   name: 'takeBackHeartsSide',
   act: (s, actor: string) =>
-    operateCustomGameControls(s, actor, { operation: 'reclaim' }),
+    operateGameSessionControls(s, actor, { operation: 'reclaim' }),
 });
 
 /**

@@ -20,7 +20,7 @@ type ListProps = {
 /**
  * The accepted moves in the game's notation, every move numbered on its own
  * line behind the look of the seat that made it, each one a position to
- * choose and the one on the board marked: the same record a custom game
+ * choose and the one on the board marked: the same record a game session
  * shows.
  */
 export function MultiplayerMoveList(props: ListProps): JSX.Element {

@@ -38,11 +38,10 @@ export function defineReview(width: number, theme: string) {
         )
       );
     }
-    await page.getByTestId('custom-game-board-column-4').tap();
-    await expect(page.getByTestId('custom-game-board-cell-17')).toHaveAttribute(
-      'data-disc',
-      '1'
-    );
+    await page.getByTestId('game-session-board-column-4').tap();
+    await expect(
+      page.getByTestId('game-session-board-cell-17')
+    ).toHaveAttribute('data-disc', '1');
     const longTasks = await finishTiming(page);
     await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
     await captureBoard(page, info, 'touch-drop');
@@ -65,10 +64,10 @@ export function defineReview(width: number, theme: string) {
     await openBoard(page, 'full-column', theme);
     await captureBoard(page, info, 'full-column-keyboard-recovery');
     const recovered = await page
-      .getByTestId('custom-game-board')
+      .getByTestId('game-session-board')
       .getAttribute('data-cells');
-    await page.getByTestId('custom-game-board-column-1').press('Enter');
-    await expect(page.getByTestId('custom-game-board')).toHaveAttribute(
+    await page.getByTestId('game-session-board-column-1').press('Enter');
+    await expect(page.getByTestId('game-session-board')).toHaveAttribute(
       'data-cells',
       recovered ?? ''
     );
@@ -76,7 +75,7 @@ export function defineReview(width: number, theme: string) {
     await openBoard(page, 'connect-four-to-win', theme);
     await captureBoard(page, info, 'winning-drop');
     await openBoard(page, 'watching', theme);
-    const board = page.getByTestId('custom-game-board');
+    const board = page.getByTestId('game-session-board');
     const cells = await board.getAttribute('data-cells');
     await touchSpectatorColumn(page);
     await expect(board).toHaveAttribute('data-cells', cells ?? '');

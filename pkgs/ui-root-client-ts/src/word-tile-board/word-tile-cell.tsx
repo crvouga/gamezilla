@@ -41,6 +41,24 @@ function BoardCell(props: {
           props.board.onActivate?.(id);
       }}
     >
+      <Show when={props.index % props.board.columnLabels.length === 0}>
+        <span class={styles['coordinate']} data-axis="row" aria-hidden="true">
+          {
+            props.board.rowLabels[
+              Math.floor(props.index / props.board.columnLabels.length)
+            ]
+          }
+        </span>
+      </Show>
+      <Show when={props.index < props.board.columnLabels.length}>
+        <span
+          class={styles['coordinate']}
+          data-axis="column"
+          aria-hidden="true"
+        >
+          {props.board.columnLabels[props.index]}
+        </span>
+      </Show>
       <Show
         when={cell()?.letter}
         fallback={
@@ -83,20 +101,9 @@ export function BoardRows(props: {
   }, {});
   return (
     <>
-      <span class={styles['header']} data-axis="corner" aria-hidden="true" />
-      <For each={props.board.columnLabels}>
-        {(label) => (
-          <span class={styles['header']} data-axis="column" aria-hidden="true">
-            {label}
-          </span>
-        )}
-      </For>
       <For each={props.board.rowLabels}>
-        {(label, row) => (
+        {(_, row) => (
           <>
-            <span class={styles['header']} data-axis="row" aria-hidden="true">
-              {label}
-            </span>
             <For each={props.board.columnLabels}>
               {(_, column) => {
                 const index = () =>

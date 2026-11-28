@@ -4,7 +4,7 @@ import { createHarnessAppBuilds } from '@libs/harness-ts/app-build';
 import type { Harness } from '@libs/harness-ts/create-harness';
 import { launchActor } from '@libs/harness-ts/launch-actor';
 
-const savedGame = '/custom-game/pong?seat=left#court';
+const savedGame = '/game-session/pong?seat=left#court';
 const invitation = '/space/b20b88cb-801f-4eff-8c09-6e320313e673';
 
 // regression: browser-reopen-loads-game-twice

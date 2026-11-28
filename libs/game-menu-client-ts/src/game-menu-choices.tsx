@@ -4,8 +4,9 @@ import { ContentExperience } from '@libs/game-puzzle-client-ts/content-experienc
 import { PuzzlePlayScreen } from '@libs/game-puzzle-client-ts/puzzle-play-screen';
 import { PuzzleReviewScreen } from '@libs/game-puzzle-client-ts/puzzle-review-screen';
 import { PuzzleStatsScreen } from '@libs/game-puzzle-client-ts/puzzle-stats-screen';
-import { CustomGameScreen } from '@libs/game-session-client-ts/custom-game-screen';
 import { GameHistory } from '@libs/game-session-client-ts/game-history';
+import { PlayBotsScreen } from '@libs/game-session-client-ts/play-bots-screen';
+import { PlayFriendScreen } from '@libs/game-session-client-ts/play-friend-screen';
 import type {
   GameScreen,
   VisitedGameScreen,
@@ -25,7 +26,7 @@ import { SHARED_GAME_SCREEN } from './shared-game-screens';
 
 /**
  * The game's choices and the template screens they open, in the one order
- * every game shares: finding an opponent, custom games, puzzles, History
+ * every game shares: finding an opponent, vs human, vs bot, puzzles, History
  * and stats (every look back, games and puzzles alike), then settings. Which screens exist follows the capabilities the
  * game's registration declares and the settings it declares as data; every
  * one of them is the platform's.
@@ -86,12 +87,28 @@ export function sharedScreens(
           },
         ]
       : []),
-    ...(offers('custom-games')
+    ...(offers('vs-human')
       ? [
           {
-            screen: SHARED_GAME_SCREEN.customGamesHome,
+            screen: SHARED_GAME_SCREEN.vsHuman,
             Screen: () => (
-              <CustomGameScreen
+              <PlayFriendScreen
+                gameId={id}
+                title={game.title}
+                onBack={back}
+                onBackFromBoard={navigation.backFromBoard}
+                {...history}
+              />
+            ),
+          },
+        ]
+      : []),
+    ...(offers('vs-bot')
+      ? [
+          {
+            screen: SHARED_GAME_SCREEN.vsBot,
+            Screen: () => (
+              <PlayBotsScreen
                 gameId={id}
                 title={game.title}
                 onBack={back}
@@ -253,7 +270,7 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
       ? [
           {
             screen: SHARED_GAME_SCREEN.matchmakingHome,
-            title: () => <Trans>Match making</Trans>,
+            title: () => <Trans>Matchmaking</Trans>,
             caption: () => (
               <FindOpponentOffer>
                 <Show
@@ -274,16 +291,21 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
           },
         ]
       : []),
-    ...(offers('custom-games')
+    ...(offers('vs-human')
       ? [
           {
-            screen: SHARED_GAME_SCREEN.customGamesHome,
-            title: () => <Trans>Custom games</Trans>,
-            // The game menu is always inside a space: its people are who
-            // plays a custom game, beside any bots.
-            caption: () => (
-              <Trans>With the people in this space, or bots</Trans>
-            ),
+            screen: SHARED_GAME_SCREEN.vsHuman,
+            title: () => <Trans>Play Friend</Trans>,
+            caption: () => <Trans>Play the people in this space</Trans>,
+          },
+        ]
+      : []),
+    ...(offers('vs-bot')
+      ? [
+          {
+            screen: SHARED_GAME_SCREEN.vsBot,
+            title: () => <Trans>Play Bots</Trans>,
+            caption: () => <Trans>Play on your own, against a bot</Trans>,
           },
         ]
       : []),

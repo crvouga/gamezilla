@@ -6,16 +6,16 @@ import { journeyDiagnosticDriver } from './journey-diagnostic-driver';
 // regression: bot-journey-multiseat-name-wrapper
 test('observes bots in the three-player Word Tiles seat wrappers', async () => {
   const texts: Readonly<Record<string, string>> = {
-    'custom-game-white': 'Amber RequiredHedgehog455',
-    'custom-game-black': 'Teal Bot (medium)',
-    'custom-game-red': 'Violet Bot (medium)',
+    'game-session-white': 'Amber RequiredHedgehog455',
+    'game-session-black': 'Teal Bot (medium)',
+    'game-session-red': 'Violet Bot (medium)',
   };
   const visible = [
     ...Object.keys(texts),
-    'custom-game-board',
-    'custom-game-board-rack',
-    'custom-game-commands',
-    'custom-game-public',
+    'game-session-board',
+    'game-session-board-rack',
+    'game-session-commands',
+    'game-session-public',
   ];
   const base = journeyDiagnosticDriver({
     html: null,
@@ -29,7 +29,9 @@ test('observes bots in the three-player Word Tiles seat wrappers', async () => {
     get: (id) => ({
       ...base.get(id),
       attribute: async (name) =>
-        id === 'custom-game-public' && name === 'data-status' ? 'active' : null,
+        id === 'game-session-public' && name === 'data-status'
+          ? 'active'
+          : null,
       layout: async () => ({ x: 0, y: 0, width: 320, height: 320 }),
       expect: {
         visible: async () => {
@@ -49,5 +51,5 @@ test('observes bots in the three-player Word Tiles seat wrappers', async () => {
     { act: async (_name, gestures) => gestures(ui) },
     'Word Tiles for three'
   );
-  expect(checked).toEqual(['custom-game-black', 'custom-game-red']);
+  expect(checked).toEqual(['game-session-black', 'game-session-red']);
 });

@@ -62,7 +62,8 @@ export const hybridRaceGame = defineGame({
   rules: turns,
   turnAutomation: { choose: () => 'advance-token', perform: async () => {} },
   capabilities: {
-    'custom-games': { bots: { difficulties: [] } },
+    'vs-human': {},
+    'vs-bot': { bots: { difficulties: [] } },
     history: { record: (position) => position },
     matchmaking: {
       namespace: 'counting-race/',

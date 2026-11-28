@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
 import {
   RequestSimulationSnapshot,
@@ -29,7 +29,7 @@ test('an offline creator uses the shared execution controller and keeps a comple
     await local.flush();
     expect({
       errors,
-      game: CustomGamesAttr.from(alice.getSnapshot()).current,
+      game: GameSessionsAttr.from(alice.getSnapshot()).current,
     }).toMatchObject({ errors: [], game: { execution: { generation: 1 } } });
     let epoch = '';
     let tick = -1;
@@ -59,7 +59,7 @@ test('an offline creator uses the shared execution controller and keeps a comple
       rig.clock.advance(1000 / 60);
       await local.flush();
     }
-    const finished = CustomGamesAttr.from(alice.getSnapshot()).current!;
+    const finished = GameSessionsAttr.from(alice.getSnapshot()).current!;
     expect(finished.status).toBe('completed');
     expect(finished.moves).toEqual([]);
     expect(finished.fen).toContain('1:white:1:4');
@@ -135,7 +135,7 @@ test('two seats on one device have independent input sequences and never acquire
     expect(current().acknowledged).toEqual({ black: 1, white: 1 });
     expect(current().state).toContain('1:white:1:3');
     expect(current().state).toContain('1:black:1:7');
-    expect(CustomGamesAttr.from(alice.getSnapshot()).current!.black).toEqual({
+    expect(GameSessionsAttr.from(alice.getSnapshot()).current!.black).toEqual({
       kind: 'local',
       person: '',
     });

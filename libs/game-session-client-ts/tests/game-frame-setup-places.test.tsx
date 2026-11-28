@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test } from 'bun:test';
-import type { CustomGamePlace } from '@libs/game-session-client-ts/custom-game-places';
 import { FRAME_NO_PLAY } from '@libs/game-session-client-ts/game-frame-empty';
 import type { FramePhase } from '@libs/game-session-client-ts/game-frame-view-types';
+import type { GameSessionPlace } from '@libs/game-session-client-ts/game-session-places';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal } from 'solid-js';
 import {
@@ -26,39 +26,6 @@ function filled(): HTMLElement[] {
 
 const shown = (id: string): boolean => screen.queryByTestId(id) !== null;
 
-describe('before a game', () => {
-  test('fresh setup shows both seats, the bot shortcut and the action to open the table', () => {
-    mountFrame(() =>
-      frameProps({ phase: 'none', place: { screen: 'home' }, status: null })
-    );
-    expect(shown('custom-game-white-choices')).toBe(true);
-    expect(shown('custom-game-black-choices')).toBe(true);
-    expect(shown('custom-game-play-bot')).toBe(true);
-    expect(shown('custom-game-create')).toBe(true);
-    expect(
-      document.querySelector('[data-component="GameBoardStage"]')
-    ).toBeNull();
-    // A listener still hears there is no game.
-    expect(screen.getByTestId('custom-game-status').textContent).toContain(
-      'No Custom Game.'
-    );
-  });
-
-  test('someone who may not create a game is told who will', () => {
-    mountFrame(() =>
-      frameProps({
-        phase: 'none',
-        place: { screen: 'home' },
-        canCreate: false,
-      })
-    );
-    expect(shown('custom-game-create')).toBe(false);
-    expect(
-      screen.getByText('Waiting for the host to set up a game.')
-    ).toBeTruthy();
-  });
-});
-
 describe('the lobby', () => {
   // regression: setup-preview-below-start
   // regression: phone-setup-preview-uninformative
@@ -76,8 +43,8 @@ describe('the lobby', () => {
       expect(
         document.querySelector('[data-component="GameBoardStage"]')
       ).toBeNull();
-      expect(shown('custom-game-public')).toBe(false);
-      expect(shown('custom-game-about')).toBe(false);
+      expect(shown('game-session-public')).toBe(false);
+      expect(shown('game-session-about')).toBe(false);
       expect(
         document.querySelector('[data-component="GameSection"]')
       ).toBeNull();
@@ -91,13 +58,13 @@ describe('the lobby', () => {
     'at %ipx the seats are one list of rows, Start after them in the same column',
     (width) => {
       mountFrame(() => setupProps(), width);
-      const seats = screen.getByTestId('custom-game-setup-seats');
+      const seats = screen.getByTestId('game-session-setup-seats');
       const rows = seats.querySelectorAll('[data-component="MenuRow"]');
       expect(rows).toHaveLength(2);
       // One list: no card inside the card, and no control scattered in a row.
       expect(seats.querySelector('[data-component="GameSection"]')).toBeNull();
       expect(seats.querySelector('[data-component="Button"]')).toBeNull();
-      const start = screen.getByTestId('custom-game-start');
+      const start = screen.getByTestId('game-session-start');
       expect(
         seats.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_FOLLOWING
       ).toBeTruthy();
@@ -108,7 +75,7 @@ describe('the lobby', () => {
   );
 
   test('a seat the viewer may change opens its own place; one they may not only reads', () => {
-    const opened: CustomGamePlace[] = [];
+    const opened: GameSessionPlace[] = [];
     mountFrame(() =>
       setupProps(
         { screen: 'setup' },
@@ -127,9 +94,9 @@ describe('the lobby', () => {
         }
       )
     );
-    expect(shown('custom-game-white-choices')).toBe(false);
-    expect(screen.getByTestId('custom-game-white').tagName).not.toBe('BUTTON');
-    fireEvent.click(screen.getByTestId('custom-game-black-choices'));
+    expect(shown('game-session-white-choices')).toBe(false);
+    expect(screen.getByTestId('game-session-white').tagName).not.toBe('BUTTON');
+    fireEvent.click(screen.getByTestId('game-session-black-choices'));
     expect(opened).toEqual([{ screen: 'seat', side: 'black' }]);
   });
 
@@ -140,20 +107,20 @@ describe('the lobby', () => {
         { goal: 'Count to ten before the other side does.' }
       )
     );
-    const mode = screen.getByTestId('custom-game-mode');
+    const mode = screen.getByTestId('game-session-mode');
     expect(mode.querySelector('h1')?.textContent).toBe('Counting race');
     expect(mode.textContent).toContain(
       'Count to ten before the other side does.'
     );
     expect(mode.textContent).toContain('Untimed');
-    expect(screen.getByTestId('custom-game-unrated').textContent).toBe(
+    expect(screen.getByTestId('game-session-unrated').textContent).toBe(
       'Unrated'
     );
     const dock = document.querySelector('[data-component="GameLobbyDock"]');
-    expect(dock?.contains(screen.getByTestId('custom-game-startable'))).toBe(
+    expect(dock?.contains(screen.getByTestId('game-session-startable'))).toBe(
       true
     );
-    expect(dock?.contains(screen.getByTestId('custom-game-start'))).toBe(true);
+    expect(dock?.contains(screen.getByTestId('game-session-start'))).toBe(true);
     // The dock is outside what scrolls.
     const scroller = document.querySelector('[data-component="ScrollView"]');
     expect(scroller?.contains(dock as Element)).toBe(false);
@@ -161,7 +128,7 @@ describe('the lobby', () => {
   });
 
   test('what is agreed sits behind its own row, each saying what is chosen', () => {
-    const opened: CustomGamePlace[] = [];
+    const opened: GameSessionPlace[] = [];
     mountFrame(() =>
       setupProps(
         { screen: 'setup' },
@@ -191,21 +158,21 @@ describe('the lobby', () => {
         }
       )
     );
-    expect(screen.getByTestId('custom-game-rules').textContent).toContain('3');
+    expect(screen.getByTestId('game-session-rules').textContent).toContain('3');
     // In plain words, for someone who does not read `5+3`.
-    expect(screen.getByTestId('custom-game-options').textContent).toContain(
+    expect(screen.getByTestId('game-session-options').textContent).toContain(
       '5 min + 3 sec'
     );
     // The row shows one word; a listener hears the whole sentence.
-    expect(screen.getByTestId('custom-game-setup-status').textContent).toBe(
+    expect(screen.getByTestId('game-session-setup-status').textContent).toBe(
       'Your private setup is incomplete.'
     );
     // Nothing is changed on the lobby itself.
-    expect(shown('custom-game-minutes')).toBe(false);
-    expect(shown('custom-game-setup-random')).toBe(false);
-    fireEvent.click(screen.getByTestId('custom-game-rules'));
-    fireEvent.click(screen.getByTestId('custom-game-options'));
-    fireEvent.click(screen.getByTestId('custom-game-setup-open'));
+    expect(shown('game-session-minutes')).toBe(false);
+    expect(shown('game-session-setup-random')).toBe(false);
+    fireEvent.click(screen.getByTestId('game-session-rules'));
+    fireEvent.click(screen.getByTestId('game-session-options'));
+    fireEvent.click(screen.getByTestId('game-session-setup-open'));
     expect(opened.map((place) => place.screen)).toEqual([
       'options',
       'clock',
@@ -239,10 +206,10 @@ describe('the lobby', () => {
       )
     );
     const minutes = screen
-      .getByTestId('custom-game-minutes')
+      .getByTestId('game-session-minutes')
       .querySelector('input') as HTMLInputElement;
     fireEvent.input(minutes, { target: { value: '10' } });
-    fireEvent.click(screen.getByTestId('custom-game-place-back'));
+    fireEvent.click(screen.getByTestId('game-session-place-back'));
     await Promise.resolve();
     await Promise.resolve();
     expect(chosen).toEqual([{ operation: 'clock', minutes: 10, increment: 3 }]);
@@ -252,7 +219,7 @@ describe('the lobby', () => {
   test('exactly one command is filled: Start when ready, getting ready before that', () => {
     mountFrame(() => setupProps());
     expect(filled().map((button) => button.dataset['testid'])).toEqual([
-      'custom-game-start',
+      'game-session-start',
     ]);
     cleanup();
     mountFrame(() =>
@@ -271,18 +238,18 @@ describe('the lobby', () => {
       )
     );
     expect(filled().map((button) => button.dataset['testid'])).toEqual([
-      'custom-game-ready',
+      'game-session-ready',
     ]);
     // No start that cannot be pressed sits beside it, and the line
     // speaks to the one person everyone waits for.
-    expect(screen.queryByTestId('custom-game-start')).toBeNull();
-    expect(screen.getByTestId('custom-game-startable').textContent).toBe(
+    expect(screen.queryByTestId('game-session-start')).toBeNull();
+    expect(screen.getByTestId('game-session-startable').textContent).toBe(
       'Everyone else is in. Get ready to start.'
     );
   });
 
   test('an incomplete private setup is the next thing to do, in place of a readiness that cannot be given', () => {
-    const opened: CustomGamePlace[] = [];
+    const opened: GameSessionPlace[] = [];
     mountFrame(() =>
       setupProps(
         { screen: 'setup' },
@@ -301,10 +268,10 @@ describe('the lobby', () => {
       )
     );
     expect(filled().map((button) => button.dataset['testid'])).toEqual([
-      'custom-game-setup-arrange',
+      'game-session-setup-arrange',
     ]);
-    expect(shown('custom-game-ready')).toBe(false);
-    fireEvent.click(screen.getByTestId('custom-game-setup-arrange'));
+    expect(shown('game-session-ready')).toBe(false);
+    fireEvent.click(screen.getByTestId('game-session-setup-arrange'));
     expect(opened).toEqual([{ screen: 'private-setup' }]);
   });
 
@@ -351,12 +318,12 @@ describe('the lobby', () => {
       )
     );
     expect(
-      screen.getByTestId('custom-game-black-invitation').textContent
+      screen.getByTestId('game-session-black-invitation').textContent
     ).toContain('avery invites you to play Second side.');
     expect(filled().map((button) => button.dataset['testid'])).toEqual([
-      'custom-game-black-accept',
+      'game-session-black-accept',
     ]);
-    fireEvent.click(screen.getByTestId('custom-game-black-accept'));
+    fireEvent.click(screen.getByTestId('game-session-black-accept'));
     expect(chosen).toEqual([{ operation: 'accept', side: 'black' }]);
   });
 
@@ -370,7 +337,7 @@ describe('the lobby', () => {
       { screen: 'stage' },
     ] as const) {
       mountFrame(() => setupProps(place));
-      expect(shown('custom-game-startable')).toBe(true);
+      expect(shown('game-session-startable')).toBe(true);
       cleanup();
     }
   });
@@ -383,24 +350,15 @@ describe('a seat', () => {
   test('names every choice the host has, the holder it has marked', () => {
     mountFrame(() => setupProps({ screen: 'seat', side: 'black' }));
     const text = (id: string) => screen.getByTestId(id).textContent ?? '';
-    expect(text('custom-game-black-bot')).toContain('A bot');
-    expect(text('custom-game-black-invite-choose')).toContain(
+    expect(screen.queryByTestId('game-session-black-bot')).toBeNull();
+    expect(screen.queryByTestId('custom-black-difficulty-medium')).toBeNull();
+    expect(screen.getByTestId('game-session-black-local')).toBeTruthy();
+    expect(text('game-session-black-invite-choose')).toContain(
       'Someone in this space'
     );
-    expect(text('custom-game-black-take')).toContain('Me');
-    expect(text('custom-game-black-open')).toContain('Open seat');
-    expect(text('custom-game-black-close')).toContain('Closed seat');
-    expect(text('custom-game-black-local')).toContain(
-      'A player on this device'
-    );
-    expect(
-      screen.getByTestId('custom-game-black-bot').getAttribute('aria-current')
-    ).toBe('true');
-    expect(
-      screen
-        .getByTestId('custom-black-difficulty-medium')
-        .getAttribute('aria-current')
-    ).toBe('true');
+    expect(text('game-session-black-take')).toContain('Me');
+    expect(text('game-session-black-open')).toContain('Open seat');
+    expect(text('game-session-black-close')).toContain('Closed seat');
   });
 
   test('a choice is sent, holds the other rows meanwhile, and returns to the lobby', async () => {
@@ -423,11 +381,11 @@ describe('a seat', () => {
         }
       )
     );
-    fireEvent.click(screen.getByTestId('custom-game-black-open'));
+    fireEvent.click(screen.getByTestId('game-session-black-open'));
     expect(chosen).toEqual([{ operation: 'open', side: 'black' }]);
-    expect(screen.getByTestId('custom-game-black-bot')).toBeDisabled();
+    expect(screen.getByTestId('game-session-black-take')).toBeDisabled();
     // A second press while the first is on its way sends nothing.
-    fireEvent.click(screen.getByTestId('custom-game-black-close'));
+    fireEvent.click(screen.getByTestId('game-session-black-close'));
     expect(chosen).toHaveLength(1);
     expect(closed).toBe(0);
     accept();
@@ -450,12 +408,12 @@ describe('a seat', () => {
         }
       )
     );
-    fireEvent.click(screen.getByTestId('custom-game-black-open'));
+    fireEvent.click(screen.getByTestId('game-session-black-open'));
     await Promise.resolve();
     await Promise.resolve();
     expect(closed).toBe(0);
-    expect(screen.getByTestId('custom-game-black-open')).not.toBeDisabled();
-    expect(screen.getByTestId('custom-game-error').textContent).toContain(
+    expect(screen.getByTestId('game-session-black-open')).not.toBeDisabled();
+    expect(screen.getByTestId('game-session-error').textContent).toContain(
       'Only the host may change who sits here.'
     );
   });
@@ -472,8 +430,8 @@ describe('a seat', () => {
         }
       )
     );
-    expect(screen.getByTestId('custom-game-black-seated')).toBeDisabled();
-    fireEvent.click(screen.getByTestId('custom-game-black-invitable'));
+    expect(screen.getByTestId('game-session-black-seated')).toBeDisabled();
+    fireEvent.click(screen.getByTestId('game-session-black-invitable'));
     expect(chosen).toEqual([
       { operation: 'invite', side: 'black', person: 'jordan-id' },
     ]);
@@ -509,24 +467,24 @@ describe('the confirmation', () => {
               { phase: phase(), onChoose: choose }
             )
       );
-      fireEvent.click(view.getByTestId(`custom-game-${operation}`));
+      fireEvent.click(view.getByTestId(`game-session-${operation}`));
       // The confirmation opens (over the game's menu sheet, for resign).
       expect(
-        view.getByTestId(`custom-game-${operation}-confirm`)
+        view.getByTestId(`game-session-${operation}-confirm`)
       ).toBeInTheDocument();
-      fireEvent.click(view.getByTestId(`custom-game-${operation}-confirm`));
+      fireEvent.click(view.getByTestId(`game-session-${operation}-confirm`));
       // The place that asked is gone; the confirm is not.
-      expect(view.queryByTestId(`custom-game-${operation}`)).toBeNull();
+      expect(view.queryByTestId(`game-session-${operation}`)).toBeNull();
       expect(view.queryAllByRole('dialog').length).toBeGreaterThan(0);
       acknowledge();
-      const done = await view.findByTestId(`custom-game-${operation}-done`);
+      const done = await view.findByTestId(`game-session-${operation}-done`);
       expect(view.getByText('Game finished')).toBeInTheDocument();
       fireEvent.click(done);
-      expect(view.queryByTestId(`custom-game-${operation}-done`)).toBeNull();
+      expect(view.queryByTestId(`game-session-${operation}-done`)).toBeNull();
       // The ended game's outcome is its own dialog over the final board.
       const outcome = view.getByRole('dialog', { name: 'Game over' });
       expect(
-        outcome.contains(view.getByTestId('custom-game-result-headline'))
+        outcome.contains(view.getByTestId('game-session-result-headline'))
       ).toBe(true);
     }
   );

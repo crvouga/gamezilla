@@ -32,7 +32,7 @@ export function useLimitDecision(
 
 /**
  * A live decision for seeking another multiplayer game: the unfinished
- * multiplayer game limit, then an active Custom Game the caller takes part in.
+ * multiplayer game limit, then an active Game Session the caller takes part in.
  */
 export function useUnfinishedGamesDecision(
   held: Accessor<UnfinishedGames>
@@ -41,7 +41,7 @@ export function useUnfinishedGamesDecision(
     LIMIT.unfinishedMultiplayerGames,
     () => held().multiplayer
   );
-  return () => decideUnfinishedGames(limit(), held().customGames);
+  return () => decideUnfinishedGames(limit(), held().gameSessions);
 }
 
 /**

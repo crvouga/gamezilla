@@ -1,14 +1,14 @@
 /**
- * Stand-ins in a custom game of more than two sides: after 60 seconds away
+ * Stand-ins in a game session of more than two sides: after 60 seconds away
  * a disclosed stand-in plays the person's side, refusing their own moves and
  * secret choices, until they take their side back with a connection.
  */
 
 import { expect } from 'bun:test';
 import { passMultiplayerTime } from '@libs/game-matchmaking-harness-ts/multiplayer-time';
-import { readCustomGameTime } from '@libs/game-session-harness-ts/custom-game-clocks';
-import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
-import { CUSTOM_GAME_STAND_IN_MS } from '@libs/game-session-shared-ts/custom-game-stand-in';
+import { readGameSessionTime } from '@libs/game-session-harness-ts/game-session-clocks';
+import { gameSessionView } from '@libs/game-session-harness-ts/game-session-probe';
+import { GAME_SESSION_STAND_IN_MS } from '@libs/game-session-shared-ts/game-session-stand-in';
 import { partition } from '@libs/harness-ts/actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import { cutConnection } from '@libs/harness-ts/platform';
@@ -18,8 +18,8 @@ import {
   current,
   identityOf,
   toldOf,
-} from './custom-game-set-up-world';
-import { before, hostOf, rememberCustomGame, turnGameOf } from './game-world';
+} from './game-session-set-up-world';
+import { before, hostOf, rememberGameSession, turnGameOf } from './game-world';
 import { followKnownLine, knownLine, secretChoiceRound } from './known-line';
 import {
   backOnline,
@@ -49,13 +49,13 @@ async function awayFor(
     await w.s.advanceTime(ms);
     return;
   }
-  const seen = await w.s.until((s) => customGameView(s, hostOf(w)), {
+  const seen = await w.s.until((s) => gameSessionView(s, hostOf(w)), {
     pred: (shown) => shown.away[id] !== undefined,
     maxMs: SHOWN_WITHIN_MS,
   });
   const since = seen.away[id];
   if (since === undefined) throw new Error(`${actor} was not seen leaving`);
-  const elapsed = (await w.s.read(readCustomGameTime)) - since;
+  const elapsed = (await w.s.read(readGameSessionTime)) - since;
   await w.s.advanceTime(Math.max(0, ms - elapsed));
 }
 
@@ -68,8 +68,8 @@ async function standInPlays(w: HarnessWorld, actor: string): Promise<void> {
   const side = await sideShown(w, actor);
   const earlier = before(w).current;
   const toMove = earlier?.turn === side && earlier.awaiting.length === 0;
-  await awayFor(w, actor, CUSTOM_GAME_STAND_IN_MS);
-  const seen = await w.s.until((s) => customGameView(s, hostOf(w)), {
+  await awayFor(w, actor, GAME_SESSION_STAND_IN_MS);
+  const seen = await w.s.until((s) => gameSessionView(s, hostOf(w)), {
     pred: (shown) =>
       shown.current?.standIns.includes(side) === true ||
       (toMove &&
@@ -80,12 +80,12 @@ async function standInPlays(w: HarnessWorld, actor: string): Promise<void> {
 }
 
 /**
- * The custom game as it is once every stand-in has decided what it had to
+ * The game session as it is once every stand-in has decided what it had to
  * decide right then (a secret choice, a move on its turn), remembered
  * before the act.
  */
 async function standInsSettled(w: HarnessWorld): Promise<void> {
-  await w.s.until((s) => customGameView(s, hostOf(w)), {
+  await w.s.until((s) => gameSessionView(s, hostOf(w)), {
     pred: (shown) => {
       const game = shown.current;
       if (game === null) return false;
@@ -94,11 +94,11 @@ async function standInsSettled(w: HarnessWorld): Promise<void> {
     },
     maxMs: SHOWN_WITHIN_MS,
   });
-  await rememberCustomGame(w);
+  await rememberGameSession(w);
 }
 
 Given(
-  'Alice has a four-player custom game against three bots with Alice to move',
+  'Alice has a four-player game session against three bots with Alice to move',
   async (w) => {
     const line = knownLine(w);
     const round = secretChoiceRound(turnGameOf(w), line, 1);
@@ -110,17 +110,17 @@ Given(
     );
     await makeOwnSecretChoice(w, 'alice');
     const side = await sideShown(w, 'alice');
-    const seen = await w.s.until((s) => customGameView(s, 'alice'), {
+    const seen = await w.s.until((s) => gameSessionView(s, 'alice'), {
       pred: (shown) =>
         shown.current?.awaiting.length === 0 && shown.current.turn === side,
       maxMs: SHOWN_WITHIN_MS,
     });
     expect(seen.current?.turn).toBe(side);
-    await rememberCustomGame(w);
+    await rememberGameSession(w);
   }
 );
 Given(
-  "Alice, Bob, Carol and Dave have a four-player custom game one move from Carol's victory alone, with Dave to move",
+  "Alice, Bob, Carol and Dave have a four-player game session one move from Carol's victory alone, with Dave to move",
   async (w) => {
     const line = turnGameOf(w).fixtures.sharedVictories?.alone;
     if (line === undefined)
@@ -159,7 +159,7 @@ Given(
     expect((await current(w)).standIns).not.toContain(
       await sideShown(w, actor)
     );
-    await rememberCustomGame(w);
+    await rememberGameSession(w);
   }
 );
 
@@ -175,7 +175,7 @@ Then(
   async (w, ...[a, b, c, person]: [string, string, string, string]) => {
     const side = await sideShown(w, person);
     for (const viewer of [a, b, c]) {
-      const seen = await w.s.until((s) => customGameView(s, viewer), {
+      const seen = await w.s.until((s) => gameSessionView(s, viewer), {
         pred: (shown) => shown.current?.standIns.includes(side) === true,
         maxMs: SHOWN_WITHIN_MS,
       });
@@ -188,7 +188,7 @@ Then(
   async (w, _standIn: string, person: string) => {
     const side = await sideShown(w, person);
     const earlier = before(w).current?.moves.length ?? 0;
-    const seen = await w.s.until((s) => customGameView(s, 'alice'), {
+    const seen = await w.s.until((s) => gameSessionView(s, 'alice'), {
       pred: (shown) => (shown.current?.moves.length ?? 0) > earlier,
       maxMs: SHOWN_WITHIN_MS,
     });
@@ -229,13 +229,13 @@ When("{actor}'s stand-in makes its move", async (w, actor: string) => {
   const side = await sideShown(w, actor);
   const earlier = before(w).current?.moves.length ?? 0;
   expect(before(w).current?.turn).toBe(side);
-  await w.s.until((s) => customGameView(s, hostOf(w)), {
+  await w.s.until((s) => gameSessionView(s, hostOf(w)), {
     pred: (shown) => (shown.current?.moves.length ?? 0) > earlier,
     maxMs: SHOWN_WITHIN_MS,
   });
 });
 Then(
-  'the finished custom game shows {actor} on the fourth side',
+  'the finished game session shows {actor} on the fourth side',
   async (w, actor: string) => {
     const game = await current(w);
     const fourth = game.sides[3]!;

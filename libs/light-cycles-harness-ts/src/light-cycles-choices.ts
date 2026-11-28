@@ -1,10 +1,10 @@
-import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
-import { openCustomGamePlace } from '@libs/game-session-harness-ts/custom-game-places';
+import { operateGameSessionControls } from '@libs/game-session-harness-ts/game-session-controls';
+import { openGameSessionPlace } from '@libs/game-session-harness-ts/game-session-places';
 import {
-  readCustomGameRefusal,
-  readCustomGameScreen,
-} from '@libs/game-session-harness-ts/custom-game-screen';
-import { chooseCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+  readGameSessionRefusal,
+  readGameSessionScreen,
+} from '@libs/game-session-harness-ts/game-session-screen';
+import { chooseGameSession } from '@libs/game-session-harness-ts/game-session-ui';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import {
@@ -21,22 +21,22 @@ import {
 } from './light-cycles-lineup';
 
 /** The frame's generic stepper for the game's `target-score` option. */
-const TARGET = 'custom-game-option-target-score';
+const TARGET = 'game-session-option-target-score';
 const TARGET_VALUE = `${TARGET}-value`;
 const TARGET_RANGE = `${TARGET}-range`;
 /** The lobby's row that opens the game's own options. */
-const OPTIONS_ROW = 'custom-game-rules';
+const OPTIONS_ROW = 'game-session-rules';
 
 const SETTLED_MS = 5000;
 
-/** A control was used: time runs until the custom game takes the choice or refuses it. */
+/** A control was used: time runs until the game session takes the choice or refuses it. */
 async function tapSettled(s: ProductHarness, actor: string, control: string) {
-  const before = (await readCustomGameScreen(s, actor))?.current?.revision;
+  const before = (await readGameSessionScreen(s, actor))?.current?.revision;
   await (await actorUi(s, actor)).get(control).tap();
   await pollUntil(
     s,
     async () => {
-      const screen = await readCustomGameScreen(s, actor);
+      const screen = await readGameSessionScreen(s, actor);
       return screen?.current?.revision !== before || screen?.error !== ''
         ? true
         : null;
@@ -69,8 +69,8 @@ export const chooseTargetScore = scenarioAction({
   name: 'chooseTargetScore',
   act: async (s, actor: string, target: number) => {
     // The game's options are their own place, behind the lobby's row.
-    if (!(await openCustomGamePlace(s, actor, OPTIONS_ROW, TARGET_VALUE))) {
-      await chooseCustomGame(s, actor, {
+    if (!(await openGameSessionPlace(s, actor, OPTIONS_ROW, TARGET_VALUE))) {
+      await chooseGameSession(s, actor, {
         operation: 'rules',
         choice: String(target),
       });
@@ -105,7 +105,7 @@ export async function targetScoreShown(
   const who = actor ?? lightCyclesObserver(s);
   const board = await lightCyclesBoard(s, who);
   if (board !== null) return board.targetScore;
-  if (!(await openCustomGamePlace(s, who, OPTIONS_ROW, TARGET_VALUE)))
+  if (!(await openGameSessionPlace(s, who, OPTIONS_ROW, TARGET_VALUE)))
     throw new Error(`${who} sees no target score`);
   return (await readTargetStepper(s, who)).value;
 }
@@ -136,21 +136,26 @@ export const chooseBot = scenarioAction({
   ) => {
     const index = LIGHT_CYCLES_RIDER_NAMES.indexOf(rider);
     const side = LIGHT_CYCLES_SIDES[index]!;
-    await operateCustomGameControls(s, actor, { operation: 'bot', side });
+    await operateGameSessionControls(s, actor, { operation: 'bot', side });
     // The bot's levels are on its seat's own place, behind the seat's row.
     const button = `custom-${side}-difficulty-${level}`;
     if (
-      await openCustomGamePlace(s, actor, `custom-game-${side}-choices`, button)
+      await openGameSessionPlace(
+        s,
+        actor,
+        `game-session-${side}-choices`,
+        button
+      )
     )
       await tapSettled(s, actor, button);
     else
-      await chooseCustomGame(s, actor, {
+      await chooseGameSession(s, actor, {
         operation: 'difficulty',
         side,
         difficulty: level,
       });
     // The scenario now knows a bot rides it, when the choice was taken.
-    if ((await readCustomGameRefusal(s, actor)) === '') {
+    if ((await readGameSessionRefusal(s, actor)) === '') {
       const lineup = lightCyclesLineup(s);
       const seats = [...lineup.seats];
       seats[index] = { bot: level };
@@ -164,5 +169,5 @@ export async function refusalTold(
   s: ProductHarness,
   actor: string
 ): Promise<string> {
-  return (await readCustomGameRefusal(s, actor)) ?? '';
+  return (await readGameSessionRefusal(s, actor)) ?? '';
 }

@@ -4,7 +4,7 @@ import { MultiplayerDeadline } from '@libs/game-matchmaking-shared-ts/multiplaye
 import { OpponentRequested } from '@libs/game-matchmaking-shared-ts/opponent-requested';
 import { settleDueGame } from '@libs/game-matchmaking-shared-ts/settle-due-game';
 import { MULTIPLAYER_TELEMETRY } from '@libs/game-matchmaking-shared-ts/telemetry';
-import { CUSTOM_GAME_GRANT_KEYS } from '@libs/game-session-shared-ts/custom-game-permissions';
+import { GAME_SESSION_GRANT_KEYS } from '@libs/game-session-shared-ts/game-session-permissions';
 import { decideGrantsOnServer } from '@libs/permissions-server-ts/decide-on-server';
 import { storedSpacePresence } from '@libs/spaces-shared-ts/stored-space-presence';
 import type { RoomGrantsCtx } from '@libs/sub-shared-ts/server';
@@ -12,7 +12,7 @@ import { defineSubServer } from '@libs/sub-shared-ts/server';
 import { defineOutboxConsumer } from '@pkgs/outbox-shared-ts/define-consumer';
 import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
-import { customGameSeatsGuard } from './custom-game-seats-guard';
+import { gameSessionSeatsGuard } from './game-session-seats-guard';
 import { createMultiplayerAvailabilityConsumer } from './multiplayer-availability-consumer';
 import {
   createMultiplayerNoticesConsumer,
@@ -25,7 +25,7 @@ import {
 import { createMultiplayerTurnReminderConsumer } from './multiplayer-turn-reminder-consumer';
 import { opponentSearchGuard } from './opponent-search-guard';
 
-async function customGameRoomGrants(
+async function gameSessionRoomGrants(
   ctx: RoomGrantsCtx
 ): Promise<readonly string[]> {
   if (!ctx.topic.startsWith('space:')) return [];
@@ -36,7 +36,7 @@ async function customGameRoomGrants(
   );
   return decideGrantsOnServer(ctx.db, {
     actor: ctx.actor,
-    keys: CUSTOM_GAME_GRANT_KEYS,
+    keys: GAME_SESSION_GRANT_KEYS,
     nowMs: ctx.nowMs,
     scope: { spacePresence: presence },
   });
@@ -50,12 +50,12 @@ export function createGameSessionServer(
     telemetryEvents: MULTIPLAYER_TELEMETRY,
     name: 'game-session',
     roomGrants: async (ctx) => [
-      ...(await customGameRoomGrants(ctx)),
+      ...(await gameSessionRoomGrants(ctx)),
       ...(await multiplayerRoomGrants(ctx)),
     ],
     authorizeMutation: async (ctx) => {
       await opponentSearchGuard(rooms)(ctx);
-      await customGameSeatsGuard(rooms)(ctx);
+      await gameSessionSeatsGuard(rooms)(ctx);
     },
     register: registerMultiplayerNoticeActions,
     registerOutbox(registry) {

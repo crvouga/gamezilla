@@ -56,7 +56,7 @@ test('the own seat chip fills its You badge whatever the turn, legible on the da
 // and its secret choice read `You: choosing`, unlike every other seat.
 test('the own chip says You after its name, and its choice as every seat does', () => {
   mountOwn(true, true);
-  const name = screen.getByTestId('custom-game-white-person');
+  const name = screen.getByTestId('game-session-white-person');
   const you = screen.getByText('You').closest('[data-component="Badge"]');
   expect(you?.parentElement?.contains(name)).toBe(true);
   expect(screen.getByText('Choosing')).toBeInTheDocument();

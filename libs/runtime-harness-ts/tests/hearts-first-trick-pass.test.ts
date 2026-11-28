@@ -4,8 +4,8 @@ import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { journeyDiagnosticDriver } from './journey-diagnostic-driver';
 
 const HAND = '4C JC AC 2D 6D TD QD 6S JS QS 6H 9H AH'.split(' ');
-const PREFIX = 'custom-game-board-card-';
-const PASS = 'custom-game-board-pass';
+const PREFIX = 'game-session-board-card-';
+const PASS = 'game-session-board-pass';
 
 /** A dealt hand becomes interactive when the pending room command settles. */
 function passingHand(ignoredCard?: string) {

@@ -55,9 +55,9 @@ export async function startMeasurements(page: Page): Promise<void> {
 
 /** Trusted key events advance the existing deterministic production-step fixture. */
 async function measureSteeringTrial(page: Page) {
-  await page.getByTestId('custom-game-board-arena').focus();
+  await page.getByTestId('game-session-board-arena').focus();
   await startMeasurements(page);
-  const rider = page.getByTestId('custom-game-board-arena-rider-0');
+  const rider = page.getByTestId('game-session-board-arena-rider-0');
   for (const heading of ['right', 'down', 'right'] as const) {
     for (let index = 0; index < 2; index++) {
       const coordinate = heading === 'right' ? 'data-x' : 'data-y';

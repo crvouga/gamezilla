@@ -74,7 +74,7 @@ test('the shared game screens compile with the production web toolchain and no g
   ).toEqual([]);
   for (const screen of [
     'game-menu-client-ts/src/game-menu.tsx',
-    'game-session-client-ts/src/custom-game-screen.tsx',
+    'game-session-client-ts/src/game-session-screen.tsx',
     'game-session-client-ts/src/game-history.tsx',
     'game-matchmaking-client-ts/src/multiplayer-screen.tsx',
     'game-puzzle-client-ts/src/puzzle-play-screen.tsx',

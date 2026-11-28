@@ -1,0 +1,4 @@
+{
+  "summary": "New game after cancellation opened an empty screen instead of creating another table.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-play-places.test.tsx"
+}

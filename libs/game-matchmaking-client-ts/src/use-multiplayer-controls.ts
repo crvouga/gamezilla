@@ -18,9 +18,9 @@ import { resignMultiplayerMutation } from '@libs/game-matchmaking-shared-ts/resi
 import { settleMultiplayerClockMutation } from '@libs/game-matchmaking-shared-ts/settle-multiplayer-clock-mutation';
 import { stopFindingOpponentMutation } from '@libs/game-matchmaking-shared-ts/stop-finding-opponent-mutation';
 import {
-  CustomGamesAttr,
-  customGameActiveParticipant,
-} from '@libs/game-session-shared-ts/custom-game-state';
+  GameSessionsAttr,
+  gameSessionActiveParticipant,
+} from '@libs/game-session-shared-ts/game-session-state';
 import {
   useDecision,
   useUnfinishedGamesDecision,
@@ -100,15 +100,15 @@ function useMoves(
  * return to in its place.
  */
 function useUnfinishedGamesGate(data: MultiplayerData) {
-  const customGames = useSpaceRoomSelector(CustomGamesAttr.from);
+  const gameSessions = useSpaceRoomSelector(GameSessionsAttr.from);
   const unfinished = useUnfinishedGame();
   const unfinishedDecision = useUnfinishedGamesDecision(() => ({
     multiplayer:
       data.game()?.outcome === 'ongoing' || unfinished()?.kind === 'matched'
         ? 1
         : 0,
-    customGames:
-      customGameActiveParticipant(customGames(), data.myId()) ||
+    gameSessions:
+      gameSessionActiveParticipant(gameSessions(), data.myId()) ||
       unfinished()?.kind === 'custom'
         ? 1
         : 0,

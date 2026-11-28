@@ -13,13 +13,18 @@ function sharedChoices(name: string): readonly GameMenuChoiceView[] {
   return [
     {
       screen: 'multiplayer',
-      title: 'Match making',
+      title: 'Matchmaking',
       caption: `Meet another ${name} player`,
     },
     {
-      screen: 'custom-game',
-      title: 'Custom games',
-      caption: 'With the people in this space, or bots',
+      screen: 'vs-human',
+      title: 'Play Friend',
+      caption: 'Play the people in this space',
+    },
+    {
+      screen: 'vs-bot',
+      title: 'Play Bots',
+      caption: 'Play on your own, against a bot',
     },
     {
       screen: 'history',
@@ -75,7 +80,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Matchmaking leads as the primary control, custom games is a row; history and how to play wait behind More. */
+/** Matchmaking leads as the primary control, game sessions is a row; history and how to play wait behind More. */
 export const SharedChoices: Story = {};
 
 /** A game offering puzzles and settings: matchmaking leads, puzzles stay a row, settings wait behind More. */
@@ -97,13 +102,18 @@ export const ManyPlayers: Story = {
     choices: [
       {
         screen: 'multiplayer',
-        title: 'Match making',
+        title: 'Matchmaking',
         caption: 'Meet 3 other Hearts players',
       },
       {
-        screen: 'custom-game',
-        title: 'Custom games',
-        caption: 'With the people in this space, or bots',
+        screen: 'vs-human',
+        title: 'Play Friend',
+        caption: 'Play the people in this space',
+      },
+      {
+        screen: 'vs-bot',
+        title: 'Play Bots',
+        caption: 'Play on your own, against bots',
       },
     ],
   },
@@ -146,7 +156,7 @@ export const LongContent: Story = {
 export const OpenChoice: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByText('Match making'));
+    await userEvent.click(await canvas.findByText('Matchmaking'));
     await expect(args.onChoose).toHaveBeenCalledWith('multiplayer');
   },
 };
@@ -205,7 +215,7 @@ export const ClassicQuoridor: Story = {
     choices: [
       {
         screen: 'multiplayer',
-        title: 'Match making',
+        title: 'Matchmaking',
         caption: 'Find players for your chosen mode',
       },
       ...CHOICES.filter((choice) => choice.screen !== 'multiplayer'),

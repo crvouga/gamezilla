@@ -1,34 +1,39 @@
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { openCustomGamePlace } from './custom-game-places';
 import { openMoreChoices } from './game-more-choices';
+import { openGameSessionPlace } from './game-session-places';
 
 /** The controls that open the moves place: from the live board, and from a result. */
-const MOVES_PLACE_ROWS = ['custom-game-all-moves', 'custom-game-review-start'];
+const MOVES_PLACE_ROWS = [
+  'game-session-all-moves',
+  'game-session-review-start',
+];
 
-/** Review the board after `ply` moves of the shown custom game. */
-export const reviewCustomGameMove = scenarioAction({
-  name: 'reviewCustomGameMove',
+/** Review the board after `ply` moves of the shown game session. */
+export const reviewGameSessionMove = scenarioAction({
+  name: 'reviewGameSessionMove',
   act: async (s, actor: string, ply: number) => {
     const ui = await actorUi(s, actor);
-    const jump = ui.get('custom-game-review-ply');
+    const jump = ui.get('game-session-review-ply');
     if (!(await jump.isVisible())) {
       for (const row of MOVES_PLACE_ROWS)
-        if (await openCustomGamePlace(s, actor, row, 'custom-game-go-to-move'))
+        if (
+          await openGameSessionPlace(s, actor, row, 'game-session-go-to-move')
+        )
           break;
-      await ui.get('custom-game-go-to-move').tap();
+      await ui.get('game-session-go-to-move').tap();
     }
     await jump.clear();
     await jump.input(String(ply));
-    await ui.get('custom-game-review-seek').tap();
-    if (!(await ui.get('custom-game-error').isVisible()))
+    await ui.get('game-session-review-seek').tap();
+    if (!(await ui.get('game-session-error').isVisible()))
       await ui.key('escape');
   },
 });
 
 /**
- * Open the game's history: from the custom game shown (its result, or its
+ * Open the game's history: from the game session shown (its result, or its
  * game menu while it is played), else from the game's choices, going back
  * to them first.
  */
@@ -42,12 +47,12 @@ export const openGameHistory = scenarioAction({
         if (await ui.get('game-history-statistics').isVisible()) return true;
         // On the game's menu, History and stats waits behind More.
         await openMoreChoices(ui);
-        if (await ui.get('custom-game-history-stats').isVisible())
-          await ui.get('custom-game-history-stats').tap();
+        if (await ui.get('game-session-history-stats').isVisible())
+          await ui.get('game-session-history-stats').tap();
         // While a game is played the way to the history is a row of its
         // game menu: a person opens the menu first.
-        else if (await ui.get('custom-game-commands').isVisible())
-          await ui.get('custom-game-commands').tap();
+        else if (await ui.get('game-session-commands').isVisible())
+          await ui.get('game-session-commands').tap();
         // Behind History and stats when the game also keeps puzzle stats.
         else if (await ui.get(Handles.gameChoice('game-history')).isVisible())
           await ui.get(Handles.gameChoice('game-history')).tap();

@@ -55,9 +55,9 @@ export async function captureMotion(
   await openBoard(page, 'drop-a-disc', theme, 'system');
   await expect(page.locator('[data-reduced-motion]')).toHaveCount(0);
   await observeDrop(page);
-  await page.getByTestId('custom-game-board-column-2').click();
-  const disc = page.getByTestId('custom-game-board-cell-1').locator('span');
-  await expect(page.getByTestId('custom-game-board-cell-1')).toHaveAttribute(
+  await page.getByTestId('game-session-board-column-2').click();
+  const disc = page.getByTestId('game-session-board-cell-1').locator('span');
+  await expect(page.getByTestId('game-session-board-cell-1')).toHaveAttribute(
     'data-disc',
     '1'
   );

@@ -29,7 +29,7 @@ tests and types alike. The table was read with `jq .gameApi` on each manifest.
 | Extension points (composition) | `@libs/game-session-shared-ts` | `turn-game-definition` (`defineTurnGame`) |
 | | `@libs/game-menu-client-ts` | `game-client` (`defineGameClient`: `shared`, `presentation`, `puzzles`, `choices`, `screens`, `settings`, `Frame`, `SessionEffects`) |
 | | `@libs/spaces-shared-ts` | `game` (`GameOwnRoom`, `GameCommandContext`, `mergeGameRouterEntries`) |
-| Extension points (conformance) | `@libs/game-session-harness-ts` | 27 modules: `harness-game` (`HarnessGame`, `GameFixtures`, `assertHarnessGame`), `known-puzzles`, `game-system`, `game-navigation`, `space-game-choice`, 7 `custom-game-*` drivers and reads, 15 `puzzle-*` drivers, reads and fixtures (`jq .gameApi`) |
+| Extension points (conformance) | `@libs/game-session-harness-ts` | 27 modules: `harness-game` (`HarnessGame`, `GameFixtures`, `assertHarnessGame`), `known-puzzles`, `game-system`, `game-navigation`, `space-game-choice`, 7 `game-session-*` drivers and reads, 15 `puzzle-*` drivers, reads and fixtures (`jq .gameApi`) |
 | | `@libs/game-matchmaking-harness-ts` | 8 modules: `matched-game-world`, `matched-game-app.steps`, `matched-game-fixtures`, `opponent-seeking`, `multiplayer-board`, `multiplayer-review`, `multiplayer-game-record`, `multiplayer-time` |
 | Internal only (`"gameApi": []`) | `@pkgs/turn-game-client-ts`, `@libs/game-session-client-ts`, `@libs/game-session-server-ts`, `@libs/game-matchmaking-shared-ts`, `@libs/game-matchmaking-client-ts` | Platform screens, consumers, commands, storage |
 | Registries (`"gameApi": []`, `"gameRegistry": true`) | `@libs/games-shared-ts`, `@libs/games-client-ts`, `@libs/game-catalog-shared-ts`, `@libs/games-harness-ts` | Composition roots only. A game never depends on one (`gameViolations`). |
@@ -89,7 +89,7 @@ libs/tools-harness-ts/goal/known-bugs` shows 116 modified and 6 added files. The
 | Stayed game-specific or infrastructure (`connect-four-harness` 4, `chess-root-harness` 3, `runtime-harness` 4) | 11 |
 
 In total, 72 now point at shared code and 33 at shared specifications. New
-on this branch: `custom-game-mover-credited-win` (`game-session-shared`),
+on this branch: `game-session-mover-credited-win` (`game-session-shared`),
 `matched-game-sweep-ends-a-game-twice` (`game-matchmaking-shared`),
 `puzzle-link-namespace-undecoded` (`game-puzzle-shared`),
 `chess-play-accepts-noncanonical-actions` (`chess-rules-shared`),
@@ -97,7 +97,7 @@ on this branch: `custom-game-mover-credited-win` (`game-session-shared`),
 `known-bug-gate-rejects-shorthand-quint-actions`.
 
 Commits that name a promoted counterexample and its new home: `f6d751eb6`
-(`custom-game-ended-space-unobservable` → `conformance/custom-games/space-ending`),
+(`game-session-ended-space-unobservable` → `conformance/vs-human/space-ending`),
 `8f9f011ac` (`game-session-inconsistent-retained-history` → `retained-history`),
 `441a74586` (`game-session-ending-descriptions-lost` → `conformance/rules/presentation`),
 `83cdb6539` (`chess-space-query-tombstone-filter` → `game-matchmaking-harness`),
@@ -105,7 +105,7 @@ Commits that name a promoted counterexample and its new home: `f6d751eb6`
 `dc15000ea` (`puzzle-solved-review-resumes`, `puzzle-attempt-clock-identity-collision`
 → `conformance/puzzles/`), and `8c761c311` (matchmaking, offline-board and
 invitation-name counterexamples → `conformance/matchmaking/finding-an-opponent`,
-`custom-games/offline-solo-board`, `custom-games/invitation-names`).
+`game-sessions/offline-solo-board`, `game-sessions/invitation-names`).
 
 **Exact counterexamples were kept.** The repository has 139 unique
 `// regression:` ids on `main` and 143 at HEAD. By marker, 99 package+id
@@ -117,7 +117,7 @@ without dropping it. Quint binding `regressions` number 51 at HEAD, the same
 as on `main`: 38 in 16 `games-harness` bindings (replayed per game) and 13
 in `chess-root-harness`.
 
-**Retired copies.** `9e769994c` deleted `libs/chess-custom-game-harness`
+**Retired copies.** `9e769994c` deleted `libs/chess-game-session-harness`
 and `libs/chess-matchmaking-harness` (51 files, +389/−913), and `e813ce154`
 dropped their dependencies.
 `connect-four-root-client` and `connect-four-board-client` became
@@ -175,7 +175,7 @@ Cells read features / scenario runs / shared code-suite tests. The source is
 capabilities is counted under each. "Required layers" are the spec kinds
 and code suites that bind the cell.
 
-| Game | rules | custom-games | matchmaking | history | puzzles |
+| Game | rules | game-sessions | matchmaking | history | puzzles |
 | --- | --- | --- | --- | --- | --- |
 | chess | 0 / 0 / 16 | 27 / 208 / 9 | 32 / 330 / 9 | 4 / 42 / 2 | 35 / 265 / 56 |
 | Connect Four | 0 / 0 / 15 | 25 / 201 / 9 | 30 / 325 / 9 | 4 / 42 / 2 | — (not offered) |
@@ -189,7 +189,7 @@ The suite counts printed by `tests/game-conformance-matrix.test.ts` (10
 pass, 0 fail):
 
 ```text
-| game          | rules    | custom-games | matchmaking | history  | puzzles   |
+| game          | rules    | game-sessions | matchmaking | history  | puzzles   |
 | chess         | 2 suites | 41 suites    | 44 suites   | 9 suites | 51 suites |
 | Connect Four  | 2 suites | 39 suites    | 42 suites   | 9 suites | —         |
 | counting race | 2 suites | 37 suites    | —           | 2 suites | 49 suites |
@@ -197,12 +197,12 @@ pass, 0 fail):
 
 **Required layers.**
 - `rules`: code suites only (the rules and presentation laws).
-- `custom-games`, `matchmaking`, `puzzles`: features, qnt, dmn, als, openslo and code suites.
+- `game-sessions`, `matchmaking`, `puzzles`: features, qnt, dmn, als, openslo and code suites.
 - `history`: features and qnt for chess and Connect Four. The counting race gets `game-history.feature` and `cancelled-game` only, because every history model also needs matchmaking and `game-record` yields no law without matched games.
 
 **Applicability.**
 - An offered capability makes the cell apply.
-- `secondSideCannotWin` applies to chess only. Connect Four and the counting race skip `custom-game-cannot-win`, and Connect Four also skips `matched-game-cannot-win`.
+- `secondSideCannotWin` applies to chess only. Connect Four and the counting race skip `game-session-cannot-win`, and Connect Four also skips `matched-game-cannot-win`.
 - `drawByRules` applies to chess and Connect Four, which run `matched-game-rules-draw`.
 - `wonAnotherWay` applies to chess only, which runs `puzzle-objective` (4 scenarios).
 - Multi-capability features: `puzzle-matched-play` covers chess, and `puzzle-custom-play` covers chess and the counting race.
@@ -267,10 +267,10 @@ matched nothing.
 
 | Probe | Run | Outcome | Pinned by |
 | --- | --- | --- | --- |
-| `puzzle-only` (puzzles only) | 4/0 | supported; `solo-count` is a limitation | binds `rules`, `puzzles`; unsupported `custom-games`, `matchmaking`, `history`. `assertHarnessGame`: "the known puzzle solo-count/two-twos's solution is not its line's solver moves" |
+| `puzzle-only` (puzzles only) | 4/0 | supported; `solo-count` is a limitation | binds `rules`, `puzzles`; unsupported `game-sessions`, `matchmaking`, `history`. `assertHarnessGame`: "the known puzzle solo-count/two-twos's solution is not its line's solver moves" |
 | `turn-order` (`double-turn`) | 3/0 | limitation | the turn law alone: "the first side moves first and every action passes the turn to the other side" |
-| `setup-phase` (`setup-race`) | 3/0 | supported as ordinary turns | no refusals; binds `rules`, `custom-games` |
-| `results` (`misere-tally`, shared win, score) | 3/0 | the winner named by the rules is supported; a shared win or a score is a limitation | the outcome "white wins by counted to seven" (regression `custom-game-mover-credited-win`); `@ts-expect-error` on a shared win and on a score result |
+| `setup-phase` (`setup-race`) | 3/0 | supported as ordinary turns | no refusals; binds `rules`, `game-sessions` |
+| `results` (`misere-tally`, shared win, score) | 3/0 | the winner named by the rules is supported; a shared win or a score is a limitation | the outcome "white wins by counted to seven" (regression `game-session-mover-credited-win`); `@ts-expect-error` on a shared win and on a score result |
 | `participants` (more than two) | 1/0 | limitation | `@ts-expect-error`: a third seat; a record with more than two participants |
 | `private-state` | 2/0 | limitation | `@ts-expect-error`: a board with no viewer, `legal` with no actor; three viewers read the same position |
 | `play-surface` (not a chessboard) | 2/0 | supported; puzzle marks need cells | `refusals(COUNTING_RACE_GAME)` is empty; `@ts-expect-error` on a mark without a cell |
@@ -336,7 +336,7 @@ bare `bun test <file>` fails 13 of 16 files on `react/jsx-dev-runtime`.
   - "won another way".
 - **Durable chess-named stores serve every game.** These include `GAME_PLATFORM_NAMESPACE = 'chess'`, the tables `chess_multiplayer_*`, `chess_opponent_searches` and `chess_puzzle*`, the catalogue topic `system:chess_puzzles`, the room attributes `chess.puzzle.*`, the messages `chess-puzzle-play-*` and `chess-cmd`, the refusal codes `CHESS_*` and the route `/chess/puzzle/:puzzleId`. They are deliberately never renamed, because renaming would break stored histories and queued mutations (GAME_FRAMEWORK.md § Durable names). For a reader they remain a naming debt.
 - **The billing spec-part change is reverted.** `3c6b2c60c` lowered `@libs/billing-harness-ts` from 24 to 23 spec parts to keep the total at 241 spec tasks; once `303e7b499` sized parts by the replays each model actually runs (games 64 → 41, chess 32 → 7), billing went back to `main`'s 24 and `docs/CI_REQUIREMENTS.md` still reads "Fits: yes".
-- **`--strict-duplicates` fails.** `verify-specs.ts --strict-duplicates` exits 1 with 9 near-duplicate step pairs, all in step definitions outside `specs/`. Seven differ only by case ("Custom Game" vs "custom game") between `chess-root-harness` or `runtime-harness` and `games-harness`. The others are one `friends-harness` pair and one `games-harness` pair. It is not a gate: `@libs/tools-harness-ts#ci:specs` runs `verify-specs.ts` without the flag, and that exits 0 with 9 wording warnings. All nine phrasings are used by feature files (`specs/chess`, `specs/journeys`, `specs/spaces`, `specs/games`). Removing the pairs therefore means unifying the wording in a `spec:` commit, for example "Custom Game" against "custom game".
+- **`--strict-duplicates` fails.** `verify-specs.ts --strict-duplicates` exits 1 with 9 near-duplicate step pairs, all in step definitions outside `specs/`. Seven differ only by case ("Game Session" vs "game session") between `chess-root-harness` or `runtime-harness` and `games-harness`. The others are one `friends-harness` pair and one `games-harness` pair. It is not a gate: `@libs/tools-harness-ts#ci:specs` runs `verify-specs.ts` without the flag, and that exits 0 with 9 wording warnings. All nine phrasings are used by feature files (`specs/chess`, `specs/journeys`, `specs/spaces`, `specs/games`). Removing the pairs therefore means unifying the wording in a `spec:` commit, for example "Game Session" against "game session".
 - **Another session's uncommitted edits break `@libs/game-puzzle-client-ts#lint`.** The files are `use-puzzle-rating-events.ts`, `use-puzzle-result-recorded.ts` and `game-puzzle-shared/src/puzzle-tables.ts`. Biome reports `use-puzzle-rating-events.ts:1:1 assist/source/organizeImports`. HEAD's committed tree passes (§10, A/B check).
 - **`@libs/games-harness-ts#verify:models:10` ran over budget.** This task is `puzzle-attempt.qnt`. It took 303 s against a 300 s budget in the cold gate run, on a shared machine at load 9–17 with three solver tasks beside it. Moving it from chess shrank the model (+22/−95 lines) and left its bounds alone (`maxSteps 64`, `verifySteps 8`). Re-timed alone at load ~9, it took 10 s (a complete finite graph of 17,626 states in 9.2 s). Likewise `test:spec:20` took 310 s at load 23–25 against 113 s alone (90 pass). Both overruns were contention on a shared machine, so no budget was raised.
 - **Spec scenarios share one process per part, and earlier worlds shift ids.** The spec runner uses `--no-isolate`, and with `VERIFY_TEST_CONCURRENCY=1` every file in a part runs in one process. What a world derives can therefore depend on which files ran before. Measured here: the feed's first pick, seeded by `${myId}-${attemptSeed}` through `resolvePuzzlePickOffset`, served `leap-past-four` after `matched-game-cannot-win` but `either-order` alone. `7e70d865e` fixed the one scenario this exposed. The order dependence itself remains a harness property: a step whose premise holds for only some picks will pass alone and fail in the gate.

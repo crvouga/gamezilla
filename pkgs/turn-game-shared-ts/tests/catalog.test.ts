@@ -58,13 +58,15 @@ test('rules are explicit and unknown, duplicate or ambiguous registrations fail 
 
 test('a capability is offered only by a game that supplies it', () => {
   const bots = { difficulties: [], choose: () => null };
-  const rules = createTurnGames([registration({ 'custom-games': { bots } })]);
-  expect(rules.offers('counter', 'custom-games')).toBe(true);
-  expect(rules.capability('counter', 'custom-games')?.bots).toBe(bots);
+  const rules = createTurnGames([
+    registration({ 'vs-human': {}, 'vs-bot': { bots } }),
+  ]);
+  expect(rules.offers('counter', 'vs-bot')).toBe(true);
+  expect(rules.capability('counter', 'vs-bot')?.bots).toBe(bots);
   expect(rules.offers('counter', 'matchmaking')).toBe(false);
   expect(rules.capability('counter', 'matchmaking')).toBeUndefined();
-  expect(rules.offers('unregistered', 'custom-games')).toBe(false);
-  expect(offeredCapabilities(rules.games[0]!)).toEqual(['custom-games']);
+  expect(rules.offers('unregistered', 'vs-bot')).toBe(false);
+  expect(offeredCapabilities(rules.games[0]!)).toEqual(['vs-human', 'vs-bot']);
 });
 
 test('a clock choice belongs only to a game offering matchmaking', () => {
@@ -257,7 +259,7 @@ test('matched games refuse private commitments', () => {
         committing
       ),
     ])
-  ).toThrow('private commitments are offered in custom games');
+  ).toThrow('private commitments are offered in game sessions');
   expect(createTurnGames([registration({}, committing)]).games).toHaveLength(1);
 });
 

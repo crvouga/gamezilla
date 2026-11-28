@@ -37,24 +37,25 @@ function assertBots(
   capabilities: TurnGameCapabilities,
   simulation?: RegisteredSimulation
 ): void {
-  const custom = capabilities['custom-games'];
-  if (custom === undefined) return;
+  const human = capabilities['vs-human'];
   if (
-    custom.localPlayers !== undefined &&
-    (custom.localPlayers !== true || simulation === undefined)
+    human?.localPlayers !== undefined &&
+    (human?.localPlayers !== true || simulation === undefined)
   )
     throw new Error(`${id}: local players require simulation inputs`);
+  const bot = capabilities['vs-bot'];
+  if (bot === undefined) return;
   if (simulation === undefined)
-    assertFunctions(id, 'custom-games', { 'bots.choose': custom.bots?.choose });
+    assertFunctions(id, 'vs-bot', { 'bots.choose': bot.bots?.choose });
   else if (simulation.bots === undefined)
-    throw new Error(`${id}: custom games need simulation bot inputs`);
-  const difficulties = custom.bots?.difficulties;
+    throw new Error(`${id}: game sessions need simulation bot inputs`);
+  const difficulties = bot.bots?.difficulties;
   if (
     !Array.isArray(difficulties) ||
     difficulties.some((difficulty) => !BOT_DIFFICULTIES.includes(difficulty))
   )
     throw new Error(
-      `${id}: capabilities.custom-games.bots.difficulties must be an array of ${BOT_DIFFICULTIES.join(', ')} (empty for a single bot)`
+      `${id}: capabilities.vs-bot.bots.difficulties must be an array of ${BOT_DIFFICULTIES.join(', ')} (empty for a single bot)`
     );
   if (new Set(difficulties).size !== difficulties.length)
     throw new Error(`${id}: a bot difficulty is offered twice`);

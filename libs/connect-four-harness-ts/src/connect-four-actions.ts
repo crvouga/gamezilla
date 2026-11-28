@@ -1,36 +1,36 @@
 import { decodeConnectFour } from '@libs/connect-four-shared-ts/connect-four';
-import type { CustomGameSeat } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
+import type { GameSessionSeat } from '@libs/game-session-harness-ts/game-session-lineup';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
 import {
-  CUSTOM_GAME_BOARD,
-  playOnCustomGameBoard,
-} from '@libs/game-session-harness-ts/custom-game-moves';
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
-import { chooseCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+  GAME_SESSION_BOARD,
+  playOnGameSessionBoard,
+} from '@libs/game-session-harness-ts/game-session-moves';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
+import { chooseGameSession } from '@libs/game-session-harness-ts/game-session-ui';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 
 const COLUMNS = 7;
 const CELLS = 42;
-const column = (index: number) => `${CUSTOM_GAME_BOARD}-column-${index + 1}`;
+const column = (index: number) => `${GAME_SESSION_BOARD}-column-${index + 1}`;
 
-/** A Connect Four custom game by its sides' disc colours and its drops. */
+/** A Connect Four game session by its sides' disc colours and its drops. */
 export type ConnectFourSetup = {
   readonly host?: string;
-  readonly red?: CustomGameSeat;
-  readonly yellow?: CustomGameSeat;
+  readonly red?: GameSessionSeat;
+  readonly yellow?: GameSessionSeat;
   readonly ready?: boolean;
   readonly active?: boolean;
   readonly moves?: readonly number[];
   readonly watchers?: readonly string[];
 };
 
-/** The shared custom-game lineup, in Connect Four's own words. */
+/** The shared game-session lineup, in Connect Four's own words. */
 export const establishConnectFour = scenarioAction({
   name: 'establishConnectFour',
   act: async (s, options: ConnectFourSetup = {}) => {
     await Promise.resolve(
-      establishCustomGame.act(s, 'connect-four', {
+      establishGameSession.act(s, 'connect-four', {
         ...(options.host === undefined ? {} : { host: options.host }),
         ...(options.red === undefined ? {} : { first: options.red }),
         ...(options.yellow === undefined ? {} : { second: options.yellow }),
@@ -50,7 +50,7 @@ export const dropConnectFour = scenarioAction({
   name: 'dropConnectFour',
   act: async (s, actor: string, index: number, keyboard = false) => {
     const ui = await actorUi(s, actor);
-    const game = (await readCustomGameScreen(s, actor))?.current;
+    const game = (await readGameSessionScreen(s, actor))?.current;
     if (game === null || game === undefined)
       throw new Error('No Connect Four game');
     const target = ui.get(column(index));
@@ -60,14 +60,14 @@ export const dropConnectFour = scenarioAction({
       index < COLUMNS &&
       (await target.attribute('aria-disabled')) === 'false'
     ) {
-      await playOnCustomGameBoard(s, actor, async () => {
+      await playOnGameSessionBoard(s, actor, async () => {
         if (keyboard) await target.key('enter');
         else await target.tap();
         return 'made';
       });
       return;
     }
-    await chooseCustomGame(s, actor, {
+    await chooseGameSession(s, actor, {
       operation: 'move',
       uci: String(index),
       ply: game.moves.length,
@@ -80,7 +80,7 @@ export const clickConnectFourColumn = scenarioAction({
   name: 'clickConnectFourColumn',
   act: async (s, actor: string, index: number) => {
     const ui = await actorUi(s, actor);
-    await playOnCustomGameBoard(s, actor, async () => {
+    await playOnGameSessionBoard(s, actor, async () => {
       await ui.get(column(index)).tap();
       return 'made';
     });
@@ -106,16 +106,16 @@ export const preferConnectFourReducedMotion = scenarioAction({
 
 /** The Connect Four board `actor` sees, decoded from what is rendered. */
 export async function connectFourView(s: ProductHarness, actor = 'alice') {
-  const screen = await readCustomGameScreen(s, actor);
+  const screen = await readGameSessionScreen(s, actor);
   if (screen?.current === undefined || screen.current === null)
     throw new Error('No Connect Four board');
   const ui = await actorUi(s, actor);
-  const cells = await ui.get(CUSTOM_GAME_BOARD).attribute('data-cells');
+  const cells = await ui.get(GAME_SESSION_BOARD).attribute('data-cells');
   let winningShown = 0;
   for (let cell = 0; cell < CELLS; cell++) {
     if (
       (await ui
-        .get(`${CUSTOM_GAME_BOARD}-cell-${cell}`)
+        .get(`${GAME_SESSION_BOARD}-cell-${cell}`)
         .attribute('data-winning')) === 'true'
     )
       winningShown += 1;
@@ -126,7 +126,7 @@ export async function connectFourView(s: ProductHarness, actor = 'alice') {
     board: cells === null ? [] : (JSON.parse(cells) as number[]),
     game: decodeConnectFour(screen.position),
     preview: Number(
-      await ui.get(CUSTOM_GAME_BOARD).attribute('data-preview-cell')
+      await ui.get(GAME_SESSION_BOARD).attribute('data-preview-cell')
     ),
   };
 }
@@ -146,14 +146,14 @@ export async function connectFourColumn(
 }
 
 export async function connectFourStatus(s: ProductHarness, actor: string) {
-  return (await actorUi(s, actor)).get('custom-game-status').text();
+  return (await actorUi(s, actor)).get('game-session-status').text();
 }
 
 export async function connectFourBoardDescription(
   s: ProductHarness,
   actor: string
 ) {
-  return (await actorUi(s, actor)).get(CUSTOM_GAME_BOARD).text();
+  return (await actorUi(s, actor)).get(GAME_SESSION_BOARD).text();
 }
 
 export const CONNECT_FOUR_ACTIONS = [

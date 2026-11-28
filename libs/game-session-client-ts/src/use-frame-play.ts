@@ -1,20 +1,18 @@
-import { customGameCancelRefusal } from '@libs/game-session-shared-ts/custom-game-refusal';
-import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
+import { gameSessionCancelRefusal } from '@libs/game-session-shared-ts/game-session-refusal';
+import type { GameSession } from '@libs/game-session-shared-ts/game-session-state';
 import {
   useGamePresentation,
   useTurnGames,
 } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import { type Accessor, createMemo } from 'solid-js';
-import { useRefusalText } from './custom-game-error';
-import { frameViewerHeld, usePersonName } from './custom-game-status';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import { frameSwatch } from './game-frame-look';
 import {
   BOARD_TEST_ID,
-  customGameDrawToAnswer,
   type FrameBoard,
   frameActionItems,
+  gameSessionDrawToAnswer,
 } from './game-frame-play';
 import type {
   FrameMover,
@@ -22,11 +20,13 @@ import type {
   FramePlay,
   FrameRecord,
 } from './game-frame-view-types';
-import type { CustomGameReview } from './use-custom-game-review';
-import type { CustomGameScreenModel } from './use-custom-game-screen';
+import { useRefusalText } from './game-session-error';
+import { frameViewerHeld, usePersonName } from './game-session-status';
+import type { GameSessionReview } from './use-game-session-review';
+import type { GameSessionScreenModel } from './use-game-session-screen';
 
 /** The other participant, when they are a person who is away right now. */
-function awayOpponent(model: CustomGameScreenModel): string | null {
+function awayOpponent(model: GameSessionScreenModel): string | null {
   const game = model.current();
   const side = model.mySide();
   if (game === null || side === null) return null;
@@ -41,7 +41,7 @@ function awayOpponent(model: CustomGameScreenModel): string | null {
   return other?.person ?? null;
 }
 
-const allPeople = (game: CustomGame): boolean =>
+const allPeople = (game: GameSession): boolean =>
   game.sides.every((side) => game[side].kind === 'person');
 
 /**
@@ -49,8 +49,8 @@ const allPeople = (game: CustomGame): boolean =>
  * whose frame offers no draws (`drawOffers`) never shows the offer.
  */
 function drawFacts(
-  model: CustomGameScreenModel,
-  game: CustomGame,
+  model: GameSessionScreenModel,
+  game: GameSession,
   drawOffers: boolean
 ) {
   const offer = game.drawOfferedBy;
@@ -62,13 +62,13 @@ function drawFacts(
     offerAgainLater: offerable && declined,
     canOfferDraw: offerable && !declined && !frameViewerHeld(model),
     heldOfferDraw: offerable && !declined && frameViewerHeld(model),
-    canAnswerDraw: customGameDrawToAnswer(model),
+    canAnswerDraw: gameSessionDrawToAnswer(model),
   };
 }
 
 /** What a participant is told and may do while the game is set up or played. */
 export function useFramePlay(
-  model: CustomGameScreenModel,
+  model: GameSessionScreenModel,
   board: FrameBoard
 ): Accessor<FramePlay> {
   const away = createMemo(() =>
@@ -108,7 +108,7 @@ export function useFramePlay(
       canCancel:
         unfinished &&
         model.canCancel() &&
-        customGameCancelRefusal(game, model.myId()) === '',
+        gameSessionCancelRefusal(game, model.myId()) === '',
       ...actions,
     };
   });
@@ -116,7 +116,7 @@ export function useFramePlay(
 
 /** What comes next once the game is over. */
 export function useFrameNext(
-  model: CustomGameScreenModel
+  model: GameSessionScreenModel
 ): Accessor<FrameNext> {
   const rules = useTurnGames();
   return createMemo(() => {
@@ -138,7 +138,7 @@ export function useFrameNext(
  * winner leads) or deals hands names no mover, so its record numbers every
  * move alone.
  */
-function useRecordMovers(review: CustomGameReview) {
+function useRecordMovers(review: GameSessionReview) {
   const rules = useTurnGames();
   const presentation = useGamePresentation();
   const sideLabel = useGameSideLabel();
@@ -165,8 +165,8 @@ function useRecordMovers(review: CustomGameReview) {
 
 /** The game's record beside the board; `null` with no game. */
 export function useFrameRecord(
-  model: CustomGameScreenModel,
-  review: CustomGameReview
+  model: GameSessionScreenModel,
+  review: GameSessionReview
 ): Accessor<FrameRecord | null> {
   const rules = useTurnGames();
   const refusal = useRefusalText();
@@ -202,8 +202,8 @@ export function useFrameRecord(
 
 /** One public render snapshot, so automated observers never combine different turns. */
 export function useFrameBoardState(
-  model: CustomGameScreenModel,
-  review: CustomGameReview,
+  model: GameSessionScreenModel,
+  review: GameSessionReview,
   board: FrameBoard
 ): Accessor<Readonly<Record<string, string>>> {
   return createMemo(() => {

@@ -72,6 +72,7 @@ export const networkRace = defineGame({
     }
   ),
   capabilities: {
-    'custom-games': { bots: { difficulties: ['easy', 'medium', 'hard'] } },
+    'vs-human': {},
+    'vs-bot': { bots: { difficulties: ['easy', 'medium', 'hard'] } },
   },
 });

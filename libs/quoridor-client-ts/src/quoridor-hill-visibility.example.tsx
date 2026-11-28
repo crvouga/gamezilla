@@ -4,17 +4,17 @@ import { expect, within } from 'storybook/test';
 export async function expectHillPassVisible(canvasElement: HTMLElement) {
   // regression: quoridor-hill-forced-pass-clipped
   const canvas = within(canvasElement);
-  const guidance = await canvas.findByTestId('custom-game-board-wall-status');
+  const guidance = await canvas.findByTestId('game-session-board-wall-status');
   await expect(guidance).toHaveTextContent(/pass/i);
   await expect(guidance).not.toHaveTextContent(
     /choose a marked square|move to a marked square|tap a square/i
   );
   for (const mode of ['move', 'h', 'v']) {
     await expect(
-      canvas.queryByTestId(`custom-game-board-mode-${mode}`)
+      canvas.queryByTestId(`game-session-board-mode-${mode}`)
     ).not.toBeInTheDocument();
   }
-  const pass = await canvas.findByTestId('custom-game-board-action-pass');
+  const pass = await canvas.findByTestId('game-session-board-action-pass');
   const window = pass.ownerDocument.defaultView;
   if (window === null) throw new Error('Hill story has no browser window');
   await expect(pass).toBeVisible();
@@ -43,7 +43,9 @@ export async function expectHillPassVisible(canvasElement: HTMLElement) {
 
 /** The destination stays named and inside the native viewport before input. */
 export async function expectHillDestinationVisible(canvasElement: HTMLElement) {
-  const goal = within(canvasElement).getByTestId('custom-game-board-action-e5');
+  const goal = within(canvasElement).getByTestId(
+    'game-session-board-action-e5'
+  );
   await expect(goal).toHaveAccessibleName(/Central hill/i);
   await expect(goal).toHaveTextContent('★');
   await expect(goal).toHaveAttribute('data-goal', 'true');

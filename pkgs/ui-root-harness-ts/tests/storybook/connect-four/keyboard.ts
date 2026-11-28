@@ -2,7 +2,7 @@ import { expect, type Page, type TestInfo } from '@playwright/test';
 import { captureBoard, openBoard } from './capture';
 
 const column = (page: Page, number: number) =>
-  page.getByTestId(`custom-game-board-column-${number}`);
+  page.getByTestId(`game-session-board-column-${number}`);
 
 /** Anchor just before the board, then use native browser keyboard traversal. */
 export async function captureKeyboard(
@@ -11,7 +11,7 @@ export async function captureKeyboard(
   theme: string
 ) {
   await openBoard(page, 'drop-a-disc', theme);
-  const board = page.getByTestId('custom-game-board');
+  const board = page.getByTestId('game-session-board');
   const initial = await board.getAttribute('data-cells');
   await column(page, 1).focus();
   await page.keyboard.press('Shift+Tab');
@@ -53,12 +53,12 @@ export async function captureKeyboard(
   await page.keyboard.press('Shift+Tab');
   await expect(column(page, 7)).toBeFocused();
   await page.keyboard.press('Enter');
-  await expect(page.getByTestId('custom-game-board-cell-6')).toHaveAttribute(
+  await expect(page.getByTestId('game-session-board-cell-6')).toHaveAttribute(
     'data-disc',
     '1'
   );
   await page.keyboard.press('Space');
-  await expect(page.getByTestId('custom-game-board-cell-13')).toHaveAttribute(
+  await expect(page.getByTestId('game-session-board-cell-13')).toHaveAttribute(
     'data-disc',
     '2'
   );
@@ -70,7 +70,7 @@ export async function captureKeyboard(
   await expect(board).toHaveAttribute('data-cells', full ?? '');
   await page.keyboard.press('ArrowRight');
   await page.keyboard.press('Enter');
-  await expect(page.getByTestId('custom-game-board-cell-8')).toHaveAttribute(
+  await expect(page.getByTestId('game-session-board-cell-8')).toHaveAttribute(
     'data-disc',
     '2'
   );
@@ -90,7 +90,7 @@ export async function captureInactiveKeyboard(
     'full-board-draw',
   ]) {
     await openBoard(page, state, theme);
-    const board = page.getByTestId('custom-game-board');
+    const board = page.getByTestId('game-session-board');
     const before = await board.getAttribute('data-cells');
     await column(page, 1).focus();
     await page.keyboard.press('End');

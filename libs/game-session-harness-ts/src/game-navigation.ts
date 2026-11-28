@@ -4,12 +4,13 @@ import { chooseGameMode, gameTile } from '@libs/harness-ts/game-tiles';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { showCustomGameHome } from './custom-game-places';
 import { openMoreChoices } from './game-more-choices';
+import { showGameSessionHome } from './game-session-places';
 
 /** What each shared screen shows first, so a person can tell it is open. */
 export const SHARED_SCREEN_MARK = {
-  'custom-game': 'custom-game-content',
+  'vs-human': 'game-session-content',
+  'vs-bot': 'game-session-content',
   // regression: puzzle-stats-unreachable-from-a-finished-matched-game
   // Finding an opponent is a set of small places; the result after a game
   // carries no Find control, only the mark every place shares.
@@ -21,7 +22,8 @@ export type SharedGameScreen = keyof typeof SHARED_SCREEN_MARK;
 
 /** The shared choices every game offers, by the screen each opens. */
 export const SHARED_GAME_CHOICES: readonly SharedGameScreen[] = [
-  'custom-game',
+  'vs-human',
+  'vs-bot',
   'multiplayer',
   'history',
 ];
@@ -63,15 +65,15 @@ export const goBackInGame = scenarioAction({
 });
 
 /**
- * `actor` goes back from the game's board (a custom game's or the matched
- * game's) to the game's choices: from a custom game's inner place first to
+ * `actor` goes back from the game's board (a game session's or the matched
+ * game's) to the game's choices: from a game session's inner place first to
  * its home, then Back.
  */
 export const goBackFromBoard = scenarioAction({
   name: 'goBackFromBoard',
   act: async (s, actor: string) => {
     await bringToFront(s, actor);
-    await showCustomGameHome(s, actor);
+    await showGameSessionHome(s, actor);
     await (await actorUi(s, actor)).get(Handles.navBack).tap();
     await s.session.waitForIdle();
   },
@@ -129,22 +131,23 @@ async function tapWhileShown(node: Node): Promise<void> {
 }
 
 /**
- * Bring `actor` to the selected game's custom games: the space may already
+ * Bring `actor` to the selected game's game sessions: the space may already
  * show them, else the host picks the game and anyone opens the choice.
  */
-export async function showCustomGames(
+export async function showGameSessions(
   s: ProductHarness,
   actor: string,
-  gameId: string
+  gameId: string,
+  mode: 'vs-human' | 'vs-bot' = 'vs-human'
 ): Promise<void> {
   const ui = await actorUi(s, actor);
-  const content = ui.get(SHARED_SCREEN_MARK['custom-game']);
+  const content = ui.get(SHARED_SCREEN_MARK[mode]);
   await pollUntil(
     s,
     async () => {
       await bringToFront(s, actor);
       if (!(await content.isVisible())) {
-        const choice = ui.get(Handles.gameChoice('custom-game'));
+        const choice = ui.get(Handles.gameChoice(mode));
         const tile = ui.get(gameTile(s, gameId));
         if (await choice.isVisible()) await tapWhileShown(choice);
         else if (await tile.isVisible()) await tapWhileShown(tile);
@@ -157,17 +160,17 @@ export async function showCustomGames(
       maxMs: 15_000,
       stepMs: 1,
       actor,
-      description: `${actor} reaches custom games`,
+      description: `${actor} reaches game sessions`,
     }
   );
 }
 
 /**
  * Wait until `actor` is shown somewhere to play `gameId` in the space — the
- * game choice, its shared choices or its custom games — or is told the host
+ * game choice, its shared choices or its game sessions — or is told the host
  * is offline instead.
  */
-export async function waitCustomGameAvailability(
+export async function waitGameSessionAvailability(
   s: ProductHarness,
   actor: string,
   gameId: string
@@ -180,8 +183,8 @@ export async function waitCustomGameAvailability(
         return 'host offline';
       for (const handle of [
         gameTile(s, gameId),
-        Handles.gameChoice('custom-game'),
-        SHARED_SCREEN_MARK['custom-game'],
+        Handles.gameChoice('vs-human'),
+        SHARED_SCREEN_MARK['vs-human'],
       ]) {
         if (await ui.get(handle).isVisible()) return 'available';
       }
@@ -195,13 +198,13 @@ export async function waitCustomGameAvailability(
   );
 }
 
-/** `actor` opens the selected game's custom games, as {@link showCustomGames}. */
-export const openCustomGames = scenarioAction({
-  name: 'openCustomGames',
-  act: showCustomGames,
+/** `actor` opens the selected game's game sessions, as {@link showGameSessions}. */
+export const openGameSessions = scenarioAction({
+  name: 'openGameSessions',
+  act: showGameSessions,
 });
 
-/** The host takes the space from its current game to `gameId`'s custom games. */
+/** The host takes the space from its current game to `gameId`'s game sessions. */
 export const switchSpaceGame = scenarioAction({
   name: 'switchSpaceGame',
   act: async (s, host: string, gameId: string) => {
@@ -220,7 +223,7 @@ export const switchSpaceGame = scenarioAction({
         description: `${host} reaches the game choice`,
       }
     );
-    await showCustomGames(s, host, gameId);
+    await showGameSessions(s, host, gameId);
   },
 });
 
@@ -246,6 +249,6 @@ export const GAME_NAVIGATION_ACTIONS = [
   pickGame,
   openGameChoice,
   goBackInGame,
-  openCustomGames,
+  openGameSessions,
   switchSpaceGame,
 ];

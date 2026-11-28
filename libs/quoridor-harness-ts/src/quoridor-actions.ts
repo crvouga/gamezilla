@@ -1,11 +1,11 @@
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
 import {
-  CUSTOM_GAME_BOARD,
-  customGameBoardTakes,
-  playOnCustomGameBoard,
-} from '@libs/game-session-harness-ts/custom-game-moves';
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
-import { chooseCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+  GAME_SESSION_BOARD,
+  gameSessionBoardTakes,
+  playOnGameSessionBoard,
+} from '@libs/game-session-harness-ts/game-session-moves';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
+import { chooseGameSession } from '@libs/game-session-harness-ts/game-session-ui';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import {
@@ -27,7 +27,7 @@ export type QuoridorSetup = {
 export const establishQuoridor = scenarioAction({
   name: 'establishQuoridor',
   act: (s, options: QuoridorSetup = {}) =>
-    establishCustomGame.act(
+    establishGameSession.act(
       s,
       options.mode === 'hill' ? 'quoridor-hill' : 'quoridor',
       {
@@ -45,23 +45,23 @@ export const moveQuoridorPawn = scenarioAction({
   name: 'moveQuoridorPawn',
   act: async (s, actor: string, cell: string, keyboard = false) => {
     const ui = await actorUi(s, actor);
-    const screen = await readCustomGameScreen(s, actor);
+    const screen = await readGameSessionScreen(s, actor);
     if (screen?.current == null) throw new Error('No Quoridor game');
-    const moveMode = ui.get(`${CUSTOM_GAME_BOARD}-mode-move`);
+    const moveMode = ui.get(`${GAME_SESSION_BOARD}-mode-move`);
     if (screen.current.status === 'active' && (await moveMode.isVisible()))
       await moveMode.key('enter');
-    const target = ui.get(`${CUSTOM_GAME_BOARD}-action-${cell}`);
+    const target = ui.get(`${GAME_SESSION_BOARD}-action-${cell}`);
     if (
-      (await customGameBoardTakes(s, actor, cell)) &&
+      (await gameSessionBoardTakes(s, actor, cell)) &&
       (await target.attribute('aria-disabled')) === 'false'
     ) {
-      await playOnCustomGameBoard(s, actor, async () => {
+      await playOnGameSessionBoard(s, actor, async () => {
         if (keyboard) await target.key('enter');
         else await target.tap();
         return 'made';
       });
     } else
-      await chooseCustomGame(s, actor, {
+      await chooseGameSession(s, actor, {
         operation: 'move',
         uci: cell,
         ply: screen.current.moves.length,
@@ -84,17 +84,17 @@ export const placeQuoridorWall = scenarioAction({
     const ui = await actorUi(s, actor);
     const suffix = orientation === 'horizontal' ? 'h' : 'v';
     const action = `${cell}${suffix}`;
-    const screen = await readCustomGameScreen(s, actor);
+    const screen = await readGameSessionScreen(s, actor);
     if (screen?.current == null) throw new Error('No Quoridor game');
-    const coordinates = ui.get(`${CUSTOM_GAME_BOARD}-coordinates`);
+    const coordinates = ui.get(`${GAME_SESSION_BOARD}-coordinates`);
     if (await coordinates.isVisible()) await coordinates.key('enter');
-    const wallMode = ui.get(`${CUSTOM_GAME_BOARD}-mode-${suffix}`);
+    const wallMode = ui.get(`${GAME_SESSION_BOARD}-mode-${suffix}`);
     if (
       screen.current.status !== 'active' ||
       !(await wallMode.isVisible()) ||
       (await wallMode.attribute('disabled')) !== null
     ) {
-      await chooseCustomGame(s, actor, {
+      await chooseGameSession(s, actor, {
         operation: 'move',
         uci: action,
         ply: screen.current.moves.length,
@@ -102,12 +102,12 @@ export const placeQuoridorWall = scenarioAction({
       return;
     }
     await wallMode.key('enter');
-    const target = ui.get(`${CUSTOM_GAME_BOARD}-action-${action}`);
-    if (await customGameBoardTakes(s, actor, action)) {
-      await playOnCustomGameBoard(s, actor, async () => {
+    const target = ui.get(`${GAME_SESSION_BOARD}-action-${action}`);
+    if (await gameSessionBoardTakes(s, actor, action)) {
+      await playOnGameSessionBoard(s, actor, async () => {
         if (keyboard) await target.key('enter');
         else await target.tap();
-        const confirm = ui.get(`${CUSTOM_GAME_BOARD}-wall-commit`);
+        const confirm = ui.get(`${GAME_SESSION_BOARD}-wall-commit`);
         if (keyboard) await confirm.key('enter');
         else await confirm.tap();
         return 'made';
@@ -129,7 +129,7 @@ export const preferQuoridorReducedMotion = scenarioAction({
 
 /** The board's rendered pieces, boundaries, player names and wall status. */
 export async function quoridorView(s: ProductHarness, actor = 'alice') {
-  const screen = await readCustomGameScreen(s, actor);
+  const screen = await readGameSessionScreen(s, actor);
   if (screen?.current == null) throw new Error('No Quoridor board');
   const game = decodeQuoridor(screen.position);
   const ui = await actorUi(s, actor);
@@ -138,7 +138,7 @@ export async function quoridorView(s: ProductHarness, actor = 'alice') {
   for (const cell of game.pawns) {
     pawnLabels.push(
       (await ui
-        .get(`${CUSTOM_GAME_BOARD}-action-${quoridorCellName(cell)}${suffix}`)
+        .get(`${GAME_SESSION_BOARD}-action-${quoridorCellName(cell)}${suffix}`)
         .attribute('aria-label')) ?? ''
     );
   }
@@ -146,15 +146,15 @@ export async function quoridorView(s: ProductHarness, actor = 'alice') {
     ...screen,
     game,
     pawnLabels,
-    boardLabel: await ui.get(CUSTOM_GAME_BOARD).attribute('aria-label'),
-    wallStatus: await ui.get(`${CUSTOM_GAME_BOARD}-wall-status`).text(),
+    boardLabel: await ui.get(GAME_SESSION_BOARD).attribute('aria-label'),
+    wallStatus: await ui.get(`${GAME_SESSION_BOARD}-wall-status`).text(),
   };
 }
 
 export async function quoridorWallEdges(s: ProductHarness, cell: string) {
   const ui = await actorUi(s, 'alice');
   const suffix = await quoridorToolSuffix((id) => ui.get(id).isVisible());
-  const target = ui.get(`${CUSTOM_GAME_BOARD}-action-${cell}${suffix}`);
+  const target = ui.get(`${GAME_SESSION_BOARD}-action-${cell}${suffix}`);
   return {
     top: await target.attribute('data-edge-top'),
     right: await target.attribute('data-edge-right'),
@@ -165,8 +165,8 @@ export async function quoridorWallEdges(s: ProductHarness, cell: string) {
 export async function quoridorToolSuffix(
   isVisible: (testId: string) => Promise<boolean>
 ): Promise<string> {
-  if (await isVisible(`${CUSTOM_GAME_BOARD}-action-a1h`)) return 'h';
-  return (await isVisible(`${CUSTOM_GAME_BOARD}-action-a1v`)) ? 'v' : '';
+  if (await isVisible(`${GAME_SESSION_BOARD}-action-a1h`)) return 'h';
+  return (await isVisible(`${GAME_SESSION_BOARD}-action-a1v`)) ? 'v' : '';
 }
 
 export const QUORIDOR_ACTIONS = [

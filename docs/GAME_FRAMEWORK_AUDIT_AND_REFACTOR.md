@@ -143,7 +143,7 @@ Modes should reuse their game's rules and capabilities where semantics match, wi
 
 Audit the actual runtime paths for all affected game/mode combinations—not only the component names.
 
-The framework should own applicable discovery/menu layouts, mode selection, matchmaking, custom-game setup, gameplay shells, common controls, results, puzzles, history, replay, loading/error/offline states, accessibility patterns, and recovery workflows. Preserve existing owners in other bounded contexts instead of absorbing them into a giant game package.
+The framework should own applicable discovery/menu layouts, mode selection, matchmaking, game-session setup, gameplay shells, common controls, results, puzzles, history, replay, loading/error/offline states, accessibility patterns, and recovery workflows. Preserve existing owners in other bounded contexts instead of absorbing them into a giant game package.
 
 Games inject their play surface, unique controls, assets, domain terminology, and legitimate configuration. A specialized board should not require a copied screen. A mode should not clone matchmaking, history, or puzzle orchestration.
 
@@ -219,7 +219,7 @@ Use stable case identities that distinguish contract, scenario, game, mode/rules
 | Family | Inherited coverage to inspect |
 | --- | --- |
 | Registration and shared UI | Valid capabilities, supported modes, route composition, common controls, accessibility, empty/error states. |
-| Custom games | Configuration, invitations/participants, start, cancellation, completion, rematch, cleanup, recovery. |
+| Game sessions | Configuration, invitations/participants, start, cancellation, completion, rematch, cleanup, recovery. |
 | Matchmaking | Eligibility, compatibility, duplicate admission, cancellation/assignment races, handoff, cross-game/mode separation. |
 | Multiplayer | Authority, authorization, action rejection, ordering, retry safety, reconciliation, reconnect, phase and terminal consistency. |
 | Puzzles | Acquisition, attempts, appropriate feedback, optional hints/retry/solution/undo, completion, progression, persistence, recovery. |
@@ -240,7 +240,7 @@ Games/modes provide only genuinely domain-specific inputs or operations: a valid
 
 A thin package-owned suite invocation may be necessary for task ownership and caching. It must not reproduce the shared scenario, assertions, or applicability rules.
 
-Reject fixtures that implement an entire custom-game journey, recreate matchmaking, write directly into production storage to bypass required transitions, return constant success, swallow errors, poll with arbitrary sleeps, or normalize away the behavior being verified. Explicit fixture setup/seeding is acceptable where the existing harness permits it, but the behavior under test must use the real public path.
+Reject fixtures that implement an entire game-session journey, recreate matchmaking, write directly into production storage to bypass required transitions, return constant success, swallow errors, poll with arbitrary sleeps, or normalize away the behavior being verified. Explicit fixture setup/seeding is acceptable where the existing harness permits it, but the behavior under test must use the real public path.
 
 Generated actions and production validators may help exercise an integration; they must not serve as the sole oracle for their own correctness. Use independent examples, contract invariants, or appropriate reference expectations. Metamorphic and replay checks can add evidence but do not alone establish that unique game rules are correct.
 

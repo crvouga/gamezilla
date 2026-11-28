@@ -1,14 +1,14 @@
 import {
-  establishCustomGame,
-  joinCustomGames,
-  joinCustomGamesAsGuest,
-} from '@libs/game-session-harness-ts/custom-game-lineup';
-import { customGameSeatName } from '@libs/game-session-harness-ts/custom-game-reads';
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
+  establishGameSession,
+  joinGameSessions,
+  joinGameSessionsAsGuest,
+} from '@libs/game-session-harness-ts/game-session-lineup';
+import { gameSessionSeatName } from '@libs/game-session-harness-ts/game-session-reads';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
 import {
-  attemptCustomGame,
-  configureCustomGame,
-} from '@libs/game-session-harness-ts/custom-game-ui';
+  attemptGameSession,
+  configureGameSession,
+} from '@libs/game-session-harness-ts/game-session-ui';
 import { pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { partitioned } from '@libs/harness-ts/observations';
@@ -169,7 +169,7 @@ async function prepare(
     SEAT_KEYS.map((key, index) => [key, seatChoice(lineup.seats[index])])
   );
   await Promise.resolve(
-    establishCustomGame.act(s, gameId, {
+    establishGameSession.act(s, gameId, {
       host: lineup.host,
       ...seats,
       watchers: lineup.watchers,
@@ -182,14 +182,14 @@ async function prepare(
   );
   for (const [index, holder] of lineup.seats.entries())
     if ('bot' in holder && holder.bot !== 'medium')
-      await configureCustomGame(s, lineup.host, {
+      await configureGameSession(s, lineup.host, {
         operation: 'difficulty',
         side: LIGHT_CYCLES_SIDES[index]!,
         difficulty: holder.bot,
       });
   for (const guest of lineup.guests)
     await Promise.resolve(
-      joinCustomGamesAsGuest.act(s, gameId, lineup.host, guest)
+      joinGameSessionsAsGuest.act(s, gameId, lineup.host, guest)
     );
   await rememberNames(s);
 }
@@ -201,7 +201,7 @@ const agreed = new WeakSet<ProductHarness>();
 async function readyEveryone(s: ProductHarness): Promise<void> {
   if (agreed.has(s)) return;
   for (const person of ridingPeople(s))
-    await configureCustomGame(s, person, { operation: 'ready' });
+    await configureGameSession(s, person, { operation: 'ready' });
   agreed.add(s);
 }
 
@@ -217,16 +217,21 @@ export async function seatPerson(
   const lineup = lightCyclesLineup(s);
   const side = LIGHT_CYCLES_SIDES[index]!;
   await Promise.resolve(
-    joinCustomGames.act(s, lightCyclesGameId(lineup.count), lineup.host, person)
+    joinGameSessions.act(
+      s,
+      lightCyclesGameId(lineup.count),
+      lineup.host,
+      person
+    )
   );
-  const id = (await readCustomGameScreen(s, person))?.me;
-  if (id === undefined) throw new Error(`${person} sees no custom game`);
-  await configureCustomGame(s, lineup.host, {
+  const id = (await readGameSessionScreen(s, person))?.me;
+  if (id === undefined) throw new Error(`${person} sees no game session`);
+  await configureGameSession(s, lineup.host, {
     operation: 'invite',
     side,
     person: id,
   });
-  await configureCustomGame(s, person, { operation: 'accept', side });
+  await configureGameSession(s, person, { operation: 'accept', side });
   const seats = [...lineup.seats];
   seats[index] = { person };
   rememberLineup(s, { ...lineup, seats });
@@ -243,7 +248,7 @@ async function fillOpenSeats(s: ProductHarness) {
     if (!('open' in holder)) continue;
     const lineup = lightCyclesLineup(s);
     if (lineup.practice) {
-      await configureCustomGame(s, lineup.host, {
+      await configureGameSession(s, lineup.host, {
         operation: 'bot',
         side: LIGHT_CYCLES_SIDES[index]!,
       });
@@ -260,7 +265,7 @@ async function fillOpenSeats(s: ProductHarness) {
 
 const names = new WeakMap<ProductHarness, Map<string, string>>();
 
-/** What the custom game's seats call each person riding, as the creator's screen shows it. */
+/** What the game session's seats call each person riding, as the creator's screen shows it. */
 async function rememberNames(s: ProductHarness): Promise<void> {
   const lineup = lightCyclesLineup(s);
   const shown = names.get(s) ?? new Map<string, string>();
@@ -270,7 +275,7 @@ async function rememberNames(s: ProductHarness): Promise<void> {
       shown.set(
         holder.person,
         (
-          (await customGameSeatName(
+          (await gameSessionSeatName(
             s,
             lineup.host,
             LIGHT_CYCLES_SIDES[index]!
@@ -279,7 +284,7 @@ async function rememberNames(s: ProductHarness): Promise<void> {
       );
 }
 
-/** The name the custom game showed for `person` while it was set up. */
+/** The name the game session showed for `person` while it was set up. */
 export function shownNameOf(
   s: ProductHarness,
   person: string
@@ -292,7 +297,7 @@ export function shownNameOf(
 async function agree(s: ProductHarness, lineup: LightCyclesLineup) {
   if (!agreed.has(s)) await fillOpenSeats(s);
   await readyEveryone(s);
-  await configureCustomGame(s, lineup.host, { operation: 'start' });
+  await configureGameSession(s, lineup.host, { operation: 'start' });
   started.add(s);
   await awaitCountdown(s);
 }
@@ -333,7 +338,7 @@ function lineupOf(setup: LightCyclesGameSetup): LightCyclesLineup {
 }
 
 /**
- * A Light Cycles custom game through the ordinary space and game choices:
+ * A Light Cycles game session through the ordinary space and game choices:
  * the creator seats people and bots, chooses the target score and the bots'
  * levels, and everyone seated gets ready. It starts when the scenario first
  * needs it under way ({@link startedLightCycles}), or at once with
@@ -349,7 +354,7 @@ export const establishLightCyclesGame = scenarioAction({
   },
 });
 
-/** Whether the creator has started the custom game yet. */
+/** Whether the creator has started the game session yet. */
 export function lightCyclesStarted(s: ProductHarness): boolean {
   return started.has(s);
 }
@@ -362,7 +367,7 @@ export async function startedLightCycles(s: ProductHarness): Promise<void> {
   if (!started.has(s)) await agree(s, lightCyclesLineup(s));
 }
 
-/** The creator starts the custom game, as a person does, refused or not. */
+/** The creator starts the game session, as a person does, refused or not. */
 export const startLightCyclesGame = scenarioAction({
   name: 'startLightCyclesGame',
   act: async (s) => {
@@ -371,7 +376,7 @@ export const startLightCyclesGame = scenarioAction({
       return;
     }
     await Promise.resolve(
-      attemptCustomGame.act(s, lightCyclesLineup(s).host, {
+      attemptGameSession.act(s, lightCyclesLineup(s).host, {
         operation: 'start',
       })
     );
@@ -389,7 +394,7 @@ export const readyLightCyclesGame = scenarioAction({
 
 /**
  * `person` joins the creator's space from its link and opens the mode's
- * custom games, as anyone the link is shared with does; from then on they
+ * game sessions, as anyone the link is shared with does; from then on they
  * are one of everyone in the space.
  */
 export const joinLightCycles = scenarioAction({
@@ -397,7 +402,7 @@ export const joinLightCycles = scenarioAction({
   act: async (s, person: string) => {
     const lineup = lightCyclesLineup(s);
     await Promise.resolve(
-      joinCustomGames.act(
+      joinGameSessions.act(
         s,
         lightCyclesGameId(lineup.count),
         lineup.host,
@@ -412,7 +417,7 @@ export const joinLightCycles = scenarioAction({
 const SEAT_PEOPLE = ['alice', 'bob', 'carol', 'dave'] as const;
 
 /**
- * A custom game of the mode with a person on every rider (Alice, Bob,
+ * A game session of the mode with a person on every rider (Alice, Bob,
  * Carol, Dave in seat order), everyone ready, not started yet.
  */
 export const establishEveryRiderReady = scenarioAction({

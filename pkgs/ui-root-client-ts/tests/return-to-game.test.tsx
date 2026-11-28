@@ -19,9 +19,9 @@ function mount(
   const { container } = render(() => (
     <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
       <ReturnToGame
-        title="Your custom game is under way"
+        title="Your game is under way"
         caption="Chess · Robin's space"
-        action="Return to the custom game"
+        action="Return to your game"
         kind="custom"
         placement={placement}
         testId="return-to-game"
@@ -41,7 +41,7 @@ test('its one command returns to the game', () => {
   });
   const go = root.querySelector('[data-testid="return-to-game-go"]');
   if (go === null) throw new Error('no command');
-  expect(go.textContent).toContain('Return to the custom game');
+  expect(go.textContent).toContain('Return to your game');
   fireEvent.click(go);
   expect(returned).toBe(1);
   expect(root.getAttribute('data-kind')).toBe('custom');

@@ -399,7 +399,7 @@ function HistoryStatistics(props: GameHistoryScreenViewProps): JSX.Element {
 
 /**
  * A game's History and stats, presentational: wins, losses and draws, then
- * the finished custom games of the space and the person's matched games,
+ * the finished game sessions of the space and the person's matched games,
  * newest first, each led by the person's own result, with a filter by
  * result once the list is long, and its loading, empty and denied states.
  * `GameHistory` reads them.

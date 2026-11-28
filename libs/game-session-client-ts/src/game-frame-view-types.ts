@@ -22,7 +22,7 @@ import type { JSX } from '@solidjs/web';
 import type { FrameStartReason } from './game-frame-start-reason';
 
 /**
- * The game frame as plain data: every game's custom game is shown in this
+ * The game frame as plain data: every game's game session is shown in this
  * one frame, and only the board (a `JSX.Element` slot) is the game's own.
  * Containers read the room, permissions and the game's presentation and
  * hand the frame these values; stories hand it fixtures.
@@ -257,7 +257,7 @@ export type FramePlay = {
   readonly heldOfferDraw: boolean;
   readonly heldResign: boolean;
   readonly canCancel: boolean;
-  /** The board's own actions (`custom-game-board-${id}`). */
+  /** The board's own actions (`game-session-board-${id}`). */
   readonly boardActions: readonly GameActionItem[];
   /** Required choices shown before the board, with the same action handles. */
   readonly leadingBoardActions: readonly GameActionItem[];

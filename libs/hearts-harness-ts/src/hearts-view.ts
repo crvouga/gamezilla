@@ -1,5 +1,5 @@
 /**
- * What a person sees of Hearts on their Custom Game screen: the custom game
+ * What a person sees of Hearts on their Game Session screen: the game session
  * as the screen shows it (who sits where, the moves, how it ended, what it
  * last refused), the Hearts table on the board (`hearts-table-shown`), the
  * badges beside each seat, and what someone listening hears. Nothing here
@@ -7,12 +7,12 @@
  * their own board draws.
  */
 
-import { CUSTOM_GAME_BOARD } from '@libs/game-session-harness-ts/custom-game-moves';
-import { customGameSeatName } from '@libs/game-session-harness-ts/custom-game-reads';
+import { GAME_SESSION_BOARD } from '@libs/game-session-harness-ts/game-session-moves';
+import { gameSessionSeatName } from '@libs/game-session-harness-ts/game-session-reads';
 import {
-  type CustomGameScreen,
-  readCustomGameScreen,
-} from '@libs/game-session-harness-ts/custom-game-screen';
+  type GameSessionScreen,
+  readGameSessionScreen,
+} from '@libs/game-session-harness-ts/game-session-screen';
 import { actorPage } from '@libs/harness-ts/actor-page';
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
@@ -32,7 +32,7 @@ export type {
 const SIDES: readonly GameSide[] = ['white', 'black', 'red', 'blue'];
 
 export type HeartsView = HeartsTableShown & {
-  readonly screen: CustomGameScreen;
+  readonly screen: GameSessionScreen;
   /** The sides the screen marks as having made their secret choice. */
   readonly committed: readonly GameSide[];
   /** The sides the screen marks as played by a stand-in bot. */
@@ -59,7 +59,7 @@ async function badged(
 ): Promise<GameSide[]> {
   const shown: GameSide[] = [];
   for (const side of SIDES)
-    if ((await shownText(s, actor, `custom-game-${side}-${badge}`)) !== null)
+    if ((await shownText(s, actor, `game-session-${side}-${badge}`)) !== null)
       shown.push(side);
   return shown;
 }
@@ -71,15 +71,15 @@ export async function heartsView(
 ): Promise<HeartsView> {
   await actorUi(s, actor);
   await bringToFront(s, actor);
-  const screen = await readCustomGameScreen(s, actor);
+  const screen = await readGameSessionScreen(s, actor);
   if (screen === null) throw new Error(`${actor} sees no Hearts game`);
   const html = (await actorHtml(s, actor)) ?? '';
   return {
-    ...heartsTableShownIn(html, CUSTOM_GAME_BOARD),
+    ...heartsTableShownIn(html, GAME_SESSION_BOARD),
     screen,
     committed: await badged(s, actor, 'committed'),
     standIns: await badged(s, actor, 'stand-in'),
-    told: (await shownText(s, actor, 'custom-game-error')) ?? '',
+    told: (await shownText(s, actor, 'game-session-error')) ?? '',
     page: html,
   };
 }
@@ -92,7 +92,7 @@ export async function heartsTrickWinnerShown(
   card: string
 ): Promise<boolean> {
   const view = await heartsView(s, actor);
-  const name = (await customGameSeatName(s, actor, side))?.trim() ?? '';
+  const name = (await gameSessionSeatName(s, actor, side))?.trim() ?? '';
   const winner = view.screen.mySide === side ? 'You' : name;
   return (
     name !== '' &&

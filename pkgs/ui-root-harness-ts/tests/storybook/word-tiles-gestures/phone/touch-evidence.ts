@@ -45,7 +45,7 @@ export async function expectRackRelease(page: Page) {
         wordTileTouches: { target: string | null; type: string }[];
       }
     ).wordTileTouches;
-    const rack = path.filter((e) => e.target === 'custom-game-board-rack-11');
+    const rack = path.filter((e) => e.target === 'game-session-board-rack-11');
     const types = rack.map((e) => e.type);
     return types.slice(types.lastIndexOf('pointerdown'));
   });

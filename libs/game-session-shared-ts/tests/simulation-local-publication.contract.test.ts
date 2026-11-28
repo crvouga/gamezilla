@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
 import { SimulationStateChanged } from '@libs/game-session-shared-ts/simulation-messages';
 import { InMemoryClientStorage } from '@pkgs/room-adapter-memory-shared-ts/client-storage';
@@ -111,7 +111,7 @@ test('a frame saved before a queued local choice cannot publish the earlier toke
     rig.clock.advance(100);
     await local.flush();
     await requestLocalState(local);
-    const current = () => CustomGamesAttr.from(room.getSnapshot()).current!;
+    const current = () => GameSessionsAttr.from(room.getSnapshot()).current!;
     const observed: number[] = [];
     const unsubscribe = local.subscribe((message) => {
       if (SimulationStateChanged.is(message) && current().moves.length === 1)

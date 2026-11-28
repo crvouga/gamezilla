@@ -52,7 +52,7 @@ Finish with a concise report: implemented workflows, shared contracts changed, e
 | Existing `room` package | Membership, authenticated roles, connection lifecycle, transport, role-scoped delivery primitives, resynchronization, and cleanup. No Hearts rules. |
 | Shared game framework | Stable seats, participant/controller identity, authoritative action dispatch, per-viewer observations, optional simultaneous phases, match/round lifecycle, bot scheduling, results, spectators, and reconnect orchestration. |
 | Hearts | Deck and deal rules, passing, legal cards, trick resolution, hearts-breaking, scoring, match termination, bot strategy, and card/table presentation. |
-| Existing app infrastructure | Discovery, custom games, matchmaking, identity, durable results, entitlements, navigation, and telemetry. |
+| Existing app infrastructure | Discovery, game sessions, matchmaking, identity, durable results, entitlements, navigation, and telemetry. |
 
 Refactor hardcoded two-player assumptions where they actually exist: participant arrays, seat assignment, turn indicators, results/rankings, invitations, layouts, ready state, and reconnect logic. Do not fix them by adding `if (gameId === "hearts")` branches to shared code.
 

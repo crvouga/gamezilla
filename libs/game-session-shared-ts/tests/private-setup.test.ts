@@ -1,20 +1,20 @@
 import { expect, test } from 'bun:test';
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
-import {
-  ChangeCustomGame,
-  PlayCustomGameBot,
-} from '@libs/game-session-shared-ts/custom-game-commands';
-import { soloCustomGame } from '@libs/game-session-shared-ts/custom-game-local';
-import {
-  CustomGameSetupChosen,
-  CustomGameSetupsAttr,
-  ownCustomGameSetup,
-} from '@libs/game-session-shared-ts/custom-game-setup';
-import {
-  type CustomGame,
-  CustomGamesAttr,
-} from '@libs/game-session-shared-ts/custom-game-state';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
+import type { GameSessionInput } from '@libs/game-session-shared-ts/game-session-choice';
+import {
+  ChangeGameSession,
+  PlayGameSessionBot,
+} from '@libs/game-session-shared-ts/game-session-commands';
+import { soloGameSession } from '@libs/game-session-shared-ts/game-session-local';
+import {
+  GameSessionSetupChosen,
+  GameSessionSetupsAttr,
+  ownGameSessionSetup,
+} from '@libs/game-session-shared-ts/game-session-setup';
+import {
+  type GameSession,
+  GameSessionsAttr,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import {
@@ -31,7 +31,7 @@ import { secretPickBots, secretPickRules } from './secret-pick';
 
 const secretPick = defineGame({
   rules: secretPickRules,
-  capabilities: { 'custom-games': { bots: secretPickBots } },
+  capabilities: { 'vs-human': {}, 'vs-bot': { bots: secretPickBots } },
   turnAutomation: {
     choose: () => null,
     perform: async () => {},
@@ -40,7 +40,7 @@ const secretPick = defineGame({
 });
 const race = defineGame({
   rules: raceRules,
-  capabilities: { 'custom-games': { bots: raceBots } },
+  capabilities: { 'vs-human': {}, 'vs-bot': { bots: raceBots } },
   turnAutomation: { choose: () => null, perform: async () => {} },
 });
 
@@ -70,13 +70,13 @@ function space(game: string): RoomState {
 }
 
 let commands = 0;
-function command(state: RoomState, input: CustomGameInput): Message {
-  const game = CustomGamesAttr.from(state).current;
-  return ChangeCustomGame({
+function command(state: RoomState, input: GameSessionInput): Message {
+  const game = GameSessionsAttr.from(state).current;
+  return ChangeGameSession({
     ...input,
     gameId: game?.id ?? null,
     revision: game?.revision ?? 0,
-  } as Parameters<typeof ChangeCustomGame>[0]);
+  } as Parameters<typeof ChangeGameSession>[0]);
 }
 
 function handle(
@@ -93,7 +93,7 @@ function handle(
 function decide(
   state: RoomState,
   as: string,
-  input: CustomGameInput
+  input: GameSessionInput
 ): RoomState {
   const result = handle(ROOM, state, as, command(state, input));
   if (!result.ok)
@@ -101,9 +101,9 @@ function decide(
   return result.events.reduce((s, e) => ROOM.reduce(s, e), state);
 }
 
-function current(state: RoomState): CustomGame {
-  const game = CustomGamesAttr.from(state).current;
-  if (game === null) throw new Error('no custom game');
+function current(state: RoomState): GameSession {
+  const game = GameSessionsAttr.from(state).current;
+  if (game === null) throw new Error('no game session');
   return game;
 }
 
@@ -115,6 +115,7 @@ function reason(result: HandleResult): string {
 function twoPeople(): RoomState {
   const created = decide(space('secret-pick'), 'alice', {
     operation: 'create',
+    mode: 'vs-human',
   });
   return decide(created, 'bob', { operation: 'claim', side: 'black' });
 }
@@ -135,18 +136,18 @@ test('a setup travels with readiness and is read by its person alone', () => {
   );
   if (!result.ok) throw new Error('refused');
   const [changed, chosen] = result.events;
-  expect(CustomGameSetupChosen.is(chosen!)).toBe(true);
+  expect(GameSessionSetupChosen.is(chosen!)).toBe(true);
   expect(ROOM.audience?.(chosen!)).toEqual(['alice']);
   expect(ROOM.audience?.(changed!)).toBeNull();
   expect(JSON.stringify(changed)).not.toContain('n3');
   const after = result.events.reduce((s, e) => ROOM.reduce(s, e), state);
   expect(current(after).ready).toEqual(['white']);
-  expect(ownCustomGameSetup(after, current(after), 'alice')).toBe('n3');
+  expect(ownGameSessionSetup(after, current(after), 'alice')).toBe('n3');
 });
 
 test('readiness needs one complete setup, and a ready setup cannot change', () => {
   const state = twoPeople();
-  const ready = (input: CustomGameInput, s = state) =>
+  const ready = (input: GameSessionInput, s = state) =>
     reason(handle(ROOM, s, 'alice', command(s, input)));
   expect(ready({ operation: 'ready' })).toBe('choose a setup first');
   expect(ready({ operation: 'ready', setup: 'n0' })).toBe(
@@ -161,10 +162,10 @@ test('readiness needs one complete setup, and a ready setup cannot change', () =
     operation: 'ready',
     setup: 'n4',
   });
-  expect(ownCustomGameSetup(changed, current(changed), 'alice')).toBe('n4');
+  expect(ownGameSessionSetup(changed, current(changed), 'alice')).toBe('n4');
 });
 
-// regression: custom-game-private-setup-ready-again-refused
+// regression: game-session-private-setup-ready-again-refused
 test('becoming ready again with the confirmed setup changes nothing and is not refused', () => {
   const readied = decide(twoPeople(), 'alice', {
     operation: 'ready',
@@ -180,13 +181,14 @@ test('becoming ready again with the confirmed setup changes nothing and is not r
     }
     const again = decide(readied, 'alice', input);
     expect(current(again).ready).toEqual(['white']);
-    expect(ownCustomGameSetup(again, current(again), 'alice')).toBe('n3');
+    expect(ownGameSessionSetup(again, current(again), 'alice')).toBe('n3');
   }
 });
 
 test('a game without private setups refuses a setup', () => {
   const created = decide(space('counting-race'), 'alice', {
     operation: 'create',
+    mode: 'vs-human',
   });
   const result = handle(
     ROOM,
@@ -222,26 +224,34 @@ test('a device refuses a move the public position already rules out', () => {
 });
 
 test("the room draws a bot's setup as the game starts, read by nobody; a device draws none", () => {
-  let state = decide(space('secret-pick'), 'alice', { operation: 'create' });
+  let state = decide(space('secret-pick'), 'alice', {
+    operation: 'create',
+    mode: 'vs-bot',
+  });
   state = decide(state, 'alice', { operation: 'bot', side: 'black' });
   state = decide(state, 'alice', { operation: 'ready', setup: 'n3' });
   const start = command(state, { operation: 'start' });
   const predicted = handle(DEVICE, state, 'alice', start);
   if (!predicted.ok) throw new Error('refused');
-  expect(predicted.events.some((e) => CustomGameSetupChosen.is(e))).toBe(false);
+  expect(predicted.events.some((e) => GameSessionSetupChosen.is(e))).toBe(
+    false
+  );
   const decided = handle(ROOM, state, 'alice', start);
   if (!decided.ok) throw new Error('refused');
-  const bot = decided.events.find((e) => CustomGameSetupChosen.is(e));
+  const bot = decided.events.find((e) => GameSessionSetupChosen.is(e));
   expect(bot === undefined ? null : ROOM.audience?.(bot)).toEqual([]);
   const after = decided.events.reduce((s, e) => ROOM.reduce(s, e), state);
-  expect(CustomGameSetupsAttr.from(after)[current(after).id]).toEqual({
+  expect(GameSessionSetupsAttr.from(after)[current(after).id]).toEqual({
     white: 'n3',
     black: 'n5',
   });
 });
 
 test("a bot proposes from the public position and the room resolves it against the person's setup", () => {
-  let state = decide(space('secret-pick'), 'alice', { operation: 'create' });
+  let state = decide(space('secret-pick'), 'alice', {
+    operation: 'create',
+    mode: 'vs-bot',
+  });
   state = decide(state, 'alice', { operation: 'swap' });
   state = decide(state, 'alice', { operation: 'bot', side: 'white' });
   state = decide(state, 'alice', { operation: 'ready', setup: 'n5' });
@@ -251,21 +261,27 @@ test("a bot proposes from the public position and the room resolves it against t
     ROOM,
     state,
     ROOM_SCHEDULER_IDENTITY,
-    PlayCustomGameBot({ gameId: game.id, ply: 0, side: 'white' })
+    PlayGameSessionBot({ gameId: game.id, ply: 0, side: 'white' })
   );
   if (!wake.ok) throw new Error('refused');
   const after = wake.events.reduce((s, e) => ROOM.reduce(s, e), state);
   expect(current(after).moves).toEqual([{ uci: 'g5:found', san: '5 found' }]);
 });
 
-test('a custom game with private setups is never played on the device alone', () => {
+test('a game session with private setups is never played on the device alone', () => {
   const rules = createTurnGames([secretPick.turnGame, race.turnGame]);
-  let state = decide(space('secret-pick'), 'alice', { operation: 'create' });
+  let state = decide(space('secret-pick'), 'alice', {
+    operation: 'create',
+    mode: 'vs-bot',
+  });
   state = decide(state, 'alice', { operation: 'bot', side: 'black' });
-  expect(soloCustomGame(current(state), rules)).toBe(false);
-  let open = decide(space('counting-race'), 'alice', { operation: 'create' });
+  expect(soloGameSession(current(state), rules)).toBe(false);
+  let open = decide(space('counting-race'), 'alice', {
+    operation: 'create',
+    mode: 'vs-bot',
+  });
   open = decide(open, 'alice', { operation: 'bot', side: 'black' });
-  expect(soloCustomGame(current(open), rules)).toBe(true);
+  expect(soloGameSession(current(open), rules)).toBe(true);
 });
 
 test("a rematch starts with no setup of the finished game's", () => {
@@ -276,6 +292,6 @@ test("a rematch starts with no setup of the finished game's", () => {
   const rematch = decide(finished, 'alice', { operation: 'rematch' });
   const next = current(rematch);
   expect(next.id).not.toBe(current(finished).id);
-  expect(ownCustomGameSetup(rematch, next, 'alice')).toBeNull();
-  expect(ownCustomGameSetup(rematch, next, 'bob')).toBeNull();
+  expect(ownGameSessionSetup(rematch, next, 'alice')).toBeNull();
+  expect(ownGameSessionSetup(rematch, next, 'bob')).toBeNull();
 });

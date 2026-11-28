@@ -11,7 +11,7 @@ export function defineLockedInspectionChecks() {
         'screens-games-battleship-setup--locked',
         theme
       );
-      const grid = page.getByTestId('custom-game-setup-grid');
+      const grid = page.getByTestId('game-session-setup-grid');
       const names = await grid
         .locator('[data-cell]')
         .evaluateAll((cells) =>
@@ -19,19 +19,19 @@ export function defineLockedInspectionChecks() {
         );
       try {
         if (
-          !(await page.getByTestId('custom-game-setup-precision').isVisible())
+          !(await page.getByTestId('game-session-setup-precision').isVisible())
         ) {
           await expect(
-            page.getByTestId('custom-game-setup-enlarge')
+            page.getByTestId('game-session-setup-enlarge')
           ).toBeEnabled({ timeout: 2000 });
-          await page.getByTestId('custom-game-setup-enlarge').click();
+          await page.getByTestId('game-session-setup-enlarge').click();
         }
         await test.step('Inspect the locked destroyer outside the initial quadrant', async () => {
           await expect(
-            page.getByTestId('custom-game-setup-area-1')
+            page.getByTestId('game-session-setup-area-1')
           ).toBeEnabled({ timeout: 2000 });
-          await page.getByTestId('custom-game-setup-area-1').tap();
-          const cell = page.getByTestId('custom-game-setup-precision-cell-g4');
+          await page.getByTestId('game-session-setup-area-1').tap();
+          const cell = page.getByTestId('game-session-setup-precision-cell-g4');
           await expect(cell).toHaveAccessibleName('G4: Destroyer');
           await cell.focus();
           await page.keyboard.press('r');
@@ -39,13 +39,13 @@ export function defineLockedInspectionChecks() {
           await expect(cell).toHaveAccessibleName('G4: Destroyer');
         });
         await test.step('Switch full and enlarged views without changing any ship', async () => {
-          await page.getByTestId('custom-game-setup-enlarge').click();
+          await page.getByTestId('game-session-setup-enlarge').click();
           await expect(
-            page.getByTestId('custom-game-setup-precision')
+            page.getByTestId('game-session-setup-precision')
           ).toHaveCount(0);
-          await page.getByTestId('custom-game-setup-enlarge').click();
+          await page.getByTestId('game-session-setup-enlarge').click();
           await expect(
-            page.getByTestId('custom-game-setup-precision-cell-g4')
+            page.getByTestId('game-session-setup-precision-cell-g4')
           ).toHaveAccessibleName('G4: Destroyer');
           expect(
             await grid

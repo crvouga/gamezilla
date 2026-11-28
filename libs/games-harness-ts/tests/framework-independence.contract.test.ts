@@ -124,7 +124,7 @@ test('shared client/server suites execute with only independent test consumers',
  * Each canonical feature runs once per independent consumer, in a run of
  * its own, so every consumer added keeps each run inside its time.
  */
-const ISOLATED_RUNS = ['custom-games', 'game-turns'].flatMap((name) =>
+const ISOLATED_RUNS = ['game-sessions', 'game-turns'].flatMap((name) =>
   ['setup race', 'counting race', 'secret pick'].map(
     (consumer) => [name, consumer] as const
   )

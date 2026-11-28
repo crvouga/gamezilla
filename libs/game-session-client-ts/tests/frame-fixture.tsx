@@ -1,8 +1,3 @@
-import type { CustomGamePlace } from '@libs/game-session-client-ts/custom-game-places';
-import {
-  CustomGameScreenView,
-  type CustomGameScreenViewProps,
-} from '@libs/game-session-client-ts/custom-game-screen-view';
 import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
@@ -15,6 +10,9 @@ import type {
   FrameSetupSeat,
   FrameStatus,
 } from '@libs/game-session-client-ts/game-frame-view-types';
+import type { GameSessionPlace } from '@libs/game-session-client-ts/game-session-places';
+import type { GameSessionScreenViewProps } from '@libs/game-session-client-ts/game-session-screen-view';
+import { PlayFriendScreenView } from '@libs/game-session-client-ts/play-friend-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
@@ -157,8 +155,8 @@ const resolved = async (): Promise<void> => undefined;
 
 /** A two-seat game in play, with the viewer to move. */
 export function frameProps(
-  over: Partial<CustomGameScreenViewProps> = {}
-): CustomGameScreenViewProps {
+  over: Partial<GameSessionScreenViewProps> = {}
+): GameSessionScreenViewProps {
   return {
     title: 'Counting race',
     phase: 'active',
@@ -170,6 +168,7 @@ export function frameProps(
     stopped: false,
     status: status(),
     canCreate: true,
+    mode: 'vs-human',
     sides: ['white', 'black'],
     setup: null,
     table: {
@@ -184,7 +183,6 @@ export function frameProps(
     board: <output data-testid="story-board" />,
     onChoose: resolved,
     onReady: resolved,
-    onPlayBot: resolved,
     onRandomSetup: resolved,
     onBack: () => undefined,
     onSeek: () => undefined,
@@ -199,9 +197,9 @@ export function frameProps(
 
 /** A game being set up by its host, on `place`. */
 export function setupProps(
-  place: CustomGamePlace = { screen: 'setup' },
-  over: Partial<CustomGameScreenViewProps> = {}
-): CustomGameScreenViewProps {
+  place: GameSessionPlace = { screen: 'setup' },
+  over: Partial<GameSessionScreenViewProps> = {}
+): GameSessionScreenViewProps {
   return frameProps({
     phase: 'configuring',
     place,
@@ -215,7 +213,7 @@ export function setupProps(
 
 /** Mount the frame at a phone's width (390) or a desktop's (1440). */
 export function mountFrame(
-  props: () => CustomGameScreenViewProps,
+  props: () => GameSessionScreenViewProps,
   width: 390 | 1440 = 390
 ) {
   const time = createHarnessClock();
@@ -226,7 +224,7 @@ export function mountFrame(
         fixedLayout={{ width, height: width === 390 ? 844 : 900 }}
       >
         <SurfaceStackProvider>
-          <CustomGameScreenView {...props()} />
+          <PlayFriendScreenView {...props()} />
         </SurfaceStackProvider>
       </ThemeProvider>
     </ClockProvider>

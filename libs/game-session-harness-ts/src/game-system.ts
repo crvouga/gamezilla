@@ -30,8 +30,8 @@ import {
   createTurnGames,
   prepareTurnGames,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { customGameBotRoomNode } from './custom-game-bots';
 import { GAME_SESSION_HARNESS_ACTIONS } from './game-session-actions';
+import { gameSessionBotRoomNode } from './game-session-bots';
 import type { HarnessGame } from './harness-game';
 import { assertHarnessGame, isTurnHarnessGame } from './harness-game';
 import { registerHarnessGames } from './harness-game-of';
@@ -55,7 +55,7 @@ export type GameSystemOptions = {
 
 /**
  * The world every game suite runs in: the spaces a game is played in, the
- * people and friends around it, the shared custom-game, opponent and history
+ * people and friends around it, the shared game-session, opponent and history
  * sessions, and exactly the `games` given, registered as production
  * registers them. No game is named here; a game's own sub arrives with it.
  */
@@ -81,7 +81,7 @@ export function gameSystem(
   const composition = composeHarnessSlices(name, [
     ACCOUNT_PRIVACY_HARNESS_SLICE,
     PROFILE_HARNESS_SLICE,
-    { ...spaces, roomNode: customGameBotRoomNode(spaces.roomNode) },
+    { ...spaces, roomNode: gameSessionBotRoomNode(spaces.roomNode) },
     FRIENDS_HARNESS_SLICE,
     NOTIFICATIONS_HARNESS_SLICE,
     SEARCH_HARNESS_SLICE,

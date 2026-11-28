@@ -70,10 +70,10 @@ test('the check refuses a framework module outside its game API', () => {
   expect(
     gameApiViolations(
       'stray.ts',
-      "import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';"
+      "import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';"
     )
   ).toEqual([
-    "stray.ts: @libs/game-session-shared-ts/custom-game-state is not in @libs/game-session-shared-ts's gameApi",
+    "stray.ts: @libs/game-session-shared-ts/game-session-state is not in @libs/game-session-shared-ts's gameApi",
   ]);
   expect(
     gameApiViolations(

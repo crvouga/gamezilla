@@ -1,10 +1,10 @@
 import { expect, test } from 'bun:test';
-import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-commands';
-import {
-  CustomGamesAttr,
-  newCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-state';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
+import { ChangeGameSession } from '@libs/game-session-shared-ts/game-session-commands';
+import {
+  GameSessionsAttr,
+  newGameSession,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import { createSpaceModule } from '@libs/spaces-shared-ts/space-module';
@@ -20,7 +20,7 @@ test('installing a simulation beside a turn game does not require simulation tim
   // regression: mixed-registry-requires-simulation-timers
   const turn = defineGame({
     rules: { ...rules, id: 'turn-race' },
-    capabilities: { 'custom-games': { bots } },
+    capabilities: { 'vs-human': {}, 'vs-bot': { bots } },
     turnAutomation: { choose: () => 'advance-token', perform: async () => {} },
   });
   const time = createHarnessClock();
@@ -35,7 +35,11 @@ test('installing a simulation beside a turn game does not require simulation tim
     { now: () => 0, random: () => 0, authority: true }
   );
   const current = {
-    ...newCustomGame('turn-only-session', 'alice', rules.initial()),
+    ...newGameSession({
+      id: 'turn-only-session',
+      creator: 'alice',
+      position: rules.initial(),
+    }),
     black: { kind: 'person' as const, person: 'bob' },
     status: 'active' as const,
     ready: ['white', 'black'] as ('white' | 'black')[],
@@ -52,7 +56,7 @@ test('installing a simulation beside a turn game does not require simulation tim
       initialState: () => ({
         ...module.initialState(),
         ...GamesRoomAttr.selected(turn.id),
-        ...CustomGamesAttr({ current, history: [] }),
+        ...GameSessionsAttr({ current, history: [] }),
         ...SpaceMembersRoomAttr.seats({
           alice: { joinedAt: '2026-10-23' },
           bob: { joinedAt: '2026-10-23' },
@@ -66,7 +70,7 @@ test('installing a simulation beside a turn game does not require simulation tim
     await server.injectCommand({
       id: 'first-turn',
       identity: 'alice',
-      payload: ChangeCustomGame({
+      payload: ChangeGameSession({
         gameId: current.id,
         revision: 0,
         operation: 'move',
@@ -74,7 +78,7 @@ test('installing a simulation beside a turn game does not require simulation tim
         ply: 0,
       }),
     });
-    const played = CustomGamesAttr.from(
+    const played = GameSessionsAttr.from(
       await server.readCommittedState()
     ).current;
     expect(played?.fen).toBe('race:1');

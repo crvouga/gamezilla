@@ -10,7 +10,7 @@ The implementation map remains [`GAME_FRAMEWORK.md`](GAME_FRAMEWORK.md).
 
 | Classification | Evidence at baseline | Repair and recurring check |
 | --- | --- | --- |
-| Proven defect: advertised implementations not validated | Registering `history: {}` or matchmaking without notices succeeded; custom games without bots produced a property-access error. Nine new malformed-input cases failed before the repair. | Validate functions, namespaces and bot choices before sessions are installed. `game-capability-missing-implementation`, pinned in `game-session-shared/tests/turn-game-contract.test.ts`. |
+| Proven defect: advertised implementations not validated | Registering `history: {}` or matchmaking without notices succeeded; game sessions without bots produced a property-access error. Nine new malformed-input cases failed before the repair. | Validate functions, namespaces and bot choices before sessions are installed. `game-capability-missing-implementation`, pinned in `game-session-shared/tests/turn-game-contract.test.ts`. |
 | Proven defect: execution can omit registered games | A plan with matching production and harness registries and `games: []` returned no problems. | Compare execution against enrollment; reject duplicate identities and substituted definitions. `game-conformance-execution-omission`, pinned in `games-harness/tests/game-conformance-plan.test.ts`. |
 | Proven defect: incomplete suite can borrow capability coverage | An empty newly added rules suite passed planning when another rules suite covered the game. Misattributed cases also passed. | Require a case in every eligible suite, with additional capability requirements declared explicitly. `game-conformance-partial-suite`, pinned in the same planner test. |
 | Proven defect: lower-level concrete engines unclassified | Five `pkgs/chess-*` manifests lacked game ownership, bypassing the manifest game-isolation guard. | Mark all five as Chess-owned; require ownership for game-named packages in both tiers. `concrete-engine-game-ownership`, pinned in `tools/scripts/game-dependency-graph.test.ts`. |
@@ -55,13 +55,13 @@ Source counts before these repairs, unchanged by them:
 | Chess | 34 | 190 | 7 |
 | Connect Four | 4 | 10 | 1 |
 
-There were 19 authored shared code suites: rules 2, custom games 5,
+There were 19 authored shared code suites: rules 2, game sessions 5,
 matchmaking 2, history 2, puzzles 8. There are now 23, with four added or
 promoted puzzle suites. The planner check produced this actual
 enrollment matrix (counts include shared specification files and code
 suites, **not executed scenario verdicts**):
 
-| Consumer | Rules | Custom games | Matchmaking | History | Puzzles |
+| Consumer | Rules | Game sessions | Matchmaking | History | Puzzles |
 | --- | ---: | ---: | ---: | ---: | ---: |
 | Chess | 2 | 41 | 44 | 9 | 55 |
 | Connect Four | 2 | 39 | 42 | 9 | unsupported |
@@ -106,7 +106,7 @@ the same shared, client and harness registry exports as an application.
 Its rules and fixtures consume public framework modules; it required no
 change inside a suite or a screen. The full shared code-suite directory,
 faulty reference consumers, matrix checks, and the canonical
-`custom-games.feature` and `game-turns.feature` execute with production
+`game-sessions.feature` and `game-turns.feature` execute with production
 game source loading forbidden. The counting reference consumer remains
 beside it. The latest successful run executed 202 checks, including 48 shared
 feature instances. Unsupported matchmaking requires no cases in this
@@ -126,7 +126,7 @@ feature for this extra consumer remains open.
 The web build proof uses `apps/product-client-ts/vite.config.mts`, including the real
 Solid and localization transforms, to bundle the public `GameMenu` and
 `defineGameClient` with an empty `createTurnGames([])` catalog. It asserts
-that menu, custom-game, history, matchmaking, puzzle-play, puzzle-review
+that menu, game-session, history, matchmaking, puzzle-play, puzzle-review
 and puzzle-stats source modules occur in the emitted chunks. A Vite load
 guard resolves source ownership from manifests and refuses every concrete
 game or registry before transformation and tree-shaking. The application
@@ -401,7 +401,7 @@ being counted as an execution result.
 
 Those traces also exposed a silent first correct move, selection of a
 nonexistent negative ply for position zero, and a game-menu observer tied to
-the presence of custom games. Each has a literal failing example and its
+the presence of game sessions. Each has a literal failing example and its
 own bug-register entry. Feedback now distinguishes uninitialized progress
 from zero; zero selection uses the existing start control and leaves an
 already selected position alone; the menu exposes its own stable identifier.
@@ -465,7 +465,7 @@ workflow source itself is rejected. Full inherited specs, isolated execution,
 split package tasks and the repository gate remain pending.
 
 The split execution preserves all 446 checks: ordinary tests 140, rules 59,
-custom games 27, matchmaking 18, history 5 and puzzles 197. The completed
+game sessions 27, matchmaking 18, history 5 and puzzles 197. The completed
 area tasks took 35.19–81.18 seconds, and ordinary tests took 164.39 seconds,
 all below 300 seconds. The tooling run passed 776 tests at local Verify's
 single-task concurrency after regenerating the CI task-count section.
@@ -479,7 +479,7 @@ hidden-dependency negative control, with explicit solo rules/puzzle output
 assertions. The feature worker took 141.69 seconds; each canonical feature
 now gets its own bounded worker. Both child and task deadlines are unchanged.
 The final partitioned proof passed: 233 code checks in 14.72 seconds,
-24 custom-game examples in 100.40 seconds, 24 turn examples in 115.87
+24 game-session examples in 100.40 seconds, 24 turn examples in 115.87
 seconds and the hidden-dependency refusal in 0.22 seconds. Its complete
 task took 236.09 seconds, below 300. The two packages' six final type,
 lint and test tasks passed in 258.33 seconds without cache hits.

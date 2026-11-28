@@ -2,16 +2,16 @@
  * Probe: a completion result that is not simply one winner and one loser.
  *
  * Supported (executable): a result the mover does not win. The rules name
- * the winner (`PlayedPosition.winner`), and a custom game credits that
- * side — the probe found custom games crediting the mover instead
- * (regression `custom-game-mover-credited-win`, fixed in
- * `custom-game-play`). A margin or score can be told only as the ending's
+ * the winner (`PlayedPosition.winner`), and a game session credits that
+ * side — the probe found game sessions crediting the mover instead
+ * (regression `game-session-mover-credited-win`, fixed in
+ * `game-session-play`). A margin or score can be told only as the ending's
  * reason, which the presentation describes (`endingDescription(reason)`).
  *
  * Supported (executable): joint winners. A result is one side, a draw,
  * or several sides (`GameWinner`, Hearts' tie for the lowest score); its
  * plainest form (`plainWinner`) is a draw when it goes to every seat. A
- * custom game stores it as `white and red win by …` and credits each
+ * game session stores it as `white and red win by …` and credits each
  * winner (`specs/games/shared-victories.feature`).
  *
  * Limitation (executable, type-level): a ranking or a score the platform
@@ -21,17 +21,17 @@
  */
 
 import { expect, test } from 'bun:test';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-moves';
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
+import { makeGameSessionMove } from '@libs/game-session-harness-ts/game-session-moves';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
 import {
   gameSystem,
   openGameHarness,
 } from '@libs/game-session-harness-ts/game-system';
 import {
-  customGameOutcome,
-  customGameWinners,
-} from '@libs/game-session-shared-ts/custom-game-outcome';
+  gameSessionOutcome,
+  gameSessionWinners,
+} from '@libs/game-session-shared-ts/game-session-outcome';
 import {
   type GameRecordMetadata,
   type PlayedPosition,
@@ -46,15 +46,15 @@ test('a game whose ending move loses for its mover keeps every law', () => {
 
 const SYSTEM = gameSystem('misere-tally', [MISERE_TALLY_GAME]);
 
-test('a custom game credits the side the rules name, not the side that moved last', async () => {
+test('a game session credits the side the rules name, not the side that moved last', async () => {
   await using s = await openGameHarness(SYSTEM);
   const victory = MISERE_TALLY_GAME.fixtures.firstSideVictory;
-  await s.apply(establishCustomGame, 'misere-tally', {
+  await s.apply(establishGameSession, 'misere-tally', {
     moves: victory.slice(0, -1),
   });
   // Bob, on the second side, is left to count from six to seven.
-  await s.apply(makeCustomGameMove, 'bob', 'misere-tally', victory.at(-1));
-  const finished = (await s.read(readCustomGameScreen, 'alice'))?.current;
+  await s.apply(makeGameSessionMove, 'bob', 'misere-tally', victory.at(-1));
+  const finished = (await s.read(readGameSessionScreen, 'alice'))?.current;
   expect(finished?.status).toBe('completed');
   expect(finished?.outcome).toBe('white wins by counted to seven');
 }, 120_000);
@@ -81,11 +81,11 @@ test('joint winners are a draw when they are every seat, and named in seat order
   expect(() => plainWinner([], sides)).toThrow();
 });
 
-test('a custom game stores joint winners and credits each of them', () => {
+test('a game session stores joint winners and credits each of them', () => {
   const sides = ['white', 'black', 'red', 'blue'] as const;
-  const outcome = customGameOutcome(['blue', 'white'], 'lowest score', sides);
+  const outcome = gameSessionOutcome(['blue', 'white'], 'lowest score', sides);
   expect(outcome).toBe('white and blue win by lowest score');
   expect(
-    customGameWinners({ status: 'completed', outcome, sides: [...sides] })
+    gameSessionWinners({ status: 'completed', outcome, sides: [...sides] })
   ).toEqual(['white', 'blue']);
 });

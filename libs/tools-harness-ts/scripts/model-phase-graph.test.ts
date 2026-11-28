@@ -6,7 +6,7 @@ import { specPackages } from './spec-packages';
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 
 // regression: split-model-phases-missing-gate
-// regression: custom-game-induction-task-exceeds-capacity
+// regression: game-session-induction-task-exceeds-capacity
 test('every split model gates all its phases through the selected parent task', () => {
   for (const pkg of specPackages()) {
     const manifest = JSON.parse(

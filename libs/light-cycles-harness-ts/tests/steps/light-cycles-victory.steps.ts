@@ -28,7 +28,7 @@ import {
 } from '@libs/light-cycles-harness-ts/light-cycles-reads';
 import { arrangeRoundWins } from '@libs/light-cycles-harness-ts/light-cycles-round-actions';
 
-/** The reasons a choice is refused once the custom game has started. */
+/** The reasons a choice is refused once the game session has started. */
 const AFTER_THE_START = ['already started', 'finished', 'cancelled'];
 const RESULT_MS = 2000;
 
@@ -52,7 +52,7 @@ Given(
     })
 );
 Given(
-  '{actor} has created a Light Cycles {lightCyclesMode} custom game with {actor} riding {lightCyclesRider}',
+  '{actor} has created a Light Cycles {lightCyclesMode} game session with {actor} riding {lightCyclesRider}',
   (
     w,
     ...[host, count, other, rider]: [
@@ -105,7 +105,7 @@ Given(
   }
 );
 
-When('{actor} starts the custom game', (w) => w.s.apply(startLightCyclesGame));
+When('{actor} starts the game session', (w) => w.s.apply(startLightCyclesGame));
 When(
   '{actor} chooses a target score of {int}',
   (w, actor: string, target: number) =>

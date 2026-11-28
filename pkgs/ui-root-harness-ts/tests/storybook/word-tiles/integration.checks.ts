@@ -105,7 +105,7 @@ async function fittedDesktop(page: Page) {
   await openStory(page, 'opening', 'light');
   return page.evaluate(() => {
     const board = document.querySelector<HTMLElement>(
-      '[data-testid="custom-game-board"]'
+      '[data-testid="game-session-board"]'
     );
     const rows = Array.from(
       board?.querySelectorAll<HTMLElement>('[data-axis="row"]') ?? []
@@ -172,11 +172,11 @@ test('storybook integration: word-tiles an accepted word appears in the move rec
   page,
 }) => {
   await openStory(page, 'two-player-match', 'light');
-  await expect(page.getByTestId('custom-game-record')).toContainText(
+  await expect(page.getByTestId('game-session-record')).toContainText(
     'No moves yet.'
   );
   await playWord(page, 'mouse');
-  const strip = page.getByTestId('custom-game-record');
+  const strip = page.getByTestId('game-session-record');
   await expect(strip).toContainText('CAT');
   await expect(strip).toContainText('10');
   await expect(strip).not.toContainText('No moves yet.');
@@ -190,13 +190,13 @@ test('storybook integration: word-tiles placing tiles does not move the board', 
   await openStory(page, 'two-player-match', 'light');
   const region = page.getByRole('region', { name: 'Scrollable word board' });
   const before = await region.boundingBox();
-  const rack = page.getByTestId('custom-game-board-rack');
+  const rack = page.getByTestId('game-session-board-rack');
   // C then A: CA is not in the word list, but its score breakdown appears.
   await rack.getByRole('button').nth(0).click();
-  await page.getByTestId('custom-game-board-cell-g8').click();
+  await page.getByTestId('game-session-board-cell-g8').click();
   await rack.getByRole('button').nth(1).click();
-  await page.getByTestId('custom-game-board-cell-h8').click();
-  await expect(page.getByTestId('custom-game-board-status')).toContainText(
+  await page.getByTestId('game-session-board-cell-h8').click();
+  await expect(page.getByTestId('game-session-board-status')).toContainText(
     'Not in the word list: CA'
   );
   const after = await region.boundingBox();
@@ -210,9 +210,9 @@ test('word-tiles leaves the submit button above Game menu at 320px', async ({
   await page.setViewportSize({ width: 320, height: 740 });
   await openStory(page, 'opening', 'light');
   const submit = await page
-    .getByTestId('custom-game-board-submit')
+    .getByTestId('game-session-board-submit')
     .boundingBox();
-  const menu = await page.getByTestId('custom-game-commands').boundingBox();
+  const menu = await page.getByTestId('game-session-commands').boundingBox();
   if (!submit || !menu) throw new Error('Missing a game control');
   expect(submit.y + submit.height).toBeLessThanOrEqual(menu.y);
 });
@@ -225,7 +225,7 @@ test('storybook integration: word-tiles keeps a 16px edge at 390 and 4px only at
   const rackLeft = async (width: number, height: number) => {
     await page.setViewportSize({ width, height });
     await openStory(page, 'two-player-match', 'light');
-    return (await page.getByTestId('custom-game-board-rack').boundingBox())?.x;
+    return (await page.getByTestId('game-session-board-rack').boundingBox())?.x;
   };
   expect(await rackLeft(390, 844)).toBe(16);
   expect(await rackLeft(320, 740)).toBe(4);
@@ -246,9 +246,9 @@ test('storybook integration: word-tiles desktop keeps the own seat above the boa
         const rect = element.getBoundingClientRect();
         return { top: rect.top, bottom: rect.bottom, width: rect.width };
       });
-  const board = await box('custom-game-board');
-  const rack = await box('custom-game-board-rack');
-  const seat = await box('custom-game-seat-near');
+  const board = await box('game-session-board');
+  const rack = await box('game-session-board-rack');
+  const seat = await box('game-session-seat-near');
   // 28rem fitted board, up from 23rem before the overhaul.
   expect(board.width).toBeGreaterThanOrEqual(440);
   expect(rack.top).toBeGreaterThan(board.bottom);
@@ -272,12 +272,12 @@ test('storybook integration: word-tiles desktop source order follows the screen:
   await page.setViewportSize({ width: 1440, height: 900 });
   await openStory(page, 'two-player-match', 'light');
   const order = await page.evaluate(() => {
-    const board = document.querySelector('[data-testid="custom-game-board"]');
+    const board = document.querySelector('[data-testid="game-session-board"]');
     const rack = document.querySelector(
-      '[data-testid="custom-game-board-rack"]'
+      '[data-testid="game-session-board-rack"]'
     );
     const submit = document.querySelector(
-      '[data-testid="custom-game-board-submit"]'
+      '[data-testid="game-session-board-submit"]'
     );
     if (!board || !rack || !submit) return null;
     const before = (a: Element, b: Element) =>
@@ -328,7 +328,7 @@ test('storybook integration: word-tiles keyboard focus ring stands out on dark a
     await openStory(page, 'opening', theme);
     // b1 is an empty plain square (dark felt); a1 is a light bonus square.
     for (const id of ['b1', 'a1']) {
-      const cell = page.getByTestId(`custom-game-board-cell-${id}`);
+      const cell = page.getByTestId(`game-session-board-cell-${id}`);
       await cell.focus();
       await page.keyboard.press('ArrowRight');
       await page.keyboard.press('ArrowLeft');
@@ -391,8 +391,8 @@ test('storybook integration: word-tiles the board stays put within its workspace
     });
   const before = await offset();
   await playWord(page, 'mouse');
-  await expect(page.getByTestId('custom-game-record')).toContainText('CAT');
-  await expect(page.getByTestId('custom-game-board-status')).toHaveText(
+  await expect(page.getByTestId('game-session-record')).toContainText('CAT');
+  await expect(page.getByTestId('game-session-board-status')).toHaveText(
     'Plan your next word while you wait.'
   );
   expect(before).not.toBeNull();
@@ -404,7 +404,7 @@ test('storybook integration: word-tiles phone status line stays one line while w
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  const status = page.getByTestId('custom-game-board-status');
+  const status = page.getByTestId('game-session-board-status');
   const height = async () =>
     status.evaluate((element) => element.getBoundingClientRect().height);
   await openStory(page, 'opening', 'light');
@@ -433,7 +433,7 @@ test('storybook integration: word-tiles desktop keeps the own seat whole in an 8
   ]) {
     await openStory(page, story, 'light');
     const seat = await page
-      .getByTestId('custom-game-seat-near')
+      .getByTestId('game-session-seat-near')
       .first()
       .evaluate((element) => element.getBoundingClientRect().bottom);
     expect(seat, story).toBeLessThanOrEqual(844);
@@ -467,7 +467,9 @@ test('storybook integration: word-tiles bonus squares are told apart by colour a
   for (const theme of ['light', 'dark']) {
     await openStory(page, 'opening', theme);
     const fills = await page.evaluate(() => {
-      const board = document.querySelector('[data-testid="custom-game-board"]');
+      const board = document.querySelector(
+        '[data-testid="game-session-board"]'
+      );
       const fill = (square: string) => {
         const cell = board?.querySelector(
           `[data-state="empty"][data-square="${square}"]`
@@ -514,10 +516,10 @@ test('the placement footer opens draw and resignation through Game menu', async 
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openStory(page, 'place-a-word', 'light');
-  await expect(page.getByTestId('custom-game-board-submit')).toBeVisible();
-  await expect(page.getByTestId('custom-game-offer-draw')).toHaveCount(0);
-  await expect(page.getByTestId('custom-game-resign-now')).toHaveCount(0);
-  await page.getByTestId('custom-game-commands').click();
-  await expect(page.getByTestId('custom-game-offer')).toBeVisible();
-  await expect(page.getByTestId('custom-game-resign')).toBeVisible();
+  await expect(page.getByTestId('game-session-board-submit')).toBeVisible();
+  await expect(page.getByTestId('game-session-offer-draw')).toHaveCount(0);
+  await expect(page.getByTestId('game-session-resign-now')).toHaveCount(0);
+  await page.getByTestId('game-session-commands').click();
+  await expect(page.getByTestId('game-session-offer')).toBeVisible();
+  await expect(page.getByTestId('game-session-resign')).toBeVisible();
 });

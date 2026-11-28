@@ -19,10 +19,11 @@ const METADATA: GameRecordMetadata = {
 };
 
 describe('the Battleship registration', () => {
-  test('offers custom games, matchmaking and history, and no puzzles', () => {
+  test('offers game sessions, matchmaking and history, and no puzzles', () => {
     expect(battleshipGameShared.id).toBe('battleship');
     expect(Object.keys(battleshipGameShared.capabilities).sort()).toEqual([
-      'custom-games',
+      'vs-human',
+      'vs-bot',
       'history',
       'matchmaking',
     ]);

@@ -61,8 +61,8 @@ type RulesFixtures = {
    * side's move, after which the second side cannot win while the first
    * side still can, and nothing has finished the game — both after the
    * last action and before it. Absent for a game whose sides can always
-   * win, which the rules laws check. The shared custom-game feature about a
-   * side that cannot win (`custom-game-cannot-win`) needs it.
+   * win, which the rules laws check. The shared game-session feature about a
+   * side that cannot win (`game-session-cannot-win`) needs it.
    */
   readonly secondSideCannotWin?: readonly string[];
   /**
@@ -184,7 +184,7 @@ export const HEARD_PUZZLE_SOUNDS: readonly PuzzleSoundKind[] = [
 /**
  * Exactly for a game with game options (`rules.configuration`): two
  * different options it offers, written as a person chooses them (Pong: a
- * score target). The shared custom-game suites change a choice back and
+ * score target). The shared game-session suites change a choice back and
  * forth with them where the game has no turn clock to change.
  */
 type ConfigurationFixtures = {

@@ -1,4 +1,0 @@
-{
-  "summary": "After Alice finished her custom game, finding an opponent tried to press Back under the game result dialog. The search never reached its clock or waiting assertion.",
-  "regressionTest": "libs/game-matchmaking-harness-ts/tests/finished-custom-game-search.test.ts"
-}

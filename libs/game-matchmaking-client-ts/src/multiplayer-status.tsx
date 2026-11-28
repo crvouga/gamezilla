@@ -82,7 +82,7 @@ function useFrameTurnStatus(props: StatusProps): () => string | null {
 
 /**
  * How a finished game reads to a person who played it: short and in the
- * past tense, with no full stop to see, as a custom game's result says it.
+ * past tense, with no full stop to see, as a game session's result says it.
  * A listener, who cannot see the screen, hears it is the multiplayer game.
  */
 function PlayerResult(props: StatusProps): JSX.Element {
@@ -567,7 +567,7 @@ export function MultiplayerStatusTitle(props: StatusProps): JSX.Element {
 export function MultiplayerStatus(props: StatusProps): JSX.Element {
   return (
     // Shown on the command bar's status band as quiet, centred text, as the
-    // custom-game stage does: the band is never a blank strip, and a
+    // game-session stage does: the band is never a blank strip, and a
     // watcher reads there that they are watching.
     <GameTurnPill
       live
@@ -581,7 +581,7 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
       dataSet={{ testid: 'multiplayer-announcement' }}
       title={
         // A draw offered mid-game is the one thing to answer: it is the
-        // line, in one sentence, as on the custom-game band; whose turn it
+        // line, in one sentence, as on the game-session band; whose turn it
         // is stays for a listener.
         <Show
           when={drawOfferedToMe(props)}

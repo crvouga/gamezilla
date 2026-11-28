@@ -203,24 +203,24 @@ export const PassAndContinue: Story = {
     await expect(pass).toHaveFocus();
     await userEvent.keyboard('{Enter}');
     await expect(
-      canvas.queryByTestId('custom-game-board-action-pass')
+      canvas.queryByTestId('game-session-board-action-pass')
     ).not.toBeInTheDocument();
     await expect(
-      await canvas.findByTestId('custom-game-board-action-e5')
+      await canvas.findByTestId('game-session-board-action-e5')
     ).toBeEnabled();
     await expectQuoridorSpatialArea(canvasElement);
     await expectHillDestinationVisible(canvasElement);
     await userEvent.click(
-      await canvas.findByTestId('custom-game-board-action-e5')
+      await canvas.findByTestId('game-session-board-action-e5')
     );
     await expect(
-      await canvas.findByTestId('custom-game-board-action-e5')
+      await canvas.findByTestId('game-session-board-action-e5')
     ).toHaveAccessibleName(/West gold diamond/);
     await expect(
-      canvas.getByTestId('custom-game-board-action-e5')
+      canvas.getByTestId('game-session-board-action-e5')
     ).toHaveTextContent('◆');
     await expect(
-      canvas.getByTestId('custom-game-board-action-e5')
+      canvas.getByTestId('game-session-board-action-e5')
     ).not.toHaveTextContent('★');
   },
 };
@@ -230,7 +230,7 @@ export const FourPlayerRound: Story = {
   render: renderHillJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
+    await userEvent.click(canvas.getByTestId('game-session-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await expectHillDestinationVisible(canvasElement);
     for (const [square, pawn] of [
@@ -242,37 +242,37 @@ export const FourPlayerRound: Story = {
       await expectQuoridorSpatialArea(canvasElement);
       await expectHillDestinationVisible(canvasElement);
       await userEvent.click(
-        await canvas.findByTestId(`custom-game-board-action-${square}`)
+        await canvas.findByTestId(`game-session-board-action-${square}`)
       );
       await expect(
-        await canvas.findByTestId(`custom-game-board-action-${square}`)
+        await canvas.findByTestId(`game-session-board-action-${square}`)
       ).toHaveAccessibleName(new RegExp(pawn));
     }
     await userEvent.click(
-      await canvas.findByTestId('custom-game-board-mode-h')
+      await canvas.findByTestId('game-session-board-mode-h')
     );
     await userEvent.click(
-      await canvas.findByTestId('custom-game-board-action-e5h')
+      await canvas.findByTestId('game-session-board-action-e5h')
     );
     await expect(
-      await canvas.findByTestId('custom-game-board-wall-status')
+      await canvas.findByTestId('game-session-board-wall-status')
     ).toHaveTextContent(/Preview only. Place wall to confirm/);
     // regression: quoridor-hill-four-seat-confirm-below-fold
     await expectQuoridorWallPreview(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-wall-cancel'));
+    await userEvent.click(canvas.getByTestId('game-session-board-wall-cancel'));
     await expect(
-      canvas.queryByTestId('custom-game-board-wall-cancel')
+      canvas.queryByTestId('game-session-board-wall-cancel')
     ).not.toBeInTheDocument();
     await userEvent.click(
-      await canvas.findByTestId('custom-game-board-action-e5h')
+      await canvas.findByTestId('game-session-board-action-e5h')
     );
     await expectQuoridorWallPreview(canvasElement);
     await expectQuoridorTargetVisible(
-      canvas.getByTestId('custom-game-board-wall-commit')
+      canvas.getByTestId('game-session-board-wall-commit')
     );
-    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
+    await userEvent.click(canvas.getByTestId('game-session-board-wall-commit'));
     await expect(
-      await canvas.findByTestId('custom-game-board-action-a3')
+      await canvas.findByTestId('game-session-board-action-a3')
     ).toBeEnabled();
     const moves = canvasElement.querySelectorAll<HTMLElement>(
       '[data-component="GameMoveList"] button'
@@ -301,20 +301,20 @@ export const ReachTheHill: Story = {
     await expectQuoridorSpatialArea(canvasElement);
     await expectHillDestinationVisible(canvasElement);
     await userEvent.click(
-      await canvas.findByTestId('custom-game-board-action-e5')
+      await canvas.findByTestId('game-session-board-action-e5')
     );
     await expect(
-      await canvas.findByTestId('custom-game-board-action-e5')
+      await canvas.findByTestId('game-session-board-action-e5')
     ).toHaveAccessibleName(/South red circle/);
     await expect(
-      canvas.getByTestId('custom-game-board-action-e5')
+      canvas.getByTestId('game-session-board-action-e5')
     ).toHaveTextContent('●');
     await expect(
-      canvas.getByTestId('custom-game-board-action-e5')
+      canvas.getByTestId('game-session-board-action-e5')
     ).not.toHaveTextContent('★');
     await expect(await canvas.findByText('avery won')).toBeVisible();
     await expect(
-      canvas.queryByTestId('custom-game-board-tools')
+      canvas.queryByTestId('game-session-board-tools')
     ).not.toBeInTheDocument();
   },
 };
@@ -328,27 +328,27 @@ export const RecoverWallPlacement: Story = {
   render: renderHillJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
+    await userEvent.click(canvas.getByTestId('game-session-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await expectHillDestinationVisible(canvasElement);
     await userEvent.click(
-      await canvas.findByTestId('custom-game-board-mode-h')
+      await canvas.findByTestId('game-session-board-mode-h')
     );
     await chooseQuoridorCoordinate(canvasElement, 'e5');
     await expect(
-      await canvas.findByTestId('custom-game-board-wall-status')
+      await canvas.findByTestId('game-session-board-wall-status')
     ).toHaveTextContent(/overlaps/);
     await expectQuoridorWallPreview(canvasElement, { refused: true });
     await chooseQuoridorCoordinate(canvasElement, 'a1');
     await expectQuoridorWallPreview(canvasElement);
     await expect(
-      canvas.getByTestId('custom-game-board-wall-status')
+      canvas.getByTestId('game-session-board-wall-status')
     ).not.toHaveTextContent(/overlaps/);
     await expectQuoridorTargetVisible(
-      canvas.getByTestId('custom-game-board-wall-commit')
+      canvas.getByTestId('game-session-board-wall-commit')
     );
     await expect(
-      canvas.getByTestId('custom-game-board-wall-commit')
+      canvas.getByTestId('game-session-board-wall-commit')
     ).toBeEnabled();
   },
 };

@@ -26,9 +26,9 @@ const TAGLINE = 'Drop discs and line up four';
 
 const PLAY_CHOICES: readonly GameMenuChoiceView[] = [
   {
-    screen: 'custom-game',
-    title: 'Custom games',
-    caption: 'With the people in this space, or bots',
+    screen: 'vs-human',
+    title: 'Play Friend',
+    caption: 'Play the people in this space',
   },
   {
     screen: 'history',
@@ -39,7 +39,7 @@ const PLAY_CHOICES: readonly GameMenuChoiceView[] = [
 
 const FIND_AN_OPPONENT: GameMenuChoiceView = {
   screen: 'multiplayer',
-  title: 'Match making',
+  title: 'Matchmaking',
   caption: 'Meet another Connect Four player',
 };
 
@@ -82,14 +82,14 @@ function openMore(view: ReturnType<typeof menu>): HTMLElement {
 // instruction twice. The rules now have a place of their own: the menu
 // says what the game is once and offers how to play as a row behind More.
 test.each([390, 1440])(
-  'at %ipx the tagline shows once, and how to play is a row behind More',
+  'at %ipx the menu omits its subtitle, and how to play is a row behind More',
   (width) => {
     const view = menu({
       width,
       lesson: LESSON,
       place: { screen: 'home' },
     });
-    expect(view.getByText(TAGLINE)).toBeTruthy();
+    expect(view.queryByText(TAGLINE)).toBeNull();
     expect(view.queryByText(PROMPT)).toBeNull();
     openMore(view);
     expect(view.getByTestId('game-choice-how-to-play')).toBeTruthy();
@@ -113,16 +113,16 @@ test.each([390, 1440])(
     expect(primary[0]?.getAttribute('data-testid')).toBe(
       'game-choice-multiplayer'
     );
-    expect(primary[0]?.textContent).toContain('Match making');
+    expect(primary[0]?.textContent).toContain('Matchmaking');
     expect(
-      view.getByTestId('game-choice-custom-game').getAttribute('data-emphasis')
+      view.getByTestId('game-choice-vs-human').getAttribute('data-emphasis')
     ).toBeNull();
     expect(view.queryByText('Recommended')).toBeNull();
     view.unmount();
   }
 );
 
-test('the primary control is finding an opponent, else custom games, else puzzles', () => {
+test('the primary control is finding an opponent, else vs human, else puzzles', () => {
   const puzzle: GameMenuChoiceView = {
     screen: 'puzzle',
     title: 'Puzzle',
@@ -149,9 +149,7 @@ test('the primary control is finding an opponent, else custom games, else puzzle
   expect(leads([FIND_AN_OPPONENT, PLAY_CHOICES[0]!, puzzle, stats])).toBe(
     'game-choice-multiplayer'
   );
-  expect(leads([PLAY_CHOICES[0]!, puzzle, stats])).toBe(
-    'game-choice-custom-game'
-  );
+  expect(leads([PLAY_CHOICES[0]!, puzzle, stats])).toBe('game-choice-vs-human');
   expect(leads([puzzle, stats])).toBe('game-choice-puzzle');
 });
 
@@ -162,12 +160,10 @@ test('the other ways to play are full-width rows with their captions', () => {
     place: { screen: 'home' },
     choices: [FIND_AN_OPPONENT, ...PLAY_CHOICES],
   });
-  const custom = view.getByTestId('game-choice-custom-game');
+  const custom = view.getByTestId('game-choice-vs-human');
   expect(custom.closest('[data-layout="grid"]')).not.toBeNull();
   expect(custom.closest('[data-layout="primary"]')).toBeNull();
-  expect(custom.textContent).toContain(
-    'With the people in this space, or bots'
-  );
+  expect(custom.textContent).toContain('Play Friend');
   view.unmount();
 });
 
@@ -205,8 +201,8 @@ test('a quiet choice behind More opens through the same onChoose', () => {
   openMore(view);
   view.getByTestId('game-choice-history').click();
   expect(onChoose).toHaveBeenCalledWith('history');
-  view.getByTestId('game-choice-custom-game').click();
-  expect(onChoose).toHaveBeenCalledWith('custom-game');
+  view.getByTestId('game-choice-vs-human').click();
+  expect(onChoose).toHaveBeenCalledWith('vs-human');
   view.unmount();
 });
 
@@ -228,7 +224,7 @@ test('the how to play row opens its place, and that place gives the first move',
     place: { screen: 'how-to-play' },
   });
   expect(rules.getByText(PROMPT)).toBeTruthy();
-  expect(rules.queryByTestId('game-choice-custom-game')).toBeNull();
+  expect(rules.queryByTestId('game-choice-vs-human')).toBeNull();
   rules.unmount();
 });
 
@@ -240,7 +236,7 @@ test('a game that says nothing about how to play offers no such row', () => {
   });
   openMore(view);
   expect(view.queryByTestId('game-choice-how-to-play')).toBeNull();
-  expect(view.getByText(TAGLINE)).toBeTruthy();
+  expect(view.queryByText(TAGLINE)).toBeNull();
   view.unmount();
 });
 

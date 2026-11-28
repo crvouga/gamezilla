@@ -135,7 +135,7 @@ test('storybook responsive tags compose with desktop-only eligibility without du
 test('a story asking for native heights captures each width at its own viewport height', () => {
   const frame = {
     ...SIDEBAR,
-    id: 'screens-custom-games-stage--your-turn',
+    id: 'screens-game-sessions-stage--your-turn',
     tags: ['viewport-native-height'],
   };
   expect(

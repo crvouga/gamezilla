@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
 import {
   RequestSimulationSnapshot,
@@ -45,7 +45,7 @@ async function snapshot(local: LocalSimulationSession) {
 // regression: local-custom-choice-fractional-timestamp
 test('an offline turn saves current live progress before its choice and replays both on return', async () => {
   const { rig, alice, local, errors } = await localHybrid();
-  const current = () => CustomGamesAttr.from(alice.getSnapshot()).current!;
+  const current = () => GameSessionsAttr.from(alice.getSnapshot()).current!;
   try {
     for (let index = 0; index < 7; index++) {
       rig.clock.advance(1000 / 60);

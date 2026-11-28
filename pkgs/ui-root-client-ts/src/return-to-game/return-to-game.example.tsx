@@ -10,12 +10,12 @@ import { ExampleSection } from '../../storybook/fixtures/example-section';
 export default function ReturnToGameExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <ExampleSection title="Docked: a custom game waits in another space">
+      <ExampleSection title="Docked: a game session waits in another space">
         <MiniPlayerDock>
           <ReturnToGame
-            title="Your custom game is under way"
+            title="Your game session is under way"
             caption="Chess · Robin's space"
-            action="Return to the custom game"
+            action="Return to the game session"
             kind="custom"
             onReturn={() => undefined}
           />
@@ -37,9 +37,9 @@ export default function ReturnToGameExample(): JSX.Element {
       <ExampleSection title="Inline: in place of seeking an opponent">
         <ReturnToGame
           placement="inline"
-          title="Finish your custom game first"
+          title="Finish your game session first"
           caption="It is still under way in Robin's space."
-          action="Return to the custom game"
+          action="Return to the game session"
           kind="custom"
           onReturn={() => undefined}
         />

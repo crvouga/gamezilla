@@ -1,0 +1,128 @@
+import { expect } from 'bun:test';
+import { attemptGameSessionBoundary } from '@libs/game-session-harness-ts/game-session-boundary';
+import { readGameSessionProbe } from '@libs/game-session-harness-ts/game-session-probe';
+import { gameSessionNearestSide } from '@libs/game-session-harness-ts/game-session-reads';
+import type { GameSessionSide } from '@libs/game-session-shared-ts/game-session-state';
+import { Then, When } from '@libs/harness-ts/define';
+import {
+  choose,
+  current,
+  identityOf,
+  inSpace,
+  race,
+  sideShownTo,
+} from './game-session-set-up-world';
+import { spaceLinkOf, view } from './game-world';
+
+When(
+  '{actor} assigns a bot to the {gameSide}',
+  async (w, actor: string, side: GameSessionSide) =>
+    choose(w, actor, { operation: 'bot', side })
+);
+When(
+  '{actor} opens the {gameSide}',
+  async (w, actor: string, side: GameSessionSide) =>
+    choose(w, actor, { operation: 'open', side })
+);
+When(
+  '{actor} takes the {gameSide}',
+  async (w, actor: string, side: GameSessionSide) =>
+    choose(w, actor, { operation: 'take', side })
+);
+When(
+  '{actor} closes the {gameSide}',
+  async (w, actor: string, side: GameSessionSide) =>
+    choose(w, actor, { operation: 'close', side })
+);
+When('{actor} swaps the sides', async (w, actor: string) =>
+  choose(w, actor, { operation: 'swap' })
+);
+When(
+  '{actor} claims the {gameSide}',
+  async (w, actor: string, side: GameSessionSide) => {
+    if ((await w.s.read(readGameSessionProbe, actor)) !== null) {
+      await choose(w, actor, { operation: 'claim', side });
+      return;
+    }
+    // Someone outside the space has no game session to claim from, so the
+    // claim is sent as a modified device would.
+    const game = await current(w);
+    await w.s.apply(attemptGameSessionBoundary, actor, {
+      spaceId: (await spaceLinkOf(w)).split('/space/')[1] ?? '',
+      choice: {
+        operation: 'claim',
+        side,
+        gameId: game.id,
+        revision: game.revision,
+      },
+    });
+  }
+);
+When(
+  '{actor} releases the {gameSide}',
+  async (w, actor: string, side: GameSessionSide) =>
+    choose(w, actor, { operation: 'release', side })
+);
+When(
+  '{actor} and {actor} claim the {gameSide} at the same time',
+  async (w, first: string, second: string, side: GameSessionSide) =>
+    race(w, [
+      { actor: first, choice: { operation: 'claim', side } },
+      { actor: second, choice: { operation: 'claim', side } },
+    ])
+);
+
+Then(
+  'the {gameSide} is either {actor} or {actor}',
+  async (w, side: GameSessionSide, first: string, second: string) => {
+    const seat = (await current(w))[side];
+    expect(seat.kind).toBe('person');
+    expect([await identityOf(w, first), await identityOf(w, second)]).toContain(
+      seat.person
+    );
+  }
+);
+Then(
+  'the {gameSide} is either {actor} or open',
+  async (w, side: GameSessionSide, person: string) => {
+    const seat = (await current(w))[side];
+    expect([
+      { kind: 'person', person: await identityOf(w, person) },
+      { kind: 'open', person: '' },
+    ]).toContainEqual(seat);
+  }
+);
+Then(
+  'the {gameSide} has at most one participant',
+  async (w, side: GameSessionSide) => {
+    // Everyone in the scenario, as each of their own devices sees it.
+    const holders: string[] = [];
+    for (const person of ['alice', 'bob', 'carol'])
+      if ((await w.s.read(sideShownTo, person)) === side) holders.push(person);
+    expect(holders.length).toBeLessThanOrEqual(1);
+  }
+);
+
+// Someone not yet in the space joins it to watch; anyone shown the custom
+// games stays as they are.
+Then('{actor} is watching the game session', async (w, actor: string) => {
+  await inSpace(w, actor);
+  const seen = await view(w, actor);
+  expect(seen.mySide).toBeNull();
+  expect(seen.gates['watch']).toBe(true);
+});
+Then('both sides are bots in the game session under way', async (w) => {
+  const game = await current(w);
+  expect(game.status).toBe('active');
+  expect([game.white.kind, game.black.kind]).toEqual(['bot', 'bot']);
+});
+Then(
+  '{actor} sees the {gameSide} nearest him/her',
+  async (w, actor: string, side: GameSessionSide) => {
+    expect(
+      await w.s.until((s) => gameSessionNearestSide(s, actor), {
+        pred: (near) => near === side,
+      })
+    ).toBe(side);
+  }
+);

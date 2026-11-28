@@ -1,4 +1,4 @@
 {
-  "summary": "Creating the first Custom Game emitted authoritative schedule cancellations, but the Space Room client had no effect handler and threw before dispatch. Devices now recognize schedule effects while the server alone runs bot turns and clock deadlines. The guest creation scenario pins the literal first-create failure.",
-  "regressionTest": "specs/games/custom-game-creation.feature"
+  "summary": "Creating the first Game Session emitted authoritative schedule cancellations, but the Space Room client had no effect handler and threw before dispatch. Devices now recognize schedule effects while the server alone runs bot turns and clock deadlines. The guest creation scenario pins the literal first-create failure.",
+  "regressionTest": "specs/games/game-session-creation.feature"
 }

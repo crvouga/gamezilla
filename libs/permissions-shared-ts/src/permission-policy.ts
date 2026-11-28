@@ -215,11 +215,11 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     [ROLE.spaceMember]: {
       permissions: [
         PERMISSION.spacesLeave,
-        PERMISSION.gameCustomJoin,
-        PERMISSION.gameCustomWatch,
+        PERMISSION.gameSessionJoin,
+        PERMISSION.gameSessionWatch,
         PERMISSION.gameMultiplayerWatch,
-        PERMISSION.gameCustomPlay,
-        PERMISSION.gameCustomCancel,
+        PERMISSION.gameSessionPlay,
+        PERMISSION.gameSessionCancel,
       ],
     },
     [ROLE.spaceHost]: {
@@ -229,11 +229,11 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.spacesEnd,
         PERMISSION.spacesManageMembers,
         PERMISSION.spacesSelectGame,
-        PERMISSION.gameCustomCreate,
-        PERMISSION.gameCustomConfigure,
-        PERMISSION.gameCustomInvite,
-        PERMISSION.gameCustomBot,
-        PERMISSION.gameCustomStart,
+        PERMISSION.gameSessionCreate,
+        PERMISSION.gameSessionConfigure,
+        PERMISSION.gameSessionInvite,
+        PERMISSION.gameSessionBot,
+        PERMISSION.gameSessionStart,
       ],
     },
   },
@@ -287,8 +287,8 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     [PERMISSION.profileExportData]: PRIVACY_UNLOCK,
     [LIMIT.unfinishedMultiplayerGames]: {
       limit_reached: { titleKey: 'unlock.multiplayer.finish.title' },
-      // A participant of an active Custom Game finishes it first.
-      restricted: { titleKey: 'unlock.custom-game.finish.title' },
+      // A participant of an active Game Session finishes it first.
+      restricted: { titleKey: 'unlock.game-session.finish.title' },
     },
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
     [PERMISSION.adminAccess]: SIGN_UP_UNLOCK,

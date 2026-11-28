@@ -39,7 +39,7 @@ Use original branding, presentation, and starter content. Treat Word Tiles as a 
 | --- | --- |
 | Existing `room` package | Authenticated membership, connection lifecycle, role-scoped delivery, subscriptions, reconnect/resynchronization, and cleanup. No word rules, dictionary lookup, or tile scoring. |
 | Shared game framework | Seats/controllers, authoritative command handling, optional private observations, turn/lifecycle orchestration, rule/content identities, bots, results, and reconnect integration. |
-| Existing persistence and application adapters | Durable asynchronous sessions, concurrency/idempotency, authorized storage/sync, discovery, custom games, matchmaking, notifications already supported, and history. |
+| Existing persistence and application adapters | Durable asynchronous sessions, concurrency/idempotency, authorized storage/sync, discovery, game sessions, matchmaking, notifications already supported, and history. |
 | Shared puzzle subsystem | Drafts, immutable revisions, packs, builder/player shells, validation/evidence workflows, publication, attempts, progression, and offline persistence. |
 | Word Tiles domain and UI | Tile configuration, board geometry, placement rules, scoring, passing/exchange, endings, candidate-move editing, word-specific visuals, and puzzle editing tools. |
 | Word-domain data/runtime module | Versioned lexicon ingestion, normalization, exact membership, search indexes, and bounded bot move generation. Keep game-adjacent unless actual reuse justifies wider extraction. |
@@ -170,7 +170,7 @@ Acknowledge durable asynchronous turns only after persistence succeeds. Recover 
 - Define deadline-versus-move race behavior and test it. Do not depend on the user's device clock for acceptance. Reuse existing scheduling; avoid one permanent process or room per dormant match.
 - Persisted sessions must survive a room teardown and authority restart within the repository's documented guarantees. Do not invent distributed host migration for this task.
 
-Integrate existing custom games, invitations, matchmaking, spectator permissions, game history, and notifications where already supported. Do not build a separate correspondence-game application or new notification delivery system.
+Integrate existing game sessions, invitations, matchmaking, spectator permissions, game history, and notifications where already supported. Do not build a separate correspondence-game application or new notification delivery system.
 
 ## 7. Competent bounded bots
 
@@ -241,7 +241,7 @@ Capture reproducible failures with configuration/artifact versions, initial stat
 1. **Audit and executable contract.** Inspect existing consumers, choose/document the baseline premium map and lexicon, map ownership, and write behavior specs. **Exit:** bounded shared-change plan, data provenance, baseline checks, and no duplicate platform proposed.
 2. **Pure word-game vertical slice.** Implement pinned configuration, lexicon loading, legal placements, scoring, inventory, endings, candidate interaction, and local practice. **Exit:** complete games run through the real app; critical rule properties and independent scoring checks pass.
 3. **Shared multiplayer refinement.** Extend command, private-view, seat/controller, and result contracts where needed; migrate affected existing games. **Exit:** private two/three/four-seat contract tests and existing-consumer regressions pass.
-4. **Live and asynchronous integration.** Connect custom games, existing matchmaking, durable commands, scoped room delivery, spectators, reconnects, deadlines, and bots. **Exit:** real multi-client play plus authority restart and lost-response retry work without inventory loss, rerolls, leakage, or duplicate turns.
+4. **Live and asynchronous integration.** Connect game sessions, existing matchmaking, durable commands, scoped room delivery, spectators, reconnects, deadlines, and bots. **Exit:** real multi-client play plus authority restart and lost-response retry work without inventory loss, rerolls, leakage, or duplicate turns.
 5. **Puzzle composition.** Integrate the one-move challenge, editor/playtest tools, witness validation, packs, publication, and original starter content through shared capabilities. **Exit:** one author publishes a pack and another user plays/resumes/completes it; existing puzzle consumers still work.
 6. **Hardening and cleanup.** Complete BDD/PBT/DST/bounded models/critical journeys, profile dictionary and bot budgets, verify offline/version/conflict cases, and remove obsolete code. **Exit:** the definition of done is demonstrated with recorded commands and results.
 
@@ -249,7 +249,7 @@ Run relevant checks at every gate, then the repository's full validation entry p
 
 ## 11. Definition of done
 
-- The word game is discoverable and playable through the app, with offline bot practice, two-to-four-player custom games, and existing matchmaking integration.
+- The word game is discoverable and playable through the app, with offline bot practice, two-to-four-player game sessions, and existing matchmaking integration.
 - Live and asynchronous play share rules and command contracts; acknowledged turns survive restart and retry without duplicate scoring or different draws.
 - Compound candidates, cross-word validation, blanks, multipliers, exchange, endings, ties, and responsive accessible controls work end to end.
 - Opponent racks and future draws are protected across transport, persistence/sync, spectators, reconnects, history, and diagnostics.

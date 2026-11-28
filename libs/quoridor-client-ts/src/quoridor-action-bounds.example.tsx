@@ -4,7 +4,7 @@ import { expect, within } from 'storybook/test';
 export async function expectQuoridorActionsFit(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
   for (const id of ['coordinates']) {
-    const action = await canvas.findByTestId(`custom-game-board-${id}`);
+    const action = await canvas.findByTestId(`game-session-board-${id}`);
     const view = action.ownerDocument.defaultView;
     if (!view) throw new Error('The story requires a browser window');
     const rect = action.getBoundingClientRect();

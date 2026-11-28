@@ -1,16 +1,16 @@
-import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-choice';
-import {
-  ChangeCustomGame,
-  ChangeLocalCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-commands';
-import { soloCustomGame } from '@libs/game-session-shared-ts/custom-game-local';
-import {
-  BOT_CUSTOM_GAME_SIDE,
-  type CustomGame,
-  CustomGamesAttr,
-  newCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-state';
 import type { GameRegistration } from '@libs/game-session-shared-ts/game-definition';
+import type { GameSessionChoice } from '@libs/game-session-shared-ts/game-session-choice';
+import {
+  ChangeGameSession,
+  ChangeLocalGameSession,
+} from '@libs/game-session-shared-ts/game-session-commands';
+import { soloGameSession } from '@libs/game-session-shared-ts/game-session-local';
+import {
+  BOT_GAME_SESSION_SIDE,
+  type GameSession,
+  GameSessionsAttr,
+  newGameSession,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import { createSpaceModule } from '@libs/spaces-shared-ts/space-module';
@@ -74,7 +74,7 @@ export function simulationRoomFixture(
       ...base.initialState(),
       ...GamesRoomAttr.selected(options.game.id),
       ...SpaceMembersRoomAttr.seats(seats),
-      ...CustomGamesAttr({ current: game, history: [] }),
+      ...GameSessionsAttr({ current: game, history: [] }),
     }),
   };
 }
@@ -94,8 +94,8 @@ function fixtureGame(
   const creator = players.find((player) => player !== null);
   if (creator === undefined || creator === null)
     throw new Error('The simulation fixture needs at least one person');
-  const game: CustomGame = {
-    ...newCustomGame(options.id, creator, position, sides),
+  const game: GameSession = {
+    ...newGameSession({ id: options.id, creator, position, sides }),
     ready: [...sides],
     status: 'active',
     startedAt: 0,
@@ -105,7 +105,7 @@ function fixtureGame(
     const player = players[index] ?? null;
     game[side] =
       player === null
-        ? BOT_CUSTOM_GAME_SIDE
+        ? BOT_GAME_SESSION_SIDE
         : { kind: 'person', person: player };
   });
   return game;
@@ -113,7 +113,7 @@ function fixtureGame(
 
 /** Read the saved court and execution checkpoint from a room snapshot. */
 export function simulationRoomCourt(state: RoomState) {
-  const game = CustomGamesAttr.from(state).current;
+  const game = GameSessionsAttr.from(state).current;
   return game?.execution === undefined
     ? null
     : { position: game.fen, execution: game.execution };
@@ -121,7 +121,7 @@ export function simulationRoomCourt(state: RoomState) {
 
 /** The fixture's current game: which one, at what revision, and whether it runs. */
 export function simulationRoomGame(state: RoomState) {
-  const game = CustomGamesAttr.from(state).current;
+  const game = GameSessionsAttr.from(state).current;
   return game === null
     ? null
     : { id: game.id, revision: game.revision, status: game.status };
@@ -129,7 +129,7 @@ export function simulationRoomGame(state: RoomState) {
 
 /** The result the screen reads from its room once the live simulation ends. */
 export function simulationRoomResult(state: RoomState) {
-  const game = CustomGamesAttr.from(state).current;
+  const game = GameSessionsAttr.from(state).current;
   if (game?.status !== 'completed') return null;
   return {
     id: game.id,
@@ -153,14 +153,14 @@ export function simulationRoomChoice(
   operation: SimulationRoomOperation,
   at: number
 ) {
-  const current = CustomGamesAttr.from(state).current;
+  const current = GameSessionsAttr.from(state).current;
   if (current === null) throw new Error('The simulation room has no game');
   const choice = {
     gameId: current.id,
     revision: current.revision,
     operation,
-  } as CustomGameChoice;
-  return soloCustomGame(current, createTurnGames([game.registration]))
-    ? ChangeLocalCustomGame({ choice, at })
-    : ChangeCustomGame(choice);
+  } as GameSessionChoice;
+  return soloGameSession(current, createTurnGames([game.registration]))
+    ? ChangeLocalGameSession({ choice, at })
+    : ChangeGameSession(choice);
 }

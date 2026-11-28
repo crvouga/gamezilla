@@ -52,7 +52,7 @@ for (const condition of [
       await page.keyboard.up('ArrowDown');
       await expect(court).toBeFocused();
       // The rally is running: the ball moves from frame to frame.
-      const ball = page.getByTestId('custom-game-board-ball');
+      const ball = page.getByTestId('game-session-board-ball');
       const ballAt = async () =>
         `${await ball.getAttribute('data-ball-x')},${await ball.getAttribute('data-ball-y')}`;
       const ballStart = await ballAt();
@@ -143,7 +143,7 @@ test('storybook integration: pong-overhaul reconnect returns control promptly', 
   await page.keyboard.down('ArrowUp');
   await page.getByRole('button', { name: 'Disconnect' }).click();
   await expect(court).toHaveAttribute('data-interactive', 'false');
-  await expect(page.getByTestId('custom-game-board-status')).toHaveAttribute(
+  await expect(page.getByTestId('game-session-board-status')).toHaveAttribute(
     'data-stage',
     'reconnecting'
   );

@@ -61,7 +61,7 @@ function recordedAction(
 
 /**
  * A matched game records one winner or a draw: its rating compares people
- * by a win, a loss or a draw, so joint winners are a custom-game result only.
+ * by a win, a loss or a draw, so joint winners are a game-session result only.
  */
 function matchedOutcome(
   winner: GameWinner | null,

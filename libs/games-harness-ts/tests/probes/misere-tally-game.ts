@@ -2,7 +2,7 @@
  * Probe: a result the mover does not win. Two sides count on by one or two;
  * whoever counts to seven loses, so the move that ends the game is a loss
  * for the side that made it (`PlayedPosition.winner` is the other side).
- * Offers custom games only.
+ * Offers game sessions only.
  */
 
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
@@ -22,7 +22,8 @@ export const MISERE_TALLY_RULES = countRules({
 });
 
 const CAPABILITIES = {
-  'custom-games': {
+  'vs-human': {},
+  'vs-bot': {
     bots: {
       difficulties: [],
       choose: (position) => MISERE_TALLY_RULES.legal(position)[0] ?? null,

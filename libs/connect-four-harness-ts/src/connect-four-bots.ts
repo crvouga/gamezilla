@@ -2,7 +2,7 @@ import {
   dropDisc,
   legalColumns,
 } from '@libs/connect-four-shared-ts/connect-four';
-import { configureCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+import { configureGameSession } from '@libs/game-session-harness-ts/game-session-ui';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { connectFourView, establishConnectFour } from './connect-four-actions';
@@ -18,16 +18,16 @@ export const establishConnectFourBotPosition = scenarioAction({
         active: false,
       })
     );
-    await configureCustomGame(s, 'alice', {
+    await configureGameSession(s, 'alice', {
       operation: 'difficulty',
       side: 'black',
       difficulty: 'hard',
     });
-    await configureCustomGame(s, 'alice', { operation: 'ready' });
-    await configureCustomGame(s, 'alice', { operation: 'start' });
+    await configureGameSession(s, 'alice', { operation: 'ready' });
+    await configureGameSession(s, 'alice', { operation: 'start' });
     for (const [index, column] of moves.entries()) {
       const view = await connectFourView(s);
-      await configureCustomGame(s, 'alice', {
+      await configureGameSession(s, 'alice', {
         operation: 'move',
         uci: String(column),
         ply: view.game.moves.length,

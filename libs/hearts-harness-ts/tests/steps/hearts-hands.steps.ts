@@ -4,7 +4,7 @@
  */
 
 import { expect } from 'bun:test';
-import { openCustomGames } from '@libs/game-session-harness-ts/game-navigation';
+import { openGameSessions } from '@libs/game-session-harness-ts/game-navigation';
 import { partition } from '@libs/harness-ts/actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import { playFirstAllowedHeartsCard } from '@libs/hearts-harness-ts/hearts-actions';
@@ -60,7 +60,7 @@ async function seesEveryScore(w: HeartsWorld, actor: string, view: HeartsView) {
   for (const side of SIDES) expect(score(view, side)).toBe(score(host, side));
 }
 
-Given('{actor} is watching the custom game', (w, actor: string) =>
+Given('{actor} is watching the game session', (w, actor: string) =>
   plan(w, { watchers: [...(planned(w).watchers ?? []), actor] })
 );
 Given("{actor} is in {actor}'s space", (w, actor: string, host: string) =>
@@ -89,9 +89,9 @@ Given(
   }
 );
 
-When('{actor} watches the custom game', async (w, actor: string) => {
+When('{actor} watches the game session', async (w, actor: string) => {
   await table(w);
-  await w.s.apply(openCustomGames, actor, 'hearts');
+  await w.s.apply(openGameSessions, actor, 'hearts');
 });
 
 Then(

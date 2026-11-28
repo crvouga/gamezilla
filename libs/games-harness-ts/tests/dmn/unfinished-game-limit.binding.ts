@@ -32,7 +32,7 @@ import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { gamesHeldTo } from '../conformance-world';
 import { limitProbeChoice } from './limit-probe-choice';
 import {
-  CUSTOM_GAME_INPUT,
+  GAME_SESSION_INPUT,
   LIMIT_SPACE,
   limitRooms,
   MULTIPLAYER_LIMIT_TABLES,
@@ -45,12 +45,12 @@ const GAMES = gamesHeldTo('specs/games/unfinished-game-limit.dmn');
 
 const REASONS = {
   limit_reached: 'finish the current matched game',
-  restricted: 'finish the current custom game',
+  restricted: 'finish the current game session',
 } as const;
 
 /**
  * The server's refusal of seeking an opponent in `game`, with the earlier
- * matched games and the custom game under way of that game: each game is
+ * matched games and the game session under way of that game: each game is
  * its own layer, so every case runs through every game.
  */
 function serverEnforcementIn(game: HarnessGame): DecisionLayer {
@@ -108,7 +108,7 @@ bindDecisions({
               LIMIT.unfinishedMultiplayerGames,
               countInput(input, UNFINISHED_INPUT)
             ),
-            countInput(input, CUSTOM_GAME_INPUT)
+            countInput(input, GAME_SESSION_INPUT)
           )
         );
       },
@@ -123,7 +123,7 @@ bindDecisions({
       tables: MULTIPLAYER_LIMIT_TABLES,
       observes: ['answer', 'reason', 'offer'],
       seed: seedUnfinishedGames(GAMES[0]!),
-      // The device reads its space's custom game from the room, outside this
+      // The device reads its space's game session from the room, outside this
       // fixture's rows: the case's count stands for it.
       probe: (input) => {
         const games = createQuery(
@@ -134,7 +134,7 @@ bindDecisions({
         );
         const decision = useUnfinishedGamesDecision(() => ({
           multiplayer: games.rows().length,
-          customGames: countInput(input, CUSTOM_GAME_INPUT),
+          gameSessions: countInput(input, GAME_SESSION_INPUT),
         }));
         return () => outputsOf(decision());
       },

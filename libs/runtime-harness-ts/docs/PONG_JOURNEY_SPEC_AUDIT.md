@@ -47,7 +47,7 @@ Evidence under `.cache/pong/`:
 - `pong-journey-undefined-red.log`: the new journey fails undefined.
 - `pong-journey-bound-second.log`: the whole journey passes by itself.
 - `runtime-after-pong-journey.log`: all 126 runtime/journey checks pass,
-  including existing chess, custom-game, Connect Four and Battleship journeys.
+  including existing chess, game-session, Connect Four and Battleship journeys.
 - `pong-after-journey-reader.log`: all 61 Pong checks pass with the shared reader.
 - `pong-journey-quality.log`: all six affected unit/type/lint tasks pass.
 - `pong-journey-type-lint.log`: all six type/lint tasks, including the live

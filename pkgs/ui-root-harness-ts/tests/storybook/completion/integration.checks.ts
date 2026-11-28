@@ -4,7 +4,7 @@ import {
   expectFinalBoardReachable,
 } from './board-reachability';
 
-/** `story` is `<place>--<state>` of the custom game's stories (`result--you-win`, `stage--your-turn`). */
+/** `story` is `<place>--<state>` of the game session's stories (`result--you-win`, `stage--your-turn`). */
 async function open(
   page: Page,
   story: string,
@@ -13,7 +13,7 @@ async function open(
 ) {
   await page.setViewportSize(viewport);
   await page.goto(
-    `/iframe.html?id=screens-custom-games-${story}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=screens-game-sessions-${story}&viewMode=story&globals=theme:${theme}`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -57,10 +57,10 @@ for (const screen of [
         page,
       }) => {
         await open(page, `result--${state}`, screen, theme);
-        const headline = page.getByTestId('custom-game-result-headline');
+        const headline = page.getByTestId('game-session-result-headline');
         await expect(headline).toHaveCount(1);
         const actions = page.locator(
-          '[data-testid="custom-game-rematch"], [data-testid="custom-game-new"], [data-testid="custom-game-review-start"], [data-testid="custom-game-back"]'
+          '[data-testid="game-session-rematch"], [data-testid="game-session-new"], [data-testid="game-session-review-start"], [data-testid="game-session-back"]'
         );
         const first = await box(actions.first());
         const last = await box(actions.last());
@@ -68,19 +68,19 @@ for (const screen of [
         expect(last.y + last.height).toBeLessThanOrEqual(screen.height);
         const dialog = page.getByRole('dialog', { name: 'Game over' });
         await expect(
-          dialog.getByTestId('custom-game-result-headline')
+          dialog.getByTestId('game-session-result-headline')
         ).toBeInViewport({ ratio: 1 });
-        const board = page.getByTestId('custom-game-board');
+        const board = page.getByTestId('game-session-board');
         const before = await box(board);
         for (const action of await actions.all()) {
           await expect(action).toBeInViewport({ ratio: 1 });
           await expectOnTop(action);
         }
         for (const id of [
-          'custom-game-rematch',
-          'custom-game-new',
-          'custom-game-review-start',
-          'custom-game-back',
+          'game-session-rematch',
+          'game-session-new',
+          'game-session-review-start',
+          'game-session-back',
         ]) {
           expect(await page.getByTestId(id).count()).toBeLessThanOrEqual(1);
         }
@@ -93,9 +93,9 @@ for (const screen of [
             dialog.getByText(/jordan_plays 26, You 19/)
           ).toBeVisible();
         }
-        await expect(page.getByTestId('custom-game-history-stats')).toHaveCount(
-          1
-        );
+        await expect(
+          page.getByTestId('game-session-history-stats')
+        ).toHaveCount(1);
         await dialog.getByTestId('game-result-close').click();
         await expect(dialog).toHaveCount(0);
         expect(await box(board)).toEqual(before);
@@ -120,10 +120,10 @@ test('storybook integration: closing the literal two-line outcome reveals the fi
     { width: 390, height: 844 },
     'light'
   );
-  await expect(page.getByTestId('custom-game-outcome')).toContainText(
+  await expect(page.getByTestId('game-session-outcome')).toContainText(
     'Host starts the rematch.'
   );
-  const board = page.getByTestId('custom-game-board');
+  const board = page.getByTestId('game-session-board');
   const before = await box(board);
   await page.getByTestId('game-result-close').click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
@@ -153,7 +153,7 @@ for (const sample of [
       page,
     }) => {
       await open(page, sample.story, { width, height: 900 }, 'light');
-      const content = page.getByTestId('custom-game-content');
+      const content = page.getByTestId('game-session-content');
       await expect(content.getByText('Live', { exact: true })).toHaveCount(0);
       if (sample.says !== null)
         await expect(
@@ -161,9 +161,11 @@ for (const sample of [
         ).toBeVisible();
       if (sample.story.startsWith('stage-moves--')) {
         await expect(
-          page.getByTestId('custom-game-back-to-live')
+          page.getByTestId('game-session-back-to-live')
         ).toBeVisible();
-        await expect(page.getByTestId('custom-game-review-live')).toBeVisible();
+        await expect(
+          page.getByTestId('game-session-review-live')
+        ).toBeVisible();
       }
     });
 
@@ -186,7 +188,7 @@ for (const story of [
     ).toHaveCount(0);
     await expect(
       page
-        .getByTestId('custom-game-board')
+        .getByTestId('game-session-board')
         .locator('button:enabled:not([aria-disabled="true"])')
     ).toHaveCount(0);
   });
@@ -194,7 +196,7 @@ for (const story of [
 
 // regression: completed-game-next-actions-below-board
 // Exercise the frame's actual reactive transition, not only static end-state fixtures.
-// regression: custom-game-result-covers-resign-done
+// regression: game-session-result-covers-resign-done
 test('storybook integration: resigning from the game menu keeps one outcome and the confirmation acknowledgment, then the moves and back', async ({
   page,
 }) => {
@@ -204,28 +206,28 @@ test('storybook integration: resigning from the game menu keeps one outcome and 
     { width: 390, height: 844 },
     'light'
   );
-  await page.getByTestId('custom-game-resign').click();
-  await page.getByTestId('custom-game-resign-confirm').click();
-  const done = page.getByTestId('custom-game-resign-done');
+  await page.getByTestId('game-session-resign').click();
+  await page.getByTestId('game-session-resign-confirm').click();
+  const done = page.getByTestId('game-session-resign-done');
   await expect(done).toBeVisible();
   await done.click();
-  await expect(page.getByTestId('custom-game-result-headline')).toHaveCount(1);
-  await expect(page.getByTestId('custom-game-rematch')).toHaveCount(1);
-  await expect(page.getByTestId('custom-game-result-headline')).toContainText(
+  await expect(page.getByTestId('game-session-result-headline')).toHaveCount(1);
+  await expect(page.getByTestId('game-session-rematch')).toHaveCount(1);
+  await expect(page.getByTestId('game-session-result-headline')).toContainText(
     'You lost'
   );
   // How it ended is the result card's caption, under its headline.
-  await expect(page.getByTestId('custom-game-outcome')).toContainText(
+  await expect(page.getByTestId('game-session-outcome')).toContainText(
     'You resigned.'
   );
   await page.getByTestId('game-result-close').click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
-  await page.getByTestId('custom-game-review-start').click();
-  await expect(page.getByTestId('custom-game-reviewing')).toBeVisible();
-  await expect(page.getByTestId('custom-game-rematch')).toHaveCount(0);
-  await page.getByTestId('custom-game-back-to-live').click();
-  await expect(page.getByTestId('custom-game-reviewing')).toHaveCount(0);
-  await expect(page.getByTestId('custom-game-result-headline')).toHaveCount(1);
+  await page.getByTestId('game-session-review-start').click();
+  await expect(page.getByTestId('game-session-reviewing')).toBeVisible();
+  await expect(page.getByTestId('game-session-rematch')).toHaveCount(0);
+  await page.getByTestId('game-session-back-to-live').click();
+  await expect(page.getByTestId('game-session-reviewing')).toHaveCount(0);
+  await expect(page.getByTestId('game-session-result-headline')).toHaveCount(1);
 });
 
 // regression: game-record-current-selection-labeled-live
@@ -238,9 +240,11 @@ test('storybook integration: literal offline play says the connection is needed'
     { width: 390, height: 844 },
     'light'
   );
-  await expect(page.getByTestId('custom-game-connection-needed')).toBeVisible();
   await expect(
-    page.getByTestId('custom-game-content').getByText('Live', { exact: true })
+    page.getByTestId('game-session-connection-needed')
+  ).toBeVisible();
+  await expect(
+    page.getByTestId('game-session-content').getByText('Live', { exact: true })
   ).toHaveCount(0);
 });
 
@@ -254,7 +258,7 @@ test('storybook integration: literal cancelled board offers no drop instruction'
   ).toHaveCount(0);
   await expect(
     page
-      .getByTestId('custom-game-board')
+      .getByTestId('game-session-board')
       .locator('button:enabled:not([aria-disabled="true"])')
   ).toHaveCount(0);
 });
@@ -266,20 +270,20 @@ test('storybook integration: literal drawn geometry has no winning line', async 
 }) => {
   await page.setViewportSize({ width: 1440, height: 844 });
   await page.goto(
-    '/iframe.html?id=screens-custom-games-stage-board-priority--drawn&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-game-sessions-stage-board-priority--drawn&viewMode=story&globals=theme:light'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
     'true'
   );
-  await expect(page.getByTestId('custom-game-result-headline')).toContainText(
+  await expect(page.getByTestId('game-session-result-headline')).toContainText(
     'The game was drawn'
   );
-  const board = page.getByTestId('custom-game-board');
+  const board = page.getByTestId('game-session-board');
   await expect(board).toHaveAttribute('data-won', 'false');
   await expect(board.locator('[data-winning="true"]')).toHaveCount(0);
   await page.getByTestId('game-result-close').click();
-  await expectActionBelowBoard(page.getByTestId('custom-game-rematch'), board);
+  await expectActionBelowBoard(page.getByTestId('game-session-rematch'), board);
 });
 
 /** The board's width in `story` at 1440 × 844. */
@@ -292,7 +296,7 @@ async function boardWidth(page: Page, story: string, theme: string) {
     'true'
   );
   await page.evaluate(() => document.fonts.ready);
-  return (await box(page.getByTestId('custom-game-board'))).width;
+  return (await box(page.getByTestId('game-session-board'))).width;
 }
 
 // The reported 1440 × 844 captures ended before the last row. The stage now
@@ -301,16 +305,16 @@ async function boardWidth(page: Page, story: string, theme: string) {
 // the keyboard scrolls the screen, which a first-viewport PNG cannot do.
 for (const sample of [
   {
-    story: 'screens-custom-games-result--you-win',
-    played: 'screens-custom-games-stage--your-turn',
+    story: 'screens-game-sessions-result--you-win',
+    played: 'screens-game-sessions-stage--your-turn',
   },
   {
-    story: 'screens-custom-games-stage-board-priority--win',
-    played: 'screens-custom-games-stage-board-priority--two-players',
+    story: 'screens-game-sessions-stage-board-priority--win',
+    played: 'screens-game-sessions-stage-board-priority--two-players',
   },
   {
-    story: 'screens-custom-games-stage-board-priority--drawn',
-    played: 'screens-custom-games-stage-board-priority--two-players',
+    story: 'screens-game-sessions-stage-board-priority--drawn',
+    played: 'screens-game-sessions-stage-board-priority--two-players',
   },
 ]) {
   const { story } = sample;
@@ -322,7 +326,7 @@ for (const sample of [
       const played = await boardWidth(page, sample.played, theme);
       // The finished board keeps the size it was played at: never shrunk.
       expect(await boardWidth(page, story, theme)).toBe(played);
-      const headline = page.getByTestId('custom-game-result-headline');
+      const headline = page.getByTestId('game-session-result-headline');
       await expect(headline).toHaveCount(1);
       await expect(headline).toBeInViewport({ ratio: 1 });
       const close = page.getByTestId('game-result-close');
@@ -330,10 +334,10 @@ for (const sample of [
       await page.keyboard.press('Enter');
       await expect(page.getByRole('dialog')).toHaveCount(0);
       const actions = page.locator(
-        '[data-testid="custom-game-rematch"], [data-testid="custom-game-new"], [data-testid="custom-game-review-start"]'
+        '[data-testid="game-session-rematch"], [data-testid="game-session-new"], [data-testid="game-session-review-start"]'
       );
       expect(await actions.count()).toBeGreaterThan(0);
-      const board = page.getByTestId('custom-game-board');
+      const board = page.getByTestId('game-session-board');
       for (const action of await actions.all()) {
         await expect(action).toBeInViewport({ ratio: 1 });
         await expectActionBelowBoard(action, board);

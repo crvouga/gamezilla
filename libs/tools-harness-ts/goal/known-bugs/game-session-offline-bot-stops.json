@@ -1,0 +1,4 @@
+{
+  "summary": "Solo Game Session moves were refused offline and bots depended on a connected room.",
+  "regressionTest": "specs/games/game-session-offline.feature"
+}

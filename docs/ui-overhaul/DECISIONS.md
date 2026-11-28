@@ -7,7 +7,7 @@ ones that need your eye.
 ## Inputs
 
 1. **Review: the reference mockups are missing.** The brief points to
-   `design/custom-game/` (README, `Main`, `Play`, `Result`). That directory
+   `design/game-session/` (README, `Main`, `Play`, `Result`). That directory
    is not in this worktree, the main checkout, any local or remote branch, or
    `~/Downloads`. (`~/Downloads/{brand}-design-system-specs.zip` is an
    older component-contract spec, not these mockups.) I treated the brief's
@@ -125,12 +125,12 @@ ones that need your eye.
 19. **Setup: the player count is shown, not changed, for now.** Light
     Cycles and Word Tiles seat two to four, each count its own registered
     mode (`frame.players.modes`). Changing the count from the setup screen
-    would cancel the custom game, switch the space's selected game to the
+    would cancel the game session, switch the space's selected game to the
     sibling mode (the screen is mounted per game id) and create a new
-    custom game there: three operations, a navigation, and the space
+    game session there: three operations, a navigation, and the space
     following the host, with no single operation that does it atomically.
     That is too invasive to do safely in the frame commit, so the setup
-    shows the count read-only (`custom-game-players`) and each count stays
+    shows the count read-only (`game-session-players`) and each count stays
     its own entry in the game menu. A host-only stepper that does the switch
     is deferred.
 20. **Setup: every option is the frame's control, applied at once.** A
@@ -141,7 +141,7 @@ ones that need your eye.
     and sends later steps after it, last one last. A count offers only its
     range, so a value outside it cannot be entered, and the range line
     under it ("Choose from 1 to 9.") says why. Controls are
-    `custom-game-option-${id}` (chips `-${value}`; stepper `-decrease`,
+    `game-session-option-${id}` (chips `-${value}`; stepper `-decrease`,
     `-increase`, `-value`, range `-range`). Someone who may not set the
     game up reads the same options as text.
 21. **Setup: the viewer's role comes from decisions and seats only.** Host
@@ -154,7 +154,7 @@ ones that need your eye.
     person is told "All seats are taken. You'll watch.".
 22. **Review: Play: a watcher still sees the first side nearest.** The
     brief shows the person's own strip only when they are seated. But
-    `specs/games/custom-game-sides.feature` says "A watcher sees the first
+    `specs/games/game-session-sides.feature` says "A watcher sees the first
     side nearest" (and "A creator watching two bots sees the first side
     nearest"), and specs are read-only. So the seat below the board is the
     viewer's own when they sit, and otherwise the first side, the side
@@ -162,37 +162,37 @@ ones that need your eye.
     remaining seats go above the board: one is a strip, two or more are the
     rail. A watcher also gets the "You're watching" footer.
 23. **Mock / seam: the watcher count is read from the space.** Nothing
-    records who has a custom game open. `game-frame-watchers.ts` counts the
+    records who has a game session open. `game-frame-watchers.ts` counts the
     people connected to the space right now (`useConnectedSpaceRoster`,
     one per person) minus the people seated at the game. Someone in the
     space looking at another screen still counts. When games record their
     own watchers, replace the body of `useFrameWatcherCount`.
-24. **Mock / seam: rematch readiness for custom games.** Custom games store
+24. **Mock / seam: rematch readiness for game sessions.** Game sessions store
     no per-player rematch readiness: the host starts the rematch and every
     seat is kept. `game-frame-rematch-readiness.ts`
-    (`customGameRematchReadiness`) returns no readiness for every
+    (`gameSessionRematchReadiness`) returns no readiness for every
     standings row and one note, "Host starts the rematch", shown under the
     headline. Real readiness needs a data-model change (deferred); only
     that function's body changes when it lands.
 25. **Game over: "Change game" is the existing New game.** The brief's
     player actions are Rematch / Change game / Review, reusing the existing
-    operations. "Change game" is the `create` choice (`custom-game-new`). It
+    operations. "Change game" is the `create` choice (`game-session-new`). It
     opens a fresh setup where the options and seats are chosen again.
-    Rematch (`custom-game-rematch`) is the primary step. Both stay the
-    host's (`canCreate`), as before. Review (`custom-game-review-start`)
+    Rematch (`game-session-rematch`) is the primary step. Both stay the
+    host's (`canCreate`), as before. Review (`game-session-review-start`)
     steps back to the first position. A watcher gets Back to the space
-    (`custom-game-back`, the space's existing back) and Review.
+    (`game-session-back`, the space's existing back) and Review.
 26. **Play: a game's turn line replaces only "<Side> to move."** Where
     `frame.turnStatus` returns a line (Battleship, Hearts), it stands in for
     the default `<Side> to move.`. Every other line of the pill keeps the
     platform's lifecycle copy ("Ready to start.", the secret-choice count,
     "played by a stand-in bot", every ending such as "Black wins by
     resignation."), so journeys and steps read the same words. The pill
-    keeps `custom-game-status`, `role=status`, `aria-live=polite` and the
+    keeps `game-session-status`, `role=status`, `aria-live=polite` and the
     hidden lineup. During setup it stays in the status row. Once the game
     is played it sits between the board and the near seat.
 27. **Play: chips gained `tags`.** Hearts' harness reads
-    `custom-game-${side}-committed` / `-stand-in` badges at a four-seat
+    `game-session-${side}-committed` / `-stand-in` badges at a four-seat
     table, so `GamePlayerChip` takes a `tags` slot like the strip does (the
     game's `seats.facts`, Chosen, Stand-in bot). A chip's figure is the
     game's `seats.stat`, or the running clock in a timed game.

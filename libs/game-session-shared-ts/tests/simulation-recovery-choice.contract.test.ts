@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-commands';
+import { ChangeGameSession } from '@libs/game-session-shared-ts/game-session-commands';
 import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared-ts/room-storage';
 import { hybridRaceGame, timedRaceCodec } from './reference-hybrid-race';
 import { liveSessionRoom } from './reference-live-session-room';
@@ -17,7 +17,7 @@ test('a superseded recovery frame cannot take back a durably accepted hybrid cho
     await requestState(alice);
     const prior = (await rig.storage.loadLiveCheckpoint(rig.server.topic))!;
     alice.dispatch(
-      ChangeCustomGame({
+      ChangeGameSession({
         gameId: rig.current().id,
         revision: rig.current().revision,
         operation: 'move',

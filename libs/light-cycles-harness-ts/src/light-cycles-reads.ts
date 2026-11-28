@@ -1,4 +1,4 @@
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import {
@@ -41,23 +41,23 @@ export async function steeringShown(
   return { offered, status: board.steering };
 }
 
-/** Who holds `rider`'s seat in the custom game `actor` sees: a person's identity, or a bot. */
+/** Who holds `rider`'s seat in the game session `actor` sees: a person's identity, or a bot. */
 export async function seatShown(
   s: ProductHarness,
   actor: string,
   rider: LightCyclesRiderName
 ): Promise<{ readonly kind: string; readonly person: string } | null> {
-  const game = (await readCustomGameScreen(s, actor))?.current;
+  const game = (await readGameSessionScreen(s, actor))?.current;
   if (game == null) return null;
   return game[SEATS[LIGHT_CYCLES_RIDER_NAMES.indexOf(rider)]!];
 }
 
-/** Where the custom game `actor` sees stands: configuring, active, completed or cancelled. */
-export async function customGameStatusShown(
+/** Where the game session `actor` sees stands: configuring, active, completed or cancelled. */
+export async function gameSessionStatusShown(
   s: ProductHarness,
   actor: string
 ): Promise<string> {
-  return (await readCustomGameScreen(s, actor))?.current?.status ?? 'none';
+  return (await readGameSessionScreen(s, actor))?.current?.status ?? 'none';
 }
 
 /** The arena as the game's creator sees it, or as `actor` does. */
@@ -110,7 +110,7 @@ export async function gamesSeenBy(
 }
 
 /**
- * How `actor`'s screen shows who rides `rider` while the custom game is
+ * How `actor`'s screen shows who rides `rider` while the game session is
  * set up: a bot (with its level, when the seat names one), or not a bot.
  */
 export async function botShown(
@@ -123,18 +123,18 @@ export async function botShown(
     (await (
       await actorUi(s, actor)
     )
-      .get(`custom-game-${side}-person`)
+      .get(`game-session-${side}-person`)
       .text()) ?? '';
   const level = text.match(/\((easy|medium|hard)\)/)?.[1] ?? null;
   return { bot: text.startsWith('Bot'), level };
 }
 
-/** The member identity `actor`'s custom game screen knows them by. */
+/** The member identity `actor`'s game session screen knows them by. */
 export async function identityShown(
   s: ProductHarness,
   actor: string
 ): Promise<string> {
-  const me = (await readCustomGameScreen(s, actor))?.me;
-  if (me === undefined) throw new Error(`${actor} sees no custom game`);
+  const me = (await readGameSessionScreen(s, actor))?.me;
+  if (me === undefined) throw new Error(`${actor} sees no game session`);
   return me;
 }

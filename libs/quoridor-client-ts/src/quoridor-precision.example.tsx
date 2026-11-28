@@ -3,15 +3,15 @@ import { expect, userEvent, within } from 'storybook/test';
 /** Geometry is sampled before any input can scroll a control into view. */
 export async function expectQuoridorWorkingArea(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
-  const board = await canvas.findByTestId('custom-game-board');
-  const coordinates = canvas.queryByTestId('custom-game-board-coordinates');
+  const board = await canvas.findByTestId('game-session-board');
+  const coordinates = canvas.queryByTestId('game-session-board-coordinates');
   if (coordinates) {
     await expectQuoridorTargetVisible(board);
     await expectQuoridorTargetVisible(coordinates);
     return;
   }
-  const tools = canvas.getByTestId('custom-game-board-tools');
-  const picker = canvas.getByTestId('custom-game-board-precise-target');
+  const tools = canvas.getByTestId('game-session-board-tools');
+  const picker = canvas.getByTestId('game-session-board-precise-target');
   const boardRect = board.getBoundingClientRect();
   await expect(tools.getBoundingClientRect().top).toBeGreaterThanOrEqual(
     boardRect.bottom
@@ -76,12 +76,14 @@ export async function chooseQuoridorCoordinate(
 ) {
   const canvas = within(canvasElement);
   await expectQuoridorWorkingArea(canvasElement);
-  await userEvent.click(canvas.getByTestId('custom-game-board-precise-target'));
+  await userEvent.click(
+    canvas.getByTestId('game-session-board-precise-target')
+  );
   const document = within(canvasElement.ownerDocument.body);
   const search = document.queryByRole('searchbox');
   if (search) await userEvent.type(search, coordinate);
   const option = await document.findByTestId(
-    `custom-game-board-precise-${coordinate}`
+    `game-session-board-precise-${coordinate}`
   );
   await expectQuoridorTargetVisible(option);
   await userEvent.click(option);
@@ -93,7 +95,7 @@ export async function expectQuoridorGoalMarker(
   cell: string
 ) {
   const goal = within(canvasElement).getByTestId(
-    `custom-game-board-action-${cell}`
+    `game-session-board-action-${cell}`
   );
   const view = goal.ownerDocument.defaultView;
   if (!view) throw new Error('The story requires a browser window');
@@ -113,8 +115,8 @@ export async function expectQuoridorGoalMarker(
 // regression: quoridor-competing-cell-chrome
 export async function expectQuoridorCellHierarchy(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
-  const quiet = canvas.getByTestId('custom-game-board-action-a8');
-  const legal = canvas.getByTestId('custom-game-board-action-e2');
+  const quiet = canvas.getByTestId('game-session-board-action-a8');
+  const legal = canvas.getByTestId('game-session-board-action-e2');
   const view = quiet.ownerDocument.defaultView;
   if (!view) throw new Error('The story requires a browser window');
   const style = view.getComputedStyle(quiet);
@@ -147,7 +149,7 @@ export async function expectQuoridorBoardUsesColumn(
   if (!view) throw new Error('The story requires a browser window');
   if (view.innerWidth < 700 || view.innerHeight < 1000) return;
   const canvas = within(canvasElement);
-  const grid = canvas.getByTestId('custom-game-board');
+  const grid = canvas.getByTestId('game-session-board');
   const board = grid.getBoundingClientRect();
   const column = grid
     .closest('[data-quoridor-surface]')
@@ -169,7 +171,7 @@ export async function expectQuoridorPawnInk(
   if (!view) throw new Error('The story requires a browser window');
   for (const cell of cells) {
     const pawn = within(canvasElement).getByTestId(
-      `custom-game-board-action-${cell}`
+      `game-session-board-action-${cell}`
     );
     // The first painted ancestor is the square behind the glyph.
     let ground: Element | null = pawn;

@@ -47,18 +47,18 @@ async function expectDismissibleRefusal(
   await page.setViewportSize(viewport);
   const retried = await boardPlace(
     page,
-    'screens-custom-games-stage--choice-retried'
+    'screens-game-sessions-stage--choice-retried'
   );
-  await expect(page.getByTestId('custom-game-error')).toHaveCount(0);
+  await expect(page.getByTestId('game-session-error')).toHaveCount(0);
   const refused = await boardPlace(
     page,
-    'screens-custom-games-stage--choice-refused'
+    'screens-game-sessions-stage--choice-refused'
   );
   // The board is where it is once the choice is retried, to the pixel:
   // the refusal never takes a row of its own.
   expect(refused).toEqual(retried);
   // The refusal is shown and announced, in words.
-  const alert = page.getByTestId('custom-game-error');
+  const alert = page.getByTestId('game-session-error');
   await expect(alert).toBeVisible();
   await expect(alert).toHaveAttribute('role', 'alert');
   await expect(alert).toContainText('That move is not legal in this position.');

@@ -1,4 +1,4 @@
 {
-  "summary": "Verify Nightly browser job 139139045870 failed 'Reopening keeps local Pong as it was [finished, 2, 0]' in its setup: arranging the score played the deciding point, the finished board took its paddle controls away between reading the court and guiding the paddles, and guiding then timed out waiting for custom-game-board-black-control. A guide that finds no control because the game just finished now counts as that point.",
+  "summary": "Verify Nightly browser job 139139045870 failed 'Reopening keeps local Pong as it was [finished, 2, 0]' in its setup: arranging the score played the deciding point, the finished board took its paddle controls away between reading the court and guiding the paddles, and guiding then timed out waiting for game-session-board-black-control. A guide that finds no control because the game just finished now counts as that point.",
   "regressionTest": "libs/pong-harness-ts/tests/pong-final-point.test.ts"
 }

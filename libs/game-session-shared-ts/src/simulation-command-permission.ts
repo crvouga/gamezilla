@@ -25,25 +25,27 @@ export function simulationCommandPermission(
     };
   if (CheckpointLocalSimulation.is(message))
     return {
-      key: PERMISSION.gameCustomCreate,
+      key: PERMISSION.gameSessionCreate,
       reason: 'only the creator records a game on this device',
     };
   const matched = topic.startsWith(`${MATCH_ROOM_MODULE}:`);
   if (SimulationStateChanged.is(message))
     return {
-      key: matched ? ROOM_SERVICE_GRANT : PERMISSION.gameCustomCreate,
+      key: matched ? ROOM_SERVICE_GRANT : PERMISSION.gameSessionCreate,
       reason: 'only the creator shares a game running on this device',
     };
   if (SubmitSimulationInput.is(message))
     return {
-      key: matched ? PERMISSION.gameMultiplayerPlay : PERMISSION.gameCustomPlay,
+      key: matched
+        ? PERMISSION.gameMultiplayerPlay
+        : PERMISSION.gameSessionPlay,
       reason: 'only participants may play',
     };
   if (RequestSimulationSnapshot.is(message))
     return {
       key: matched
         ? PERMISSION.gameMultiplayerWatch
-        : PERMISSION.gameCustomWatch,
+        : PERMISSION.gameSessionWatch,
       reason: 'join the space to watch',
     };
   return null;

@@ -86,7 +86,7 @@ describe('taskBudgetSeconds', () => {
   });
 
   // regression: games-spec-part-two-exceeds-task-budget
-  test('the hashed custom-game-away part keeps its measured allowance', () => {
+  test('the hashed game-session-away part keeps its measured allowance', () => {
     const taskId = '@libs/games-harness-ts#test:spec:2';
     expect(taskBudgetSeconds(taskId, false, {})).toBe(420);
     expect(taskBudgetSeconds(taskId, true, {})).toBe(840);

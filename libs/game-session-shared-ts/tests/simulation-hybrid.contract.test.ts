@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-commands';
-import { assertCustomGamePosition } from '@libs/game-session-shared-ts/custom-game-position';
+import { ChangeGameSession } from '@libs/game-session-shared-ts/game-session-commands';
+import { assertGameSessionPosition } from '@libs/game-session-shared-ts/game-session-position';
 import { SubmitSimulationInput } from '@libs/game-session-shared-ts/simulation-messages';
 import { CheckpointSimulation } from '@libs/game-session-shared-ts/simulation-session-state';
 import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-root-shared-ts/service-identity';
@@ -30,7 +30,7 @@ test('a turn accepted during live motion preserves both the turn and the advanci
     );
     await requestState(alice);
     alice.dispatch(
-      ChangeCustomGame({
+      ChangeGameSession({
         gameId: rig.current().id,
         revision: rig.current().revision,
         operation: 'move',
@@ -57,7 +57,7 @@ test('a turn accepted during live motion preserves both the turn and the advanci
     expect(after.acknowledged).toEqual({ white: 1 });
     expect(timedRaceCodec.decode(after.state)?.inputs).toEqual(['6:white:1:7']);
     bob.dispatch(
-      ChangeCustomGame({
+      ChangeGameSession({
         gameId: rig.current().id,
         revision: rig.current().revision,
         operation: 'move',
@@ -75,10 +75,10 @@ test('a turn accepted during live motion preserves both the turn and the advanci
     expect(rig.current().turnStartedAt).toBe(116);
     const registry = createTurnGames([hybridRaceGame.registration]);
     expect(() =>
-      assertCustomGamePosition(rig.current(), registry)
+      assertGameSessionPosition(rig.current(), registry)
     ).not.toThrow();
     expect(() =>
-      assertCustomGamePosition({ ...rig.current(), moves: [] }, registry)
+      assertGameSessionPosition({ ...rig.current(), moves: [] }, registry)
     ).toThrow('does not match its action history');
   } finally {
     rig.dispose();
@@ -102,7 +102,7 @@ test('a queued checkpoint from before a turn cannot undo that turn at the same t
     const before = await requestState(alice);
     const execution = rig.current().execution!;
     alice.dispatch(
-      ChangeCustomGame({
+      ChangeGameSession({
         gameId: rig.current().id,
         revision: rig.current().revision,
         operation: 'move',

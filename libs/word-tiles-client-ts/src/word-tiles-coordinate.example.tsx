@@ -18,7 +18,7 @@ import {
  */
 function underBoard(canvasElement: HTMLElement): HTMLElement {
   return (
-    within(canvasElement).queryByTestId('custom-game-board-overview') ??
+    within(canvasElement).queryByTestId('game-session-board-overview') ??
     within(canvasElement).getByRole('button', {
       name: 'Board tools: zoom and find a square',
     })
@@ -30,7 +30,7 @@ async function assertFocusedCoordinates(
   id: string
 ) {
   const cell = within(canvasElement).getByTestId(
-    `custom-game-board-cell-${id}`
+    `game-session-board-cell-${id}`
   );
   await expect(cell).toHaveFocus();
   const board = cell.closest('[data-component="WordTileBoard"]');
@@ -78,7 +78,7 @@ export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
   // regression: word-tiles-enlarged-context-loss
   const canvas = within(canvasElement);
   const tools = await boardViewTools(canvasElement);
-  const overview = tools.getByTestId('custom-game-board-overview');
+  const overview = tools.getByTestId('game-session-board-overview');
   await expect(overview).toBeVisible();
   await assertClear(overview);
   await expect(overview.getBoundingClientRect().width).toBeGreaterThanOrEqual(
@@ -93,7 +93,7 @@ export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
   await closeBoardView(canvasElement);
   await checkPrecisionWorkspace(canvasElement);
   canvas
-    .getByTestId('custom-game-board-cell-h8')
+    .getByTestId('game-session-board-cell-h8')
     .focus({ preventScroll: true });
   await assertFocusedCoordinates(canvasElement, 'h8');
   await viewPrecisionRegion(canvasElement, 'View a1 to e5');
@@ -110,7 +110,7 @@ export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
     await userEvent.keyboard(keys);
     await assertFocusedCoordinates(canvasElement, cell);
   }
-  await expectBoardMap(canvasElement, 'custom-game-board');
+  await expectBoardMap(canvasElement, 'game-session-board');
 }
 
 /** Literal 390×844 and 1440×900 placements must use the native available area. */
@@ -135,6 +135,6 @@ async function checkPrecisionWorkspace(
     await expect(
       underBoard(canvasElement).getBoundingClientRect().width
     ).toBeGreaterThanOrEqual(132);
-  await assertClear(canvas.getByTestId('custom-game-board-rack'));
-  await assertClear(canvas.getByTestId('custom-game-board-submit'));
+  await assertClear(canvas.getByTestId('game-session-board-rack'));
+  await assertClear(canvas.getByTestId('game-session-board-submit'));
 }

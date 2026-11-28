@@ -28,21 +28,21 @@ import {
 } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { assertGameId } from './assert-game-id';
-import { withCustomGames } from './custom-game-definition';
+import { withGameSessions } from './game-session-definition';
 import {
   DefinedPuzzleGame,
   type PuzzleOnlyGame,
 } from './puzzle-game-definition';
-import { withSimulationCustomGames } from './simulation-custom-definition';
 import { simulationMatchRoom } from './simulation-match-definition';
+import { withSimulationGameSessions } from './simulation-room-definition';
 import { assertTurnGameCapabilities } from './turn-game-capabilities';
 
 /** One shared product lifecycle, independently bound to each game's execution capabilities. */
 const GAME_SESSIONS: SharedGameModule = {
   id: 'game-session',
   bind: (rules) =>
-    withSimulationCustomGames(
-      withCustomGames(
+    withSimulationGameSessions(
+      withGameSessions(
         {
           id: 'game-session',
           commandRouters: [],

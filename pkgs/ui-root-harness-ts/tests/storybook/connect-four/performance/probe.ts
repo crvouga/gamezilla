@@ -24,8 +24,8 @@ export function defineProfiles(recorded: boolean) {
         await openBoard(page, 'drop-a-disc', theme);
         await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
         // Two real moves warm the interaction path; retain every subsequent sample.
-        await page.getByTestId('custom-game-board-column-1').click();
-        await page.getByTestId('custom-game-board-column-2').click();
+        await page.getByTestId('game-session-board-column-1').click();
+        await page.getByTestId('game-session-board-column-2').click();
         await startTiming(page);
         await cdp.send('Profiler.start');
         const samples = [];

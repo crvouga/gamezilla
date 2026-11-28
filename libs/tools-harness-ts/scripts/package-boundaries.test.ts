@@ -353,13 +353,13 @@ describe('the game API', () => {
 
   test('a game never imports a framework internal, in source, tests or types', () => {
     for (const text of [
-      "import { newCustomGame } from '@libs/game-session-shared-ts/custom-game-state';",
-      "import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';",
-      "export { newCustomGame } from '@libs/game-session-shared-ts/custom-game-state';",
-      "const state = await import('@libs/game-session-shared-ts/custom-game-state');",
+      "import { newGameSession } from '@libs/game-session-shared-ts/game-session-state';",
+      "import type { GameSession } from '@libs/game-session-shared-ts/game-session-state';",
+      "export { newGameSession } from '@libs/game-session-shared-ts/game-session-state';",
+      "const state = await import('@libs/game-session-shared-ts/game-session-state');",
     ])
       expect(imports(text)).toEqual([
-        "tests/race.test.ts: imports @libs/game-session-shared-ts/custom-game-state, which is @libs/game-session-shared-ts's own implementation, not its game API (game-definition). A game depends on what the framework promises: use a public module, add a focused read, action or fixture helper to one, or move a test of the framework's own behaviour into the framework",
+        "tests/race.test.ts: imports @libs/game-session-shared-ts/game-session-state, which is @libs/game-session-shared-ts's own implementation, not its game API (game-definition). A game depends on what the framework promises: use a public module, add a focused read, action or fixture helper to one, or move a test of the framework's own behaviour into the framework",
       ]);
   });
 
@@ -376,7 +376,7 @@ describe('the game API', () => {
   test('the framework itself may use its own internals', () => {
     expect(
       imports(
-        "import { newCustomGame } from '@libs/game-session-shared-ts/custom-game-state';",
+        "import { newGameSession } from '@libs/game-session-shared-ts/game-session-state';",
         { name: '@libs/games-harness-ts', gameRegistry: true }
       )
     ).toEqual([]);

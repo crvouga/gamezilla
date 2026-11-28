@@ -23,17 +23,17 @@ test('storybook integration: Hearts refused five of clubs accepts a trusted expl
     .getByRole('toolbar', { name: 'Your hand' })
     .getByRole('button');
   for (const index of [0, 1, 2]) await cards.nth(index).tap();
-  await page.getByTestId('custom-game-board-pass').tap();
-  const board = page.getByTestId('custom-game-board');
+  await page.getByTestId('game-session-board-pass').tap();
+  const board = page.getByTestId('game-session-board');
   await expect(board).toHaveAttribute('data-position', /:play:/);
   const position = await board.getAttribute('data-position');
   await pressRefusedCard(
     page,
-    page.getByTestId('custom-game-board-card-5C'),
+    page.getByTestId('game-session-board-card-5C'),
     true
   );
   await expect(board).toHaveAttribute('data-position', position ?? '');
-  await expect(page.getByTestId('custom-game-board-refusal')).toHaveText(
+  await expect(page.getByTestId('game-session-board-refusal')).toHaveText(
     'The first trick begins with the two of clubs.'
   );
   await captureHearts(page, info, 'refused-five-of-clubs');

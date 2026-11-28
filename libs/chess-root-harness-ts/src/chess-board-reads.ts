@@ -1,10 +1,10 @@
 import { readPuzzleBoardProbe } from '@libs/chess-puzzle-harness-ts/chess-puzzle-solve-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import type { ChessBoardProbe } from '@pkgs/chess-board-core-shared-ts/probe';
-import { readCustomGameBoardProbe } from './chess-custom-game-board';
+import { readGameSessionBoardProbe } from './chess-game-session-board';
 
 /**
- * The chess board on the person's screen, as painted: a Custom Game's board
+ * The chess board on the person's screen, as painted: a Game Session's board
  * while one is shown, otherwise the puzzle board, or `null` with no board.
  */
 export async function readShownChessBoard(
@@ -12,7 +12,7 @@ export async function readShownChessBoard(
   actor: string
 ): Promise<ChessBoardProbe | null> {
   return (
-    (await readCustomGameBoardProbe(s, actor)) ??
+    (await readGameSessionBoardProbe(s, actor)) ??
     (await readPuzzleBoardProbe(s, actor))
   );
 }

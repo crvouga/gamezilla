@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
 import { InMemoryClientStorage } from '@pkgs/room-adapter-memory-shared-ts/client-storage';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -51,7 +51,7 @@ test('presentation waits for recovery before refreshing an existing local input 
     room.destroy();
     const restored = await rig.connect('alice', restoredStorage);
     expect(
-      CustomGamesAttr.from(restored.getSnapshot()).current?.execution
+      GameSessionsAttr.from(restored.getSnapshot()).current?.execution
     ).toBeDefined();
     local = new LocalSimulationSession({ ...options, room: restored });
     expect(local.isReady()).toBe(false);

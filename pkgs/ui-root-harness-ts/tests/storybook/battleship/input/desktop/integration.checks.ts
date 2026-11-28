@@ -28,13 +28,13 @@ test('storybook integration: battleship desktop first view fits target and confi
     'light',
     info
   );
-  const grid = page.getByTestId('custom-game-board-target-grid');
-  const corner = page.getByTestId('custom-game-board-target-j10');
-  const fire = page.getByTestId('custom-game-board-fire');
-  const cancel = page.getByTestId('custom-game-board-cancel-aim');
+  const grid = page.getByTestId('game-session-board-target-grid');
+  const corner = page.getByTestId('game-session-board-target-j10');
+  const fire = page.getByTestId('game-session-board-fire');
+  const cancel = page.getByTestId('game-session-board-cancel-aim');
   await expect(grid).toBeInViewport({ ratio: 1 });
   await expect(fire).toBeInViewport({ ratio: 1 });
-  await expect(page.getByTestId('custom-game-seat-near')).toBeInViewport({
+  await expect(page.getByTestId('game-session-seat-near')).toBeInViewport({
     ratio: 1,
   });
   await expect(page.locator('[data-game-slot="controls"]')).toBeInViewport({

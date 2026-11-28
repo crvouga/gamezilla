@@ -55,7 +55,7 @@ export default function GameLobbyExample(
         }
       >
         <GameModeCard
-          eyebrow="Custom game"
+          eyebrow="Game session"
           title="Connect Four"
           summary={
             <Show when={props.summary}>
