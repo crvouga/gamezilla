@@ -20,13 +20,14 @@ export function materialVariables() {
   const direction = 'to bottom right';
   const lit = colorVar('materialGlint');
   const shade = colorVar('actionShade');
+  const bounce = colorVar('interactiveHover');
   const finishes = {
     canvas: `linear-gradient(${direction}, ${colorVar('surfaceElevated')}, ${colorVar('surface')} 30%, ${colorVar('background')} 76%)`,
-    surface: `linear-gradient(${direction}, ${colorVar('surfaceOverlay')}, ${colorVar('surfaceElevated')} 26%, ${colorVar('surface')} 88%)`,
+    surface: `linear-gradient(155deg, ${colorVar('interactivePress')}, ${bounce} 21%, transparent 57%, ${shade})`,
     well: `linear-gradient(${direction}, ${colorVar('surfaceMuted')}, ${colorVar('background')} 68%, ${colorVar('surface')})`,
-    action: `linear-gradient(${direction}, ${lit}, transparent 42%, ${shade} 94%)`,
-    piece: `radial-gradient(ellipse at 28% 18%, ${colorVar('interactiveHover')}, transparent 54%), linear-gradient(${direction}, transparent 46%, ${shade})`,
-    slot: `linear-gradient(${direction}, ${shade}, transparent 60%, ${colorVar('interactiveHover')})`,
+    action: `radial-gradient(ellipse at 32% 0%, ${lit}, transparent 68%), linear-gradient(176deg, ${bounce}, transparent 38%, transparent 65%, ${shade})`,
+    piece: `radial-gradient(ellipse at 32% 21%, ${colorVar('interactivePress')}, transparent 53%), radial-gradient(ellipse at 40% 30%, transparent 48%, ${shade} 80%, ${colorVar('onTintScrim')})`,
+    slot: `linear-gradient(150deg, ${shade}, transparent 44%, transparent 72%, ${bounce})`,
   };
 
   return [

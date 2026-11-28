@@ -42,6 +42,13 @@ export function useFitWords(): (
     if (values.length === 2) return t`${first} or ${last}`;
     return t`${values.join(', ')} players`;
   };
+  const playersAndBots = (present: number, bots: number): string => {
+    if (present === 1)
+      return bots === 1 ? t`1 player + 1 bot` : t`1 player + ${bots} bots`;
+    return bots === 1
+      ? t`${present} players + 1 bot`
+      : t`${present} players + ${bots} bots`;
+  };
   // With the head count, a game that seats fewer says who sits out.
   const watch = (n: number): string => t`${n} watching`;
   return (fit, present, guest) => {
@@ -58,9 +65,7 @@ export function useFitWords(): (
     // Bots are the host's to add: a guest reads only how many it seats.
     if (guest === true || present === undefined)
       return t`${fit.target} players`;
-    return fit.bots === 1
-      ? t`${present} players + 1 bot`
-      : t`${present} players + ${fit.bots} bots`;
+    return playersAndBots(present, fit.bots);
   };
 }
 

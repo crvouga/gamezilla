@@ -14,7 +14,7 @@ export default function GameTileExample(): JSX.Element {
       </div>
       <div class="box flex-row flex-wrap gap-3">
         <For each={GAME_TILE_MOTIFS}>
-          {(motif) => <GameTile motif={motif} size="lg" />}
+          {(motif) => <GameTile motif={motif} size="hero" />}
         </For>
       </div>
       <div class="box flex-row flex-wrap gap-3">

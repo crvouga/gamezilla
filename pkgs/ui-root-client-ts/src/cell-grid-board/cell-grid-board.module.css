@@ -394,24 +394,24 @@
   display: grid;
   place-items: center;
   box-sizing: border-box;
-  width: 72%;
-  height: 72%;
-  border: max(1px, calc(6cqw / var(--cell-grid-columns))) solid
+  width: 80%;
+  height: 80%;
+  border: max(1px, calc(4cqw / var(--cell-grid-columns))) solid
     var(--ui-color-game-sokoban-canvas);
   color: var(--ui-color-game-sokoban-canvas);
   font-size: calc(42cqw / var(--cell-grid-columns));
 }
 .board[data-board-theme="sokoban"] .cell[data-identity="one"] .glyph {
   border-radius: 18%;
-  background: var(--ui-color-game-sokoban-one);
+  background: var(--ui-finish-piece) var(--ui-color-game-sokoban-one);
 }
 .board[data-board-theme="sokoban"] .cell[data-identity="two"] .glyph {
   border-radius: 18%;
-  background: var(--ui-color-game-sokoban-two);
+  background: var(--ui-finish-piece) var(--ui-color-game-sokoban-two);
 }
 .board[data-board-theme="sokoban"] .cell[data-identity="three"] .glyph {
   border-radius: 50%;
-  background: var(--ui-color-game-sokoban-accent);
+  background: var(--ui-finish-piece) var(--ui-color-game-sokoban-accent);
 }
 .board[data-board-theme="sokoban"] .cell[data-identity="four"] .glyph {
   width: 52%;

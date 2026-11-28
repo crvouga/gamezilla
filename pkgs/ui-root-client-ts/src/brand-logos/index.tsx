@@ -2,10 +2,7 @@
 
 import type { JSX } from '@solidjs/web';
 
-const googleMark = new URL(
-  '../../assets/brand-logos/google-g.png',
-  import.meta.url
-).href;
+import googleMark from '../../assets/brand-logos/google-g.webp?inline';
 
 export type BrandIconSvgProps = {
   size: number;

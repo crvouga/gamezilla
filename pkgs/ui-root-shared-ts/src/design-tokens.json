@@ -61,18 +61,18 @@
       "$description": "Secondary text, timestamps, inactive (`ink-muted`).",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.7255, 0.7216, 0.7098],
+        "components": [0.7529, 0.749, 0.7373],
         "alpha": 1,
-        "hex": "#b9b8b5"
+        "hex": "#c0bfbc"
       }
     },
     "icon": {
       "$description": "Glyphs at rest; the `ink-muted` value, held to 3:1.",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.7255, 0.7216, 0.7098],
+        "components": [0.7529, 0.749, 0.7373],
         "alpha": 1,
-        "hex": "#b9b8b5"
+        "hex": "#c0bfbc"
       }
     },
     "tint": {
@@ -1191,7 +1191,7 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [0.0, 0.0, 0.0],
-        "alpha": 0.06,
+        "alpha": 0.12,
         "hex": "#000000"
       },
       "$description": "Subtle lower edge of a filled control."
@@ -1887,7 +1887,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 0,
+            "value": 1,
             "unit": "px"
           },
           "spread": {
@@ -1907,7 +1907,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 3,
+            "value": 5,
             "unit": "px"
           },
           "spread": {
@@ -1974,7 +1974,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 0,
+            "value": 1,
             "unit": "px"
           },
           "spread": {
@@ -1994,7 +1994,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 0,
+            "value": 2,
             "unit": "px"
           },
           "spread": {
@@ -2014,7 +2014,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 3,
+            "value": 5,
             "unit": "px"
           },
           "spread": {
@@ -2037,7 +2037,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 2,
+            "value": 3,
             "unit": "px"
           },
           "spread": {
@@ -2057,7 +2057,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 0,
+            "value": 1,
             "unit": "px"
           },
           "spread": {
@@ -2081,7 +2081,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 0,
+            "value": 1,
             "unit": "px"
           },
           "spread": {
@@ -2101,7 +2101,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 1,
+            "value": 3,
             "unit": "px"
           },
           "spread": {
@@ -2121,7 +2121,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 2,
+            "value": 4,
             "unit": "px"
           },
           "spread": {
@@ -2144,7 +2144,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 3,
+            "value": 4,
             "unit": "px"
           },
           "spread": {
@@ -2164,7 +2164,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 0,
+            "value": 1,
             "unit": "px"
           },
           "spread": {
@@ -2188,7 +2188,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 0,
+            "value": 1,
             "unit": "px"
           },
           "spread": {
@@ -2208,7 +2208,7 @@
             "unit": "px"
           },
           "blur": {
-            "value": 16,
+            "value": 14,
             "unit": "px"
           },
           "spread": {

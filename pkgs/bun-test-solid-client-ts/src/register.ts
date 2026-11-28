@@ -13,7 +13,7 @@
  *   `onResolve` cannot rewrite bare specifiers imported from `node_modules`,
  *   so conditions are the only lever.
  * - `*.module.css` → isolated class names; plain `.css` → empty module;
- *   media assets (`.mp3`, images, fonts) → their file path.
+ *   media assets → their file path, or a data URL for inline images.
  * - happy-dom supplies `document`/`window`; Bun's own fetch / streams / timers
  *   / crypto are restored afterwards so in-process Hono, SQLite and harness HTTP
  *   stay Bun's.
@@ -28,7 +28,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs';
-import { dirname, join } from 'node:path';
+import { dirname, extname, join, resolve } from 'node:path';
 import { threadId } from 'node:worker_threads';
 import type * as Babel from '@babel/core';
 import { GlobalRegistrator } from '@happy-dom/global-registrator';
@@ -174,6 +174,22 @@ plugin({
       loader: 'js',
     }));
     build.onLoad({ filter: CSS_FILTER }, (args) => cssModule(args.path));
+    build.onResolve({ filter: /\.(?:svg|webp)\?inline$/ }, (args) => ({
+      path: resolve(
+        dirname(args.importer),
+        args.path.slice(0, -'?inline'.length)
+      ),
+      namespace: 'inline-image',
+    }));
+    build.onLoad({ filter: /.*/, namespace: 'inline-image' }, ({ path }) => {
+      const type =
+        extname(path) === '.svg' ? 'svg+xml' : extname(path).slice(1);
+      const data = readFileSync(path).toString('base64');
+      return {
+        contents: `export default "data:image/${type};base64,${data}";`,
+        loader: 'js',
+      };
+    });
     build.onLoad({ filter: MEDIA_FILTER }, (args) => ({
       contents: `module.exports = ${JSON.stringify(args.path)};`,
       loader: 'js',

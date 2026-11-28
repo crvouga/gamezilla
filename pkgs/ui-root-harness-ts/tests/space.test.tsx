@@ -377,6 +377,33 @@ describe('SpaceInGameTemplate', () => {
 });
 
 describe('SpaceLauncher', () => {
+  // regression: space-launcher-singular-human
+  test('a watching guest sees one player in the host’s bot-filled games', () => {
+    renderUi(() => (
+      <SpaceLauncher
+        role={GUEST}
+        hostName="bob"
+        present={1}
+        games={[
+          {
+            key: 'chess',
+            name: 'Chess',
+            motif: 'checkered',
+            players: { counts: [2], bots: true },
+          },
+          {
+            key: 'hearts',
+            name: 'Hearts',
+            motif: 'cards',
+            players: { counts: [4], bots: true },
+          },
+        ]}
+      />
+    ));
+    expect(screen.getByText('1 player + 1 bot')).toBeDefined();
+    expect(screen.getByText('1 player + 3 bots')).toBeDefined();
+  });
+
   test('a guest suggests a game that fits; one too few are here for cannot be suggested', () => {
     const onSuggest = mock();
     renderUi(() => (

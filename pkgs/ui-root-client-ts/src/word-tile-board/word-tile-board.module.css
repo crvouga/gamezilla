@@ -55,7 +55,7 @@
   gap: var(--ui-space-hairline);
   padding: var(--ui-space-1);
   border-radius: var(--ui-radius-card);
-  background: var(--ui-finish-piece) var(--ui-color-background);
+  background: var(--ui-finish-surface) var(--ui-color-background);
   box-shadow: var(--ui-depth-raised);
   color: var(--ui-color-text);
   container-type: inline-size;
@@ -106,7 +106,7 @@
   background: var(--ui-finish-piece) var(--ui-color-game-word-tiles-accent);
   color: var(--ui-color-board-card-ink);
   border-color: var(--ui-color-game-word-tiles-muted);
-  border-bottom-width: 2px;
+  border-radius: min(15%, var(--ui-radius-sm));
   box-shadow: var(--ui-depth-piece);
 }
 .cell[data-state="recent"] {

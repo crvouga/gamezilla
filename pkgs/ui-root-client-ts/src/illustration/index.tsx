@@ -1,6 +1,27 @@
 /** @jsxImportSource @solidjs/web */
 import { componentDataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import artistPaletteImage from '../../assets/fluent-emoji/artist-palette.webp?inline';
+import barChartImage from '../../assets/fluent-emoji/bar-chart.webp?inline';
+import bellImage from '../../assets/fluent-emoji/bell.webp?inline';
+import booksImage from '../../assets/fluent-emoji/books.webp?inline';
+import cardFileBoxImage from '../../assets/fluent-emoji/card-file-box.webp?inline';
+import crossedSwordsImage from '../../assets/fluent-emoji/crossed-swords.webp?inline';
+import gearImage from '../../assets/fluent-emoji/gear.webp?inline';
+import handshakeImage from '../../assets/fluent-emoji/handshake.webp?inline';
+import identificationCardImage from '../../assets/fluent-emoji/identification-card.webp?inline';
+import magnifyingGlassTiltedLeftImage from '../../assets/fluent-emoji/magnifying-glass-tilted-left.webp?inline';
+import mantelpieceClockImage from '../../assets/fluent-emoji/mantelpiece-clock.webp?inline';
+import mobilePhoneImage from '../../assets/fluent-emoji/mobile-phone.webp?inline';
+import openBookImage from '../../assets/fluent-emoji/open-book.webp?inline';
+import puzzlePieceImage from '../../assets/fluent-emoji/puzzle-piece.webp?inline';
+import robotImage from '../../assets/fluent-emoji/robot.webp?inline';
+import sportsMedalImage from '../../assets/fluent-emoji/sports-medal.webp?inline';
+import stopwatchImage from '../../assets/fluent-emoji/stopwatch.webp?inline';
+import trophyImage from '../../assets/fluent-emoji/trophy.webp?inline';
+import videoGameImage from '../../assets/fluent-emoji/video-game.webp?inline';
+import wastebasketImage from '../../assets/fluent-emoji/wastebasket.webp?inline';
+import wrappedGiftImage from '../../assets/fluent-emoji/wrapped-gift.webp?inline';
 import type { IconProps } from '../create-icon/index';
 
 function illustration(src: string) {
@@ -11,6 +32,7 @@ function illustration(src: string) {
       <img
         {...componentDataAttrs('Illustration', props.dataSet)}
         src={src}
+        decoding="sync"
         data-icon-family="artwork"
         alt=""
         aria-hidden="true"
@@ -22,12 +44,8 @@ function illustration(src: string) {
   };
 }
 
-export const VictoryArt = illustration(
-  new URL('../../assets/fluent-emoji/trophy.webp', import.meta.url).href
-);
-const Handshake = illustration(
-  new URL('../../assets/fluent-emoji/handshake.webp', import.meta.url).href
-);
+export const VictoryArt = /* @__PURE__ */ illustration(trophyImage);
+const Handshake = /* @__PURE__ */ illustration(handshakeImage);
 
 /** The decorative Handshake illustration for friends and human opponents. */
 export function FriendsArt(
@@ -35,67 +53,26 @@ export function FriendsArt(
 ): JSX.Element {
   return <Handshake {...props} />;
 }
-export const AutomationArt = illustration(
-  new URL('../../assets/fluent-emoji/robot.webp', import.meta.url).href
+export const AutomationArt = /* @__PURE__ */ illustration(robotImage);
+export const TournamentsArt = /* @__PURE__ */ illustration(sportsMedalImage);
+export const GamesArt = /* @__PURE__ */ illustration(videoGameImage);
+export const SearchArt = /* @__PURE__ */ illustration(
+  magnifyingGlassTiltedLeftImage
 );
-export const TournamentsArt = illustration(
-  new URL('../../assets/fluent-emoji/sports-medal.webp', import.meta.url).href
-);
-export const GamesArt = illustration(
-  new URL('../../assets/fluent-emoji/video-game.webp', import.meta.url).href
-);
-export const SearchArt = illustration(
-  new URL(
-    '../../assets/fluent-emoji/magnifying-glass-tilted-left.webp',
-    import.meta.url
-  ).href
-);
-export const HistoryArt = illustration(
-  new URL('../../assets/fluent-emoji/mantelpiece-clock.webp', import.meta.url)
-    .href
-);
-export const BooksArt = illustration(
-  new URL('../../assets/fluent-emoji/books.webp', import.meta.url).href
-);
-export const StatsArt = illustration(
-  new URL('../../assets/fluent-emoji/bar-chart.webp', import.meta.url).href
-);
-export const PuzzleArt = illustration(
-  new URL('../../assets/fluent-emoji/puzzle-piece.webp', import.meta.url).href
-);
-export const DeviceArt = illustration(
-  new URL('../../assets/fluent-emoji/mobile-phone.webp', import.meta.url).href
-);
-export const ThemeArt = illustration(
-  new URL('../../assets/fluent-emoji/artist-palette.webp', import.meta.url).href
-);
-export const RewardsArt = illustration(
-  new URL('../../assets/fluent-emoji/wrapped-gift.webp', import.meta.url).href
-);
-export const MatchmakingArt = illustration(
-  new URL('../../assets/fluent-emoji/crossed-swords.webp', import.meta.url).href
-);
-export const RulesArt = illustration(
-  new URL('../../assets/fluent-emoji/open-book.webp', import.meta.url).href
-);
-export const ProfileArt = illustration(
-  new URL('../../assets/fluent-emoji/identification-card.webp', import.meta.url)
-    .href
-);
-export const SettingsArt = illustration(
-  new URL('../../assets/fluent-emoji/gear.webp', import.meta.url).href
-);
-export const NotificationsArt = illustration(
-  new URL('../../assets/fluent-emoji/bell.webp', import.meta.url).href
-);
-export const ArchiveArt = illustration(
-  new URL('../../assets/fluent-emoji/card-file-box.webp', import.meta.url).href
-);
+export const HistoryArt = /* @__PURE__ */ illustration(mantelpieceClockImage);
+export const BooksArt = /* @__PURE__ */ illustration(booksImage);
+export const StatsArt = /* @__PURE__ */ illustration(barChartImage);
+export const PuzzleArt = /* @__PURE__ */ illustration(puzzlePieceImage);
+export const DeviceArt = /* @__PURE__ */ illustration(mobilePhoneImage);
+export const ThemeArt = /* @__PURE__ */ illustration(artistPaletteImage);
+export const RewardsArt = /* @__PURE__ */ illustration(wrappedGiftImage);
+export const MatchmakingArt = /* @__PURE__ */ illustration(crossedSwordsImage);
+export const RulesArt = /* @__PURE__ */ illustration(openBookImage);
+export const ProfileArt = /* @__PURE__ */ illustration(identificationCardImage);
+export const SettingsArt = /* @__PURE__ */ illustration(gearImage);
+export const NotificationsArt = /* @__PURE__ */ illustration(bellImage);
+export const ArchiveArt = /* @__PURE__ */ illustration(cardFileBoxImage);
 
-export const RemoveArt = illustration(
-  new URL('../../assets/fluent-emoji/wastebasket.webp', import.meta.url).href
-);
+export const RemoveArt = /* @__PURE__ */ illustration(wastebasketImage);
 
-export const TimeControlArt = illustration(
-  new URL('../../assets/fluent-emoji/stopwatch.webp', import.meta.url).href
-);
+export const TimeControlArt = /* @__PURE__ */ illustration(stopwatchImage);

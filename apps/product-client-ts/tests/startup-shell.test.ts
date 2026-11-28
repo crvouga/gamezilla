@@ -28,6 +28,23 @@ test('the opening document paints navigation in the product palette', async () =
   ).toEqual([]);
 });
 
+test('all four first-paint navigation illustrations travel in the document', async () => {
+  const html = await Bun.file(join(import.meta.dir, '..', 'index.html')).text();
+  const doc = new DOMParser().parseFromString(
+    opening.transformIndexHtml.handler(html),
+    'text/html'
+  );
+  const pictures = Array.from(
+    doc.querySelectorAll('[data-startup-shell] nav img')
+  );
+  expect(pictures).toHaveLength(4);
+  for (const picture of pictures) {
+    expect(picture.getAttribute('src')).toMatch(
+      /^data:image\/webp;base64,UklGR/
+    );
+  }
+});
+
 test('opens Sound from Settings and accepts a private people search before modules run', async () => {
   const html = await Bun.file(join(import.meta.dir, '..', 'index.html')).text();
   const first = new DOMParser().parseFromString(

@@ -5,6 +5,12 @@
   box-shadow: var(--ui-depth-slot);
 }
 
+/* Busy controls already supply the face behind the moving ticks. */
+:global(button[aria-busy="true"]) .socket {
+  background-image: none;
+  box-shadow: none;
+}
+
 .petals {
   display: block;
   flex-shrink: 0;

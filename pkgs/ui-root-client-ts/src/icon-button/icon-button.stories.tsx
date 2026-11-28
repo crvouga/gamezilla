@@ -20,7 +20,7 @@ export const States: StoryObj = {
       for (const button of canvas.getAllByRole('button', {
         name,
       })) {
-        const glyph = button.querySelector('use');
+        const glyph = button.querySelector('path');
         await waitFor(() => expect(glyph?.getBBox().width).toBeGreaterThan(0));
       }
     }
