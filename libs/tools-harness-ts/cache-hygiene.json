@@ -26,6 +26,7 @@
     "@libs/game-matchmaking-shared-ts": 64,
     "@libs/game-puzzle-shared-ts": 62,
     "@libs/game-session-shared-ts": 57,
+    "@libs/game-simulation-shared-ts": 60,
     "@libs/infra-shared-ts": 50,
     "@libs/moderation-client-ts": 66,
     "@libs/moderation-shared-ts": 114,
