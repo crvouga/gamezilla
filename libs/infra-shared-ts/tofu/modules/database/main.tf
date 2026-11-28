@@ -102,6 +102,7 @@ resource "planetscale_postgres_branch_role" "migrate" {
   database        = var.database_name
   branch          = local.branch_name
   name            = "migrate"
+  successor       = var.production ? null : "postgres"
   inherited_roles = ["postgres"]
 
   depends_on = [

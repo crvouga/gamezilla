@@ -1,0 +1,4 @@
+{
+  "summary": "After the migrate role ran CREATE TABLE drill_notes(id integer primary key), standard environment destruction failed with PlanetScale HTTP 422: Role is still referenced and cannot be dropped. The role needs a successor to receive the objects before the branch is removed.",
+  "regressionTest": "libs/infra-shared-ts/tests/migration-role-teardown.test.ts"
+}
