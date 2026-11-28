@@ -175,64 +175,66 @@ function GridCell(props: {
     return (row + (props.index % columns)) % 2 === 0 ? 'light' : 'dark';
   };
   return (
-    <SdkButton
-      type="button"
-      class={`${styles['cell']} ${battleship['cell']}`}
-      data-index={props.index}
-      data-shade={shade()}
-      data-cell={id()}
-      data-goal={cell()?.goal === true ? 'true' : undefined}
-      data-testid={
-        props.board.cellTestId?.(id()) ?? `${props.board.testId}-cell-${id()}`
-      }
-      data-shot-arrived={cell()?.arrivingShot}
-      data-tone={cell()?.tone ?? 'open'}
-      data-emphasis={cell()?.emphasis ?? 'none'}
-      data-outlined={String(cell()?.outlined === true)}
-      data-identity={cell()?.identity}
-      data-edge-top={String(cell()?.edges?.includes('top') === true)}
-      data-edge-right={String(cell()?.edges?.includes('right') === true)}
-      data-edge-bottom={String(cell()?.edges?.includes('bottom') === true)}
-      data-edge-left={String(cell()?.edges?.includes('left') === true)}
-      data-preview-edge-top={String(
-        cell()?.previewEdges?.includes('top') === true
-      )}
-      data-preview-edge-right={String(
-        cell()?.previewEdges?.includes('right') === true
-      )}
-      data-preview-edge-bottom={String(
-        cell()?.previewEdges?.includes('bottom') === true
-      )}
-      data-preview-edge-left={String(
-        cell()?.previewEdges?.includes('left') === true
-      )}
-      aria-label={cell()?.label}
-      aria-disabled={ariaBoolean(cell()?.enabled !== true)}
-      tabindex={props.focusable ? 0 : -1}
-      onFocus={() => {
-        props.onFocusIndex(props.index);
-        props.board.onPreview?.(id());
-      }}
-      onBlur={() => props.board.onPreview?.(null)}
-      onPointerEnter={(event) => {
-        // Touching a hull starts direct manipulation. A mouse-style hover
-        // would reflow placement guidance underneath the moving finger.
-        if (
-          event.pointerType === 'touch' &&
-          props.board.battleshipSurface === 'fleet'
-        )
-          return;
-        props.board.onPreview?.(id());
-      }}
-      onPointerLeave={() => props.board.onPreview?.(null)}
-      onKeyDown={(event) => props.onKey(event, props.index)}
-      onClick={() => {
-        if (cell()?.enabled === true) props.board.onActivate?.(id());
-      }}
-    >
-      <span class={styles['glyph']} aria-hidden="true">
-        {cell()?.glyph ?? ''}
-      </span>
+    <span class={styles['tile']}>
+      <SdkButton
+        type="button"
+        class={`${styles['cell']} ${battleship['cell']}`}
+        data-index={props.index}
+        data-shade={shade()}
+        data-cell={id()}
+        data-goal={cell()?.goal === true ? 'true' : undefined}
+        data-testid={
+          props.board.cellTestId?.(id()) ?? `${props.board.testId}-cell-${id()}`
+        }
+        data-shot-arrived={cell()?.arrivingShot}
+        data-tone={cell()?.tone ?? 'open'}
+        data-emphasis={cell()?.emphasis ?? 'none'}
+        data-outlined={String(cell()?.outlined === true)}
+        data-identity={cell()?.identity}
+        data-edge-top={String(cell()?.edges?.includes('top') === true)}
+        data-edge-right={String(cell()?.edges?.includes('right') === true)}
+        data-edge-bottom={String(cell()?.edges?.includes('bottom') === true)}
+        data-edge-left={String(cell()?.edges?.includes('left') === true)}
+        data-preview-edge-top={String(
+          cell()?.previewEdges?.includes('top') === true
+        )}
+        data-preview-edge-right={String(
+          cell()?.previewEdges?.includes('right') === true
+        )}
+        data-preview-edge-bottom={String(
+          cell()?.previewEdges?.includes('bottom') === true
+        )}
+        data-preview-edge-left={String(
+          cell()?.previewEdges?.includes('left') === true
+        )}
+        aria-label={cell()?.label}
+        aria-disabled={ariaBoolean(cell()?.enabled !== true)}
+        tabindex={props.focusable ? 0 : -1}
+        onFocus={() => {
+          props.onFocusIndex(props.index);
+          props.board.onPreview?.(id());
+        }}
+        onBlur={() => props.board.onPreview?.(null)}
+        onPointerEnter={(event) => {
+          // Touching a hull starts direct manipulation. A mouse-style hover
+          // would reflow placement guidance underneath the moving finger.
+          if (
+            event.pointerType === 'touch' &&
+            props.board.battleshipSurface === 'fleet'
+          )
+            return;
+          props.board.onPreview?.(id());
+        }}
+        onPointerLeave={() => props.board.onPreview?.(null)}
+        onKeyDown={(event) => props.onKey(event, props.index)}
+        onClick={() => {
+          if (cell()?.enabled === true) props.board.onActivate?.(id());
+        }}
+      >
+        <span class={styles['glyph']} aria-hidden="true">
+          {cell()?.glyph ?? ''}
+        </span>
+      </SdkButton>
       <Show when={props.coordinates?.row}>
         {(label) => (
           <span
@@ -255,7 +257,7 @@ function GridCell(props: {
           </span>
         )}
       </Show>
-    </SdkButton>
+    </span>
   );
 }
 

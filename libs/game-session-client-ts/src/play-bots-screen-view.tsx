@@ -4,6 +4,7 @@ import { BotSetup } from './play-bots-setup-pages';
 import { PlayBotsStagePlace } from './play-bots-stage-view';
 import { SessionScreenView } from './session-screen-view';
 
+/** Choose a game and bot opponent, then play the resulting session. */
 export function PlayBotsScreenView(
   props: GameSessionScreenViewProps
 ): JSX.Element {

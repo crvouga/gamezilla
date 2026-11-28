@@ -39,6 +39,9 @@ test('pressing a cell places the selected ship with its bow there, across by def
   expect(tone('f1')).toBe('open');
   expect(cell('a1').getAttribute('aria-label')).toBe('A1: Carrier');
   expect(cell('a1').textContent).toBe('■');
+  expect(
+    cell('a1').parentElement?.querySelector('[data-corner="row"]')?.textContent
+  ).toBe('1');
   expect(byTestId('setup-progress').textContent).toContain(
     '1 of 5 ships placed'
   );

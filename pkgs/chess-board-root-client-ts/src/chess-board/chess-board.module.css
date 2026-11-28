@@ -245,8 +245,18 @@
   fill: var(--chess-coord-on-dark);
 }
 
-/* Inside a `ChessBoardFrame` (any playing board) the labels sit outside
-   the squares, larger than a corner holds: the corner labels step aside. */
+/* Only the opt-in outside frame supplies this named container. */
+@container chess-frame (min-width: 280px) {
+  .coords {
+    display: none;
+  }
+
+  .root:has(.coords) .piece {
+    background-size: 84% 84%;
+    background-position: center;
+  }
+}
+
 /* -- hit grid ------------------------------------------------------------ */
 
 /* Focus / a11y / test ids only: no pointer events (the host handles them),

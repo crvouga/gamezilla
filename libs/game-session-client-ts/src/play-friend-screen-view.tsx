@@ -4,6 +4,7 @@ import { FriendSetup } from './play-friend-setup-pages';
 import { PlayFriendStagePlace } from './play-friend-stage-view';
 import { SessionScreenView } from './session-screen-view';
 
+/** Choose a game to play with another person, then play the resulting session. */
 export function PlayFriendScreenView(
   props: GameSessionScreenViewProps
 ): JSX.Element {

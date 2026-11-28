@@ -39,13 +39,13 @@ const modes = [
 
 // regression: game-mode-on-main-menu
 test.each(modes)(
-  '$mode opens directly on seats for a person or a bot',
+  '$mode opens a human table with the selected number of seats',
   async ({ game, mode, seats }) => {
     await using s = await openGameMenu(game);
     const ui = await s.read((world) => actorUi(world, 'alice'));
     expect(await ui.get(Handles.gameModes).isVisible()).toBe(false);
     expect(await ui.get(Handles.gameChoice('vs-human')).text()).toContain(
-      'Play Friend'
+      'Play a Friend'
     );
     await s.apply(openGameChoice, 'alice', 'vs-human');
     if (game !== mode) await s.apply(tap, Handles.gameMode(mode));

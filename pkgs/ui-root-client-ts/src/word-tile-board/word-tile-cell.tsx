@@ -20,27 +20,50 @@ function BoardCell(props: {
     () => cell()?.state === 'committed' || cell()?.state === 'recent'
   );
   return (
-    <SdkButton
-      type="button"
-      class={styles['cell']}
-      data-index={props.index}
-      data-cell={cell()?.id}
-      data-testid={`${props.board.testId}-cell-${cell()?.id ?? ''}`}
-      data-arrived={arrived() || undefined}
-      data-state={cell()?.state ?? 'empty'}
-      data-square={cell()?.square ?? 'none'}
-      aria-label={cell()?.label}
-      aria-disabled={cell()?.enabled === true ? 'false' : 'true'}
-      tabindex={props.focusable ? 0 : -1}
-      onFocus={() => props.onFocusIndex(props.index)}
-      onKeyDown={(event) => props.onKey(event, props.index)}
-      onClick={() => {
-        props.onFocusIndex(props.index);
-        const id = cell()?.id;
-        if (id !== undefined && cell()?.enabled === true)
-          props.board.onActivate?.(id);
-      }}
-    >
+    <span class={styles['tile']}>
+      <SdkButton
+        type="button"
+        class={styles['cell']}
+        data-index={props.index}
+        data-cell={cell()?.id}
+        data-testid={`${props.board.testId}-cell-${cell()?.id ?? ''}`}
+        data-arrived={arrived() || undefined}
+        data-state={cell()?.state ?? 'empty'}
+        data-square={cell()?.square ?? 'none'}
+        aria-label={cell()?.label}
+        aria-disabled={cell()?.enabled === true ? 'false' : 'true'}
+        tabindex={props.focusable ? 0 : -1}
+        onFocus={() => props.onFocusIndex(props.index)}
+        onKeyDown={(event) => props.onKey(event, props.index)}
+        onClick={() => {
+          props.onFocusIndex(props.index);
+          const id = cell()?.id;
+          if (id !== undefined && cell()?.enabled === true)
+            props.board.onActivate?.(id);
+        }}
+      >
+        <Show
+          when={cell()?.letter}
+          fallback={
+            <span class={styles['square']} aria-hidden="true">
+              <Show when={cell()?.square}>
+                {(square) => <>{props.board.squareText(square())}</>}
+              </Show>
+            </span>
+          }
+        >
+          <span
+            data-blank={cell()?.points === 0 ? 'true' : undefined}
+            class={styles['letter']}
+            aria-hidden="true"
+          >
+            {cell()?.letter}
+          </span>{' '}
+          <span class={styles['points']} aria-hidden="true">
+            {cell()?.points ?? ''}
+          </span>
+        </Show>
+      </SdkButton>
       <Show when={props.index % props.board.columnLabels.length === 0}>
         <span class={styles['coordinate']} data-axis="row" aria-hidden="true">
           {
@@ -59,28 +82,7 @@ function BoardCell(props: {
           {props.board.columnLabels[props.index]}
         </span>
       </Show>
-      <Show
-        when={cell()?.letter}
-        fallback={
-          <span class={styles['square']} aria-hidden="true">
-            <Show when={cell()?.square}>
-              {(square) => <>{props.board.squareText(square())}</>}
-            </Show>
-          </span>
-        }
-      >
-        <span
-          data-blank={cell()?.points === 0 ? 'true' : undefined}
-          class={styles['letter']}
-          aria-hidden="true"
-        >
-          {cell()?.letter}
-        </span>{' '}
-        <span class={styles['points']} aria-hidden="true">
-          {cell()?.points ?? ''}
-        </span>
-      </Show>
-    </SdkButton>
+    </span>
   );
 }
 
