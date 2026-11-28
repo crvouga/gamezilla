@@ -22,6 +22,7 @@ import {
 } from '@pkgs/sounds-client-ts/solid';
 import { SpinnerProvider } from '@pkgs/ui-root-client-ts/spinner-context';
 import type { JSX } from '@solidjs/web';
+import { useBrowserOpening } from './browser-opening';
 import { DevicePortsProvider } from './device-ports-context';
 import { PerfRoot } from './perf-root';
 
@@ -29,13 +30,14 @@ export function AppShellProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   const env = useClientEnv();
+  const opening = useBrowserOpening();
   return (
     <DevicePortsProvider network={env.network} devMenu={env.devMenu}>
       <AudioPlaybackProvider value={env.audio}>
         <SoundsPreferenceProvider>
           <SoundEngineProvider>
             <I18nProvider i18n={i18n}>
-              <SpinnerProvider>
+              <SpinnerProvider quietActivity={opening?.quietActivity}>
                 <PerfRoot>{props.children}</PerfRoot>
               </SpinnerProvider>
             </I18nProvider>

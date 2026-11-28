@@ -4,6 +4,7 @@ import { i18n } from '@libs/app-root-shared-ts/i18n';
 import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import type { JSX } from '@solidjs/web';
 import { createMemo, Errored, onSettled } from 'solid-js';
+import { OpeningContent } from './browser-opening';
 import { CrashScreen } from './crash-screen';
 
 type RecoveryProps = {
@@ -31,12 +32,14 @@ function CrashRecovery(
   );
   onSettled(() => announceCrash(normalized()));
   return (
+    <OpeningContent>
     <CrashScreen
       error={normalized()}
       reset={props.reset}
       goToSpaces={props.goToSpaces}
       copyError={props.copyError}
     />
+    </OpeningContent>
   );
 }
 

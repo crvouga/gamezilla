@@ -6,7 +6,7 @@ import {
 } from 'storybook-solidjs-vite';
 import { BootLoadingShell } from './boot-loading-shell';
 
-/** The shell fills the viewport and pins its indicator there; give it one. */
+/** Give the session status its normal viewport. */
 const withViewport = createJSXDecorator((Story) => (
   <StackVertical minHeight="screen">
     <Story />
@@ -24,5 +24,5 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Identity binding or the local database opening: one centered indicator. */
+/** Status shown when another account opens on this device. */
 export const Loading: Story = {};

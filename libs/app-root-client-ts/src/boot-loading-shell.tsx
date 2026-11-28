@@ -1,26 +1,18 @@
 /** @jsxImportSource @solidjs/web */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Layer } from '@pkgs/ui-root-client-ts/layer';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
 
-/**
- * The one boot loading state: shown while identity binds or local SQLite
- * opens. Matches the static `.startup-shell` in `index.html` and stays pinned
- * to the viewport center, so the spinner never moves or changes as boot
- * stages hand off (header chrome may appear around it). Its spinner is the
- * whole-screen `LoadingState` size (`lg`, 40px), the one every screen shows
- * while its own data loads, so the hand-off to the first screen keeps that
- * size too. Never a blank void on a hung OPFS / worker open.
- */
+/** Session progress for embedded apps and account changes. Browser openings
+ * keep their interactive document until the selected route or recovery mounts. */
 export function BootLoadingShell(): JSX.Element {
   return (
-    <Surface tone="background" grow testId={Handles.bootLoading}>
-      <Layer inset="viewport" align="center" justify="center" passThrough>
-        <LoadingState dataSet={{ component: 'BootLoadingShell' }} />
-      </Layer>
+    <Surface tone="background" grow align="center" justify="center"
+      role="status" testId={Handles.bootLoading} dataSet={{component: 'BootLoadingShell'}}>
+      <P variant="caption"><Trans>Opening saved data…</Trans></P>
     </Surface>
   );
 }

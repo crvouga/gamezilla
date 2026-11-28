@@ -12,7 +12,9 @@ import {
 } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { ColorScheme } from '@pkgs/ui-root-shared-ts/colors-types';
 import type { JSX } from '@solidjs/web';
-import { createSignal, onCleanup, untrack } from 'solid-js';
+import { createSignal, onCleanup, onSettled, untrack } from 'solid-js';
+
+import { useBrowserOpening } from './browser-opening';
 
 /** The scheme `index.html` painted before the app loaded, when it set one. */
 function paintedScheme(): ColorScheme | undefined {
@@ -24,7 +26,9 @@ function AppTheme(props: {
   readonly motion: MotionPreferencePort;
   readonly children: JSX.Element;
 }): JSX.Element {
-  const { preference, settled } = useThemePreference();
+  const { preference, settled, setPreference } = useThemePreference();
+  const opening = useBrowserOpening();
+  if (opening !== undefined) onSettled(() => opening.bindTheme(setPreference));
   // Hold the painted scheme until the stored preference is read, so the first
   // frame never shows the system scheme over a pinned one.
   const painted = paintedScheme();

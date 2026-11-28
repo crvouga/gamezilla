@@ -94,7 +94,7 @@ describe('development client startup', () => {
     // regression: dev-cold-load-white-screen
     for (const app of ['product-client-ts', 'product-ts']) {
       const html = source(`apps/${app}/index.html`);
-      expect(html).toContain('class="startup-shell"');
+      expect(html).toContain('<!-- browser-opening -->');
       expect(html).not.toContain('startup-shell-caption');
       expect(html).toContain(
         `background: var(--ui-color-background, ${COLOR_PALETTE.dark.background});`
@@ -102,7 +102,7 @@ describe('development client startup', () => {
       expect(html).toContain(
         `background: var(--ui-color-background, ${COLOR_PALETTE.light.background});`
       );
-      expect(html).toContain('prefers-reduced-motion: reduce');
+      expect(html).not.toContain('animation:');
     }
   });
 

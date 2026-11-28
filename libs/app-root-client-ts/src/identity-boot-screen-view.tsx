@@ -4,6 +4,7 @@ import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
+import { OpeningContent } from './browser-opening';
 import { BootLoadingShell } from './boot-loading-shell';
 
 export type IdentityBootScreenViewProps = {
@@ -23,6 +24,7 @@ export function IdentityBootScreenView(
   const { t } = useLingui();
   return (
     <Show when={props.status === 'stuck'} fallback={<BootLoadingShell />}>
+      <OpeningContent>
       <ErrorState
         title={<Trans>App failed to start</Trans>}
         body={
@@ -33,6 +35,7 @@ export function IdentityBootScreenView(
         }
         retry={{ label: t`Reload app`, onClick: () => props.onReload() }}
       />
+      </OpeningContent>
     </Show>
   );
 }

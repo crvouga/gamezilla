@@ -8,14 +8,13 @@
  * 16px instead of shimmering. The dimmest petal keeps enough opacity that
  * the ring always reads as a whole circle, never as a sparse, gappy arc.
  *
- * `Spinner` renders these petals in Solid. The boot screens in each app's
- * `index.html` paint before any script runs, so they embed
+ * `Spinner` renders these petals in Solid. The developer console paints before its bundle loads and embeds
  * {@link activityIndicatorSvg} verbatim; a test holds them to it.
  */
 
 /**
  * Petal count, and the number of steps per revolution: the `steps(…)` of
- * `spinner.module.css` and of each `index.html` boot screen.
+ * `spinner.module.css` and the developer console.
  */
 export const ACTIVITY_PETALS = 12;
 

@@ -1,0 +1,4 @@
+{
+  "summary": "The first live objectives with a 100% target were rejected for missing burn-rate alerts and dashboards even though their direct violation pages were generated.",
+  "regressionTest": "libs/observability-server-ts/tests/slo-artifacts.test.ts"
+}

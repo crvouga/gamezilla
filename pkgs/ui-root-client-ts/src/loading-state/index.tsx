@@ -1,9 +1,11 @@
 /** @jsxImportSource @solidjs/web */
 
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import type { SpinnerProps } from '../spinner/index';
+import { quietActivityAtMount } from '../spinner-context/index';
 import { Spinner } from '../spinner/index';
 import type { StateBlockVariant } from '../state-block/index';
 import { StateBlock } from '../state-block/index';
@@ -54,6 +56,14 @@ export function loadingStateSpinnerSize(
  * ```
  */
 export function LoadingState(props: LoadingStateProps): JSX.Element {
+  const { t } = useLingui();
+  if (quietActivityAtMount()) {
+    return (
+      <StateBlock variant={props.variant} dataSet={props.dataSet}>
+        <p role="status" class="text textCaption text-center">{props.caption ?? t`Loading…`}</p>
+      </StateBlock>
+    );
+  }
   return (
     <StateBlock
       variant={props.variant}

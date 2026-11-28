@@ -8,6 +8,7 @@ import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web-client-ts/recover-in-process';
 import { isLeaderLostError } from '@pkgs/sql-client-sqlite-web-shared-ts/rpc';
 import type { JSX } from '@solidjs/web';
+import { OpeningContent } from './browser-opening';
 import {
   type LocalDatabaseBootErrorKind,
   LocalDatabaseBootErrorScreenView,
@@ -58,6 +59,7 @@ export function LocalDatabaseBootErrorScreen(props: {
   };
 
   return (
+    <OpeningContent>
     <LocalDatabaseBootErrorScreenView
       kind={kind()}
       message={props.error.message}
@@ -65,5 +67,6 @@ export function LocalDatabaseBootErrorScreen(props: {
       onReset={onReset}
       onReportBug={() => requestBugReport()}
     />
+    </OpeningContent>
   );
 }

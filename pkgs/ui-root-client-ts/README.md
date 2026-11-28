@@ -310,8 +310,9 @@ The rules are enforced, so the easy path is the right one:
   these components, and a look it needs is a variant here.
 - `palette-contrast.test.ts` fails a palette that drops below AA;
   `theme-artifacts.test.ts` fails a theme that drifts from the tokens; each
-  app's `startup-shell.test.ts` fails a boot screen that is not the tokens and
-  the activity indicator.
+  app's `startup-shell.test.ts` checks its first paint against the tokens.
+  The product's opening document supplies navigation and device appearance
+  controls before the app bundle loads.
 
 ## A new screen
 

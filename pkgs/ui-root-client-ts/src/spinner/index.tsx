@@ -10,9 +10,9 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { ColorTone } from '@pkgs/ui-root-shared-ts/token-names';
 import type { JSX } from '@solidjs/web';
-import { For } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { spaced } from '../layout-classes';
-import { useSharedSpinnerDelay } from '../spinner-context/index';
+import { quietActivityAtMount, useSharedSpinnerDelay } from '../spinner-context/index';
 import { toneClass } from '../text-classes';
 import styles from './spinner.module.css';
 
@@ -84,6 +84,13 @@ function colorClass(color: SpinnerColor): string {
  */
 export function Spinner(props: SpinnerProps): JSX.Element {
   const { t } = useLingui();
+  if (quietActivityAtMount()) {
+    return (
+      <Show when={props.decorative !== true}>
+        <span role="status" class="text textCaption">{props.label ?? t`Loading…`}</span>
+      </Show>
+    );
+  }
   const delay = useSharedSpinnerDelay();
   return (
     <span
@@ -97,6 +104,7 @@ export function Spinner(props: SpinnerProps): JSX.Element {
         size: props.size ?? 'md',
         ...props.dataSet,
       })}
+      data-activity-indicator=""
       role={props.decorative === true ? undefined : 'status'}
       aria-label={
         props.decorative === true ? undefined : (props.label ?? t`Loading…`)
