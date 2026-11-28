@@ -3,6 +3,8 @@
 /** The backing services an API instance shares with its peers. */
 
 import { join } from 'node:path';
+import { runLocalMigrate } from '@apps/product-api-ts/scripts/run-local-postgres-migrate';
+import { runLocalSeed } from '@apps/product-api-ts/scripts/run-local-postgres-seed';
 import { createServer as createGitHubServer } from '@crvouga/mockingbird-service-github/server';
 import { DEFAULT_TOKEN } from '@crvouga/mockingbird-service-openai';
 import { createServer as createOpenAiServer } from '@crvouga/mockingbird-service-openai/server';
@@ -21,9 +23,6 @@ import {
   S3_SECRET_ACCESS_KEY,
   startS3Server,
 } from '@pkgs/s3-server-ts/s3-server';
-
-import { runLocalMigrate } from '../../product-api-ts/scripts/run-local-postgres-migrate';
-import { runLocalSeed } from '../../product-api-ts/scripts/run-local-postgres-seed';
 import type { DatabaseLink } from './database-link';
 import { startDatabaseLink } from './database-link';
 import { reservePort } from './free-port';

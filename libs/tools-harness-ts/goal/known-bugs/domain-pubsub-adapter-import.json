@@ -1,0 +1,4 @@
+{
+  "summary": "The shared-domain networking rule skipped pubsub adapters other than the root package during its text prefilter.",
+  "regressionTest": "libs/tools-harness-ts/scripts/import-boundaries.test.ts"
+}

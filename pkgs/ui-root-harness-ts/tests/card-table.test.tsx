@@ -10,9 +10,9 @@ import {
   handSpan,
   handSplit,
 } from '@pkgs/ui-root-client-ts/card-table';
+import CardTableExample from '@pkgs/ui-root-client-ts/card-table/card-table.example';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import CardTableExample from '../../ui-root-client-ts/src/card-table/card-table.example';
 
 function example() {
   const { clock, timers } = createHarnessClock();

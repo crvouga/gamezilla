@@ -1,0 +1,4 @@
+{
+  "summary": "Shared code could import unprefixed Node builtins while inline type-only re-exports were treated as runtime loads.",
+  "regressionTest": "libs/tools-harness-ts/scripts/package-boundaries.test.ts"
+}

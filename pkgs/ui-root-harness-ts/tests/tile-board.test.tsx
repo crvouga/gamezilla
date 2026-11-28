@@ -8,9 +8,9 @@ import {
   type TileBoardPiece,
   tileBoardSwipe,
 } from '@pkgs/ui-root-client-ts/tile-board';
+import TileBoardExample from '@pkgs/ui-root-client-ts/tile-board/tile-board.example';
 import { fireEvent } from '@solidjs/testing-library';
 import { createSignal, flush } from 'solid-js';
-import TileBoardExample from '../../ui-root-client-ts/src/tile-board/tile-board.example';
 
 const TILES = [
   { terrain: 'open' as const, marked: false, label: 'A1: floor' },

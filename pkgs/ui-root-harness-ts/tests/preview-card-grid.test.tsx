@@ -6,9 +6,9 @@ import {
   PreviewCard,
   PreviewCardGrid,
 } from '@pkgs/ui-root-client-ts/preview-card-grid';
+import PreviewCardGridExample from '@pkgs/ui-root-client-ts/preview-card-grid/preview-card-grid.example';
 import { PreviewThumbnail } from '@pkgs/ui-root-client-ts/preview-thumbnail';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import PreviewCardGridExample from '../../ui-root-client-ts/src/preview-card-grid/preview-card-grid.example';
 import { renderUi } from './render';
 
 test('a section of cards: a named list, each card one button with its picture hidden', () => {

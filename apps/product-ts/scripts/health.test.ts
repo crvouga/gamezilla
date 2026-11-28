@@ -151,6 +151,22 @@ function assertJourneyBindings(entry: 'live' | 'release'): void {
     } satisfies Pick<StackManifest, 'webOrigin' | 'apiOrigin' | 'idpOrigins'>)
   );
   try {
+    const steps = [
+      'specs/journeys/battleship-game.feature',
+      'specs/journeys/quoridor-game.feature',
+      'specs/battleship/battleship-health.feature',
+      'specs/quoridor/quoridor-health.feature',
+    ].flatMap((path) => {
+      const feature = parseFeature(
+        readFileSync(join(REPO_ROOT, path), 'utf8'),
+        path
+      );
+      const texts = feature.scenarios.flatMap((scenario) =>
+        scenario.steps.map((step) => step.text)
+      );
+      expect(texts.length, path).toBeGreaterThan(0);
+      return texts;
+    });
     const result = spawnSync(
       process.execPath,
       [
@@ -159,23 +175,10 @@ function assertJourneyBindings(entry: 'live' | 'release'): void {
   await import('./tests/steps/${entry}-index.ts');
   if (typeof document !== 'undefined') throw new Error('local DOM harness loaded');
   const { matchStep } = await import('@pkgs/gherkin-shared-ts/registry');
-  const missing = [
-    'Alice and Bob play Battleship from fresh devices',
-    'Alice and Bob see the same completed Battleship game',
-    'the team checks Battleship in this environment',
-    'two people can find each other and play Battleship to a victory they both see',
-    "neither person saw the other's fleet beyond what their shots showed",
-    'Alice and Bob play Classic Quoridor from fresh devices',
-    'Alice and Bob see the same completed Classic Quoridor game',
-    'Alice and Bob play Four-Player King of the Hill with two bots from fresh devices',
-    'Alice and Bob see the same completed Four-Player King of the Hill game',
-    'the team checks Classic Quoridor in this environment',
-    'two people can find each other and complete Classic Quoridor with the same result',
-    'the team checks Four-Player King of the Hill in this environment',
-    'two people and two bots can complete Four-Player King of the Hill with the same result'
-  ].filter((text) => matchStep(text).kind !== 'match');
+  const missing = process.argv.slice(1).filter((text) => matchStep(text).kind !== 'match');
   if (missing.length > 0) throw new Error('unbound: ' + missing.join('\\n'));
 `,
+        ...steps,
       ],
       {
         cwd: resolve(import.meta.dir, '..'),
@@ -189,6 +192,7 @@ function assertJourneyBindings(entry: 'live' | 'release'): void {
   }
 }
 
+// regression: quoridor-health-binding-spec-drift
 // regression: live-quoridor-journey-unbound
 test('the live entry binds the Battleship and Quoridor journey and health steps', () => {
   assertJourneyBindings('live');

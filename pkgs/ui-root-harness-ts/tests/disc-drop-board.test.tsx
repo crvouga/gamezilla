@@ -7,11 +7,11 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { DiscDropBoard } from '@pkgs/ui-root-client-ts/disc-drop-board';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
+import GameArenaExample from '@pkgs/ui-root-client-ts/game-board-stage/game-arena.example';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
 import { createSignal, flush, Show } from 'solid-js';
-import GameArenaExample from '../../ui-root-client-ts/src/game-board-stage/game-arena.example';
 
 function requiredAttribute(element: Element, name: string): string {
   const value = element.getAttribute(name);

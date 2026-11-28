@@ -8,10 +8,10 @@ import {
   type CellGridCell,
   cellGridStep,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
+import CellGridBoardExample from '@pkgs/ui-root-client-ts/cell-grid-board/cell-grid-board.example';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 import { createSignal, flush } from 'solid-js';
-import CellGridBoardExample from '../../ui-root-client-ts/src/cell-grid-board/cell-grid-board.example';
 
 function example() {
   const { clock, timers } = createHarnessClock();

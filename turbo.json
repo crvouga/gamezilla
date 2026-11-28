@@ -169,6 +169,7 @@
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/argument-batches.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/behavior-tests.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/source-imports.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/production-source.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spawned-clis.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-vocabulary.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/design-composition.ts",

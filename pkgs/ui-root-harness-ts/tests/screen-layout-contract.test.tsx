@@ -2,23 +2,23 @@ import { describe, expect, test } from 'bun:test';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import Example10 from '@pkgs/ui-root-client-ts/collection-screen/collection-screen.example';
+import Example11 from '@pkgs/ui-root-client-ts/content-screen/content-screen.example';
+import Example12 from '@pkgs/ui-root-client-ts/embedded-screen/embedded-screen.example';
+import Example7 from '@pkgs/ui-root-client-ts/form-screen/form-screen.example';
+import Example6 from '@pkgs/ui-root-client-ts/game-review-screen/game-review-screen.example';
+import Example1 from '@pkgs/ui-root-client-ts/game-screen/game-screen.example';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import Example2 from '@pkgs/ui-root-client-ts/game-session-layout/game-session-layout.example';
+import Example3 from '@pkgs/ui-root-client-ts/game-setup-panel/game-setup-panel.example';
+import Example0 from '@pkgs/ui-root-client-ts/main-menu-screen/main-menu-screen.example';
+import Example8 from '@pkgs/ui-root-client-ts/menu-screen/menu-screen.example';
+import Example9 from '@pkgs/ui-root-client-ts/profile-screen-layout/profile-screen-layout.example';
+import Example4 from '@pkgs/ui-root-client-ts/puzzle-screen/puzzle-screen.example';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
 import { createSignal, flush } from 'solid-js';
-import Example10 from '../../ui-root-client-ts/src/collection-screen/collection-screen.example';
-import Example11 from '../../ui-root-client-ts/src/content-screen/content-screen.example';
-import Example12 from '../../ui-root-client-ts/src/embedded-screen/embedded-screen.example';
-import Example7 from '../../ui-root-client-ts/src/form-screen/form-screen.example';
-import Example6 from '../../ui-root-client-ts/src/game-review-screen/game-review-screen.example';
-import Example1 from '../../ui-root-client-ts/src/game-screen/game-screen.example';
-import Example2 from '../../ui-root-client-ts/src/game-session-layout/game-session-layout.example';
-import Example3 from '../../ui-root-client-ts/src/game-setup-panel/game-setup-panel.example';
-import Example0 from '../../ui-root-client-ts/src/main-menu-screen/main-menu-screen.example';
-import Example8 from '../../ui-root-client-ts/src/menu-screen/menu-screen.example';
-import Example9 from '../../ui-root-client-ts/src/profile-screen-layout/profile-screen-layout.example';
-import Example4 from '../../ui-root-client-ts/src/puzzle-screen/puzzle-screen.example';
 
 const SCREEN_ENTRIES = [
   { id: 'main-menu-screen', Example: Example0 },

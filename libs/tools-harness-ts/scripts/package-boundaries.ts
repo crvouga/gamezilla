@@ -35,7 +35,8 @@
  */
 
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { isBuiltin } from 'node:module';
+import { join, posix } from 'node:path';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import ts from 'typescript';
 import {
@@ -44,7 +45,8 @@ import {
   nativeSourceViolations,
 } from './language-boundaries';
 import { CATEGORIES, type Category, categoryOfName } from './package-names';
-import { sourceImports } from './source-imports';
+import { isProductionSource } from './production-source';
+import { type SourceImport, sourceImports } from './source-imports';
 
 const ALLOWED: Readonly<Record<Category, readonly Category[]>> = {
   isomorphic: ['isomorphic'],
@@ -165,13 +167,41 @@ function sourceFiles(dir: string, out: string[] = []): string[] {
       if (entry.name !== 'node_modules') sourceFiles(full, out);
       continue;
     }
-    if (/\.(ts|tsx)$/.test(entry.name)) out.push(slashPath(full));
+    if (/\.[cm]?[jt]sx?$/.test(entry.name)) out.push(slashPath(full));
   }
   return out;
 }
 
-const WORKSPACE_SPECIFIER =
-  /from\s+'(@(?:libs|pkgs)\/[a-z0-9-]+)(?:\/[^']*)?'|import\('(@(?:libs|pkgs)\/[a-z0-9-]+)(?:\/[^']*)?'\)/g;
+function sourceImportViolation(
+  reference: SourceImport,
+  context: { path: string; category: Category; rule: Rule | undefined }
+): string | undefined {
+  const { path, category, rule } = context;
+  const spec = reference.specifier;
+  if (spec.startsWith('.') && isProductionSource(path)) {
+    const target = posix.join(posix.dirname(path), spec);
+    if (target === '..' || target.startsWith('../'))
+      return `${path}: ${spec} leaves the package; import through the owning package's exports`;
+  }
+  const dep = /^(@(?:apps|libs|pkgs)\/[^/]+)/.exec(spec)?.[1];
+  const depCategory = dep === undefined ? undefined : categoryOfName(dep);
+  if (dep && rule?.forbidden.has(familyOf(dep) ?? ''))
+    return `${path} imports ${dep}: ${rule.why}`;
+  // Hono RPC clients infer contracts from server routes through erased imports.
+  const rpcType =
+    reference.typeOnly && category === 'client' && depCategory === 'server';
+  if (depCategory && !ALLOWED[category].includes(depCategory) && !rpcType)
+    return `${path}: ${category} source imports ${depCategory} ${dep}`;
+  if (
+    category === 'isomorphic' &&
+    !reference.typeOnly &&
+    ((!spec.includes(':') && isBuiltin(spec)) ||
+      CLIENT_ONLY.test(spec) ||
+      SERVER_ONLY.test(spec))
+  )
+    return `${path} loads ${spec}, which does not run everywhere`;
+  return undefined;
+}
 
 /** Category rules for one manifest, given its source texts. Pure, for tests. */
 export function categoryViolations(
@@ -197,8 +227,11 @@ export function categoryViolations(
       `package.json declares no category (one of ${CATEGORIES.join(', ')})`,
     ];
   }
+  const rule = RULES.get(familyOf(manifest.name ?? '') ?? '');
   for (const field of ['dependencies', 'devDependencies'] as const) {
     for (const [dep, version] of Object.entries(manifest[field] ?? {})) {
+      if (rule?.forbidden.has(familyOf(dep) ?? ''))
+        out.push(`package.json declares ${dep}: ${rule.why}`);
       if (!version.startsWith('workspace:')) continue;
       // External workspaces keep their upstream naming and release policy.
       if (!/^@(apps|libs|pkgs)\//.test(dep)) continue;
@@ -241,27 +274,13 @@ export function categoryViolations(
       out.push(
         `${file.path}: src must be flat; split a vertical slice into its own package`
       );
-    for (const reference of sourceImports(file.text)) {
-      const spec = reference.specifier;
-      const dep = /^(@(?:apps|libs|pkgs)\/[^/]+)/.exec(spec)?.[1];
-      const depCategory = dep === undefined ? undefined : categoryOfName(dep);
-      // Hono RPC clients infer contracts from server routes through erased imports.
-      const rpcType =
-        reference.typeOnly && category === 'client' && depCategory === 'server';
-      if (
-        depCategory !== undefined &&
-        !ALLOWED[category].includes(depCategory) &&
-        !rpcType
-      )
-        out.push(
-          `${file.path}: ${category} source imports ${depCategory} ${dep}`
-        );
-      if (
-        category === 'isomorphic' &&
-        !reference.typeOnly &&
-        (CLIENT_ONLY.test(spec) || SERVER_ONLY.test(spec))
-      )
-        out.push(`${file.path} loads ${spec}, which does not run everywhere`);
+    for (const reference of sourceImports(file.text, file.path)) {
+      const violation = sourceImportViolation(reference, {
+        path: file.path,
+        category,
+        rule,
+      });
+      if (violation) out.push(violation);
     }
   }
   return out;
@@ -368,7 +387,7 @@ export function gameApiViolations(
   }
   if (manifest.game === undefined) return out;
   for (const file of options.sources)
-    for (const reference of sourceImports(file.text)) {
+    for (const reference of sourceImports(file.text, file.path)) {
       const match = /^(@(?:libs|pkgs)\/[^/]+)\/(.+)$/.exec(reference.specifier);
       if (match === null) continue;
       const [, dependency = '', module = ''] = match;
@@ -512,8 +531,10 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
   const srcDir = join(pkgDir, 'src');
   const manifests = workspaceManifests(pkgDir);
   const workspace = manifests.byName;
-  const sources = sourceFiles(srcDir).filter((f) => !/\.test\.tsx?$/.test(f));
-  const out: string[] = [
+  const sources = sourceFiles(srcDir).filter(
+    (f) => !/\.test\.[cm]?[jt]sx?$/.test(f)
+  );
+  return [
     ...categoryViolations(manifest, {
       tier: slashPath(pkgDir).split('/').at(-2) ?? '',
       neutral: new Set(
@@ -532,7 +553,7 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
       workspace,
       modules: new Set(
         sourceFiles(srcDir).map((path) =>
-          path.slice(srcDir.length + 1).replace(/\.(ts|tsx)$/, '')
+          path.slice(srcDir.length + 1).replace(/\.[cm]?[jt]sx?$/, '')
         )
       ),
       sources: ['src', 'tests', 'scripts']
@@ -559,28 +580,4 @@ export function packageBoundaryViolations(pkgDir: string): readonly string[] {
         })
       : []),
   ];
-  const family = familyOf(manifest.name ?? '');
-  const rule = family === undefined ? undefined : RULES.get(family);
-  if (rule === undefined) return out;
-  const familyOfDep = (dep: string) => familyOf(dep) ?? '';
-  const declared = [
-    ...Object.keys(manifest.dependencies ?? {}),
-    ...Object.keys(manifest.devDependencies ?? {}),
-  ];
-  const broken: string[] = [];
-  for (const dep of declared) {
-    if (rule.forbidden.has(familyOfDep(dep)))
-      broken.push(`package.json declares ${dep}`);
-  }
-  for (const file of sources) {
-    for (const match of readFileSync(file, 'utf8').matchAll(
-      WORKSPACE_SPECIFIER
-    )) {
-      const dep = match[1] ?? match[2];
-      if (dep !== undefined && rule.forbidden.has(familyOfDep(dep))) {
-        broken.push(`${file.slice(pkgDir.length + 1)} imports ${dep}`);
-      }
-    }
-  }
-  return broken.length === 0 ? out : [...out, ...broken, `  why: ${rule.why}`];
 }

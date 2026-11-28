@@ -464,3 +464,45 @@ test('UI component slices keep stories and local styles beside a JSX entrypoint'
     'src/button/button.stories.tsx: src must be flat; split a vertical slice into its own package',
   ]);
 });
+
+test('production imports stay inside the package or use a public module', () => {
+  // regression: private-source-import-bypasses-package-boundaries
+  const check = (text: string, path = 'src/index.ts') =>
+    categoryViolations(
+      { name: '@libs/auth-shared-ts', category: 'isomorphic' },
+      { ...lib, sources: [{ path, text }] }
+    );
+  expect(
+    check('export type { Db } from "../../db-server-ts/src/private"')
+  ).toEqual([
+    "src/index.ts: ../../db-server-ts/src/private leaves the package; import through the owning package's exports",
+  ]);
+  expect(
+    check(
+      'import "./sub/../local"; import type { Db } from "@libs/db-shared-ts/types"'
+    )
+  ).toEqual([]);
+  expect(
+    check(
+      'const identity = <T>(x: T) => x; require("@libs/runtime-shared-ts/api")'
+    )[0]
+  ).toContain('imports @libs/runtime-shared-ts');
+});
+
+test('erased type exports and runtime loads follow their actual environments', () => {
+  // regression: bare-node-import-evades-isomorphic-boundary
+  const check = (text: string) =>
+    categoryViolations(
+      { name: '@libs/test-shared-ts', category: 'isomorphic' },
+      { ...lib, sources: [{ path: 'src/index.ts', text }] }
+    );
+  expect(check('const fs = await import("fs/promises")')).toEqual([
+    'src/index.ts loads fs/promises, which does not run everywhere',
+  ]);
+  expect(check('export { type FileHandle } from "node:fs/promises"')).toEqual(
+    []
+  );
+  expect(
+    check('export { type FileHandle, readFile } from "node:fs/promises"')
+  ).toHaveLength(1);
+});
