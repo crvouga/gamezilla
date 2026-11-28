@@ -14,11 +14,12 @@ Feature: The app opens when its device data is unusable
       Then Alice sees the tabs
       And Alice is on Spaces
 
-    Scenario: The app opens without a connection after its device data became unusable
+    Scenario: The app reopens after reconnecting with unusable device data
       Given Alice has opened the app before
       And Alice is offline
       And Alice's device data has become unusable
-      When Alice closes and reopens the app
+      When the connection comes back
+      And Alice closes and reopens the app
       Then Alice sees the tabs
       And Alice is on Spaces
 

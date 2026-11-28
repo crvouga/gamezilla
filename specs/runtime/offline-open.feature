@@ -1,15 +1,16 @@
 @domain:runtime
-Feature: The app opens without a connection
+Feature: Using the app when the connection drops
   When a person has no connection, on a plane or in a tunnel, they want the
-  app to open and work anyway after its first opening, so they are never
-  locked out.
+  open app to keep working and to reopen once a connection returns.
+  Opening the web app in a new tab needs a connection.
 
-  Rule: After its first opening the app and Settings open without a connection
+  Rule: Settings stays available offline and the app reopens after reconnecting
 
-    Scenario: The app opens without a connection after its first opening
+    Scenario: The app reopens after the connection returns
       Given Alice has opened the app before
       And Alice is offline
-      When Alice closes and reopens the app
+      When the connection comes back
+      And Alice closes and reopens the app
       Then Alice sees the tabs
       And Alice is on Spaces
 
