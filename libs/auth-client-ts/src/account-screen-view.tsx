@@ -102,16 +102,6 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
       ]}
     >
       {props.identity}
-      <Show when={props.signedIn}>
-        <SignInMethodsSection
-          methods={props.methods}
-          removing={props.removingMethod}
-          onConnect={props.onConnectMethod}
-          onRemove={props.onRemoveMethod}
-          onCancelRemove={props.onCancelRemoveMethod}
-          onConfirmRemove={props.onConfirmRemoveMethod}
-        />
-      </Show>
       <MenuSection
         title={<Trans>Security</Trans>}
         description={<Trans>Where you are signed in</Trans>}
@@ -129,6 +119,14 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
         </Show>
       </MenuSection>
       <Show when={props.signedIn}>
+        <SignInMethodsSection
+          methods={props.methods}
+          removing={props.removingMethod}
+          onConnect={props.onConnectMethod}
+          onRemove={props.onRemoveMethod}
+          onCancelRemove={props.onCancelRemoveMethod}
+          onConfirmRemove={props.onConfirmRemoveMethod}
+        />
         <MenuSection
           title={<Trans>Your data</Trans>}
           description={

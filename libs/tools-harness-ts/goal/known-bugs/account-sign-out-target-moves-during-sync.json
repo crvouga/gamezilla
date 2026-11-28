@@ -1,0 +1,4 @@
+{
+  "summary": "At 390×757, finishing sign-in method loading could move Devices under a tap intended for Sign out. The security controls stay in place when methods load or sync fails.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/account-security/integration.checks.ts"
+}
