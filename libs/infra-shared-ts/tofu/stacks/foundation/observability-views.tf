@@ -80,6 +80,21 @@ module "observability_views" {
   }
 }
 
+data "http" "alert_rule_quotas" {
+  count = module.observability.grafana_instance_ready ? 1 : 0
+  url   = "${module.observability.grafana_url}/api/org/quotas"
+  request_headers = {
+    Accept        = "application/json"
+    Authorization = "Bearer ${grafana_cloud_stack_service_account_token.views[0].key}"
+  }
+  lifecycle {
+    postcondition {
+      condition     = self.status_code == 200
+      error_message = "Grafana alert-rule quota lookup answered ${self.status_code}."
+    }
+  }
+}
+
 # Restoring an archived instance (README.md, "When Grafana archives its
 # instance"). While archived, the account and views were forgotten from state
 # but kept in Grafana, which refuses a second account of the same name (400)
