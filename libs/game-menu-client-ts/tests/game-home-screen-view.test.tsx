@@ -27,7 +27,7 @@ const TAGLINE = 'Drop discs and line up four';
 const PLAY_CHOICES: readonly GameMenuChoiceView[] = [
   {
     screen: 'vs-human',
-    title: 'Play Friend',
+    title: 'Play a Friend',
     caption: 'Play the people in this space',
   },
   {
@@ -163,7 +163,7 @@ test('the other ways to play are full-width rows with their captions', () => {
   const custom = view.getByTestId('game-choice-vs-human');
   expect(custom.closest('[data-layout="grid"]')).not.toBeNull();
   expect(custom.closest('[data-layout="primary"]')).toBeNull();
-  expect(custom.textContent).toContain('Play Friend');
+  expect(custom.textContent).toContain('Play a Friend');
   view.unmount();
 });
 

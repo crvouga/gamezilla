@@ -18,7 +18,7 @@ function sharedChoices(name: string): readonly GameMenuChoiceView[] {
     },
     {
       screen: 'vs-human',
-      title: 'Play Friend',
+      title: 'Play a Friend',
       caption: 'Play the people in this space',
     },
     {
@@ -107,7 +107,7 @@ export const ManyPlayers: Story = {
       },
       {
         screen: 'vs-human',
-        title: 'Play Friend',
+        title: 'Play a Friend',
         caption: 'Play the people in this space',
       },
       {

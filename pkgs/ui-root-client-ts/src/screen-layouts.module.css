@@ -573,7 +573,10 @@
   .puzzle[data-board-sizing="width"] {
     flex: 1;
     grid-template-columns:
-      min(560px, calc(100cqw - var(--puzzle-panel-measure) - var(--ui-space-6)))
+      min(
+        var(--puzzle-board-block),
+        calc(100cqw - var(--puzzle-panel-measure) - var(--ui-space-6))
+      )
       minmax(var(--puzzle-panel-measure), 1fr);
   }
 }

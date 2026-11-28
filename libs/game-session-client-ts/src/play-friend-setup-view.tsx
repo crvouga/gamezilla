@@ -376,7 +376,7 @@ function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
         <>
           {/* A dot stays with the fact before it, so a wrapped line
               never starts with one. */}
-          <Trans>Play Friend</Trans>
+          <Trans>Play a Friend</Trans>
           {'\u00a0· '}
           <Text variant="inherit" testId="game-session-unrated">
             <Trans>Unrated</Trans>
@@ -420,7 +420,7 @@ function fillSeatOf(
 }
 
 /**
- * Play Friend's lobby while the table is set up: who is invited and who
+ * Play a Friend's lobby while the table is set up: who is invited and who
  * is ready, what is agreed, and the one thing to do next. Seats are
  * people. A bot game has its own lobby.
  */
