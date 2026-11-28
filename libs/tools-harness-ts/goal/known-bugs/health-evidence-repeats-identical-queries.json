@@ -1,0 +1,4 @@
+{
+  "summary": "Health run 46129975296 repeatedly searched and opened the same traces for different failing objectives until a newer Release canceled evidence collection. Reuse exact read-only query results within a batch, keeping environment arguments and later batches separate.",
+  "regressionTest": "libs/observability-server-ts/tests/alert-work-items.test.ts"
+}

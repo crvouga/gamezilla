@@ -191,6 +191,21 @@ function documentFor(failures: readonly ObjectiveFailure[]) {
 }
 
 describe('work items', () => {
+  // regression: health-evidence-repeats-identical-queries
+  test('objectives share identical evidence queries without sharing environments or batches', () => {
+    const failures = [missed, { ...missed, slo: 'another-promise' }, devPage];
+    for (let batch = 0; batch < 2; batch += 1) {
+      const { doc, calls, progress } = documentFor(failures);
+      expect(doc.items).toHaveLength(3);
+      expect(
+        doc.items.every((item) => item.evidence.status === 'collected')
+      ).toBe(true);
+      expect(calls).toHaveLength(8);
+      expect(new Set(calls.map((args) => JSON.stringify(args))).size).toBe(8);
+      expect(progress).toHaveLength(12);
+    }
+  });
+
   // regression: health-alert-evidence-lost-on-cancel
   test('search evidence is published before an interrupted trace lookup', () => {
     const progress: AlertEvidence[] = [];

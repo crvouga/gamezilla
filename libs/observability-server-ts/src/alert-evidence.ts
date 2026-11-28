@@ -117,13 +117,25 @@ export function buildWorkItemsDocument(input: {
   readonly generatedAt: string;
   readonly ports: EvidencePorts;
 }): WorkItemsDocument {
+  const outcomes = new Map<string, ObsOutcome>();
+  const ports: EvidencePorts = {
+    ...input.ports,
+    obs: (args) => {
+      const key = JSON.stringify(args);
+      const prior = outcomes.get(key);
+      if (prior !== undefined) return prior;
+      const outcome = input.ports.obs(args);
+      outcomes.set(key, outcome);
+      return outcome;
+    },
+  };
   const ordered = orderWorkItems(groupFailures(input.failures));
   return {
     version: 1,
     generatedAt: input.generatedAt,
     environments: input.environments,
     items: ordered.map((failures) =>
-      buildWorkItem(failures, collectEvidence(failures, input.ports))
+      buildWorkItem(failures, collectEvidence(failures, ports))
     ),
   };
 }
