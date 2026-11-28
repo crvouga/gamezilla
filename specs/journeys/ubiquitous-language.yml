@@ -23,6 +23,8 @@ terms:
     avoid: [boot screen, booting, splash screen, loading screen, spinner]
 
   # Borrowed from App.
+  - term: Settings
+    from: runtime
   - term: tabs
     from: runtime
 
