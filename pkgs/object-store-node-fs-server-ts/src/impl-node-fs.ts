@@ -84,6 +84,7 @@ function bytesStream(bytes: Uint8Array): ReadableStream<Uint8Array> {
 
 function guessContentType(key: string): string {
   const lower = key.toLowerCase();
+  if (lower.endsWith('.svg')) return 'image/svg+xml';
   if (lower.endsWith('.json')) return 'application/json';
   if (lower.endsWith('.ts') || lower.endsWith('.tsx')) return 'text/typescript';
   if (lower.endsWith('.js') || lower.endsWith('.cjs') || lower.endsWith('.mjs'))

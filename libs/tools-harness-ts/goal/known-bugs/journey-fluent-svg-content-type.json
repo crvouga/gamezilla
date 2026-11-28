@@ -1,0 +1,4 @@
+{
+  "summary": "The production browser journey served Fluent navigation and mascot SVG files as generic binary content, so Chrome displayed broken images.",
+  "regressionTest": "pkgs/object-store-node-fs-server-ts/tests/impl-node-fs.test.ts"
+}

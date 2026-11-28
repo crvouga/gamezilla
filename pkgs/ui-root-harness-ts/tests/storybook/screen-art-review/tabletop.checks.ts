@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { verifyStoryScenario } from '../verify-story-scenario';
 
 const screens = [
+  'screens-spaces-home--empty',
   'screens-space-home--host-choosing',
   'screens-game-home--with-puzzles-and-settings',
   'screens-matchmaking-searching--searching',
@@ -33,6 +34,13 @@ for (const width of [390, 768, 1280]) {
             suffix: '',
           });
           const canvas = page.locator('#storybook-root');
+          await canvas.evaluate((root) =>
+            Promise.all(
+              Array.from(root.querySelectorAll('img'), (image) =>
+                image.decode()
+              )
+            )
+          );
           expect(
             await canvas.evaluate((root) => root.scrollWidth)
           ).toBeLessThanOrEqual(width);

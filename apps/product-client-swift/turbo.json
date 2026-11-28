@@ -12,7 +12,7 @@
       "passThroughEnv": ["DEVELOPER_DIR", "HOME"]
     },
     "test": {
-      "dependsOn": ["//#task:tokens:generate"],
+      "dependsOn": ["^src", "//#task:tokens:generate"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
