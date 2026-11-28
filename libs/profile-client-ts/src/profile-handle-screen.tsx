@@ -4,9 +4,9 @@ import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-c
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import type { JSX } from '@solidjs/web';
 import { type Accessor, createEffect, createSignal } from 'solid-js';
-import { useMyProfileId } from './claim-username-use-my-profile-id';
-import { useProfileRow } from './claim-username-use-profile-row';
 import { ProfileHandleScreenView } from './profile-handle-screen-view';
+import { useMyProfileId } from './public-use-my-profile-id';
+import { useProfileRow } from './public-use-profile-row';
 import { useStandInName } from './use-stand-in-name';
 import { useUsernameChange } from './use-username-change';
 

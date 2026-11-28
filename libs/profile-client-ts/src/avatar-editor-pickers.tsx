@@ -16,7 +16,7 @@ import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import type { AvatarColorField, AvatarEnumField } from './avatar-editor-fields';
 import { buildThumbnailEnumOptions, humanizeOptionKey } from './option-helpers';
-import { ProfileDiceBearAvatar } from './patch-avatar-profile-dicebear-avatar';
+import { ProfileDiceBearAvatar } from './public-profile-dicebear-avatar';
 
 /** The pickers of the avatar editor: style, each trait, background colors. */
 
