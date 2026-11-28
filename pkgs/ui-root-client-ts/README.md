@@ -72,7 +72,7 @@ for metal, plastic and faces. A new board motif uses its playing colors and
 a recognizable arrangement of pieces. Review it beside its name at 40 px and
 in the cover grid. Use the hosted tabletop captures to compare both sizes.
 
-Use the [reviewed phone and desktop references](https://github.com/crvouga/gamezilla/pull/898#issuecomment-7236429151)
+Use the reviewed phone and desktop references attached to pull request #898
 to compare the scale of a new piece, the edge of a control, and the contrast
 between the board and its surroundings. Each image identifies its source
 revision. The hosted `tabletop-review` captures the current implementation.

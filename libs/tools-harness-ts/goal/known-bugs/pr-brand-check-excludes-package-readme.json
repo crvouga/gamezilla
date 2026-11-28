@@ -1,0 +1,4 @@
+{
+  "summary": "The configured-brand PR check scanned only MARKET_RESEARCH.md. PR 903 added a configured repository URL to pkgs/ui-root-client-ts/README.md, passed PR checks, and failed every Health setup job.",
+  "regressionTest": "libs/tools-harness-ts/scripts/pr-research-brand.test.ts"
+}
