@@ -174,9 +174,9 @@ function createPrecisionCenter(
     const bounds = cell.getBoundingClientRect();
     const clip = element.getBoundingClientRect();
     element.scrollLeft +=
-      bounds.left - clip.left - (clip.width - bounds.width) / 2;
+      bounds.left - clip.left - (element.clientWidth - bounds.width) / 2;
     element.scrollTop +=
-      bounds.top - clip.top - (clip.height - bounds.height) / 2;
+      bounds.top - clip.top - (element.clientHeight - bounds.height) / 2;
   };
   // Center on zoom or resize, never when a pointer focuses a visible cell.
   // Moving that cell between press and release can change the hit target.
@@ -184,9 +184,20 @@ function createPrecisionCenter(
     () => (enlarged() ? viewport() : undefined),
     (element) => {
       if (!element) return undefined;
-      // The focused cell as it is now: a later focus move does not re-center.
-      untrack(center);
-      return observeElementResize(element, () => center());
+      const fit = () => {
+        // Classic scrollbars take room from the squares. Overlay bars report zero.
+        element.style.setProperty(
+          '--word-tile-gutter-x',
+          `${element.offsetWidth - element.clientWidth}px`
+        );
+        element.style.setProperty(
+          '--word-tile-gutter-y',
+          `${element.offsetHeight - element.clientHeight}px`
+        );
+        center();
+      };
+      untrack(fit);
+      return observeElementResize(element, fit);
     }
   );
   return center;

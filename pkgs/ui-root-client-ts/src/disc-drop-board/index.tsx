@@ -104,6 +104,7 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
         !thumbnail() && props.keyboardHelp ? keyboardHelpId : undefined
       )}
       data-testid={props.testId}
+      data-board-drawing
       data-preview-cell={input.target() ?? -1}
       data-cells={JSON.stringify(props.cells)}
       data-won={String(props.winning.length > 0)}

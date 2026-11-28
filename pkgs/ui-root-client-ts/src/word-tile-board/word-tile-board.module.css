@@ -159,11 +159,19 @@
     var(--word-tile-cell-size, var(--ui-control-size-md)) +
     var(--ui-space-hairline)
   );
-  /* Coordinates are printed inside edge squares. An n-square window has
-     n pitches less its final gap, including at the far end of a pan. */
-  width: calc(
-    round(down, 100% + var(--ui-space-hairline), var(--word-tile-pitch)) -
+  /* Round the drawing area to whole pitches, then restore the space for
+     native scrollbars. The final square has no trailing gap. */
+  --word-tile-edge-x: calc(
+    var(--word-tile-gutter-x, 0px) -
     var(--ui-space-hairline)
+  );
+  --word-tile-edge-y: calc(
+    var(--word-tile-gutter-y, 0px) -
+    var(--ui-space-hairline)
+  );
+  width: calc(
+    round(down, 100% - var(--word-tile-edge-x), var(--word-tile-pitch)) +
+    var(--word-tile-edge-x)
   );
   --word-tile-seven-rows: calc(
     var(--word-tile-pitch) *
@@ -173,20 +181,20 @@
   height: calc(
     round(
       down,
-      var(--word-tile-enlarged-height, var(--word-tile-seven-rows)) +
-      var(--ui-space-hairline),
+      var(--word-tile-enlarged-height, var(--word-tile-seven-rows)) -
+      var(--word-tile-edge-y),
       var(--word-tile-pitch)
-    ) -
-    var(--ui-space-hairline)
+    ) +
+    var(--word-tile-edge-y)
   );
   min-height: calc(
     round(
       down,
-      var(--word-tile-enlarged-least, var(--word-tile-seven-rows)) +
-      var(--ui-space-hairline),
+      var(--word-tile-enlarged-least, var(--word-tile-seven-rows)) -
+      var(--word-tile-edge-y),
       var(--word-tile-pitch)
-    ) -
-    var(--ui-space-hairline)
+    ) +
+    var(--word-tile-edge-y)
   );
   scroll-snap-type: both mandatory;
 }

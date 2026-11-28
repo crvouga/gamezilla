@@ -45,37 +45,36 @@
 }
 /* The commands stack the dialog's full width, the filled one first. */
 .actions,
-.actions [data-component="GameActions"],
-.actions [data-component="GameActionBar"] {
+.actions [data-component="GameActions"] {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: var(--ui-space-2);
   width: 100%;
 }
-.actions [data-component="GameActionBar"] > * {
-  flex: none;
-  align-self: stretch;
-  width: 100%;
-  max-width: none;
-}
 /* The filled command takes the whole first row; the others share the
    rows under it, each as wide as its words and growing to fill its row,
    as many across as fit: short labels sit three across, a long one moves
    to the next row, so the sheet stays short and no label is ever cut. */
 .actions [data-component="GameActionBar"] {
+  display: flex;
   flex-direction: row;
   flex-wrap: wrap;
+  align-items: stretch;
+  gap: var(--ui-space-2);
+  width: 100%;
 }
 .actions [data-component="GameActionBar"] > * {
   flex: 1 1 auto;
+  align-self: stretch;
   width: auto;
+  max-width: none;
 }
 .actions [data-component="GameActionBar"] > :first-child {
   flex-basis: 100%;
 }
 /* The standings read at a glance: rows as tall as a tap target. */
-.body [data-component="GameStandingRow"] > div {
+.body li[data-place] > div {
   min-height: 44px;
   padding-block: var(--ui-space-1);
 }
@@ -92,7 +91,7 @@
   .body {
     gap: var(--ui-space-3);
   }
-  .body [data-component="GameStandingRow"] > div {
+  .body li[data-place] > div {
     min-height: 40px;
     padding-block: 0;
   }

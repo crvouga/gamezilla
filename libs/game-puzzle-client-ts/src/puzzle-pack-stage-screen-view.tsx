@@ -149,9 +149,7 @@ function AttemptAlerts(props: PuzzlePackStageScreenViewProps): JSX.Element {
 function AttemptRule(props: PuzzlePackStageScreenViewProps): JSX.Element {
   return (
     <Show when={props.attempt.description}>
-      <P tone="secondary" testId="puzzle-attempt-rule">
-        {props.attempt.description}
-      </P>
+      <P testId="puzzle-attempt-rule">{props.attempt.description}</P>
     </Show>
   );
 }
@@ -282,8 +280,8 @@ function AttemptStage(props: PuzzlePackStageScreenViewProps): JSX.Element {
         dataSet={{ 'puzzle-attempt': 'true' }}
         status={
           <>
-            <AttemptFiguresLine {...props} />
             <AttemptRule {...props} />
+            <AttemptFiguresLine {...props} />
             <ContentAttemptSaveStatus {...props} />
           </>
         }

@@ -207,6 +207,55 @@ test('tabletop-review all five replay controls fit at 390px and 320px and return
   }
 });
 
+// regression: puzzle-stage-status-clips-second-line
+test('tabletop-review complete puzzle directions and save feedback fit at 390px and 1280px', async ({
+  page,
+}) => {
+  for (const [story, instruction] of [
+    [
+      'screens-games-numberlink-puzzle--in-progress',
+      'Join each pair of numbers and fill every square.',
+    ],
+    ['screens-games-sokoban-puzzle--fresh', 'Push each crate onto a goal.'],
+  ] as const) {
+    await verifyStoryScenario(page, story, {
+      width: 390,
+      height: 844,
+      globals: {},
+      suffix: '',
+    });
+    const status = page.getByRole('region', { name: 'Game status' });
+    const rule = status.getByTestId('puzzle-attempt-rule');
+    const save = status.getByRole('status');
+    await expect(rule).toHaveText(instruction);
+    await expect(save).toHaveText('Progress saved on this device.');
+    for (const width of [390, 1280]) {
+      await page.setViewportSize({ width, height: 844 });
+      await expect(status).toBeInViewport({ ratio: 1 });
+      for (const message of [rule, save]) {
+        const visible = await message.evaluate((el) => {
+          const clip = el.closest('[role="region"]')?.getBoundingClientRect();
+          if (!clip) return false;
+          const text = document.createRange();
+          text.selectNodeContents(el);
+          const lines = Array.from(text.getClientRects());
+          return (
+            lines.length > 0 &&
+            lines.every(
+              (line) =>
+                line.left >= clip.left - 1 &&
+                line.top >= clip.top - 1 &&
+                line.right <= clip.right + 1 &&
+                line.bottom <= clip.bottom + 1
+            )
+          );
+        });
+        expect(visible).toBe(true);
+      }
+    }
+  }
+});
+
 // regression: solved-puzzle-coach-clipped
 test('tabletop-review the solved puzzle shows a complete line under its trophy at 390px', async ({
   page,

@@ -178,7 +178,11 @@ test('a match inside one journey step records its first visible board once', asy
   const view = {
     ...successfulStepView(),
     evaluate: async (script: string) =>
-      script === 'location.href' ? 'https://example.test/space/one' : visible,
+      script === 'location.href'
+        ? 'https://example.test/space/one'
+        : script.startsWith('Array.from')
+          ? visible
+          : [],
   };
   await capture(view, 'open room');
   expect(

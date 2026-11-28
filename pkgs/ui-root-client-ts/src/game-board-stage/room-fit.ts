@@ -202,10 +202,11 @@ type RoomFitParts = {
   readonly view: Window;
 };
 
-/** A single board may cap its own width inside the full-width content box. */
+/** A capped drawing can sit inside a full-width stack of board controls. */
 function drawnBoardWidth(surface: HTMLElement): number {
-  const board = surface.firstElementChild;
-  if (surface.childElementCount === 1 && board instanceof HTMLElement) {
+  const board = surface.querySelector('[data-board-drawing]') ??
+    (surface.childElementCount === 1 ? surface.firstElementChild : null);
+  if (board instanceof HTMLElement) {
     const width = board.offsetWidth;
     if (width > 0) return Math.min(width, surface.offsetWidth);
   }
