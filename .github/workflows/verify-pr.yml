@@ -36,7 +36,7 @@ jobs:
   verify-end:
     name: verify:end
     runs-on: ubuntu-24.04
-    timeout-minutes: 3
+    timeout-minutes: 2
     permissions:
       contents: read # check out the proposed change
       actions: read # read the workflow deadline
@@ -48,7 +48,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           # Reserve ten seconds for checkout cleanup and verdict publication.
-          STAGE_SECONDS: '170'
+          STAGE_SECONDS: '110'
         run: |
           set -euo pipefail
           read_created() { timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at; }
