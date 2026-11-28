@@ -63,25 +63,23 @@
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-surface);
   background-image: var(--ui-finish-surface);
-  box-shadow: 0 var(--ui-space-hairline) var(--ui-color-border);
+  box-shadow: var(--ui-depth-control);
   color: inherit;
   font: inherit;
   text-align: start;
   cursor: pointer;
   transition:
     border-color var(--ui-duration-fast) var(--ui-easing-standard),
-    box-shadow var(--ui-duration-fast) var(--ui-easing-standard),
     transform var(--ui-duration-fast) var(--ui-easing-standard);
 }
 @media (hover: hover) {
   .tile:not([aria-disabled="true"]):hover {
     border-color: var(--ui-color-tint);
-    box-shadow: 0 var(--ui-space-hairline) var(--ui-color-tint);
   }
 }
 /* A press settles the card onto its lower edge. */
 .tile:not([aria-disabled="true"]):active {
-  box-shadow: none;
+  box-shadow: var(--ui-depth-pressed);
   transform: translateY(var(--ui-space-hairline));
 }
 .tile:focus-visible {

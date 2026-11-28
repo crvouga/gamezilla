@@ -1,7 +1,7 @@
 // @io-wall-ok — CI owns the stack, production bundle, browser process and teardown.
 import { execFileSync, spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import type { Denial } from '@pkgs/aedes-server-ts/start';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
@@ -50,7 +50,7 @@ const options = parseStackOptions([
 ]);
 // `--part=<k>/<n>` picks the share of specs; `bun test` never sees it.
 const cli = parseCli(
-  process.argv.slice(2).filter((arg) => !arg.startsWith('--part='))
+  process.argv.slice(2).filter((arg) => !arg.startsWith('--part=') && arg !== '--game-table')
 );
 
 async function buildRelease(apiOrigin: string): Promise<void> {
@@ -121,7 +121,9 @@ function scenarioCount(spec: string): number {
 }
 
 function specsToRun(): readonly string[] {
-  const all = releaseSpecs();
+  const all = process.argv.includes('--game-table')
+    ? releaseSpecs().filter((path) => dirname(path) === join(REPO_ROOT, 'specs/journeys'))
+    : releaseSpecs();
   if (part === null) return all;
   return splitReleaseSpecs(all, part.parts, scenarioCount)[part.part] ?? [];
 }

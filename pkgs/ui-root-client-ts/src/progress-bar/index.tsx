@@ -63,7 +63,7 @@ function ProgressTrack(props: {
 }): JSX.Element {
   return (
     <Progress
-      class={`box w-full overflow-hidden rounded-full bg-border ${SIZE[props.size]}`}
+      class={`box wellTrack w-full overflow-hidden rounded-full bg-border ${SIZE[props.size]}`}
       value={props.known ? props.value : null}
       min={0}
       max={1}

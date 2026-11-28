@@ -13,7 +13,9 @@ section.docked {
   background: var(--ui-color-surface);
   background-image: var(--ui-finish-surface);
   /* The result's colour is a band inside the card's own corners. */
-  box-shadow: inset 0 4px 0 var(--result-accent);
+  box-shadow:
+    inset 0 var(--ui-space-xs) var(--result-accent),
+    var(--ui-depth-raised);
 }
 section.docked[data-tone] {
   border-top-color: var(--ui-color-border);

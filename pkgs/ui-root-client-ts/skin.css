@@ -15,6 +15,21 @@
     background-image: var(--ui-finish-well);
   }
 
+  .wellTrack {
+    box-shadow: var(--ui-depth-slot);
+  }
+
+  .artMount,
+  .avatarMedallion:not([data-kind="emptySeat"]) {
+    background-image: var(--ui-finish-piece);
+    box-shadow: var(--ui-depth-piece);
+  }
+
+  .artMount.bg-surface {
+    background-image: var(--ui-finish-slot);
+    box-shadow: var(--ui-depth-slot);
+  }
+
   .themeHost {
     display: flex;
     flex-direction: column;
@@ -27,6 +42,7 @@
     color: var(--ui-color-text);
     caret-color: var(--ui-color-text);
     background-color: var(--ui-color-background);
+    background-image: var(--ui-finish-canvas);
     -webkit-font-smoothing: antialiased;
   }
 
@@ -79,26 +95,29 @@
     font-weight: var(--ui-font-weight-bold);
   }
 
-  /* The foot is inside the face so the action occupies the same space
-     when it is pressed, waiting, or showing a result. */
+  /* A filled key has a crowned face and a lower wall. Press changes only
+     the paint and the label position, so the hit area stays under the pointer. */
   :is(.btn, .fab):is(
     [data-face="primary"],
+    [data-face="neutral"],
     [data-face="danger"],
-    [data-face="feedback-error"]
+    [data-face^="feedback-"]
   ) {
-    box-shadow:
-      inset 0 calc(-1 * var(--ui-space-xs)) var(--ui-color-on-tint-scrim),
-      var(--button-lift, 0 0 transparent);
+    background-image: var(--ui-finish-action);
+    box-shadow: var(--ui-depth-control);
   }
 
-  :is(.btn, .fab):is(
+  .clickable.fab[data-face]:not([data-face="disabled"]) {
+    box-shadow: var(--ui-depth-control), var(--ui-depth-overlay);
+  }
+
+  :is(.clickable.btn, .clickable.fab):enabled:active:is(
     [data-face="primary"],
+    [data-face="neutral"],
     [data-face="danger"],
-    [data-face="feedback-error"]
-  ):enabled:active {
-    box-shadow:
-      inset 0 calc(-1 * var(--ui-space-hairline)) var(--ui-color-on-tint-scrim),
-      var(--button-lift, 0 0 transparent);
+    [data-face^="feedback-"]
+  ) {
+    box-shadow: var(--ui-depth-pressed);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -146,8 +165,6 @@
     border-radius: var(--ui-radius-full);
     font-size: var(--ui-font-size-base);
     line-height: var(--ui-leading-base);
-    --button-lift: var(--ui-shadow-float);
-    box-shadow: var(--button-lift);
   }
 
   .fab[data-extended="false"] {
@@ -162,8 +179,7 @@
 
   .btn[data-face="primary"],
   .fab[data-face="primary"] {
-    background: var(--ui-color-tint-active);
-    background-image: var(--ui-finish-action);
+    background-color: var(--ui-color-tint-active);
     color: var(--ui-color-on-primary);
     --ui-on-fg: var(--ui-color-on-primary);
     --ui-on-fg-muted: var(--ui-color-on-primary);
@@ -177,7 +193,7 @@
 
   .btn[data-face="danger"],
   .fab[data-face="danger"] {
-    background: var(--ui-color-destructive-active);
+    background-color: var(--ui-color-destructive-active);
     color: var(--ui-color-on-destructive);
     --ui-on-fg: var(--ui-color-on-destructive);
     --ui-on-fg-muted: var(--ui-color-on-destructive);
@@ -185,8 +201,7 @@
   }
 
   .fab[data-face="neutral"] {
-    background: var(--ui-color-surface-muted);
-    background-image: var(--ui-finish-surface);
+    background-color: var(--ui-color-surface-elevated);
     color: var(--ui-color-text);
     --ui-on-fg: var(--ui-color-text);
     --ui-on-fg-muted: var(--ui-color-text-secondary);
@@ -208,8 +223,7 @@
 
   /* A solid secondary action uses the raised surface; outlines let the host show through. */
   .btn[data-face="neutral"] {
-    background: var(--ui-color-surface);
-    background-image: var(--ui-finish-surface);
+    background-color: var(--ui-color-surface-elevated);
   }
 
   .btn[data-face="neutral"],
@@ -271,7 +285,7 @@
 
   .btn[data-face="feedback-success"],
   .fab[data-face="feedback-success"] {
-    background: var(--ui-color-success);
+    background-color: var(--ui-color-success);
     color: var(--ui-color-on-success);
     border-color: transparent;
     --ui-on-fg: var(--ui-color-on-success);
@@ -281,7 +295,7 @@
 
   .btn[data-face="feedback-error"],
   .fab[data-face="feedback-error"] {
-    background: var(--ui-color-destructive-active);
+    background-color: var(--ui-color-destructive-active);
     color: var(--ui-color-on-destructive);
     border-color: transparent;
     --ui-on-fg: var(--ui-color-on-destructive);
@@ -297,7 +311,8 @@
     padding-right: var(--ui-space-md);
     border-radius: var(--ui-radius-control);
     border: 1px solid var(--ui-color-outline);
-    background: transparent;
+    background: var(--ui-finish-action) var(--ui-color-surface);
+    box-shadow: var(--ui-depth-control);
     color: var(--ui-color-text);
     font-family: var(--ui-font-sans);
     font-size: var(--ui-font-size-sm);
@@ -327,7 +342,13 @@
     --ui-on-icon: var(--ui-color-on-primary-soft);
   }
 
+  .clickable.chip:enabled:active,
+  .clickable.chip:is([aria-pressed="true"], [aria-checked="true"]) {
+    box-shadow: var(--ui-depth-pressed);
+  }
+
   .chip:disabled {
+    box-shadow: none;
     opacity: var(--ui-opacity-disabled);
     cursor: not-allowed;
   }
@@ -363,11 +384,6 @@
     color: var(--ui-color-destructive);
   }
 
-  /* A neutral tag sits on cards as often as on the canvas. The sunken
-     `surface-muted` well reads as a hole on a dark card, so the tag takes
-     the raised hairline tone: a step lighter than the card in dark, a step
-     darker than it in light. Its ink is full text, never the muted grey that
-     reads as a disabled chip. */
   .badge[data-intent="neutral"][data-tone="subtle"] {
     background: var(--ui-color-border);
     color: var(--ui-color-text);
@@ -433,19 +449,17 @@
     color: var(--ui-color-on-info);
   }
 
-  /* Switch: a 48x28 track (`w-12 h-7`) with a 24px thumb (`size-6`) inset
-     2px, so it travels 20px (`translate-x-5`). Colors are the utilities on
-     the element (the soft neutral track with a `primary-strong` thumb when on,
-     a clear track with a secondary thumb when off); this adds the inset, the
-     edge hairline (`primary-strong` on, `outline` off, drawn inset so it
-     never changes the geometry) and the 200ms thumb slide. */
   .switchTrack {
+    background-image: var(--ui-finish-slot);
+    box-shadow: var(--ui-depth-slot);
     box-sizing: border-box;
     padding: calc(var(--ui-space-hairline) * 2);
   }
 
   /* Tailwind v4 moves the thumb with `translate`, not `transform`. */
   .switchTrack > .switchThumb {
+    background-image: var(--ui-finish-piece);
+    box-shadow: var(--ui-depth-piece);
     transition:
       translate var(--ui-duration-normal) var(--ui-easing-standard),
       background-color var(--ui-duration-normal) var(--ui-easing-standard);
@@ -462,7 +476,8 @@
      `on-primary-soft` glyph. */
   .checkboxBox {
     border: calc(var(--ui-space-hairline) * 2) solid var(--ui-color-outline);
-    background: var(--ui-color-background);
+    background: var(--ui-finish-well) var(--ui-color-surface-muted);
+    box-shadow: var(--ui-depth-slot);
     color: var(--ui-color-on-primary-soft);
     transition:
       background-color var(--ui-duration-fast) var(--ui-easing-standard),
@@ -482,6 +497,8 @@
 
   /* The chosen segment slides inside its track. */
   .segmentIndicator {
+    background-image: var(--ui-finish-action);
+    box-shadow: var(--ui-depth-raised);
     transition:
       left var(--ui-duration-normal) var(--ui-easing-standard),
       width var(--ui-duration-normal) var(--ui-easing-standard);

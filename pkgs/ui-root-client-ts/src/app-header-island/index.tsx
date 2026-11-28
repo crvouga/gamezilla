@@ -115,7 +115,7 @@ function RailNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
     >
       <span
         class={[
-          'box size-10 shrink-0 items-center justify-center rounded-control transition-colors',
+          'box artMount size-10 shrink-0 items-center justify-center rounded-control transition-colors',
           {
             'bg-tint-active': props.item.active,
             'bg-surface': !props.item.active,

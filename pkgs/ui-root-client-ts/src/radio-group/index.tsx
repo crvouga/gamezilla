@@ -105,7 +105,7 @@ function RadioMark(props: { checked: boolean }): JSX.Element {
   return (
     <span
       class={spaced([
-        'box size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors motion-reduce:transition-none',
+        'box wellTrack size-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors motion-reduce:transition-none',
         props.checked
           ? 'border-primary-strong bg-tint-subtle'
           : 'border-outline bg-background',

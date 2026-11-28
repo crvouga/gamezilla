@@ -52,7 +52,7 @@
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface);
   background-image: var(--ui-finish-surface);
-  box-shadow: 0 var(--ui-space-hairline) var(--ui-color-border);
+  box-shadow: var(--ui-depth-control);
   color: var(--ui-color-text);
   text-align: start;
 }
@@ -66,10 +66,9 @@
 .tile[data-emphasis="primary"] {
   min-height: 72px;
   border-color: var(--ui-color-tint);
-  box-shadow: inset 0 calc(-1 * var(--ui-space-xs)) var(--ui-color-tint);
 }
-.tile[data-emphasis="primary"]:active {
-  box-shadow: inset 0 calc(-1 * var(--ui-space-hairline)) var(--ui-color-tint);
+.tile:active {
+  box-shadow: var(--ui-depth-pressed);
 }
 @media (hover: hover) and (pointer: fine) {
   .tile:not([data-emphasis="primary"]):hover {
@@ -107,6 +106,8 @@
   height: var(--ui-control-size-sm);
   border-radius: var(--ui-radius-full);
   background: var(--ui-color-tint-active);
+  background-image: var(--ui-finish-piece);
+  box-shadow: var(--ui-depth-piece);
   --ui-on-icon: var(--ui-color-on-primary);
 }
 /* The quiet choices under the rows: compact rows sharing the rows' edges,

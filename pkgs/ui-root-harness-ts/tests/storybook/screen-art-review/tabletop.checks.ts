@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { verifyStoryScenario } from '../verify-story-scenario';
+import { tabletopBoards } from './tabletop-boards';
 
 const screens = [
   'components-feedback-spinner--states',
@@ -13,19 +14,35 @@ const screens = [
   'screens-game-sessions-stage--against-bot',
   'screens-game-sessions-result--you-win',
   'screens-game-sessions-result--you-placed-second',
-  'screens-games-chess-puzzle--solving',
   'screens-puzzles-result--solved',
   'screens-puzzles-result--failed',
   'screens-puzzles-stats--populated',
   'screens-matchmaking-ratings--game-rating',
   'screens-profile-tab--ready',
   'screens-friends-list--populated',
+  'screens-friends-list--failed-with-cached-friends',
+  'screens-account--anonymous',
+  'screens-account--signed-in',
+  'screens-shell-sso-callback--signing-in',
+  'screens-matchmaking-home--guest-allowance-sign-in',
+  'screens-settings-index--default',
+  'screens-shell-boot-loading--loading',
+  'screens-shell-local-database-boot-error--failed',
+  'screens-shell-identity-boot--pending',
+  'screens-game-sessions-setup--host-ready-to-start',
+  'screens-game-sessions-setup--invited-to-play',
+  'screens-notifications-inbox--populated',
+  'screens-puzzle-packs-stage-progress--completed',
+  ...Object.keys(tabletopBoards),
 ];
 
 for (const width of [390, 768, 1280]) {
   const height = width === 390 ? 844 : 800;
 
   for (const story of screens) {
+    // Game boards are exercised at both ends of the responsive range. The shell
+    // and control gallery also cover the tablet breakpoint.
+    if (width === 768 && tabletopBoards[story]) continue;
     test(`tabletop-review ${story} ${width} dark`, async ({ page }, info) => {
       try {
         await verifyStoryScenario(page, story, {
@@ -35,6 +52,15 @@ for (const width of [390, 768, 1280]) {
           suffix: '',
         });
         const canvas = page.locator('#storybook-root');
+        const board = tabletopBoards[story];
+        if (board) {
+          const surface = canvas.locator(`[data-component="${board}"]:visible`).first();
+          await expect(surface).toBeInViewport();
+          const bounds = await surface.boundingBox();
+          if (!bounds) throw new Error(`Missing ${board} in ${story}`);
+          expect(bounds.x).toBeGreaterThanOrEqual(-1);
+          expect(bounds.x + bounds.width).toBeLessThanOrEqual(width + 1);
+        }
         if (story === 'components-inputs-button--interactive') {
           await expect(canvas.getByRole('button', { name: 'Save' })).toHaveCSS(
             'background-image',
