@@ -12,7 +12,6 @@ import type {
 } from '../floating-menu-content';
 import {
   ArrowLeftRightIcon,
-  BotIcon,
   CircleCheckIcon,
   CrownIcon,
   Gamepad2Icon,
@@ -26,6 +25,7 @@ import {
   VolumeXIcon,
   XIcon,
 } from '../icons';
+import { BotArt } from '../illustration/index';
 import { spaceDataSet } from '../space-data-set';
 import { useSpacePersonWords } from '../space-people-row/space-person-words';
 import {
@@ -83,7 +83,7 @@ const ACTION_ICON: Readonly<Record<SpacePersonActionId, IconComponent>> = {
   removeBot: Trash2Icon,
   removeSeat: Trash2Icon,
   inviteFriend: UserPlusIcon,
-  addBot: BotIcon,
+  addBot: BotArt,
 };
 
 function useActionLabel(): (
