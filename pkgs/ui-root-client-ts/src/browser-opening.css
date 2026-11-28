@@ -105,6 +105,7 @@ body {
   background: var(--ui-finish-surface) var(--ui-color-surface);
   border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-control, 12px);
+  box-shadow: var(--ui-depth-raised);
   margin: 16px;
   padding: 8px 12px;
 }
@@ -122,6 +123,11 @@ body {
 
 .startup-shell input[type="text"] {
   box-sizing: border-box;
+  background: var(--ui-finish-well) var(--ui-color-surface-muted);
+  border: 1px solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-control);
+  box-shadow: var(--ui-depth-well);
+  color: var(--ui-color-text);
   font: inherit;
   min-height: 44px;
   padding: 0 12px;
@@ -139,7 +145,8 @@ body {
 }
 
 .startup-shell nav a[aria-current] .opening-art {
-  background: var(--ui-color-tint-subtle);
+  background: var(--ui-finish-piece) var(--ui-color-tint-subtle);
+  box-shadow: var(--ui-depth-piece);
 }
 
 .startup-shell-failed {
@@ -178,6 +185,7 @@ body {
 .startup-shell .opening-create {
   background: transparent;
   border: 0;
+  box-shadow: none;
   display: flex;
   flex: 1;
   align-items: center;
@@ -228,7 +236,7 @@ body {
   background: var(--ui-finish-action) var(--ui-color-tint-active);
   border: 0;
   border-radius: var(--ui-radius-control, 12px);
-  box-shadow: inset 0 -4px var(--ui-color-on-tint-scrim);
+  box-shadow: var(--ui-depth-control);
   color: var(--ui-color-on-primary);
   cursor: pointer;
   font: inherit;
@@ -236,6 +244,15 @@ body {
   margin: 0;
   min-height: 44px;
   padding: 0 16px;
+}
+
+.startup-shell [data-startup-create] {
+  box-shadow: var(--ui-depth-control), var(--ui-depth-overlay);
+}
+
+.startup-shell [data-startup-create]:active,
+.startup-shell-reload:active {
+  box-shadow: var(--ui-depth-pressed);
 }
 
 @media (min-width: 1024px) {
@@ -287,10 +304,11 @@ body {
   }
 
   .startup-shell nav .opening-art {
-    background: var(--ui-finish-surface) var(--ui-color-surface);
+    background: var(--ui-finish-slot) var(--ui-color-surface);
     border-radius: var(--ui-radius-control, 12px);
     height: 40px;
     width: 40px;
+    box-shadow: var(--ui-depth-slot);
   }
 
   .startup-shell nav a[aria-current] {
@@ -300,6 +318,7 @@ body {
   }
 
   .startup-shell nav a[aria-current] .opening-art {
-    background: var(--ui-color-tint-active);
+    background: var(--ui-finish-piece) var(--ui-color-tint-active);
+    box-shadow: var(--ui-depth-piece);
   }
 }

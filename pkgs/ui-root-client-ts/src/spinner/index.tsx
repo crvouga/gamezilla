@@ -58,9 +58,8 @@ function colorClass(color: SpinnerColor): string {
 }
 
 /**
- * `Spinner` -- the one activity indicator: twelve slim rounded petals
- * radiating from the center, the opacity stepping around the ring once a
- * second in twelve discrete steps (UIActivityIndicatorView). Every loading
+ * `Spinner` -- the one activity indicator: a recessed activity dial with eight short ticks
+ * that advance in discrete steps once per second. Every loading
  * indicator in the product is this component: `Button`'s loading face,
  * `LoadingState` and the FAB.
  *
@@ -99,7 +98,8 @@ export function Spinner(props: SpinnerProps): JSX.Element {
     >
       <span
         class={spaced([
-          'box items-center justify-center',
+          'box items-center justify-center rounded-full',
+          styles['socket'] ?? '',
           SIZE[props.size ?? 'md'],
           colorClass(props.color ?? 'tint'),
         ])}

@@ -1,7 +1,7 @@
 import {
   ACTIVITY_PETALS,
   ACTIVITY_REVOLUTION_MS,
-  activityIndicatorSvg,
+  activityIndicatorMarkup,
 } from './activity-indicator';
 import { COLOR_PALETTE } from './color-palette';
 
@@ -22,7 +22,7 @@ export function startupShellIssues(
     }
   } else {
     const step = `${ACTIVITY_REVOLUTION_MS}ms steps(${ACTIVITY_PETALS}, end)`;
-    if (!html.includes(activityIndicatorSvg(40)) || !html.includes(step)) {
+    if (!html.includes(activityIndicatorMarkup(40)) || !html.includes(step)) {
       issues.push(
         'the harness opening indicator differs from the design system'
       );

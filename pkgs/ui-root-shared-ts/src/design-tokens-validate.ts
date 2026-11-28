@@ -85,6 +85,7 @@ function isFontFamily(value: unknown): boolean {
 /** A W3C shadow: a color (or `{alias}` to one) and four px dimensions. */
 function isShadow(value: unknown): boolean {
   if (!isTokenTree(value)) return false;
+  if ('inset' in value && typeof value['inset'] !== 'boolean') return false;
   const color = value['color'];
   return (
     (isColor(color) || aliasPath(color) !== undefined) &&
@@ -119,7 +120,10 @@ const VALUE_VERIFICATIONS: Readonly<
   duration: (value) => isQuantity(value, ['ms', 's']),
   cubicBezier: isCubicBezier,
   number: isNumber,
-  shadow: isShadow,
+  shadow: (value) =>
+    Array.isArray(value)
+      ? value.length > 0 && value.every(isShadow)
+      : isShadow(value),
   typography: isTypography,
 };
 

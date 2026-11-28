@@ -10,6 +10,7 @@ import { slashPath } from '@pkgs/os-shared-ts/slash-path';
 import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 import { parseCssColor } from '@pkgs/ui-root-shared-ts/css-color';
 import { renderTokensCss } from '@pkgs/ui-root-shared-ts/css-vars';
+import { kebab } from '@pkgs/ui-root-shared-ts/document-palette';
 import { renderTokenNamesTs } from '@pkgs/ui-root-shared-ts/render-token-names';
 import { renderTokensJson } from '@pkgs/ui-root-shared-ts/render-tokens-json';
 
@@ -25,7 +26,9 @@ async function read(file: string): Promise<string> {
   return (await handle.exists()) ? await handle.text() : '';
 }
 
-function appleColorSet(role: 'background' | 'surface' | 'text') {
+function appleColorSet(
+  role: 'background' | 'surface' | 'surfaceElevated' | 'text'
+) {
   const value = parseCssColor(COLOR_PALETTE[role]);
   if (!value) throw new Error(`Invalid color for ${role}`);
   const colors = [
@@ -46,7 +49,7 @@ function appleColorSet(role: 'background' | 'surface' | 'text') {
     file: path.join(
       REPO,
       'apps/product-client-swift/src/assets.xcassets',
-      `table-${role}.colorset`,
+      `table-${kebab(role)}.colorset`,
       'Contents.json'
     ),
     text: `${JSON.stringify({ info: { author: 'xcode', version: 1 }, colors }, null, 2)}\n`,
@@ -56,6 +59,7 @@ function appleColorSet(role: 'background' | 'surface' | 'text') {
 const OUTPUTS: readonly { readonly file: string; readonly text: string }[] = [
   appleColorSet('background'),
   appleColorSet('surface'),
+  appleColorSet('surfaceElevated'),
   appleColorSet('text'),
   { file: path.join(PKG, 'src', 'tokens.css'), text: renderTokensCss() },
   { file: path.join(PKG, 'src', 'tokens.json'), text: renderTokensJson() },

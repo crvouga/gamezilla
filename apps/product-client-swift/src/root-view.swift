@@ -16,9 +16,16 @@ struct RootView: View {
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
     .background {
-      LinearGradient(colors: [Color("table-surface"), Color("table-background")],
-                     startPoint: .top, endPoint: .bottom)
-        .ignoresSafeArea()
+      LinearGradient(
+        stops: [
+          .init(color: Color("table-surface-elevated"), location: 0),
+          .init(color: Color("table-surface"), location: 0.3),
+          .init(color: Color("table-background"), location: 0.76)
+        ],
+        startPoint: .topLeading,
+        endPoint: .bottomTrailing
+      )
+      .ignoresSafeArea()
     }
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier(AccessibilityID.root)

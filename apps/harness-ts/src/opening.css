@@ -26,8 +26,15 @@ body {
   position: fixed;
 }
 
+.activity-socket {
+  border-radius: var(--ui-radius-full);
+  background-image: var(--ui-finish-slot);
+  box-shadow: var(--ui-depth-slot);
+  display: grid;
+}
+
 .activity-indicator {
-  animation: activity-step 1000ms steps(12, end) infinite;
+  animation: activity-step 1000ms steps(8, end) infinite;
   color: var(--ui-color-tint);
 }
 
@@ -60,7 +67,8 @@ body {
 }
 
 .startup-shell-reload {
-  background: var(--ui-color-tint-active);
+  background: var(--ui-finish-action) var(--ui-color-tint-active);
+  box-shadow: var(--ui-depth-control);
   border: 0;
   border-radius: var(--ui-radius-control);
   color: var(--ui-color-on-primary);
@@ -70,6 +78,10 @@ body {
   margin-top: 4px;
   min-height: 44px;
   padding: 0 16px;
+}
+
+.startup-shell-reload:active {
+  box-shadow: var(--ui-depth-pressed);
 }
 
 @keyframes activity-step {

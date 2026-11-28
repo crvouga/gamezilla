@@ -7,7 +7,7 @@ import {
   COLOR_TOKEN_NAMES,
   colorVar,
   kebab,
-  surfaceFinishes,
+  materialVariables,
 } from './document-palette';
 import { fonts } from './fonts';
 import { layer } from './layers';
@@ -26,7 +26,6 @@ import {
   spaceSize,
   spacing,
 } from './scale';
-import { shadowCss } from './shadows';
 import { controlSize, iconSize, maxWidth } from './sizes';
 import { textStyleCssLines } from './typography';
 
@@ -48,17 +47,15 @@ function paletteLines(): string[] {
   for (const name of COLOR_TOKEN_NAMES) {
     lines.push(`  --ui-color-${kebab(name)}: ${COLOR_PALETTE[name]};`);
   }
-  for (const [name, value] of Object.entries(surfaceFinishes)) {
-    lines.push(`  --ui-finish-${name}: ${value};`);
+  for (const [name, value] of materialVariables()) {
+    lines.push(`  ${name}: ${value};`);
   }
   for (const level of ELEVATION_LEVELS) {
     lines.push(
       `  --ui-elevation-${level}: ${elevation(level).backgroundColor};`
     );
   }
-  for (const [name, value] of Object.entries(shadowCss)) {
-    lines.push(`  --ui-shadow-${name}: ${value};`);
-  }
+  lines.push('  --ui-shadow-float: var(--ui-depth-overlay);');
   // Default on-color cascade for icons/text outside an OnColorProvider.
   lines.push('  --ui-on-fg: var(--ui-color-text);');
   lines.push('  --ui-on-fg-muted: var(--ui-color-text-secondary);');

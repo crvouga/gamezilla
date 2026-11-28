@@ -1,7 +1,7 @@
-/** The soft shadow on floating menus, popovers and tooltips. */
+/** Render layered material depths from Design Tokens shadow composites. */
 
-import { aliasPath, isTokenTree, readGroup } from './design-tokens';
-import { color, shadow } from './design-tokens.json';
+import tokens from './design-tokens.json' with { type: 'json' };
+import { aliasPath, isTokenTree, readGroup } from './design-tokens.ts';
 
 function kebab(name: string): string {
   return name.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
@@ -23,10 +23,12 @@ function readShadow(value: unknown): string {
   const geometry = ['offsetX', 'offsetY', 'blur', 'spread']
     .map((key) => px(value[key]))
     .join(' ');
-  return `${geometry} var(--ui-color-${kebab(role)})`;
+  return `${value['inset'] === true ? 'inset ' : ''}${geometry} var(--ui-color-${kebab(role)})`;
 }
 
-/** CSS `box-shadow` per named shadow. */
-export const shadowCss = readGroup({ color }, shadow, readShadow);
-
-export type ShadowName = keyof typeof shadowCss;
+/** Read compound shadows when generating stylesheets or opening documents. */
+export function renderDepths() {
+  return readGroup(tokens, tokens.shadow, (layers) =>
+    (Array.isArray(layers) ? layers : [layers]).map(readShadow).join(', ')
+  );
+}

@@ -59,7 +59,7 @@ describe('design-tokens.json', () => {
       'tone.surface.muted',
       'space.scale.4',
       'space.size.md',
-      'shadow.float',
+      'shadow.overlay',
       'font.size.base',
       'font.leading.base',
       'font.lineHeight.normal',
@@ -270,9 +270,7 @@ describe('generated files', () => {
     for (const name of TEXT_STYLES) {
       expect(css).toContain(`  --ui-text-${name}-size: var(--ui-font-size-`);
     }
-    expect(css).toContain(
-      '  --ui-shadow-float: 0px 4px 16px 0px var(--ui-color-shadow-color);'
-    );
+    expect(css).toContain('  --ui-shadow-float: var(--ui-depth-overlay);');
     expect(css).toContain('  --ui-max-width-prose: 640px;');
     expect(css).toContain('  --ui-layer-overlay: 1000000;');
     expect(css).toContain('  --ui-opacity-muted: 55%;');
