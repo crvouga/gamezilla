@@ -157,7 +157,9 @@ const RELEASE_GATES: ProofTable = {
     { task: '@apps/auth-relay-ts#verify:worker-bundle' },
     { task: '@apps/product-ts#verify:worker-bundle' },
   ],
-  'retirement of old app versions': [{ task: '@apps/product-ts#verify:worker-retirement' }],
+  'retirement of old app versions': [
+    { task: '@apps/product-ts#verify:worker-retirement' },
+  ],
   'database evolution': [
     { task: '@libs/runtime-server-ts#verify:schema-evolution' },
   ],
