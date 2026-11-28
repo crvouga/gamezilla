@@ -32,6 +32,15 @@ export type JourneyBrowser = {
   ): Promise<string>;
 };
 
+export type OpeningResult =
+  | { readonly kind: 'simulated'; readonly settingsVisible: boolean }
+  | {
+      readonly kind: 'browser';
+      readonly settingsAtMs: number | null;
+      readonly spinnerAtMs: number | null;
+      readonly runtimeSettingsVisible: boolean;
+    };
+
 /** Gestures against the app, driven by `data-testid` as a person would. */
 export type JourneyGestures = (ui: Driver) => Promise<void>;
 
@@ -61,6 +70,8 @@ export type JourneyHost = {
   readonly showsPuzzleAnswers: boolean;
   /** Open the app on a fresh device in `access`; ends on the tab shell. */
   open(access: JourneyAccess): Promise<void>;
+  /** Start a new navigation and choose Settings at the first opportunity. */
+  openAndChooseSettings(): Promise<OpeningResult>;
   /** Open the second person's fresh device with its own identity. */
   openPeer(access: JourneyAccess): Promise<void>;
   readonly peerDevice: JourneyPeerDevice;
@@ -107,7 +118,10 @@ export function spaceLinkFromLocation(location: string): string {
 }
 
 /** The world the journey steps need: every host's world carries one. */
-export type JourneyWorld = { readonly journey: JourneyHost };
+export type JourneyWorld = {
+  readonly journey: JourneyHost;
+  opening?: OpeningResult;
+};
 
 /**
  * A two-person journey's devices: Alice on the device that opened the app,

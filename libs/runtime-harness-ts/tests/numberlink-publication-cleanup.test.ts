@@ -20,6 +20,7 @@ test('publication cleanup withdraws from the current library without reloading i
     browser: null,
     showsPuzzleAnswers: false,
     open: async () => {},
+    openAndChooseSettings: unused,
     openPeer: unused,
     peerDevice: {
       spaceLink: unused,

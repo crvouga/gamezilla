@@ -35,6 +35,7 @@ import {
   readLocation,
   saveEvidence,
 } from '@apps/product-ts/live-browser';
+import { measureAppOpening } from '@apps/product-ts/measure-app-opening';
 import { markLiveDeviceSynthetic } from '@apps/product-ts/live-synthetic-device';
 import { prepareCriticalJourneyAccess } from '@apps/product-ts/prepare-critical-journey-access';
 import type { EnvFile, EnvOrigins } from '@libs/infra-shared-ts/env-file';
@@ -225,6 +226,7 @@ function liveJourneyHost(
     // The deployed bundle is a production build: no puzzle answers on the page.
     showsPuzzleAnswers: false,
     open: (access) => openLiveDevice(target, devices, access),
+    openAndChooseSettings: () => measureAppOpening(target, devices),
     peerDevice: peer,
     openPeer: peer.open,
     act: async (name, gestures) => {

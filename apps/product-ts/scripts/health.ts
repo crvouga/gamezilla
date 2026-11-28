@@ -178,6 +178,8 @@ export function allSpecs(): readonly string[] {
 
 /** The live browser journeys required before publishing a release. */
 export const RELEASE_JOURNEYS: readonly string[] = [
+  'specs/journeys/first-opening.feature',
+  'specs/journeys/reopening.feature',
   'specs/journeys/critical-journeys.feature',
 ];
 

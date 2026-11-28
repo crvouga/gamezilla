@@ -1,0 +1,79 @@
+<div class="startup-shell" data-startup-shell>
+  <main>
+    <h1 tabindex="-1">Spaces</h1>
+    <nav aria-label="Navigation">
+      <a href="/" data-testid="tab-spaces">Spaces</a>
+      <a href="/search" data-testid="tab-search">Search</a>
+      <a href="/notifications" data-testid="tab-notifications">Notifications</a>
+      <a href="/profile" data-testid="tab-profile">Profile</a>
+      <a href="/more" data-testid="global-menu-settings">Settings</a>
+    </nav>
+    <div data-route="/more" hidden>
+      <a href="/more/theme" data-testid="settings-theme">Appearance</a>
+    </div>
+    <fieldset data-route="/more/theme" hidden>
+      <legend>Theme</legend>
+      <label><input type="radio" name="theme" value="light" data-testid="theme-option-light" />Light</label>
+      <label><input type="radio" name="theme" value="dark" data-testid="theme-option-dark" />Dark</label>
+      <label><input type="radio" name="theme" value="system" data-testid="theme-option-system" />System</label>
+    </fieldset>
+  </main>
+</div>
+<script>
+  (() => {
+    const shell = document.querySelector('[data-startup-shell]');
+    const title = shell.querySelector('h1');
+    const links = Array.from(shell.querySelectorAll('a[href]'));
+    const views = shell.querySelectorAll('[data-route]');
+    const choices = shell.querySelectorAll('input[name="theme"]');
+    let preference = 'system';
+    try {
+      const stored = JSON.parse(localStorage.getItem('ui.prefs/color-scheme'));
+      if (stored && ['light', 'dark'].includes(stored['ui.prefs/value'])) preference = stored['ui.prefs/value'];
+    } catch (_) {}
+    for (const choice of choices) choice.checked = choice.value === preference;
+
+    function showLocation() {
+      const active = links.find(link => link.pathname === location.pathname);
+      title.textContent = active ? active.textContent : document.title;
+      for (const link of links) {
+        if (link === active) link.setAttribute('aria-current', 'page');
+        else link.removeAttribute('aria-current');
+      }
+      for (const view of views) view.hidden = view.dataset.route !== location.pathname;
+    }
+    shell.addEventListener('click', event => {
+      const link = event.target.closest('a[href]');
+      if (!link || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (location.href !== link.href) {
+        history.pushState(null, '', link.href);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }
+      title.focus();
+    });
+    shell.addEventListener('change', event => {
+      const choice = event.target;
+      if (choice.name !== 'theme') return;
+      preference = choice.value;
+      const scheme = preference === 'system'
+        ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
+        : preference;
+      document.documentElement.setAttribute('data-theme', scheme);
+      document.documentElement.setAttribute('data-startup-preference', preference);
+      try {
+        localStorage.setItem('ui.prefs/color-scheme', JSON.stringify({ 'ui.prefs/value': preference }));
+      } catch (_) {}
+      window.dispatchEvent(new CustomEvent('startup-theme-change', { detail: preference }));
+    });
+    showLocation();
+    window.addEventListener('popstate', showLocation);
+    const removal = new MutationObserver(() => {
+      if (shell.isConnected) return;
+      window.removeEventListener('popstate', showLocation);
+      removal.disconnect();
+    });
+    removal.observe(shell.parentNode, { childList: true });
+  })();
+</script>

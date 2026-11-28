@@ -12,6 +12,8 @@ import {
   scenarioAction,
 } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
+import { openSettings } from '@libs/harness-ts/shell-actions';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { type ProductHarness, productExtra } from '@libs/harness-ts/harness';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { setWorkOfflineFromCurrentPlace } from '@libs/runtime-harness-ts/app-settings';
@@ -105,6 +107,16 @@ export function harnessJourneyHost(w: Pick<HarnessWorld, 's'>): JourneyHost {
       // The production runner's post-sign-in check, proven on the harness's session.
       await act('confirmSignedIn', confirmSignedIn);
       await readBrowser();
+    },
+    openAndChooseSettings: async () => {
+      const returning = await w.s.read((s) => s.actors.has(HOST));
+      if (returning) await w.s.apply(restartApp, HOST);
+      else await w.s.apply(spawnActor, HOST);
+      await w.s.apply(openSettings, HOST);
+      const settingsVisible = await w.s.read(async (s) =>
+        (await actorUi(s, HOST)).get(Handles.settingsTheme).isVisible()
+      );
+      return { kind: 'simulated', settingsVisible };
     },
     act,
     peerDevice: harnessJourneyPeerDevice(w, {

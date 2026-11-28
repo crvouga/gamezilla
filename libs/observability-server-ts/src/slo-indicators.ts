@@ -382,6 +382,16 @@ export const INDICATORS: readonly Indicator[] = [
     checks: ['runtime.reaching-the-app', 'runtime.serving-people'],
   }),
   healthChecks({
+    sli: 'first-opening-checks-passing',
+    owner: 'runtime',
+    checks: ['journeys.first-opening'],
+  }),
+  healthChecks({
+    sli: 'reopening-checks-passing',
+    owner: 'runtime',
+    checks: ['journeys.reopening'],
+  }),
+  healthChecks({
     sli: 'sign-in-checks-passing',
     owner: 'auth',
     checks: ['auth.sign-in'],
