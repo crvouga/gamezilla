@@ -1,5 +1,6 @@
 """Check hosted stage durations, including admission and runner queues."""
 import json
+import math
 import os
 import subprocess
 import sys
@@ -7,9 +8,9 @@ from datetime import datetime, timedelta, timezone
 
 # Seconds from workflow creation to its verdict, including any reruns.
 BUDGETS = {
-    "Verify PR": ("verify-pr.yml", 120, 180),
+    "Verify PR": ("verify-pr.yml", 60, 120),
     "Health": ("health.yml", 1800, 2400),
-    "Release": ("deploy.yml", 480, 600),
+    "Release": ("deploy.yml", 300, 600),
     "Verify Nightly": ("verify-nightly.yml", 1800, 2700),
 }
 
@@ -31,6 +32,7 @@ def eligible(stage, run):
 def report(stage, runs, now):
     _, target, ceiling = BUDGETS[stage]
     missed = []
+    successful_seconds = []
     over_target = passed = cancelled = 0
     for run in runs:
         if not eligible(stage, run):
@@ -48,6 +50,12 @@ def report(stage, runs, now):
             over_target += 1
         if run["conclusion"] == "success":
             passed += 1
+            successful_seconds.append(seconds)
+    if successful_seconds:
+        successful_seconds.sort()
+        for percentile in (50, 95, 99):
+            rank = math.ceil(passed * percentile / 100)
+            print(f"{stage} successful p{percentile}: {successful_seconds[rank - 1]:.0f}s (n={passed})")
     print(f"{stage}: {passed} successful, {cancelled} cancelled, {over_target} at or above "
           f"{target}s target, {len(missed)} over {ceiling}s ceiling")
     for line in missed:

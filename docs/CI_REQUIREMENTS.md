@@ -15,16 +15,16 @@ Commit the cost file with any change to this document it calls for. The budgets 
 
 ## Hosted duration budgets
 
-Health measures elapsed time from GitHub workflow creation through the final verdict. Queueing, setup, verification and deployment count. Each admitted job checks the original workflow creation time before setup. Shell commands use the remaining time across jobs; a command that times out fails verification. GitHub controls queue admission, action cleanup and publication of the final check status. A run still waiting past its ceiling counts as a breach. Health reports the last 24 hours, identifies each late run and fails its duration check when any run exceeds its ceiling. A failed or cancelled run never establishes a successful delivery time.
+Health measures elapsed time from GitHub workflow creation through the final verdict. Queueing, setup, verification and deployment count. Each admitted job checks the original workflow creation time before setup. Shell commands use the remaining time across jobs; a command that times out fails verification. GitHub controls queue admission, action cleanup and publication of the final check status. A run still waiting past its ceiling counts as a breach. Health reports the last 24 hours, identifies each late run and fails its duration check when any run exceeds its ceiling. Health reports nearest-rank p50, p95 and p99 for successful deliveries with their sample size. A failed or cancelled run never establishes a successful delivery time.
 
 | Stage | Target | Hard ceiling |
 | --- | --- | --- |
-| Pull request | under 2 minutes | 3 minutes |
-| Production Release on main | under 8 minutes | 10 minutes |
+| Pull request | under 1 minute | 2 minutes |
+| Production Release on main | under 5 minutes | 10 minutes |
 | Health | under 30 minutes | 40 minutes |
 | Complete Nightly | under 30 minutes | 45 minutes |
 
-PR commands stop at 170 seconds to reserve time for GitHub to publish the required check. Health commands stop at minute 39.
+PR commands stop at 110 seconds to reserve time for GitHub to publish the required check. Health commands stop at minute 39.
 
 Nightly commands stop 39 minutes after workflow creation. The remaining six minutes allow GitHub to cancel outstanding work and publish its verdict. Nightly gate shard jobs also have a 35-minute runner timeout because a runner can stop responding during verification.
 

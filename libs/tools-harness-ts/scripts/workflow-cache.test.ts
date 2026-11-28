@@ -239,7 +239,7 @@ test('setup installs with no secret in the environment, restoring generation fro
   );
   expect(steps[install]!.if).toBe("inputs.workspace == 'true'");
   expect(steps[save]!.if).toBe(
-    "inputs.workspace == 'true' && steps.generation.outputs.cache-hit != 'true'"
+    "inputs.workspace == 'true' && github.ref == 'refs/heads/main' && steps.generation.outputs.cache-hit != 'true'"
   );
 });
 
