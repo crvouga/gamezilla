@@ -77,8 +77,10 @@ jobs:
 
   deploy-rehearsal:
     name: Preview infrastructure changes
+    # Read-only plans must not delay a release's repository-policy apply.
+    # Explicit lock recovery still shares the writer's exclusion slot.
     concurrency:
-      group: repository-policy
+      group: ${{ (inputs.abandoned-bootstrap-lock != '' || inputs.abandoned-foundation-lock != '') && 'repository-policy' || format('rehearsal-plan-{0}', github.run_id) }}
       cancel-in-progress: false
     if: ${{ inputs.rehearsal }}
     needs: deploy-verify
