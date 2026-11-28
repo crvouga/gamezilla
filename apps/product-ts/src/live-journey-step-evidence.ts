@@ -1,5 +1,6 @@
 import { writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import { captureLiveBoardGeometry } from './live-board-geometry';
 
 type Step = { readonly keyword: string; readonly text: string };
 
@@ -82,5 +83,6 @@ export function createJourneyBoardCapture(
       { keyword: 'Board after', text: action },
       async () => undefined
     );
+    await captureLiveBoardGeometry(view, store, scenarioId);
   };
 }

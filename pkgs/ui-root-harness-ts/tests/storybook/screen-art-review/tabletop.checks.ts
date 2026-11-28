@@ -1,4 +1,10 @@
-import { expect, type Page, type TestInfo, test } from '@playwright/test';
+import {
+  expect,
+  type Locator,
+  type Page,
+  type TestInfo,
+  test,
+} from '@playwright/test';
 import { verifyStoryScenario } from '../verify-story-scenario';
 import { tabletopBoards } from './tabletop-boards';
 import { checkChessSeatLayout } from './tabletop-seats';
@@ -68,6 +74,18 @@ async function checkButtonPress(page: Page, info: TestInfo) {
   }
 }
 
+async function checkWideDrawing(surface: Locator, board: string) {
+  if (board !== 'DiscDropBoard' && board !== 'TrailArena') return;
+  const rack = board === 'DiscDropBoard';
+  const targets = surface.locator(
+    rack ? '[data-column] > [data-cell]:last-child' : ':scope > svg'
+  );
+  await expect(targets).toHaveCount(rack ? 7 : 1);
+  for (const target of await targets.all()) {
+    await expect(target).toBeInViewport({ ratio: 1 });
+  }
+}
+
 for (const width of [390, 768, 1280]) {
   const height = width === 390 ? 844 : 800;
 
@@ -90,6 +108,7 @@ for (const width of [390, 768, 1280]) {
             .locator(`[data-component="${board}"]:visible`)
             .first();
           await expect(surface).toBeInViewport();
+          if (width === 1280) await checkWideDrawing(surface, board);
           // A precision board pans inside a fixed window. Its drawing may
           // extend off both edges while the player can reach every square.
           const window = canvas.getByRole('region', {
@@ -204,6 +223,55 @@ test('tabletop-review all five replay controls fit at 390px and 320px and return
       'data-place',
       'stage'
     );
+  }
+});
+
+// regression: puzzle-stage-status-clips-second-line
+test('tabletop-review complete puzzle directions and save feedback fit at 390px and 1280px', async ({
+  page,
+}) => {
+  for (const [story, instruction] of [
+    [
+      'screens-games-numberlink-puzzle--in-progress',
+      'Join each pair of numbers and fill every square.',
+    ],
+    ['screens-games-sokoban-puzzle--fresh', 'Push each crate onto a goal.'],
+  ] as const) {
+    await verifyStoryScenario(page, story, {
+      width: 390,
+      height: 844,
+      globals: {},
+      suffix: '',
+    });
+    const status = page.getByRole('region', { name: 'Game status' });
+    const rule = status.getByTestId('puzzle-attempt-rule');
+    const save = status.getByRole('status');
+    await expect(rule).toHaveText(instruction);
+    await expect(save).toHaveText('Progress saved on this device.');
+    for (const width of [390, 1280]) {
+      await page.setViewportSize({ width, height: 844 });
+      await expect(status).toBeInViewport({ ratio: 1 });
+      for (const message of [rule, save]) {
+        const visible = await message.evaluate((el) => {
+          const clip = el.closest('[role="region"]')?.getBoundingClientRect();
+          if (!clip) return false;
+          const text = document.createRange();
+          text.selectNodeContents(el);
+          const lines = Array.from(text.getClientRects());
+          return (
+            lines.length > 0 &&
+            lines.every(
+              (line) =>
+                line.left >= clip.left - 1 &&
+                line.top >= clip.top - 1 &&
+                line.right <= clip.right + 1 &&
+                line.bottom <= clip.bottom + 1
+            )
+          );
+        });
+        expect(visible).toBe(true);
+      }
+    }
   }
 });
 

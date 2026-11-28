@@ -1,0 +1,4 @@
+{
+  "summary": "On a 1280×800 game screen, a full-width wrapper hid the capped Connect Four rack width from the stage fitter. The Light Cycles drawing also spent the steering controls' vertical space. The bottom row and arena edge required scrolling.",
+  "regressionTest": "apps/product-ts/tests/live-browser.test.ts"
+}
