@@ -214,6 +214,7 @@ html[data-theme="light"] body {
   right: 16px;
   bottom: calc(73px + env(safe-area-inset-bottom));
   height: 52px;
+  border: 1px solid transparent;
   padding: 0 24px 0 16px;
 }
 
