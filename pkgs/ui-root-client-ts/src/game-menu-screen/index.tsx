@@ -3,7 +3,7 @@
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createMemo, For, Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
@@ -34,27 +34,6 @@ export type GameMenuChoice = Pick<
   emphasis?: 'quiet' | undefined;
   onClick: () => void;
 };
-
-/** A choice's picture in its rounded square. */
-function ChoiceIcon(props: {
-  choice: GameMenuChoice;
-  size: 'row' | 'tile';
-}): JSX.Element {
-  const Picture = (): JSX.Element => {
-    const Icon = props.choice.icon;
-    return <Icon size={props.size === 'tile' ? 32 : 20} />;
-  };
-  return (
-    <span
-      class={styles['icon']}
-      data-size={props.size}
-      data-emphasis={props.choice.emphasis}
-      aria-hidden="true"
-    >
-      <Picture />
-    </span>
-  );
-}
 
 export type GameMenuScreenProps = {
   /** Stable screen identifier rendered as `data-screen`. */
@@ -102,6 +81,7 @@ function ChoiceTile(props: {
   primary?: boolean;
 }): JSX.Element {
   const confirmNavigation = useConfirmNavigation();
+  const Artwork = dynamic(() => props.choice.icon);
   return (
     <SdkButton
       type="button"
@@ -110,7 +90,7 @@ function ChoiceTile(props: {
       onClick={() => confirmNavigation(props.choice.onClick)}
       {...dataAttrs({ component: 'GameMenuChoice', ...props.choice.dataSet })}
     >
-      <ChoiceIcon choice={props.choice} size="tile" />
+      <Artwork size={48} />
       <span class={styles['words']}>
         <span class={styles['titleRow']}>
           <span class={`${styles['title']} text textHeading`}>

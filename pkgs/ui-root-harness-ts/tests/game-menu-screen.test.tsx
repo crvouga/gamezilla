@@ -6,10 +6,10 @@ import { join } from 'node:path';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { GameMenuScreen } from '@pkgs/ui-root-client-ts/game-menu-screen';
 import {
-  HistoryIcon,
-  SearchIcon,
-  UsersIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+  FriendsArt,
+  HistoryArt,
+  SearchArt,
+} from '@pkgs/ui-root-client-ts/illustration';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 
@@ -27,7 +27,7 @@ function threeChoices(width: number) {
             key: 'game-session',
             title: 'Play with friends',
             caption: 'With the people in this space, or bots',
-            icon: UsersIcon,
+            icon: FriendsArt,
             dataSet: { testid: 'choice-play' },
             onClick: () => undefined,
           },
@@ -35,7 +35,7 @@ function threeChoices(width: number) {
             key: 'matchmaking',
             title: 'Find an opponent',
             caption: 'Meet another Connect Four player',
-            icon: SearchIcon,
+            icon: SearchArt,
             dataSet: { testid: 'choice-find' },
             onClick: () => undefined,
           },
@@ -43,7 +43,7 @@ function threeChoices(width: number) {
             key: 'history',
             title: 'History and stats',
             caption: 'Review your games, wins and draws',
-            icon: HistoryIcon,
+            icon: HistoryArt,
             emphasis: 'quiet',
             dataSet: { testid: 'choice-history' },
             onClick: () => undefined,
@@ -73,14 +73,14 @@ function menu(width: number, onPlay: () => void) {
             key: 'game-session',
             title: 'Play with friends or bots',
             caption: 'Choose who plays',
-            icon: UsersIcon,
+            icon: FriendsArt,
             dataSet: { testid: 'choice-play' },
             onClick: onPlay,
           },
           {
             key: 'history',
             title: 'History and stats',
-            icon: HistoryIcon,
+            icon: HistoryArt,
             emphasis: 'quiet',
             dataSet: { testid: 'choice-history' },
             onClick: () => undefined,
@@ -224,11 +224,16 @@ describe('GameMenuScreen', () => {
       ).toHaveLength(1);
       expect(view.queryByText('Recommended')).toBeNull();
       fireEvent.click(view.getByTestId('choice-more'));
-      expect(
-        view
-          .getByTestId('choice-history')
-          .querySelector('[aria-hidden="true"][data-emphasis="quiet"]')
-      ).not.toBeNull();
+      expect(view.getByTestId('choice-history')).toHaveAttribute(
+        'data-emphasis',
+        'quiet'
+      );
+      for (const id of ['choice-play', 'choice-find', 'choice-history']) {
+        const artwork = view.getByTestId(id).firstElementChild;
+        expect(artwork?.tagName).toBe('IMG');
+        expect(artwork).toHaveAttribute('width', '48');
+        expect(artwork).toHaveAttribute('alt', '');
+      }
       view.unmount();
     }
   });
@@ -300,7 +305,7 @@ describe('GameMenuScreen', () => {
             {
               key: 'library',
               title: 'Puzzles and packs',
-              icon: UsersIcon,
+              icon: FriendsArt,
               dataSet: { testid: 'choice-library' },
               onClick: () => undefined,
             },
