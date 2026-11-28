@@ -23,12 +23,11 @@ async function expectWholeSquares(cell: HTMLElement): Promise<void> {
   // regression: word-tiles-enlarged-edge-slivers
   const board = cell.closest<HTMLElement>('[data-component="WordTileBoard"]');
   const viewport = board?.parentElement;
-  const row = board?.querySelector('[data-axis="row"]');
-  const column = board?.querySelector('[data-axis="column"]');
-  if (!viewport || !row || !column) throw new Error('Missing board window');
-  const pitch = cell.getBoundingClientRect().width + 1;
-  const across = viewport.clientWidth - row.getBoundingClientRect().width;
-  const down = viewport.clientHeight - column.getBoundingClientRect().height;
+  if (!board || !viewport) throw new Error('Missing board window');
+  const gap = Number.parseFloat(getComputedStyle(board).columnGap);
+  const pitch = cell.getBoundingClientRect().width + gap;
+  const across = viewport.clientWidth + gap;
+  const down = viewport.clientHeight + gap;
   await expect(Math.abs(across - Math.round(across / pitch) * pitch)).toBe(0);
   await expect(Math.abs(down - Math.round(down / pitch) * pitch)).toBe(0);
   await waitFor(async () => {

@@ -159,32 +159,34 @@
     var(--word-tile-cell-size, var(--ui-control-size-md)) +
     var(--ui-space-hairline)
   );
-  /* A wide word workspace shows as much of the enlarged board as the fitted
-     one would take, cut to whole squares: past the sticky row and column
-     labels the window holds whole columns and rows, never a sliver at an
-     edge, and scrolling snaps a square to each labelled edge. */
+  /* Coordinates are printed inside edge squares. An n-square window has
+     n pitches less its final gap, including at the far end of a pan. */
   width: calc(
-    var(--ui-space-4) +
-    round(down, 100% - var(--ui-space-4), var(--word-tile-pitch))
+    round(down, 100% + var(--ui-space-hairline), var(--word-tile-pitch)) -
+    var(--ui-space-hairline)
   );
-  --word-tile-seven-rows: calc(var(--ui-space-6) + var(--word-tile-pitch) * 7);
+  --word-tile-seven-rows: calc(
+    var(--word-tile-pitch) *
+    7 -
+    var(--ui-space-hairline)
+  );
   height: calc(
-    var(--ui-space-6) +
     round(
       down,
-      var(--word-tile-enlarged-height, var(--word-tile-seven-rows)) -
-      var(--ui-space-6),
+      var(--word-tile-enlarged-height, var(--word-tile-seven-rows)) +
+      var(--ui-space-hairline),
       var(--word-tile-pitch)
-    )
+    ) -
+    var(--ui-space-hairline)
   );
   min-height: calc(
-    var(--ui-space-6) +
     round(
       down,
-      var(--word-tile-enlarged-least, var(--word-tile-seven-rows)) -
-      var(--ui-space-6),
+      var(--word-tile-enlarged-least, var(--word-tile-seven-rows)) +
+      var(--ui-space-hairline),
       var(--word-tile-pitch)
-    )
+    ) -
+    var(--ui-space-hairline)
   );
   scroll-snap-type: both mandatory;
 }
@@ -200,13 +202,7 @@
 }
 
 .board[data-enlarged="true"] .cell {
-  /* Clear of the sticky labels and their hairline, for focus and snapping. */
-  scroll-margin-top: calc(var(--ui-space-6) + var(--ui-space-hairline));
-  scroll-margin-left: calc(var(--ui-space-4) + var(--ui-space-hairline));
   scroll-snap-align: start;
-}
-.header[data-axis="column"] {
-  min-height: var(--ui-space-6);
 }
 
 .precision {
