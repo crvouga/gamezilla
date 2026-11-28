@@ -127,8 +127,7 @@ function focusCell(root: HTMLDivElement | undefined, index: number): void {
     `[data-index="${index}"]`
   );
   cell?.focus();
-  // The overview narrows the viewport. Reveal the whole cell after layout,
-  // retaining the sticky coordinate clearance declared by the board.
+  // The overview narrows the viewport. Reveal the whole square after layout.
   cell?.scrollIntoView({
     block: 'nearest',
     inline: 'nearest',

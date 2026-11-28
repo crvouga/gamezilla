@@ -2,4 +2,11 @@
 import { serveBrowserProcess } from '@pkgs/ui-testing-bun-webview-server-ts/browser-process-server';
 import { openBrowserTab } from './live-browser-tab';
 
-serveBrowserProcess(openBrowserTab);
+const viewport = process.env['JOURNEY_CAPTURE_VIEWPORT'];
+serveBrowserProcess((target: Parameters<typeof openBrowserTab>[0]) =>
+  openBrowserTab(
+    target,
+    undefined,
+    viewport === 'phone' || viewport === 'desktop' ? viewport : undefined
+  )
+);

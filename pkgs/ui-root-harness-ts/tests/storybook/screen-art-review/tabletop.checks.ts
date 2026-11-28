@@ -1,6 +1,7 @@
 import { expect, type Page, type TestInfo, test } from '@playwright/test';
 import { verifyStoryScenario } from '../verify-story-scenario';
 import { tabletopBoards } from './tabletop-boards';
+import { checkChessSeatLayout } from './tabletop-seats';
 
 const screens = [
   'components-illustration--catalog',
@@ -89,7 +90,15 @@ for (const width of [390, 768, 1280]) {
             .locator(`[data-component="${board}"]:visible`)
             .first();
           await expect(surface).toBeInViewport();
-          const bounds = await surface.boundingBox();
+          // A precision board pans inside a fixed window. Its drawing may
+          // extend off both edges while the player can reach every square.
+          const window = canvas.getByRole('region', {
+            name: 'Scrollable word board',
+          });
+          const bounds = await (board === 'WordTileBoard'
+            ? window.first()
+            : surface
+          ).boundingBox();
           if (!bounds) throw new Error(`Missing ${board} in ${story}`);
           expect(bounds.x).toBeGreaterThanOrEqual(-1);
           expect(bounds.x + bounds.width).toBeLessThanOrEqual(width + 1);
@@ -135,6 +144,13 @@ for (const width of [390, 768, 1280]) {
     });
   }
 }
+
+// regression: wide-game-seats-crowd-chessboard
+test('tabletop-review two seats leave room for chess at 1280×713 and 390×844', async ({
+  page,
+}, info) => {
+  await checkChessSeatLayout(page, info);
+});
 
 // regression: solved-puzzle-coach-clipped
 test('tabletop-review the solved puzzle shows a complete line under its trophy at 390px', async ({

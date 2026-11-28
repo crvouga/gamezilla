@@ -27,19 +27,22 @@
   gap: var(--ui-space-1);
 }
 .map {
+  --chart-size: 15rem;
   --chart-gutter: var(--ui-space-6);
   --chart-edge: var(--ui-space-1);
   position: relative;
-  width: 15rem;
-  aspect-ratio: 1;
+  width: var(--chart-size);
+  height: var(--chart-size);
 }
 .map .overview [data-board-theme="battleship"][data-fill] {
   width: 100%;
   max-width: none;
-  aspect-ratio: 1;
+  height: var(--chart-size);
   /* Coordinates sit outside their edge tiles. Equal gutters keep the
      playable map square and its four region controls exactly aligned. */
-  grid-template-columns: repeat(var(--cell-grid-columns), minmax(0, 1fr));
+  grid-template:
+    repeat(var(--cell-grid-columns), minmax(0, 1fr)) /
+    repeat(var(--cell-grid-columns), minmax(0, 1fr));
   padding: var(--chart-edge) var(--chart-edge) var(--chart-gutter)
     var(--chart-gutter);
   gap: 0;
@@ -112,7 +115,8 @@
 
 .navigator[data-placement="true"],
 .navigator[data-placement="true"] .map {
-  width: 14rem;
+  --chart-size: 14rem;
+  width: var(--chart-size);
 }
 .controls {
   order: -1;
@@ -143,7 +147,8 @@
 @container (min-width: 608px) {
   .layout .navigator,
   .layout .map {
-    width: 20rem;
+    --chart-size: 20rem;
+    width: var(--chart-size);
   }
   .layout .navigator {
     flex-basis: 20rem;

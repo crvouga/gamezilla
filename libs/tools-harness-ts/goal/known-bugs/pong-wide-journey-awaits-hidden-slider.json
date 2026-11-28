@@ -1,0 +1,4 @@
+{
+  "summary": "At 1280px the matched Pong journey guessed the opposing paddle and waited for its phone slider. The wide court shows the assignment at the near seat and accepts direct pointer targets.",
+  "regressionTest": "libs/runtime-harness-ts/tests/pong-desktop-target.test.ts"
+}

@@ -87,9 +87,7 @@ function gameMark(
     'game-id': props.game.id,
     'can-move': String(props.canMove),
     'board-takes-moves': String(props.canMove && props.view.earlier() === null),
-    'daily-seats': isDailyTimeControl(props.game.time_control)
-      ? String(multiplayerSides(props.game).length)
-      : '',
+    daily: String(isDailyTimeControl(props.game.time_control)),
     revision: String(props.game.revision),
     fen: props.game.fen,
     'shown-position': shown,
@@ -194,6 +192,7 @@ function BoardStage(props: StageProps): JSX.Element {
   const presentation = () => lookup(props.game.fen);
   return (
     <GameBoardStage
+      seatCount={multiplayerSides(props.game).length}
       workspace={presentation().frame.boardWorkspace}
       viewportFit={presentation().frame.boardFit}
       align={presentation().frame.boardAlign}

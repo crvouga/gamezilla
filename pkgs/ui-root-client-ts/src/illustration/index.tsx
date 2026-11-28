@@ -79,7 +79,7 @@ export const RulesArt = illustration(
   new URL('../../assets/fluent-emoji/open-book.webp', import.meta.url).href
 );
 export const ProfileArt = illustration(
-  new URL('../../assets/fluent-emoji/bust-in-silhouette.webp', import.meta.url)
+  new URL('../../assets/fluent-emoji/identification-card.webp', import.meta.url)
     .href
 );
 export const SettingsArt = illustration(

@@ -71,6 +71,7 @@ describe('Battleship automation', () => {
     const calls: string[] = [];
     const ui = {
       get: (id: string) => ({
+        isVisible: async () => id === 'board-region',
         wait: async (state: string) => {
           calls.push(`${id} wait ${state}`);
         },
@@ -81,6 +82,7 @@ describe('Battleship automation', () => {
     } as unknown as Parameters<typeof battleshipAutomation.perform>[0];
     await battleshipAutomation.perform(ui, 'board', 'e5');
     expect(calls).toEqual([
+      'board-confirmation wait visible',
       'board-area-4 wait enabled',
       'board-area-4 key enter',
       'board-aim-e5 wait enabled',
@@ -96,11 +98,14 @@ describe('Battleship automation', () => {
 
 // regression: battleship-journey-target-region-not-ready
 test('a shot waits for its region after the opponent move arrives', async () => {
+  let controlsShown = false;
   let regionReady = false;
   let fired = false;
   const ui = {
     get: (id: string) => ({
+      isVisible: async () => controlsShown && id === 'multiplayer-board-region',
       wait: async () => {
+        if (id === 'multiplayer-board-confirmation') controlsShown = true;
         if (id === 'multiplayer-board-area-1') regionReady = true;
       },
       key: async () => {

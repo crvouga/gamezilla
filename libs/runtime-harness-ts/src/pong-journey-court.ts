@@ -19,12 +19,13 @@ export async function pongJourneyStart(ui: Driver): Promise<PongJourneyStart> {
     .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
   const gameId = await ui.get('multiplayer-game').attribute('data-game-id');
   check(gameId !== null && gameId !== '', 'No matched Pong game is shown');
-  const side = (await ui.get(`${BOARD}-white-control`).isVisible())
-    ? 'white'
-    : 'black';
-  await ui.get(`${BOARD}-${side}-control`).wait('enabled', {
-    timeoutMs: JOURNEY_WAIT_MS,
-  });
+  const seat = ui.get('multiplayer-seat-near');
+  await seat.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  const side = await seat.attribute('data-side');
+  check(
+    side === 'white' || side === 'black',
+    'The near seat has no assigned Pong paddle'
+  );
   const court = await pongJourneyCourt(ui);
   return {
     gameId,
@@ -34,7 +35,7 @@ export async function pongJourneyStart(ui: Driver): Promise<PongJourneyStart> {
   };
 }
 
-/** Follow the visible ball or move away, through the actual assigned slider. */
+/** Follow the ball or move away using the control this layout offers. */
 export async function guidePongJourney(
   ui: Driver,
   side: PongJourneySide,
@@ -55,7 +56,16 @@ export async function guidePongJourney(
       ? 1000
       : 0;
   try {
-    await ui.get(`${BOARD}-${side}-control`).input(String(target));
+    const slider = ui.get(`${BOARD}-${side}-control`);
+    if (await slider.isVisible()) {
+      await slider.input(String(target));
+    } else {
+      // Edge targets lie just inside the court so native input hits the playing surface.
+      await ui.get(BOARD).tapAt({
+        xRatio: side === 'white' ? 0.25 : 0.75,
+        yRatio: Math.max(1, Math.min(999, target)) / 1000,
+      });
+    }
   } catch (error) {
     // The point that ends the game can land between reading and moving.
     if (await finished()) return true;

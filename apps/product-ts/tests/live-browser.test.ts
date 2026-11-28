@@ -103,6 +103,7 @@ test('live journey evidence lives in the package directory uploaded by CI', () =
 });
 
 // regression: health-macos-offline-network
+// regression: recorded-desktop-viewport-includes-chrome-toolbar
 // regression: health-offline-existing-room-socket
 // regression: health-profile-deleted-between-devices
 test('a fresh live device can cut its network through Chrome', async () => {
@@ -129,11 +130,21 @@ test('a fresh live device can cut its network through Chrome', async () => {
           closed = true;
         },
       } as unknown as Bun.WebView;
-    }
+    },
+    'desktop'
   );
   try {
     await emulateOffline(device.view);
     expect(commands).toEqual([
+      {
+        method: 'Emulation.setDeviceMetricsOverride',
+        params: {
+          width: 1280,
+          height: 800,
+          deviceScaleFactor: 1,
+          mobile: false,
+        },
+      },
       { method: 'Network.enable', params: undefined },
       {
         method: 'Network.emulateNetworkConditions',

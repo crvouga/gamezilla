@@ -162,6 +162,7 @@ export function StoryStage(props: {
     props.moves ?? DROPS.slice(0, props.shown ?? DROPS.length);
   return (
     <GameBoardStage
+      seatCount={2}
       information={props.information}
       others={
         <GamePlayerBar

@@ -1,4 +1,4 @@
 {
-  "summary": "On a phone the enlarged Word Tiles board showed slivers of columns and rows at its edges; the window now holds whole squares past its sticky labels and scrolling snaps a square to each labelled edge.",
+  "summary": "At 390 by 844 the four-player word board reserved space for separate coordinates after they moved inside the tiles, exposing partial squares after Find a square.",
   "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/space-regressions/integration.checks.ts"
 }
