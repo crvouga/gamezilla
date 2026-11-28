@@ -1,0 +1,4 @@
+{
+  "summary": "A solo host with bot-filled seats appears as 1 players in the game picker.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/space.test.tsx"
+}

@@ -11,7 +11,7 @@
   justify-content: center;
   gap: 0;
   padding: var(--ui-space-1);
-  border-radius: var(--ui-radius-sm);
+  border-radius: var(--ui-radius-control);
   background: var(--ui-finish-slot) var(--ui-color-surface-sunken);
   box-shadow: var(--ui-depth-slot);
 }
@@ -43,8 +43,11 @@
   position: absolute;
   inset: calc(var(--ui-space-1) / 2);
   z-index: -1;
-  border: 1px solid var(--ui-color-board-dark);
-  border-bottom-width: var(--ui-space-1);
+}
+/* The same tile face stays under the pointer when it leaves the rack. */
+.tile::before,
+.floating {
+  border: var(--ui-space-hairline) solid var(--ui-color-board-card-ink);
   border-radius: var(--ui-radius-sm);
   background: var(--ui-finish-piece) var(--ui-color-game-word-tiles-accent);
   box-shadow: var(--ui-depth-piece);
@@ -64,7 +67,7 @@
 }
 .tile[data-placed="true"]::before {
   background: transparent;
-  box-shadow: none;
+  box-shadow: var(--ui-depth-slot);
   border: 1px dashed var(--ui-color-game-word-tiles-muted);
 }
 .letter {
@@ -113,10 +116,6 @@
   height: var(--ui-control-size-md);
   margin: 0;
   padding: 0;
-  border: 1px solid var(--ui-color-game-word-tiles-muted);
-  border-bottom-width: var(--ui-space-1);
-  border-radius: var(--ui-radius-sm);
-  background: var(--ui-finish-piece) var(--ui-color-game-word-tiles-accent);
   color: var(--ui-color-board-card-ink);
   font-size: var(--ui-font-size-xl);
   font-weight: 700;

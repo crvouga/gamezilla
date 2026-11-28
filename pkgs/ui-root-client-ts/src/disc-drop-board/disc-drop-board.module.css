@@ -49,7 +49,8 @@
   gap: var(--ui-space-hairline);
   padding: var(--ui-space-2);
   border-radius: var(--ui-radius-sheet);
-  background: var(--ui-color-surface-muted);
+  background: var(--ui-finish-surface) var(--ui-color-surface-muted);
+  box-shadow: var(--ui-depth-raised);
   color: var(--ui-color-text);
   overflow: hidden;
 }
@@ -208,11 +209,11 @@
      empty one. */
   min-height: 0;
   border-radius: 50%;
-  background: var(--disc-hole);
-  /* An empty hole's edge in the board's muted ink, so the grid reads at
-     3:1 against the board, not only its dark fill (about 1.4:1). A disc
-     covers it. */
-  box-shadow: inset 0 0 0 2px var(--ui-color-text-secondary);
+  background: var(--ui-finish-slot) var(--disc-hole);
+  /* The slot shadow softens the upper lip while the lower edge catches light. */
+  box-shadow:
+    var(--ui-depth-slot),
+    inset 0 0 0 var(--ui-space-hairline) var(--ui-color-text-secondary);
   overflow: visible;
   /* The mark scales with the cell, so a small board's disc holds it whole. */
   container-type: inline-size;
@@ -227,22 +228,21 @@
   line-height: 1;
   transition: opacity var(--ui-duration-slow) var(--ui-easing-standard);
 }
-/* Every played disc has a light inner rim, so its edge reads against the
-   dark hole whatever its fill (red alone is about 2:1 on the hole). Red's
-   mark is in the board's ink, yellow's in the hole's colour: both at least
-   5:1 against their disc. */
+/* A checker fills its socket with a rounded outer lip and a recessed stamp. */
 .cell[data-disc="1"] .disc,
 .cell[data-disc="2"] .disc {
+  position: relative;
+  background-image: var(--ui-finish-piece);
   box-shadow:
-    inset 0 0 0 2px var(--ui-color-text-secondary),
+    inset 0 0 0 var(--ui-space-hairline) var(--ui-color-text-secondary),
     var(--ui-depth-piece);
 }
 .cell[data-disc="1"] .disc {
-  background: var(--ui-color-destructive);
+  background-color: var(--ui-color-destructive);
   color: var(--ui-color-text);
 }
 .cell[data-disc="2"] .disc {
-  background: var(--ui-color-warning);
+  background-color: var(--ui-color-warning);
   color: var(--ui-color-background);
 }
 /* Where the disc would land: an empty hole ringed by a thick dashed edge
@@ -327,31 +327,13 @@
   }
 }
 
-/* Highlights on the upper lip and shadow on the lower lip give the rack
-   depth without spending any of the seven columns' hit area. */
-.board {
-  background-image: var(--ui-finish-piece);
-  box-shadow: var(--ui-depth-raised);
-}
-
-.board [data-cell] {
-  background-image: var(--ui-finish-slot);
-  box-shadow: var(--ui-depth-slot);
-}
-
-/* A raised annulus on each checker surrounds its seat mark. The empty
-   destination keeps its hollow, dashed treatment. */
-.board [data-cell]:not([data-disc="0"]) > span {
-  position: relative;
-  background-image: var(--ui-finish-piece);
-}
-
-.board [data-cell]:not([data-disc="0"]) > span::before {
+/* A stamped face leaves a raised rim around the seat mark. */
+.cell:not([data-disc="0"]) .disc::before {
+  content: "";
   position: absolute;
-  inset: 14%;
+  inset: 15%;
   border-radius: inherit;
   box-shadow: var(--ui-depth-slot);
-  content: "";
 }
 
 .board [data-winning="true"] {

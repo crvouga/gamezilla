@@ -168,9 +168,9 @@
   display: grid;
   place-items: center;
   box-sizing: border-box;
-  width: 72%;
-  height: 72%;
-  border: max(1px, calc(6cqw / var(--tile-board-columns))) solid
+  width: 80%;
+  height: 80%;
+  border: max(1px, calc(4cqw / var(--tile-board-columns))) solid
     var(--tile-board-outline);
   color: var(--tile-board-outline);
   font-size: calc(48cqw / var(--tile-board-columns));
