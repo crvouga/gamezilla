@@ -4,6 +4,8 @@ import { resolve } from 'node:path';
 import { brandHtmlPlugin } from '@libs/product-brand-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
+import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/document-palette';
+import { inlineDocumentFragments } from '@pkgs/vite-workspace-resolver-server-ts/inline-document-fragments';
 import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 import {
   DEFAULT_WORKSPACE_SCOPES,
@@ -55,6 +57,7 @@ export default defineConfig(({ mode }) => {
   });
   const plugins: PluginOption[] = [
     // `index.html` spells `%BRAND_NAME%`; the identity fills it in.
+    inlineDocumentFragments({ 'opening.css': resolve(harnessDir, 'src/opening.css') }, withDocumentPalette),
     brandHtmlPlugin(),
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
     sqliteWebAssets({
