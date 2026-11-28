@@ -71,6 +71,7 @@ const ART = {
 
 const SIZE = { md: 32, lg: 48, xl: 80 } satisfies Record<GameTileSize, number>;
 
+/** Identifies a game beside its visible name in the catalog or game menu. */
 export function GameTile(props: GameTileProps): JSX.Element {
   const Art = dynamic(() => ART[props.motif]);
   return (

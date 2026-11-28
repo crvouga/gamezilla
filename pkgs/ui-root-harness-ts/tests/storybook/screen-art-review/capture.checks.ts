@@ -5,15 +5,29 @@ import { supportsStoryViewport } from '../../../storybook/scenarios';
 import { verifyStoryScenario } from '../verify-story-scenario';
 
 type Entry = { id: string; type: string; tags: string[] };
-const index: { entries: Record<string, Entry> } = JSON.parse(
+const index = JSON.parse(
   readFileSync(
     new URL('../../../.cache/storybook/index.json', import.meta.url),
     'utf8'
   )
-);
+) as { entries: Record<string, Entry> };
 const seen = new Set<string>();
 const extra = new Set([
   'components-illustration--catalog',
+  'components-inputs-iconbutton--states',
+  'screens-search-people--no-results',
+  'screens-history-games--empty',
+  'screens-matchmaking-status--unavailable',
+  'screens-puzzle-packs-home--empty',
+  'screens-puzzle-packs-home-browse--empty',
+  'screens-puzzle-packs-home-continue--empty',
+  'screens-puzzle-packs-home-mine--empty',
+  'screens-puzzle-packs-home-playtests--empty',
+  'screens-puzzle-packs-home-solved--empty',
+  'screens-puzzles-link--unavailable',
+  'screens-spaces-home--empty',
+  'screens-spaces-members--empty',
+  'screens-spaces-share--empty',
   'screens-custom-games-home--no-game-many-players',
   'screens-game-home--with-puzzles-and-settings',
   'screens-game-home--open-more',

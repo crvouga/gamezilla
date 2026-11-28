@@ -54,9 +54,16 @@ export const CourtArt = illustration(
 export const TrailsArt = illustration(
   new URL('./motorcycle.svg', import.meta.url).href
 );
-export const FriendsArt = illustration(
+const HuggingPeople = illustration(
   new URL('./people-hugging.svg', import.meta.url).href
 );
+
+/** The decorative People Hugging illustration for friends and human opponents. */
+export function FriendsArt(
+  props: Pick<IconProps, 'size' | 'dataSet'>
+): JSX.Element {
+  return <HuggingPeople {...props} />;
+}
 export const BotArt = illustration(
   new URL('./robot.svg', import.meta.url).href
 );

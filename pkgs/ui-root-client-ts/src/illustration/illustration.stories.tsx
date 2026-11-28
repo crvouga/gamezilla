@@ -3,11 +3,12 @@ import { expect } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import * as artwork from './index';
+import { FriendsArt } from './index';
 
 export default {
   id: 'components-illustration',
   title: 'Atoms/Illustration',
-  component: artwork.FriendsArt,
+  component: FriendsArt,
 } satisfies Meta;
 
 export const Catalog: StoryObj = {
