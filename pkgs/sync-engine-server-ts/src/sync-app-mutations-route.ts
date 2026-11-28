@@ -1,26 +1,14 @@
 import { bindIdentity } from '@pkgs/observability-root-shared-ts/identity-scope';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
-import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
 import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type {
   ContentRules,
   MutationAuthorize,
-  MutationEnv,
   MutationRegistry,
 } from '@pkgs/sync-engine-shared-ts/mutations-types';
-import { partitionFanoutRowsByTopic } from '@pkgs/sync-engine-shared-ts/partition-fanout-rows';
-import { filterPublishableImages } from '@pkgs/sync-engine-shared-ts/row-image-guard';
-import {
-  fanoutRowsForCapture,
-  mergeAffectedRows,
-} from '@pkgs/sync-engine-shared-ts/select-fanout-rows';
 import type { TopicMap } from '@pkgs/sync-engine-shared-ts/topic-map';
-import {
-  topicMapCtxFromEnv,
-  topicsFromWriteCapture,
-} from '@pkgs/sync-engine-shared-ts/topic-map';
-import type { AuthErrorBody, QueryRow } from '@pkgs/sync-engine-shared-ts/v2';
+import type { AuthErrorBody } from '@pkgs/sync-engine-shared-ts/v2';
 import {
   MAX_MUTATIONS_BATCH,
   MAX_MUTATIONS_BODY_BYTES,
@@ -30,13 +18,13 @@ import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared-ts/write-cap
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import type { Hono } from 'hono';
-import { allocateTopicPushSeqs } from './allocate-topic-push-seq';
 import { isAuthErrorBody } from './auth-error';
 import { syncBodyCap } from './body-cap';
 import { countMutationReplays } from './count-mutation-replays';
 import type { MutationLifecycle } from './mutation-lifecycle';
 import { publishPushMessages } from './notify-channels';
 import { parseMutationsBatchBody } from './parse-batch-body';
+import { prepareMutationPush } from './prepare-mutation-push';
 import { processMutationsBatch } from './process-mutations-batch';
 import type { MutationRow } from './replay-mutation';
 import type { SyncSqlVariables } from './resolve-request-sql';
@@ -45,88 +33,12 @@ import { retryMutationTransaction } from './retry-mutation-transaction';
 import type { SyncAppAuth } from './sync-app-auth';
 import { assertSyncProtocol } from './sync-protocol-gate';
 
-function mergeCaptures(
-  captures: readonly WriteCaptureSnapshot[]
-): WriteCaptureSnapshot {
-  const tableSet = new Set<string>();
-  const idParts: Array<Readonly<Record<string, readonly string[]>>> = [];
-  const imageParts: Record<string, QueryRow[]> = {};
-  for (const c of captures) {
-    for (const t of c.tables) tableSet.add(t);
-    idParts.push(c.ids);
-    for (const [table, rows] of Object.entries(c.images)) {
-      const byId = new Map(
-        (imageParts[table] ?? []).map(
-          (r) => [String(r['id'] ?? ''), r] as const
-        )
-      );
-      for (const row of rows) {
-        const id = String(row['id'] ?? '');
-        if (id.length === 0) continue;
-        // Later captures win (batch order) so last write's post-image is published.
-        byId.set(id, { ...row });
-      }
-      imageParts[table] = [...byId.values()];
-    }
-  }
-  return {
-    tables: [...tableSet].sort(),
-    ids: mergeAffectedRows(idParts),
-    images: imageParts,
-  };
-}
-
-async function collectTopicsFromCaptures(args: {
-  readonly topicMap: TopicMap | undefined;
-  readonly auth: SyncAppAuth;
-  readonly captures: readonly WriteCaptureSnapshot[];
-  readonly db: SqlClient;
-  readonly now: () => number;
-  readonly createId: () => string;
-}): Promise<Topic[]> {
-  if (args.topicMap === undefined || args.captures.length === 0) return [];
-  const env: MutationEnv = {
-    actorId: args.auth.actorId,
-    deviceId: args.auth.deviceId,
-    accountId: args.auth.accountId,
-    isAnon: args.auth.isAnon,
-    now: () => new Date(args.now()),
-    createId: args.createId,
-  };
-  const merged = mergeCaptures(args.captures);
-  return topicsFromWriteCapture({
-    topicMap: args.topicMap,
-    capture: merged,
-    ctx: topicMapCtxFromEnv(env),
-    db: args.db,
-  });
-}
-
-async function buildFanoutRows(args: {
-  readonly db: SqlClient;
-  readonly capture: WriteCaptureSnapshot;
-  readonly rowImageFanout: boolean;
-}): Promise<Record<string, QueryRow[]> | undefined> {
-  if (!args.rowImageFanout) return undefined;
-  return fanoutRowsForCapture(args.db, args.capture);
-}
-
-type PreparedMutationNotify = {
-  readonly result: Awaited<ReturnType<typeof processMutationsBatch>>;
-  readonly tables: readonly string[];
-  readonly rows: Record<string, QueryRow[]> | undefined;
-  readonly rowsByTopic:
-    | ReadonlyMap<Topic, Record<string, QueryRow[]>>
-    | undefined;
-  readonly checkpoints: ReadonlyMap<Topic, string>;
-};
-
 async function prepareMutationNotify(
   deps: MountMutationsRouteDeps,
   auth: SyncAppAuth,
-  mutationRows: MutationRow[],
+  mutationRows: readonly MutationRow[],
   db: SqlClient
-): Promise<PreparedMutationNotify> {
+) {
   return countMutationReplays(mutationRows.length, () =>
     retryMutationTransaction(db, (tx) =>
       prepareMutationNotifyIn(deps, auth, mutationRows, tx)
@@ -137,9 +49,9 @@ async function prepareMutationNotify(
 async function prepareMutationNotifyIn(
   deps: MountMutationsRouteDeps,
   auth: SyncAppAuth,
-  mutationRows: MutationRow[],
+  mutationRows: readonly MutationRow[],
   tx: SqlClient
-): Promise<PreparedMutationNotify> {
+) {
   const result = await processMutationsBatch({
     transaction: tx,
     registry: deps.mutations,
@@ -157,82 +69,18 @@ async function prepareMutationNotifyIn(
       ? { contentRulesAt: deps.contentRulesAt }
       : {}),
   });
-  if (result.applied.length === 0 || deps.pubsub === undefined) {
-    return {
-      result,
-      tables: [] as string[],
-      rows: undefined,
-      rowsByTopic: undefined,
-      checkpoints: new Map<Topic, string>(),
-    };
-  }
-  const captures = result.applied.map((a) => a.capture);
-  const merged = mergeCaptures(captures);
-  const env: MutationEnv = {
-    actorId: auth.actorId,
-    deviceId: auth.deviceId,
-    accountId: auth.accountId,
-    isAnon: auth.isAnon,
-    now: () => new Date(deps.now()),
-    createId: deps.createId,
-  };
-  const topics = await collectTopicsFromCaptures({
-    topicMap: deps.topicMap,
-    auth,
-    captures,
-    db: tx,
-    now: deps.now,
-    createId: deps.createId,
-  });
-  const tables = merged.tables;
-  // A batch writing rows that may not travel as images (`rowImage.publish`)
-  // sends none at all: every reader is woken and reads again through its
-  // own authorized queries, so no such row ever leaves in a push.
-  const built = await buildFanoutRows({
-    db: tx,
-    capture: merged,
-    rowImageFanout: deps.rowImageFanout === true,
-  });
-  const rows =
-    built === undefined ||
-    filterPublishableImages(built, deps.topicMap, topicMapCtxFromEnv(env)) !==
-      built
+  const push =
+    deps.pubsub === undefined || result.applied.length === 0
       ? undefined
-      : built;
-  const rowsByTopic =
-    rows !== undefined && deps.topicMap !== undefined
-      ? await partitionFanoutRowsByTopic({
-          topicMap: deps.topicMap,
-          ctx: topicMapCtxFromEnv(env),
-          rows,
+      : await prepareMutationPush({
           db: tx,
-        })
-      : undefined;
-  const checkpoints = await allocateTopicPushSeqs(tx, topics, deps.now);
-  return { result, tables, rows, rowsByTopic, checkpoints };
-}
-
-async function publishMutationPushes(
-  deps: MountMutationsRouteDeps,
-  prepared: PreparedMutationNotify
-): Promise<void> {
-  if (deps.pubsub === undefined || prepared.result.applied.length === 0) return;
-  const label = prepared.result.applied.map((a) => a.name).join(',');
-  await publishPushMessages({
-    pubsub: deps.pubsub,
-    pushSeqs: prepared.checkpoints,
-    // Minted after the replay transaction committed: any snapshot read before
-    // the commit carries a lower checkpoint and is rejected once a client has
-    // applied these rows.
-    checkpoint: deps.nextCheckpoint(),
-    tables: prepared.tables,
-    ...(prepared.rowsByTopic !== undefined
-      ? { rowsByTopic: prepared.rowsByTopic }
-      : prepared.rows !== undefined
-        ? { rows: prepared.rows }
-        : {}),
-    label,
-  });
+          auth,
+          captures: result.applied.map((applied) => applied.capture),
+          topicMap: deps.topicMap,
+          rowImageFanout: deps.rowImageFanout === true,
+          now: deps.now,
+        });
+  return { result, push };
 }
 
 export type MountMutationsRouteDeps = MutationLifecycle & {
@@ -285,20 +133,20 @@ export function mountMutationsRoute(
     if (parsed.mutations.length > MAX_MUTATIONS_BATCH) {
       return c.json({ error: 'batch_too_large' }, 413);
     }
-    const mutationRows: MutationRow[] = parsed.mutations.map((m) => ({
-      id: m.id,
-      name: m.name,
-      args: m.args,
-      clientId: m.clientId,
-      seq: m.seq,
-      createdAt: m.createdAt,
-      originTraceparent: m.originTraceparent,
-      ...(m.correlation === undefined ? {} : { correlation: m.correlation }),
-    }));
-    const prepared = await prepareMutationNotify(deps, auth, mutationRows, db);
-    const { result, checkpoints } = prepared;
-    if (deps.pubsub !== undefined && result.applied.length > 0) {
-      await publishMutationPushes(deps, prepared);
+    const { result, push } = await prepareMutationNotify(
+      deps,
+      auth,
+      parsed.mutations,
+      db
+    );
+    if (deps.pubsub !== undefined && push !== undefined) {
+      await publishPushMessages({
+        ...push,
+        pubsub: deps.pubsub,
+        // A checkpoint minted after commit orders this push above earlier snapshots.
+        checkpoint: deps.nextCheckpoint(),
+        label: result.applied.map((applied) => applied.name).join(','),
+      });
     }
     if (result.applied.length > 0)
       await deps.onCommitted?.(result.applied.map((item) => item.capture));
@@ -315,8 +163,8 @@ export function mountMutationsRoute(
         serverTimeMs: deps.now(),
         verdicts: result.verdicts,
         ackSeq: result.ackSeq,
-        ...(deps.pubsub !== undefined && result.applied.length > 0
-          ? { topicPushSeqs: Object.fromEntries(checkpoints) }
+        ...(push !== undefined
+          ? { topicPushSeqs: Object.fromEntries(push.pushSeqs) }
           : {}),
         protocol: SYNC_PROTOCOL_VERSION,
       },
