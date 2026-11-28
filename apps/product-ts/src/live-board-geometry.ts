@@ -86,7 +86,7 @@ export async function captureLiveBoardGeometry(
   if (parts.length === 0) return;
   await writeUtf8(
     store,
-    `${scenarioId}.board/geometry.json`,
+    `${scenarioId}.board/steps/geometry.json`,
     JSON.stringify(parts)
   );
   for (const { name, part, room } of parts) {
