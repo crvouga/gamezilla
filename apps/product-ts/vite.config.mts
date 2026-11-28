@@ -4,6 +4,7 @@ import { brandHtmlPlugin } from '@libs/product-brand-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
 import { feedbackDevPlugin } from '@pkgs/feedback-server-ts/vite';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/document-palette';
 import { artifactProtection } from '@pkgs/vite-workspace-resolver-server-ts/artifact-protection';
 import { inlineDocumentFragments } from '@pkgs/vite-workspace-resolver-server-ts/inline-document-fragments';
@@ -38,6 +39,8 @@ const DEV_PORT = Number(process.env['VITE_PORT'] ?? 5173);
  * a test is driving.
  */
 const FROZEN = process.env['PRODUCT_DEV_FROZEN'] === '1';
+
+const canvasColor = JSON.stringify(COLOR_PALETTE.background);
 
 export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
@@ -85,6 +88,7 @@ export default defineConfig(({ mode }) => {
     envPrefix: ['VITE_'],
     plugins,
     define: {
+      'import.meta.env.APP_CANVAS_COLOR': canvasColor,
       'import.meta.env.MODE': JSON.stringify(mode),
     },
     server: {

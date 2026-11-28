@@ -1,6 +1,6 @@
 /**
- * HTML shells (`index.html`) cannot import the identity, so they spell
- * `%BRAND_NAME%` and `%BRAND_THEME_COLOR%`, and the build replaces them
+ * HTML shells (`index.html`) cannot import the identity, so the build replaces
+ * their `%BRAND_NAME%` placeholder
  * (`brandHtmlPlugin` for Vite, `renderBrandHtml` anywhere else).
  */
 import {
@@ -12,9 +12,7 @@ export function renderBrandHtml(
   html: string,
   identity: ProductIdentity = PRODUCT
 ): string {
-  return html
-    .replaceAll('%BRAND_NAME%', escapeHtml(identity.brand.name))
-    .replaceAll('%BRAND_THEME_COLOR%', identity.brand.themeColor);
+  return html.replaceAll('%BRAND_NAME%', escapeHtml(identity.brand.name));
 }
 
 /** A Vite plugin (structurally typed: no Vite import here). */

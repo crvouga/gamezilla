@@ -58,6 +58,7 @@
     "@pkgs/os-server-ts": "workspace:*",
     "@pkgs/os-shared-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
+    "@pkgs/ui-root-shared-ts": "workspace:*",
     "@pkgs/quint-server-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/ui-testing-bun-webview-server-ts": "workspace:*",

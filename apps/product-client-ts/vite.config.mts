@@ -4,6 +4,7 @@ import { brandHtmlPlugin } from '@libs/product-brand-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
 import { feedbackDevPlugin } from '@pkgs/feedback-server-ts/vite';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/document-palette';
 import { artifactProtection } from '@pkgs/vite-workspace-resolver-server-ts/artifact-protection';
 import { inlineDocumentFragments } from '@pkgs/vite-workspace-resolver-server-ts/inline-document-fragments';
@@ -36,6 +37,8 @@ export const linguiMacroPlugin = [
 ] as const;
 
 const DEV_PORT = 8081;
+
+const canvasColor = JSON.stringify(COLOR_PALETTE.background);
 
 export default defineConfig(({ mode }) => {
   const analyze = process.env['ANALYZE'] === '1';
@@ -88,6 +91,7 @@ export default defineConfig(({ mode }) => {
     envPrefix: ['VITE_'],
     plugins,
     define: {
+      'import.meta.env.APP_CANVAS_COLOR': canvasColor,
       'import.meta.env.MODE': JSON.stringify(mode),
     },
     server: {
