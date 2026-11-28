@@ -147,7 +147,7 @@ data "grafana_dashboards" "kept" {
 }
 
 data "http" "kept_rules" {
-  count = local.restore_views ? 1 : 0
+  count = module.observability.grafana_instance_ready ? 1 : 0
   url   = "${module.observability.grafana_url}/api/v1/provisioning/alert-rules"
   request_headers = {
     Accept        = "application/json"
