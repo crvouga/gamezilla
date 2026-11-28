@@ -2,7 +2,10 @@ import type {
   CustomGameChoice,
   CustomGameInput,
 } from '@libs/game-session-shared-ts/custom-game-choice';
-import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
+import type {
+  CustomGame,
+  PlayMode,
+} from '@libs/game-session-shared-ts/custom-game-state';
 import { customGameTerminal } from '@libs/game-session-shared-ts/custom-game-state';
 import { type Accessor, onCleanup } from 'solid-js';
 import type { useCustomGamePrivateSetup } from './use-custom-game-private-setup';
@@ -32,19 +35,19 @@ export function useCustomGameChoices(options: {
   };
   // A start control can still receive a tap while a room update is painting.
   let creating = false;
-  const create = async () => {
+  const create = async (mode: PlayMode = 'vs-human') => {
     const current = options.current();
     if (creating || (current !== null && !customGameTerminal(current)))
       return null;
     creating = true;
     try {
-      return await send({ operation: 'create' });
+      return await send({ operation: 'create', mode });
     } finally {
       creating = false;
     }
   };
   const choose = async (input: CustomGameInput): Promise<void> => {
-    if (input.operation === 'create') await create();
+    if (input.operation === 'create') await create(input.mode);
     else await send(input);
   };
   const ready = async (arrangeIncomplete = false): Promise<boolean> => {
@@ -65,7 +68,7 @@ export function useCustomGameChoices(options: {
   const playBot = async (): Promise<void> => {
     const requested = options.gameId();
     const spaceId = options.spaceId();
-    const id = await create();
+    const id = await create('vs-bot');
     const ownSetup = () => {
       if (
         closed ||

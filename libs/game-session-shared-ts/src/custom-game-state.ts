@@ -41,10 +41,19 @@ export const CLOSED_CUSTOM_GAME_SIDE: CustomGameParticipant = {
   person: '',
 };
 
+/**
+ * Who the game is with. A game against people and a game against bots are
+ * different products: each has its own setup and its own play screen.
+ * Older stored games have no mode and are read as games against people.
+ */
+export const PLAY_MODES = ['vs-human', 'vs-bot'] as const;
+export type PlayMode = (typeof PLAY_MODES)[number];
+
 export const customGameSchema = z
   .object({
     id: z.string().min(1),
     creator: z.string().min(1),
+    mode: z.enum(PLAY_MODES).default('vs-human'),
     status: z.enum(['configuring', 'active', 'completed', 'cancelled']),
     white: customGameParticipantSchema,
     black: customGameParticipantSchema,
@@ -163,20 +172,27 @@ export function newCustomGame(
   id: string,
   creator: string,
   position: string,
-  sides: readonly GameSide[] = ['white', 'black']
+  sides: readonly GameSide[] = ['white', 'black'],
+  mode: PlayMode = 'vs-human'
 ): CustomGame {
-  assertGameSides({ id: 'custom-game', sides });
+  assertGameSides({ id: 'play-game', sides });
+  const againstBots = mode === 'vs-bot';
   return {
     id,
     creator,
+    mode,
     status: 'configuring',
     white: { kind: 'person', person: creator },
-    black: OPEN_CUSTOM_GAME_SIDE,
+    black: againstBots ? BOT_CUSTOM_GAME_SIDE : OPEN_CUSTOM_GAME_SIDE,
     red: sides.includes('red')
-      ? OPEN_CUSTOM_GAME_SIDE
+      ? againstBots
+        ? BOT_CUSTOM_GAME_SIDE
+        : OPEN_CUSTOM_GAME_SIDE
       : CLOSED_CUSTOM_GAME_SIDE,
     blue: sides.includes('blue')
-      ? OPEN_CUSTOM_GAME_SIDE
+      ? againstBots
+        ? BOT_CUSTOM_GAME_SIDE
+        : OPEN_CUSTOM_GAME_SIDE
       : CLOSED_CUSTOM_GAME_SIDE,
     sides: [...sides],
     ready: [],

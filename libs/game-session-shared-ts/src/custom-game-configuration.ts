@@ -139,7 +139,8 @@ export function rematchCustomGame(
     id,
     game.creator,
     position.configuration?.restart(game.fen) ?? position.initial(),
-    game.sides
+    game.sides,
+    game.mode
   );
   for (const side of game.sides) {
     const previous = rotatedCustomGameSide(game, side);

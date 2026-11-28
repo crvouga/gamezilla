@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { customGameSideSchema } from './custom-game-state';
+import { customGameSideSchema, PLAY_MODES } from './custom-game-state';
 
 const reference = {
   gameId: z.string().min(1).nullable(),
@@ -12,6 +12,8 @@ export const customGameChoiceSchema = z.discriminatedUnion('operation', [
       operation: z.literal('create'),
       /** Explicit game when browsing locally; omission means the shared selection. */
       game: z.string().min(1).max(128).optional(),
+      /** Who the game is with. Older callers omit it and play people. */
+      mode: z.enum(PLAY_MODES).default('vs-human'),
     })
     .strict(),
   z

@@ -81,7 +81,8 @@ function createdCustomGame(
     ctx.commandId,
     ctx.identity,
     position,
-    gameSides(rules.byId(id))
+    gameSides(rules.byId(id)),
+    choice.operation === 'create' ? choice.mode : 'vs-human'
   );
 }
 
