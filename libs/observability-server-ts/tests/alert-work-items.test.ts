@@ -5,6 +5,7 @@ import {
   collectEvidence,
 } from '@libs/observability-server-ts/alert-evidence';
 import {
+  type AlertEvidence,
   evidenceArgs,
   redact,
   traceArgs,
@@ -12,6 +13,7 @@ import {
 import {
   decodeLogBlock,
   encodeLogBlock,
+  renderEvidence,
   renderWorkItems,
 } from '@libs/observability-server-ts/alert-work-items-render';
 import type { ObjectiveFailure } from '@pkgs/openslo-shared-ts/failure';
@@ -173,16 +175,49 @@ function fakeObs(
 
 function documentFor(failures: readonly ObjectiveFailure[]) {
   const calls: (readonly string[])[] = [];
+  const progress: AlertEvidence[] = [];
   const doc = buildWorkItemsDocument({
     failures,
     environments: ['dev', 'prd'],
     generatedAt: '2026-11-09T12:00:00.000Z',
-    ports: { obs: fakeObs(calls), nowMs: () => NOW, deadlineMs: NOW + 1 },
+    ports: {
+      obs: fakeObs(calls),
+      report: (evidence) => progress.push(evidence),
+      nowMs: () => NOW,
+      deadlineMs: NOW + 1,
+    },
   });
-  return { doc, calls };
+  return { doc, calls, progress };
 }
 
 describe('work items', () => {
+  // regression: health-alert-evidence-lost-on-cancel
+  test('search evidence is published before an interrupted trace lookup', () => {
+    const progress: AlertEvidence[] = [];
+    const ports = {
+      obs: (args: readonly string[]): ObsOutcome => {
+        if (args[0] === 'trace') throw new Error('job interrupted');
+        return { code: 0, stdout: SEARCH, stderr: '' };
+      },
+      nowMs: () => NOW,
+      deadlineMs: NOW + 60_000,
+      report: (evidence: AlertEvidence) => progress.push(evidence),
+    };
+    const interrupted = {
+      ...missed,
+      response: {
+        owner: 'games',
+        runbook: RUNBOOK,
+        command: 'bun obs errors --since 3d --source prod --env prd',
+      },
+    };
+    expect(() => collectEvidence([interrupted], ports)).toThrow(
+      'job interrupted'
+    );
+    expect(progress[0]?.traces[0]?.traceId).toBe('a'.repeat(32));
+    expect(progress[0]?.messages).toEqual([]);
+  });
+
   test('one per failing objective per environment, pages first, each naming its environment and file', () => {
     const { doc } = documentFor([missed, dailyBurn, devPage]);
     expect(doc.items.map((i) => i.id)).toEqual([
@@ -262,8 +297,12 @@ describe('work items', () => {
   });
 
   test('no secret or address the telemetry carries reaches the item, its JSON or its Markdown', () => {
-    const { doc } = documentFor([missed]);
-    const outputs = [JSON.stringify(doc), renderWorkItems(doc)];
+    const { doc, progress } = documentFor([missed]);
+    const outputs = [
+      JSON.stringify(doc),
+      renderWorkItems(doc),
+      ...progress.map((evidence) => renderEvidence(evidence).join('\n')),
+    ];
     for (const output of outputs) {
       for (const leaked of [
         'hunter2-supersecret',
@@ -281,6 +320,7 @@ describe('work items', () => {
 
   test('a query that cannot run says why and never throws', () => {
     const stopped = collectEvidence([missed], {
+      report: () => undefined,
       obs: () => ({
         code: 3,
         stdout: '',
@@ -294,6 +334,7 @@ describe('work items', () => {
       'bun obs exited 3: store unreachable: postgresql://***@db.example/neondb'
     );
     const late = collectEvidence([missed], {
+      report: () => undefined,
       obs: () => {
         throw new Error('must not run');
       },
@@ -302,6 +343,7 @@ describe('work items', () => {
     });
     expect(late.status).toBe('skipped');
     const silent = collectEvidence([{ ...missed, response: null }], {
+      report: () => undefined,
       obs: () => ({ code: 0, stdout: SEARCH, stderr: '' }),
       nowMs: () => NOW,
       deadlineMs: NOW + 1,

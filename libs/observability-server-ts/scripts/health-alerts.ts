@@ -10,7 +10,7 @@
  *
  *   .cache/health-alerts/work-items.json   the document (`bun alerts --json` reads the same)
  *   .cache/health-alerts/work-items.md     the same for people; also the job summary
- *   stdout                                 the Markdown, then one `HEALTH_ALERTS_V1 <base64>`
+ *   stdout                                 query progress, the Markdown, then one `HEALTH_ALERTS_V1 <base64>`
  *                                          line that `bun alerts` reads from the job log
  *
  * It never fails the job: the objectives step already carries the verdict,
@@ -27,6 +27,7 @@ import {
   readdirSync,
   readFileSync,
   writeFileSync,
+  writeSync,
 } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
@@ -37,6 +38,7 @@ import { buildWorkItemsDocument } from '../src/alert-evidence';
 import { redact } from '../src/alert-work-items';
 import {
   encodeLogBlock,
+  renderEvidence,
   renderWorkItems,
 } from '../src/alert-work-items-render';
 
@@ -97,6 +99,12 @@ function main(): void {
     generatedAt: new Date(startMs).toISOString(),
     ports: {
       obs: runObs,
+      report: (evidence) => {
+        writeSync(
+          process.stdout.fd,
+          `### Evidence progress\n\n${renderEvidence(evidence).join('\n')}\n\n`
+        );
+      },
       nowMs: () => wallClock.now(),
       deadlineMs: startMs + EVIDENCE_BUDGET_MS,
     },
