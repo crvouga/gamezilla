@@ -155,6 +155,9 @@
   }
   .cardTitle > h2 {
     padding-inline-end: 9rem;
+    font-size: var(--ui-text-display-xl-size);
+    line-height: var(--ui-text-display-xl-leading);
+    letter-spacing: -0.025em;
   }
   .cardTitle > p {
     display: -webkit-box;
@@ -172,10 +175,6 @@
   /* The card's own quiet commands sit on one row of a narrow card. */
   .card :global(.btn[data-size="sm"]) {
     padding-inline: var(--ui-space-1);
-  }
-  .cardTitle > h2 {
-    font-size: var(--ui-font-size-lg);
-    line-height: var(--ui-line-height-tight, 1.25);
   }
 }
 /* A narrow board: a headline of a whole sentence stays two lines or so. */

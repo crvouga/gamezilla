@@ -30,10 +30,11 @@ export type GameSearchStageProps = {
 
 /**
  * `GameSearchStage` -- waiting for an opponent, drawn where the board will
- * be: a board-sized, still checkered area carrying the search's state
- * (spinner, `Searching…`, what is sought, how long), with the person's own
- * seat strip under it. The stop command is the screen's dock, so the search
- * reads as the game's first state and never as a card among cards.
+ * be: a board-sized, still board carrying one line of state over its
+ * squares (spinner, `Searching…`, what is sought, how long), with the
+ * person's own seat strip under it. The stop command is the screen's dock,
+ * so the search reads as the game's first state and never as a card among
+ * cards.
  *
  * @example
  * ```tsx
@@ -54,18 +55,17 @@ export function GameSearchStage(props: GameSearchStageProps): JSX.Element {
     >
       <div class={styles['board']} data-game-slot="search-board">
         <div class={styles['state']}>
-          <Show when={props.mark} fallback={<Spinner color="default" />}>
+          <Show
+            when={props.mark}
+            fallback={<Spinner size="lg" color="current" />}
+          >
             {props.mark}
           </Show>
-          <h2 class="text textTitle">{props.title}</h2>
-          <div class="text textCaption" role="status" aria-live="polite">
+          <h2 class={styles['title']}>{props.title}</h2>
+          <div class={styles['line']} role="status" aria-live="polite">
             {props.description}
           </div>
-          <div
-            class="text textCaption textNumeral text-text-secondary"
-            role="timer"
-            aria-live="off"
-          >
+          <div class={styles['elapsed']} role="timer" aria-live="off">
             {props.elapsed}
           </div>
         </div>

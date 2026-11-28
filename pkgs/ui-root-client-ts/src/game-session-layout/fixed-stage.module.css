@@ -37,6 +37,28 @@
   max-width: none;
   gap: var(--ui-space-1);
 }
+/* Phone: the opponent stays over the board and the person stays under it,
+   the way a matched game reads. The turn and the moves follow that seat.
+   The players slot is `display: contents`, so these two are the stage's
+   own items. A table of three or more keeps everyone else over the board. */
+@media (max-width: 879px) {
+  .fixed .stage > [data-game-board-stage] > [data-game-players] > :first-child {
+    order: 0;
+  }
+  .fixed .stage > [data-game-board-stage] > [data-game-board] {
+    order: 1;
+  }
+  .fixed
+    .stage
+    > [data-game-board-stage]
+    > [data-game-players]:has(> :nth-child(2):last-child)
+    > :last-child {
+    order: 2;
+  }
+  .fixed .stage > [data-game-board-stage] > .information {
+    order: 3;
+  }
+}
 .stage [data-game-board-stage] > :not([data-game-board]) {
   flex: none;
   margin-inline: var(--ui-space-2);
@@ -95,7 +117,7 @@
 .status {
   border-radius: var(--ui-radius-sm);
   background: var(--ui-color-surface-muted);
-  height: 44px;
+  height: 32px;
   align-items: stretch;
 }
 .statusLine {
@@ -110,7 +132,7 @@
   display: none;
 }
 .strip {
-  height: 40px;
+  height: 32px;
   gap: var(--ui-space-1);
   border-block-end: 1px solid var(--ui-color-border);
 }
@@ -136,12 +158,12 @@
   display: flex;
   flex: none;
   align-items: center;
-  height: calc(64px + env(safe-area-inset-bottom, 0px));
   padding: var(--ui-space-1) var(--ui-space-4)
     calc(var(--ui-space-1) + env(safe-area-inset-bottom, 0px));
   border-block-start: 1px solid var(--ui-color-outline);
   background: var(--ui-color-surface);
   overflow: auto hidden;
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
 }
 .commands > *,
 .commands [data-component="GameActionBar"] {
@@ -161,19 +183,7 @@
     --game-board-workspace-inset: var(--ui-space-4);
   }
 }
-@container game-column (max-width: 479px) {
-  .stage
-    [data-viewport-fit="square"]
-    > [data-game-players]:has(> :nth-child(2):last-child) {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--ui-space-1);
-  }
-  .stage [data-viewport-fit="square"] > [data-game-players] > * {
-    min-width: 0;
-    margin-inline: 0;
-  }
-}
+
 /* History commands and the way onward each keep their row, including
    when Progress becomes the longer completion action. */
 @container game-column (max-width: 383px) {

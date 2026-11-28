@@ -298,7 +298,6 @@ export function storyArgs(): MatchmakingScreenViewProps {
     onFind: resolved(),
     search: null,
     onStop: resolved(),
-    you: { avatar: <Avatar kind="person" />, name: 'River' },
     ratings: [{ pool: 'game', rating: 1512, games: 34 }],
     game: null,
     commands: storyCommands(),
@@ -413,6 +412,10 @@ export function renderStory(slots: StorySlots = {}) {
   return (args: MatchmakingScreenViewProps): JSX.Element => (
     <StoryPlaces
       {...args}
+      you={{
+        avatar: <Avatar kind="person" />,
+        name: args.you?.name ?? 'River',
+      }}
       board={(stage) => (
         <StoryStage
           shown={slots.shown}

@@ -144,6 +144,14 @@ files while another task is reading them.
 5. Never add a stored screenshot to compare a story against; assert what the
    story must show instead.
 
+`bun storybook:competitor-comparison` (from this package) pairs each screenshot
+in [`docs/competitor-ui-catalog/`](../../docs/competitor-ui-catalog/) with the
+Storybook story named in
+[`storybook/competitor-screens.ts`](storybook/competitor-screens.ts) and writes
+side-by-side PNGs under `.cache/competitor-screen-comparison/`. Add a screenshot
+and one entry there when the catalog grows. The images are review evidence:
+attach them with `gh pr comment --attach`, and do not commit them.
+
 In a review or handoff, report changed components and story IDs, reuse or API
 choices, covered states, automated commands and their actual results, and any
 coverage or environment limitation. Distinguish evidence from the representative

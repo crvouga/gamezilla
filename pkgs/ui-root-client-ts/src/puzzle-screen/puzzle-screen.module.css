@@ -13,7 +13,7 @@
   display: flex;
   align-items: center;
   box-sizing: border-box;
-  height: 48px;
+  height: 28px;
   min-width: 0;
   padding-inline: var(--ui-space-lg);
   overflow-x: auto;
@@ -26,7 +26,7 @@
 @container puzzle-frame (min-width: 880px) {
   .info {
     height: auto;
-    min-height: 48px;
+    min-height: 36px;
     padding-block: var(--ui-space-2);
     overflow: visible;
     white-space: normal;
@@ -87,6 +87,15 @@
     .workspace[data-board-sizing="width"] > .dock {
       order: 4;
       max-height: none;
+    }
+  }
+}
+/* A portrait phone packs the actions against the board. The column no
+   longer stretches to the foot of the screen and leaves a blank band. */
+@media (orientation: portrait) {
+  @container puzzle-frame (width < 480px) {
+    .workspace[data-board-sizing="width"] > .root {
+      flex: none;
     }
   }
 }

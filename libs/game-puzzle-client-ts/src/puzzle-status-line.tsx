@@ -90,7 +90,7 @@ export function PuzzleStatusLine(
           trailing={<StatusLineTrailing {...props} />}
         />
       }
-      numberOfLines={2}
+      numberOfLines={compact() ? 1 : 2}
       fixedHeight={compact()}
       avatarSize={AVATAR_SIZE}
     />
