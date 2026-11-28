@@ -145,6 +145,7 @@ async function verifyOpeningLayout(
   });
 }
 
+// regression: fab-host-reset-overrides-size
 // regression: startup-reset-and-action-shift
 // regression: startup-layout-oracle-unsettled-fonts
 test('storybook integration: opening layout survives stylesheet arrival at 390', async ({

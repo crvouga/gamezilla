@@ -1,0 +1,4 @@
+{
+  "summary": "The later clickable host font shorthand overrode the floating action button's token size with inherited browser text metrics, making New space wider after the startup handoff.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/startup-layout/integration.checks.ts"
+}
