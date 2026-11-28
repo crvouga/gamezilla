@@ -67,7 +67,10 @@ export function BrowserOpening(props: {
     opening = null;
     const focused = document.activeElement;
     const restore = previous.contains(focused);
-    const id = focused?.getAttribute('data-testid') ?? null;
+    const id =
+      focused?.getAttribute('data-startup-focus') ??
+      focused?.getAttribute('data-testid') ??
+      null;
     themeEvents.abort();
     previous.remove();
     document.documentElement.removeAttribute('data-startup-preference');

@@ -96,7 +96,7 @@ test('changing appearance while the account opens survives the handoff', async (
       view.getByText('Appearance').closest('[data-component="ThemeProvider"]')
     ).toHaveAttribute('data-theme', 'dark');
     expect(await kv.get(asKeyword('ui.prefs/color-scheme'))).toEqual({
-      'ui.prefs/value': 'dark',
+      [asKeyword('ui.prefs/value')]: 'dark',
     });
   } finally {
     view.unmount();
