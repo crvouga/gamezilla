@@ -1,0 +1,30 @@
+{
+  "name": "@libs/web-dev-env-server-ts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "web-dev-env-server-ts": "./scripts/setup-env.ts"
+  },
+  "exports": {},
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@libs/app-config-shared-ts": "workspace:*",
+    "@libs/app-root-shared-ts": "workspace:*",
+    "@pkgs/assert-root-shared-ts": "workspace:*",
+    "@pkgs/fs-server-ts": "workspace:*",
+    "@pkgs/git-shared-ts": "workspace:*",
+    "@pkgs/secret-store-shared-ts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "server",
+  "language": "typescript"
+}

@@ -17,6 +17,7 @@
     "apps/product-ts/scripts/**/*.ts",
     "pkgs/*/tests/**/*.ts",
     "pkgs/*/tests/**/*.tsx",
+    "libs/web-dev-env-server-ts/scripts/**/*.ts",
     "libs/*/tests/**/*.ts",
     "libs/*/tests/**/*.tsx",
     "apps/*/tests/**/*.ts",
