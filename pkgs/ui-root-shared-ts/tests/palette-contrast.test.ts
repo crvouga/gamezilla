@@ -205,7 +205,7 @@ describe('palette contrast', () => {
   });
 });
 
-/** Chrome roles: blue-violet neutrals. */
+/** Neutral chrome includes the surface and lettering of selected rows. */
 const NEUTRALS = [
   'background',
   'surface',
@@ -218,6 +218,8 @@ const NEUTRALS = [
   'border',
   'outline',
   'disabled',
+  'tintSubtle',
+  'onPrimarySoft',
 ] as const satisfies readonly ColorTokenName[];
 
 /** The one accent: links, the primary fill, selection and focus. */
@@ -225,14 +227,12 @@ const ACCENT = [
   'tint',
   'tintHover',
   'tintActive',
-  'tintSubtle',
   'primaryStrong',
-  'onPrimarySoft',
   'focusRing',
 ] as const satisfies readonly ColorTokenName[];
 
 /** Neutrals may carry a subtle tint: max channel spread out of 255. */
-const NEUTRAL_SPREAD = 32;
+const NEUTRAL_SPREAD = 8;
 /** Accent roles stay within this many degrees of one hue. */
 const ACCENT_HUE_SPAN = 12;
 
