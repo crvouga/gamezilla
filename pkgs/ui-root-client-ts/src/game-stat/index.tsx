@@ -51,7 +51,7 @@ export function GameStat(props: {
             {
               textStat: props.size !== 'compact',
               textLabel: props.size === 'compact',
-              [styles['compactValue'] ?? '']: props.size === 'compact',
+              'tabular-nums lining-nums': props.size === 'compact',
             },
           ]}
         >
@@ -60,7 +60,7 @@ export function GameStat(props: {
         <Show when={tag.present()}>{tag.content()}</Show>
       </span>
       <Show when={props.progress !== undefined}>
-        <div class={styles['statProgress']}>
+        <div class="w-full py-1">
           <ProgressBar
             size="sm"
             progress={props.progress}

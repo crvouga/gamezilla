@@ -5,6 +5,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { GamePlayerBar } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { PuzzleScreen } from '@pkgs/ui-root-client-ts/puzzle-screen';
 import { screen } from '@solidjs/testing-library';
@@ -325,9 +326,20 @@ describe('game surfaces', () => {
   // regression: rating-progress-stops-short — a provisional rating's bar
   // stopped at 240px, short of the card it sat in.
   test("a stat's progress bar spans the stat", () => {
-    const bar = rule('game-ui.module.css', '.statProgress');
-    expect(bar).not.toMatch(/max-width/);
-    expect(bar).toMatch(/width:\s*100%;/);
+    renderUi(() => (
+      <GameStat
+        label="Provisional rating"
+        value="1200"
+        progress={7 / 12}
+        progressLabel="7 of 12 rated games"
+      />
+    ));
+    const bar = screen.getByRole('progressbar', {
+      name: '7 of 12 rated games',
+    });
+    const holder = bar.closest('[data-component="ProgressBar"]')?.parentElement;
+    expect(holder).toHaveClass('w-full');
+    expect(holder?.className).not.toMatch(/max-w-/);
   });
 
   // regression: game-rail-short-of-edge — beside a wide board the rail kept
