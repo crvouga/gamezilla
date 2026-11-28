@@ -4,7 +4,7 @@ import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { arraysEqualAsSets } from '@pkgs/ui-root-shared-ts/arrays-equal-as-sets';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
+import { colorVar } from '@pkgs/ui-root-shared-ts/document-palette';
 import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Checkbox } from '@ui-sdk/solid/checkbox';

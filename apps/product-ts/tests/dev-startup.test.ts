@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { runInNewContext } from 'node:vm';
 import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
-import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/css-vars';
+import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/document-palette';
 
 const repoRoot = join(import.meta.dirname, '../../..');
 
