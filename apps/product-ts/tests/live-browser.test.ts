@@ -7,6 +7,7 @@ import {
 import { EVIDENCE_DIR, emulateOffline } from '@apps/product-ts/live-browser';
 import { openBrowserTab } from '@apps/product-ts/live-browser-tab';
 import {
+  createJourneyBoardCapture,
   createJourneyStepRecorder,
   type JourneyStepView,
 } from '@apps/product-ts/live-journey-step-evidence';
@@ -158,6 +159,33 @@ function successfulStepView(): JourneyStepView {
     screenshot: async () => new Uint8Array([137, 80, 78, 71]),
   };
 }
+
+test('a match inside one journey step records its first visible board once', async () => {
+  const store = new ObjectStoreImplInMemory();
+  const capture = createJourneyBoardCapture('connect-four', store);
+  let visible = false;
+  const view = {
+    ...successfulStepView(),
+    evaluate: async (script: string) =>
+      script === 'location.href' ? 'https://example.test/space/one' : visible,
+  };
+  await capture(view, 'open room');
+  expect(
+    await readUtf8(store, 'connect-four.board/steps/0001.json')
+  ).toBeNull();
+  visible = true;
+  await capture(view, 'drop first disc');
+  await capture(view, 'drop second disc');
+  expect(
+    JSON.parse((await readUtf8(store, 'connect-four.board/steps/0001.json'))!)
+  ).toMatchObject({
+    action: 'Board after drop first disc',
+    screenshot: 'connect-four.board/steps/0001.png',
+  });
+  expect(
+    await readUtf8(store, 'connect-four.board/steps/0002.json')
+  ).toBeNull();
+});
 
 test('successful journey step evidence follows completed actions and preserves ordered screenshots', async () => {
   const store = new ObjectStoreImplInMemory();

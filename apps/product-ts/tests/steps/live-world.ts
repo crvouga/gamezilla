@@ -14,6 +14,7 @@ import {
   runLiveCleanups,
 } from '@apps/product-ts/live-journey-devices';
 import {
+  createJourneyBoardCapture,
   createJourneyStepRecorder,
   type JourneyStepRecorder,
 } from '@apps/product-ts/live-journey-step-evidence';
@@ -202,7 +203,8 @@ async function timedAct(
 function liveJourneyHost(
   target: LiveTarget,
   devices: LiveDevices,
-  cleanups: Map<string, JourneyGestures>
+  cleanups: Map<string, JourneyGestures>,
+  captureBoard?: ReturnType<typeof createJourneyBoardCapture>
 ): JourneyHost {
   const peer = liveJourneyPeerDevice(
     target,
@@ -232,10 +234,12 @@ function liveJourneyHost(
     act: async (name, gestures) => {
       const current = await ensureHost(target, devices);
       await timedAct(devices, current, gestures, name);
+      await captureBoard?.(current.view, name);
     },
     actAsGuest: async (name, gestures) => {
       const current = requireDevice(devices.guest, 'guest');
       await timedAct(devices, current, gestures, name);
+      await captureBoard?.(current.view, name);
     },
     spaceLink: async () =>
       spaceLinkFromLocation(
@@ -377,7 +381,14 @@ function browsing(
   const failureFlag: FailureFlag = { failed: false };
   return {
     hostView: () => requireDevice(devices.host, 'device').view,
-    host: liveJourneyHost(target, devices, cleanups),
+    host: liveJourneyHost(
+      target,
+      devices,
+      cleanups,
+      process.env['JOURNEY_CAPTURE_VIEWPORT'] && store
+        ? createJourneyBoardCapture(scenarioId, store)
+        : undefined
+    ),
     record: createJourneyStepRecorder(
       scenarioId,
       store,

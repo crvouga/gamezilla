@@ -70,7 +70,7 @@ on:
         type: string
         default: ''
       browser-journey:
-        description: Journey feature path, or boot-time for both recorded opening checks (browser group)
+        description: Journey feature path, boot-time for opening checks, or game-table for all product journeys on phone and desktop
         type: string
         default: ''
       browser-partition:
@@ -253,7 +253,7 @@ jobs:
         # its 24-minute partitions (`apps/product-ts/scripts/stack-shards.ts`)
         # and successive nights run the rest; each runner's job summary names
         # its partition. A focused journey or named partition is one runner.
-        shard: ${{ fromJSON(inputs.group == 'browser' && (inputs.browser-journey != '' || inputs.browser-partition != '') && '[1]' || '[1, 2, 3, 4]') }}
+        shard: ${{ fromJSON(inputs.group == 'browser' && inputs.browser-journey == 'game-table' && '[1, 2, 3, 4, 5, 6, 7, 8]' || inputs.group == 'browser' && (inputs.browser-journey != '' || inputs.browser-partition != '') && '[1]' || '[1, 2, 3, 4]') }}
     env:
       NIGHTLY_SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
     permissions:
@@ -283,7 +283,7 @@ jobs:
           BROWSER_PARTITION: ${{ inputs.browser-partition }}
           NIGHTLY_NIGHT: ${{ steps.budget.outputs.utc_day }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:browser
-      - name: Capture one production browser journey
+      - name: Capture requested production browser journeys
         if: ${{ inputs.group == 'browser' && inputs.browser-journey != '' }}
         timeout-minutes: 40
         env:
@@ -291,7 +291,13 @@ jobs:
           JOURNEY_CAPTURE_STEPS: '1'
           JOURNEY_CAPTURE_RUN: ${{ github.run_id }}-${{ github.run_attempt }}
         run: |
-          if [[ "$BROWSER_JOURNEY" == boot-time ]]; then
+          if [[ "$BROWSER_JOURNEY" == game-table ]]; then
+            # Each viewport runs the same four balanced groups of the shipped journeys.
+            shard=${NIGHTLY_SHARD%/*}
+            export JOURNEY_CAPTURE_VIEWPORT=phone
+            if ((shard > 4)); then export JOURNEY_CAPTURE_VIEWPORT=desktop; fi
+            journeys=(--game-table "--part=$(((shard - 1) % 4))/4")
+          elif [[ "$BROWSER_JOURNEY" == boot-time ]]; then
             journeys=(specs/journeys/first-opening.feature specs/journeys/reopening.feature)
           else
             [[ "$BROWSER_JOURNEY" =~ ^specs/(journeys/[a-z0-9-]+|billing/open-provider-pages)\.feature$ ]]
@@ -309,7 +315,7 @@ jobs:
             .turbo/runs/*.json
             apps/*/.cache/harness-report
             apps/product-ts/.cache/stack-shard
-            apps/product-ts/.cache/critical-journeys/release-all/*/steps
+            apps/product-ts/.cache/critical-journeys/release-*/*/steps
             libs/*/.cache/harness-report
             pkgs/*/.cache/harness-report
           retention-days: 3

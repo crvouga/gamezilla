@@ -459,3 +459,24 @@ Backgrounds/grid, Measure, Outline, globals and Viewport against the real built
 manager and production components. Highlight is supplied by core and the
 accessibility addon; targeted highlight decorators use its public channel API.
 No custom inspector or toolbar implementation is required.
+
+
+### Whole-app render evidence
+
+Dispatch `verify-nightly.yml` on the revision under review with `group=storybook` and
+`storybook-pattern=tabletop-review`. This opt-in capture visits the production screen
+stories for discovery, matchmaking, results, progression, profiles, friends, account,
+sign-in, settings, recovery and the shared component gallery. It opens every game
+at 390×844 and 1280×800, including Classic and Hill Quoridor, two-, three- and
+four-seat Word Tiles and Light Cycles, and the Chess, Word Tiles, Numberlink and
+Sokoban puzzles. Shell and control stories also render at 768×800. Checks cover
+visible board bounds, native focus, pressed depth under reduced motion, horizontal
+overflow, artwork decoding and serious or critical axe findings.
+
+Dispatch the same workflow with `group=browser` and `browser-journey=game-table`
+to drive every release-eligible `specs/journeys/` feature through the built product
+at both endpoint sizes. Each viewport runs four balanced feature groups. First opening
+and reopening retain their normal timing observations. Each passing step writes its
+screenshot and route to the browser artifact. A separate `.board` entry records the
+first visible playing field encountered during an action, including matches that end
+within one Gherkin step. Compare the dimensions and run SHA when reviewing captures.
