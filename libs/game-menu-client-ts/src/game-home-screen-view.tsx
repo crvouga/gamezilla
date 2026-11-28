@@ -1,5 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import { MascotPortrait } from '@pkgs/ui-root-client-ts/app-logo';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
   type GameMenuChoice,
@@ -9,7 +10,6 @@ import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import { SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
 import {
   BooksArt,
-  BotArt,
   FriendsArt,
   GamesArt,
   HistoryArt,
@@ -55,7 +55,7 @@ const ICON: Readonly<Record<string, IconComponent>> = {
   [SHARED_GAME_SCREEN.puzzleStats]: StatsArt,
   [SHARED_GAME_SCREEN.puzzlePacksHome]: BooksArt,
   [SHARED_GAME_SCREEN.vsHuman]: FriendsArt,
-  [SHARED_GAME_SCREEN.vsBot]: BotArt,
+  [SHARED_GAME_SCREEN.vsBot]: MascotPortrait,
   [SHARED_GAME_SCREEN.matchmakingHome]: MatchmakingArt,
   [SHARED_GAME_SCREEN.historyHome]: HistoryArt,
   [SHARED_GAME_SCREEN.settings]: SettingsIcon,

@@ -4,6 +4,7 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
+import { MascotPortrait } from '../app-logo/index';
 import type { IconComponent } from '../create-icon/index';
 import { FloatingMenu } from '../floating-menu/index';
 import type {
@@ -25,7 +26,6 @@ import {
   VolumeXIcon,
   XIcon,
 } from '../icons';
-import { BotArt } from '../illustration/index';
 import { spaceDataSet } from '../space-data-set';
 import { useSpacePersonWords } from '../space-people-row/space-person-words';
 import {
@@ -83,7 +83,7 @@ const ACTION_ICON: Readonly<Record<SpacePersonActionId, IconComponent>> = {
   removeBot: Trash2Icon,
   removeSeat: Trash2Icon,
   inviteFriend: UserPlusIcon,
-  addBot: BotArt,
+  addBot: MascotPortrait,
 };
 
 function useActionLabel(): (

@@ -9,7 +9,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { type Accessor, createMemo, omit, Show, untrack } from 'solid-js';
-import { BotArt } from '../illustration/index';
+import { MascotPortrait } from '../app-logo/index';
 import type { SoundIndicatorState } from '../sound-indicator/index';
 import { SoundIndicator } from '../sound-indicator/index';
 import { SpeechBubble } from '../speech-bubble/index';
@@ -103,7 +103,7 @@ function AvatarHead(props: {
       aria-label={props.muted ? t`Unmute coach` : t`Mute coach`}
       data-testid={props.testId}
     >
-      <BotArt size={props.size} />
+      <MascotPortrait size={props.size} />
       <div class="box absolute right-0 bottom-0">
         <SoundIndicator
           state={props.indicator}
@@ -191,7 +191,7 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
           when={createSpeech !== undefined}
           fallback={
             <div class="box self-center">
-              <BotArt size={size()} />
+              <MascotPortrait size={size()} />
             </div>
           }
         >

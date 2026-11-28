@@ -1,6 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
+import { MascotSource } from '@pkgs/ui-root-client-ts/app-logo';
 import { AVATAR_SIZES, Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { AvatarHero } from '@pkgs/ui-root-client-ts/avatar-hero';
@@ -225,6 +226,22 @@ describe('SpeakingAvatar', () => {
     expect(head?.getAttribute('src')).toContain('mascot/portrait.svg');
     expect(root).toHaveTextContent('Coach');
     expect(head).toHaveAttribute('width', '32');
+  });
+
+  test('the opponent and coach both use the configured product mark', () => {
+    const mark = '/configured-portrait.svg';
+    renderUi(() => (
+      <MascotSource value={mark}>
+        <Avatar kind="bot" />
+        <SpeakingAvatar message="Your move" />
+      </MascotSource>
+    ));
+    const bot = screen.getByRole('img', { name: 'Bot' });
+    expect(bot.querySelector('img')).toHaveAttribute('src', mark);
+    expect(byComponent('SpeakingAvatar').querySelector('img')).toHaveAttribute(
+      'src',
+      mark
+    );
   });
 
   test('with a speaker, the head toggles mute (aria-pressed)', () => {

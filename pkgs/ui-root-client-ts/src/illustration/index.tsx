@@ -3,13 +3,13 @@ import { componentDataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import type { IconProps } from '../create-icon/index';
 
-function illustration(src: string, component = 'Illustration') {
+function illustration(src: string) {
   return function Illustration(
     props: Pick<IconProps, 'size' | 'dataSet'>
   ): JSX.Element {
     return (
       <img
-        {...componentDataAttrs(component, props.dataSet)}
+        {...componentDataAttrs('Illustration', props.dataSet)}
         src={src}
         alt=""
         aria-hidden="true"
@@ -36,10 +36,6 @@ export function FriendsArt(
 }
 export const AutomationArt = illustration(
   new URL('../../assets/fluent-emoji/robot.svg', import.meta.url).href
-);
-export const BotArt = illustration(
-  new URL('../../assets/mascot/portrait.svg', import.meta.url).href,
-  'MascotPortrait'
 );
 export const TournamentsArt = illustration(
   new URL('../../assets/fluent-emoji/sports-medal.svg', import.meta.url).href
