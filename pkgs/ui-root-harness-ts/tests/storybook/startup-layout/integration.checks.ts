@@ -110,6 +110,7 @@ for (const width of [390, 768, 844, 1440]) {
         throw new Error('Missing action geometry');
       expect(openingButton.y).toBe(liveButton.y);
       expect(openingButton.height).toBe(liveButton.height);
+      expect(openingButton.width).toBe(liveButton.width);
       expect(openingButton.x + openingButton.width).toBe(
         liveButton.x + liveButton.width
       );
