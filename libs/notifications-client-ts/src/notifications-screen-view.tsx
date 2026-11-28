@@ -119,7 +119,7 @@ export function NotificationsScreenView(
           screenId="notifications"
           breadcrumbs={[{ name: t`Notifications` }]}
         >
-          <DenialSurfaceView denial={denial()} variant="compact" />
+          <DenialSurfaceView denial={denial()} />
         </CollectionScreen>
       )}
     </Show>

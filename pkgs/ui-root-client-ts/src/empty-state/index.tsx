@@ -18,7 +18,7 @@ export type EmptyStateAction = {
 };
 
 export type EmptyStateProps = {
-  /** Optional outline icon in a hairline disc above the title. */
+  /** Optional illustration or system icon above the title. */
   icon?: IconComponent | undefined;
   /** What is empty, in sentence case ("No friends yet"). */
   title: JSX.Element;

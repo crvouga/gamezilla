@@ -8,7 +8,7 @@ import { useUnlock } from '@libs/permissions-client-ts/unlock';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { BellIcon } from '@pkgs/ui-root-client-ts/icons';
+import { NotificationsArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { JSX } from '@solidjs/web';
 import { createEffect, createSignal, onSettled, untrack } from 'solid-js';
 import {
@@ -146,7 +146,7 @@ export function NotificationsScreen(
   return (
     <DecisionGate
       decision={decision()}
-      icon={BellIcon}
+      icon={NotificationsArt}
       denied={(denial) => (
         <>
           <UnlockOnArrival decision={decision} />
