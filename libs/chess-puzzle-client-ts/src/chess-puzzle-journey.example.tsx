@@ -90,7 +90,7 @@ export function ChessPuzzleJourney() {
           hand={null}
           committed={[]}
           commitment={null}
-          size={size}
+          size={size()}
           animated={false}
           moveMs={0}
           marks={{

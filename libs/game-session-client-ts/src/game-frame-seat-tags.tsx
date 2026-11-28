@@ -74,6 +74,6 @@ export function ChipSeatTags(props: {
  */
 export function OwnSeatMark(): JSX.Element {
   return (
-    <Badge intent="info" size="sm" tone="solid" label={<Trans>You</Trans>} />
+    <Badge intent="brand" size="sm" tone="solid" label={<Trans>You</Trans>} />
   );
 }

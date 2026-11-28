@@ -80,7 +80,7 @@ export function PuzzleBoardFrame(props: PuzzleBoardFrameProps): JSX.Element {
           scrollTarget={boardReveal.target}
           testId={Handles.chessPuzzleBoardFrame}
         >
-          {props.view.board?.(boardMeasure.width())}
+          {props.view.board?.(boardMeasure.width)}
         </StackVertical>
       </Show>
     </PuzzleScreen>

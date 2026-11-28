@@ -13,7 +13,7 @@ export type MonogramTileSize = 'xs' | 'sm' | 'md' | 'lg';
 /**
  * The paints a tile may take: six tile colours that are the same in both
  * schemes (so a space keeps its colour when the theme changes), each
- * holding AA with white ink, and none of them the indigo of what is chosen.
+ * holding AA with white ink, with a separate accent for selection.
  */
 export const MONOGRAM_PAINTS = [
   'monogram1',

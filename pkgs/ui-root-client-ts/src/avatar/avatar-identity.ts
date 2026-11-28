@@ -19,7 +19,7 @@ export type AvatarTone = {
  * The plates a face without a picture may wear, chosen by who it is. Each is
  * a soft surface with its own ink, so initials hold 4.5:1 in both schemes,
  * and its own ring, so the face holds 3:1 against the card it sits on.
- * The indigo `tintSubtle` plate is left out: it marks your own face.
+ * The `tintSubtle` plate is left out: it marks your own face.
  */
 export const AVATAR_TONES = [
   { plate: 'surfaceMuted', ink: 'text', ring: 'outline' },
@@ -28,7 +28,7 @@ export const AVATAR_TONES = [
   { plate: 'warningSurface', ink: 'warning', ring: 'warning' },
 ] as const satisfies readonly AvatarTone[];
 
-/** Your own initials: the indigo plate, its ink, and the accent ring. */
+/** Your own initials: the brand plate, its ink, and the accent ring. */
 export const YOUR_AVATAR_TONE = {
   plate: 'tintSubtle',
   ink: 'onPrimarySoft',

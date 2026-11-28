@@ -67,22 +67,24 @@
 
   /* The foot is inside the face so the action occupies the same space
      when it is pressed, waiting, or showing a result. */
-  .btn:is(
+  :is(.btn, .fab):is(
     [data-face="primary"],
     [data-face="danger"],
     [data-face="feedback-error"]
   ) {
-    box-shadow: inset 0 calc(-1 * var(--ui-space-xs))
-      var(--ui-color-on-tint-scrim);
+    box-shadow:
+      inset 0 calc(-1 * var(--ui-space-xs)) var(--ui-color-on-tint-scrim),
+      var(--button-lift, 0 0 transparent);
   }
 
-  .btn:is(
+  :is(.btn, .fab):is(
     [data-face="primary"],
     [data-face="danger"],
     [data-face="feedback-error"]
   ):enabled:active {
-    box-shadow: inset 0 calc(-1 * var(--ui-space-hairline))
-      var(--ui-color-on-tint-scrim);
+    box-shadow:
+      inset 0 calc(-1 * var(--ui-space-hairline)) var(--ui-color-on-tint-scrim),
+      var(--button-lift, 0 0 transparent);
   }
 
   @media (prefers-reduced-motion: no-preference) {
@@ -129,7 +131,8 @@
     border-radius: var(--ui-radius-full);
     font-size: var(--ui-font-size-base);
     line-height: var(--ui-leading-base);
-    box-shadow: var(--ui-shadow-float);
+    --button-lift: var(--ui-shadow-float);
+    box-shadow: var(--button-lift);
   }
 
   .fab[data-extended="false"] {
@@ -137,6 +140,7 @@
   }
 
   .fab[data-extended="true"] {
+    border-radius: var(--ui-radius-control);
     padding-left: var(--ui-space-lg);
     padding-right: var(--ui-space-xl);
   }

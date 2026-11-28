@@ -24,12 +24,9 @@ html[data-theme="light"] body {
 
 .startup-shell {
   box-sizing: border-box;
-  font:
-    400 16px / 24px system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    sans-serif;
+  font-family: var(--ui-font-sans, Manrope, system-ui, sans-serif);
+  font-size: var(--ui-text-body-size, 15px);
+  line-height: var(--ui-text-body-leading, 22px);
   inset: 0;
   overflow: auto;
   padding: max(12px, env(safe-area-inset-top)) 16px
@@ -50,8 +47,9 @@ html[data-theme="light"] body {
 }
 
 .startup-shell h1 {
-  font-size: 28px;
-  line-height: 36px;
+  font-size: var(--ui-text-display-size, 26px);
+  line-height: var(--ui-text-display-leading, 30px);
+  letter-spacing: -0.02em;
   margin: 0;
 }
 
@@ -80,7 +78,7 @@ html[data-theme="light"] body {
 
 /* Reserve the same artwork box before and after the app takes over. */
 .startup-shell nav .opening-art {
-  border-radius: 12px;
+  border-radius: var(--ui-radius-control, 12px);
   display: grid;
   place-items: center;
   height: 32px;
@@ -94,7 +92,7 @@ html[data-theme="light"] body {
 .startup-shell [data-route] {
   background: var(--ui-color-surface);
   border: 1px solid var(--ui-color-border);
-  border-radius: 12px;
+  border-radius: var(--ui-radius-control, 12px);
   margin: 16px 0;
   padding: 8px 12px;
 }
@@ -175,7 +173,7 @@ html[data-theme="light"] body {
 .startup-shell-reload {
   background: var(--ui-color-tint-active);
   border: 0;
-  border-radius: 12px;
+  border-radius: var(--ui-radius-control, 12px);
   box-shadow: inset 0 -4px var(--ui-color-on-tint-scrim);
   color: var(--ui-color-on-primary);
   cursor: pointer;
@@ -213,10 +211,10 @@ html[data-theme="light"] body {
   /* The sidebar's rows: the picture on a tile, the current row in the
      accent's subtle tone and its tile in the accent. */
   .startup-shell nav a {
-    border-radius: 12px;
+    border-radius: var(--ui-radius-control, 12px);
     flex: 0 0 auto;
     flex-direction: row;
-    font-size: 16px;
+    font-size: var(--ui-text-body-size, 15px);
     gap: 12px;
     justify-content: start;
     min-height: 52px;
@@ -225,7 +223,7 @@ html[data-theme="light"] body {
 
   .startup-shell nav .opening-art {
     background: var(--ui-color-surface);
-    border-radius: 12px;
+    border-radius: var(--ui-radius-control, 12px);
     height: 40px;
     width: 40px;
   }

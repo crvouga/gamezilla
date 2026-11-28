@@ -151,7 +151,7 @@ describe('palette contrast', () => {
   }
 });
 
-/** Chrome roles: quiet paper and walnut neutrals that carry no hue of their own. */
+/** Chrome roles: quiet ivory and charcoal neutrals that carry no hue of their own. */
 const NEUTRALS = [
   'background',
   'surface',

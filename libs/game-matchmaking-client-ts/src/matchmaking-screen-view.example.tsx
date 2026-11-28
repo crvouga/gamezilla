@@ -187,7 +187,7 @@ export function StoryStage(props: {
           nameTag={
             <Show when={props.watching !== true}>
               <Badge
-                intent="info"
+                intent="brand"
                 size="sm"
                 tone="solid"
                 label={

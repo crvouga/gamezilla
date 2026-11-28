@@ -1,0 +1,4 @@
+{
+  "summary": "A desktop puzzle replaced its board after the column was measured, clearing the selected piece and its legal destinations.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-play-places-layout.test.tsx"
+}

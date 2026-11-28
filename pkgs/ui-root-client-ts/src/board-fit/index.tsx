@@ -3,7 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createMemo, Show } from 'solid-js';
+import { type Accessor, createMemo, Show } from 'solid-js';
 import { bindElementTargets } from '../element-targets';
 import { createMeasure } from '../measure';
 import styles from './board-fit.module.css';
@@ -20,7 +20,7 @@ export type BoardFitHeight = 'fill' | 'bounded';
 
 export type BoardFitProps = {
   /** The board, given the side of the largest square that fits (px). */
-  children: (size: number) => JSX.Element;
+  children: (size: Accessor<number>) => JSX.Element;
   /** Drawn over the square. */
   overlay?: JSX.Element | undefined;
   /** Follows the frame inside the same box (a move list, a timeline). */
@@ -57,10 +57,10 @@ export function boardFitSize(width: number, height: number): number {
  * @example
  * ```tsx
  * <BoardFit testId="board-frame">
- *   {(size) => <ChessBoard size={size} position={fen()} />}
+ *   {(size) => <ChessBoard size={size()} position={fen()} />}
  * </BoardFit>
  * <BoardFit height="bounded" footer={<MoveList … />}>
- *   {(size) => <ChessBoard size={size} position={fen()} />}
+ *   {(size) => <ChessBoard size={size()} position={fen()} />}
  * </BoardFit>
  * ```
  */
@@ -87,7 +87,7 @@ export function BoardFit(props: BoardFitProps): JSX.Element {
           class="box relative min-w-0 shrink-0"
           style={{ width: `${size()}px`, height: `${size()}px` }}
         >
-          {props.children(size())}
+          {props.children(size)}
           {props.overlay}
         </div>
       </Show>

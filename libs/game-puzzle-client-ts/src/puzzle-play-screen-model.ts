@@ -13,6 +13,7 @@ import type { PuzzleStatusKind } from '@libs/game-puzzle-shared-ts/status-kind';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import type { SpeakingAvatarSpeaker } from '@pkgs/ui-root-client-ts/speaking-avatar';
 import type { JSX } from '@solidjs/web';
+import type { Accessor } from 'solid-js';
 import type { PuzzleMoveNavProps } from './puzzle-move-history-nav';
 import type { PuzzlePlayPlace, PuzzlePlayStage } from './puzzle-play-places';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';
@@ -148,7 +149,7 @@ export type PuzzleStageScreenViewProps = {
   /** Who suggested which move, while spectators suggest. */
   readonly legend?: JSX.Element;
   /** The game's board at `size` px, on the board's screens. */
-  readonly board?: ((size: number) => JSX.Element) | undefined;
+  readonly board?: ((size: Accessor<number>) => JSX.Element) | undefined;
   readonly line: PuzzleLineModel;
   readonly status: SolveStatus;
   readonly hintStage: HintStage;

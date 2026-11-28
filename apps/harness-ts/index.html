@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#17120e" />
+  <meta name="theme-color" content="#141b1c" />
   <script>
     // The console keeps no stored theme: it follows the system, set before
     // first paint so boot never flashes from one scheme to the other.
@@ -27,15 +27,15 @@
 
     html,
     body {
-      background: var(--ui-color-background, #17120e);
-      color: var(--ui-color-text, #f2eadf);
+      background: var(--ui-color-background, #141b1c);
+      color: var(--ui-color-text, #f1f2e9);
       color-scheme: dark;
     }
 
     html[data-theme="light"],
     html[data-theme="light"] body {
-      background: var(--ui-color-background, #f7f2ea);
-      color: var(--ui-color-text, #2b211a);
+      background: var(--ui-color-background, #f7f5ed);
+      color: var(--ui-color-text, #202c2a);
       color-scheme: light;
     }
 
@@ -45,7 +45,7 @@
       align-items: center;
       display: flex;
       flex-direction: column;
-      font: 400 14px/20px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      font: 400 15px/22px var(--ui-font-sans, system-ui), sans-serif;
       gap: 8px;
       inset: 0;
       justify-content: center;
@@ -54,11 +54,11 @@
 
     .activity-indicator {
       animation: activity-step 1000ms steps(12, end) infinite;
-      color: var(--ui-color-text-secondary, #b9ab9b);
+      color: var(--ui-color-text-secondary, #afbeb8);
     }
 
     html[data-theme="light"] .activity-indicator {
-      color: var(--ui-color-text-secondary, #675849);
+      color: var(--ui-color-text-secondary, #53615d);
     }
 
     .startup-shell-failed {
@@ -79,7 +79,7 @@
     }
 
     .startup-shell-guidance {
-      color: var(--ui-color-text-secondary, #b9ab9b);
+      color: var(--ui-color-text-secondary, #afbeb8);
     }
 
     .startup-shell-detail {
@@ -90,9 +90,9 @@
     }
 
     .startup-shell-reload {
-      background: var(--ui-color-tint-active, #8a3aa0);
+      background: var(--ui-color-tint-active, #087574);
       border: 0;
-      border-radius: 9999px;
+      border-radius: var(--ui-radius-control, 12px);
       color: var(--ui-color-on-primary, #ffffff);
       cursor: pointer;
       font: inherit;
@@ -108,7 +108,7 @@
     }
 
     html[data-theme="light"] .startup-shell-guidance {
-      color: var(--ui-color-text-secondary, #675849);
+      color: var(--ui-color-text-secondary, #53615d);
     }
 
     html[data-theme="light"] .startup-shell-detail {
@@ -116,7 +116,7 @@
     }
 
     html[data-theme="light"] .startup-shell-reload {
-      background: var(--ui-color-tint-active, #7a2e8e);
+      background: var(--ui-color-tint-active, #006a68);
       color: var(--ui-color-on-primary, #ffffff);
     }
 
