@@ -129,6 +129,7 @@ describe('foundation bootstrap', () => {
   });
 
   // regression: grafana-archived-instance-health
+  // regression: grafana-quota-bootstrap-gate-count
   test('dashboards are created only while the Grafana instance is active', () => {
     const module = readFileSync(OBSERVABILITY, 'utf8');
     const wiring = readFileSync(OBSERVABILITY_WIRING, 'utf8');
@@ -136,10 +137,17 @@ describe('foundation bootstrap', () => {
     expect(module).toContain(
       'value = data.grafana_cloud_stack.this.status == "active"'
     );
-    expect(
-      wiring.match(/module\.observability\.grafana_instance_ready \? 1 : 0/g)
-        ?.length
-    ).toBe(3);
+    for (const declaration of [
+      'resource "grafana_cloud_stack_service_account" "views"',
+      'resource "grafana_cloud_stack_service_account_token" "views"',
+      'module "observability_views"',
+      'data "http" "alert_rule_quotas"',
+    ]) {
+      const block = wiring.split(`${declaration} {`)[1]?.split('\n}')[0];
+      expect(block).toMatch(
+        /count\s*=\s*module\.observability\.grafana_instance_ready \? 1 : 0/
+      );
+    }
     expect(wiring).toContain('"instance-not-active"');
     expect(wiring).not.toContain('data "grafana_data_source"');
   });

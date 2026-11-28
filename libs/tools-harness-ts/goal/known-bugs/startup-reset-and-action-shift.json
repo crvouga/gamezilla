@@ -1,0 +1,4 @@
+{
+  "summary": "Application preflight changed the opening heading weight and default spacing, and New space jumped from the top of the opening document to the bottom of the phone screen.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/startup-layout/integration.checks.ts"
+}

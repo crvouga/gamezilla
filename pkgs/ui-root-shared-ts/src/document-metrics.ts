@@ -2,6 +2,7 @@ import tokens from './design-tokens.json' with { type: 'json' };
 import {
   readFontStack,
   readGroup,
+  readNumber,
   readPx,
   resolveTokenValue,
 } from './design-tokens.ts';
@@ -10,6 +11,7 @@ import {
 export function documentMetrics(css: string): string {
   const groups = [
     ['font', readGroup(tokens, tokens.font.family, readFontStack)],
+    ['font-weight', readGroup(tokens, tokens.font.weight, readNumber)],
     [
       'font-size',
       readGroup(tokens, tokens.font.size, (value) => `${readPx(value)}px`),
@@ -32,6 +34,7 @@ export function documentMetrics(css: string): string {
     if (typeof style !== 'object' || !('$value' in style)) continue;
     const value = style.$value;
     declarations.push(
+      `--ui-text-${name}-weight:${readNumber(resolveTokenValue(tokens, value.fontWeight))}`,
       `--ui-text-${name}-size:${readPx(resolveTokenValue(tokens, value.fontSize))}px`,
       `--ui-text-${name}-leading:${readPx(resolveTokenValue(tokens, value.lineHeight))}px`
     );
