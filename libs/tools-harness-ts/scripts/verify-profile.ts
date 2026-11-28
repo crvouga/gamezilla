@@ -144,6 +144,7 @@ export const NIGHTLY_SUITES = {
     tasks: [
       '//#task:verify:coverage',
       '//#task:deps:complexity',
+      '//#task:deps:cycles',
       '//#task:deps:duplicates',
       '//#task:deps:unused',
       '@pkgs/db-indexes-root-shared-ts#mutants',
