@@ -45,10 +45,11 @@
   border-top: 4px solid var(--ui-color-outline);
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-surface-elevated);
+  background-image: var(--ui-finish-surface);
   box-shadow: var(--ui-elevation-5);
 }
 .card[data-tone="won"] {
-  border-top-color: var(--ui-color-success);
+  border-top-color: var(--ui-color-reward);
 }
 .card[data-tone="lost"] {
   border-top-color: var(--ui-color-destructive);
@@ -81,6 +82,7 @@
 }
 .dismiss:hover {
   background: var(--ui-color-surface-muted);
+  background-image: var(--ui-finish-well);
   color: var(--ui-color-text);
 }
 .dismiss:focus-visible {
@@ -106,7 +108,7 @@
   font-weight: 600;
 }
 .card[data-tone="won"] .eyebrow {
-  color: var(--ui-color-success);
+  color: var(--ui-color-reward);
 }
 .card[data-tone="lost"] .eyebrow {
   color: var(--ui-color-destructive);

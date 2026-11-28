@@ -63,6 +63,7 @@
   overflow: hidden;
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-background);
+  background-image: var(--ui-finish-canvas);
   box-shadow: var(--ui-shadow-float);
   pointer-events: auto;
 }

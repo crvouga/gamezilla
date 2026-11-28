@@ -6,34 +6,26 @@
   gap: var(--ui-space-3);
   min-width: 0;
 }
-/* A still board the width of the column, in the board's own squares, so
-   the wait sits where the game will and nothing moves when it starts. */
+/* Reserve room for play and keep the search status and seat together. */
 .board {
-  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  max-height: 44vh;
+  min-height: min-content;
+  min-width: 0;
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface-muted);
+  background-image: var(--ui-finish-well);
+}
+.headline {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  min-width: 0;
-  overflow: hidden;
-  border-radius: var(--ui-radius-card);
-  background:
-    repeating-conic-gradient(
-      var(--ui-color-board-dark) 0% 25%,
-      var(--ui-color-board-light) 0% 50%
-    )
-    0 0 / 12.5% 12.5%;
+  gap: var(--ui-space-2);
+  margin-block-start: var(--ui-space-2);
 }
-/* A wash over every square, so the one line of state stays white on both
-   colors without a card of its own. */
-.board::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--ui-color-scrim);
-}
-/* The word, what is sought, how long: centered on the board. */
 .state {
   position: relative;
   display: flex;
@@ -42,20 +34,19 @@
   gap: var(--ui-space-1);
   max-width: 88%;
   padding: var(--ui-space-4);
-  color: var(--ui-color-on-primary);
+  color: var(--ui-color-text);
   text-align: center;
   overflow-wrap: anywhere;
 }
-/* The overlay owns its type. A text role would paint theme ink over the
-   scrim, so these copy the display, body and label measures directly. */
+/* Use the display, body and timing roles over the shaded board. */
 .title {
   margin: 0;
-  font-family: var(--ui-text-display-xl-family);
-  font-size: var(--ui-text-display-xl-size);
-  line-height: var(--ui-text-display-xl-leading);
-  font-weight: var(--ui-text-display-xl-weight);
+  font-family: var(--ui-text-display-family);
+  font-size: var(--ui-text-display-size);
+  line-height: var(--ui-text-display-leading);
+  font-weight: var(--ui-text-display-weight);
   letter-spacing: -0.025em;
-  color: var(--ui-color-on-primary);
+  color: var(--ui-color-text);
   text-wrap: balance;
 }
 .line {
@@ -63,7 +54,7 @@
   font-size: var(--ui-text-body-size);
   line-height: var(--ui-text-body-leading);
   font-weight: var(--ui-text-body-weight);
-  color: var(--ui-color-on-primary);
+  color: var(--ui-color-text-secondary);
 }
 .elapsed {
   font-family: var(--ui-text-body-strong-family);
@@ -71,7 +62,7 @@
   line-height: var(--ui-text-body-strong-leading);
   font-weight: var(--ui-text-body-strong-weight);
   font-variant-numeric: tabular-nums;
-  color: var(--ui-color-on-primary);
+  color: var(--ui-color-text);
 }
 .seat {
   display: flex;

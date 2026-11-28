@@ -10,6 +10,7 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useGameGoal } from '@pkgs/turn-game-client-ts/turn-games-context';
+import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import type { JSX } from '@solidjs/web';
 import { createSignal, Show } from 'solid-js';
 import type { MatchedGamesLeftView } from './matchmaking-home-view';
@@ -42,6 +43,7 @@ import type { OwnBoard } from './use-own-board';
 import { useOwnBoard } from './use-own-board';
 
 type ScreenProps = {
+  readonly motif: GameTileMotif;
   readonly title: string;
   readonly data: ReturnType<typeof useMultiplayerData>;
   readonly controls: ReturnType<typeof useMultiplayerControls>;
@@ -200,7 +202,7 @@ function useMultiplayerScreen(props: ScreenProps) {
       'multiplayer-command-denial'
     ),
     confirm: useMultiplayerConfirm(props.data, props.controls),
-    search: useMultiplayerSearch(props.data.search),
+    search: useMultiplayerSearch(props.data.search, () => props.motif),
     ratings: useMultiplayerRatings(props.data.gameId, props.data.ratings),
     setup: useMultiplayerPrivateSetup(props.data.game, props.data.myId),
     finding: useMultiplayerFind(props.data),
@@ -345,6 +347,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
 
 /** A game's Find an opponent screen: wires `MatchmakingScreenView` to matchmaking. */
 export default function MultiplayerScreen(props: {
+  motif: GameTileMotif;
   gameId: string;
   onBack: () => void;
   onBackFromBoard: (personal: boolean) => void;
@@ -355,6 +358,7 @@ export default function MultiplayerScreen(props: {
   const view = useOwnBoard(data.game);
   return (
     <MultiplayerContent
+      motif={props.motif}
       title={props.title}
       data={data}
       controls={controls}

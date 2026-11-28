@@ -44,6 +44,7 @@ export default function GameSearchStageExample(
       >
         <GameModeCard eyebrow="Ranked match · Rated" title="Connect Four" />
         <GameSearchStage
+          motif="discs"
           title={props.offline ? "You're offline" : 'Searching…'}
           description={
             props.offline

@@ -172,11 +172,11 @@ describe('Spinner', () => {
     expect(opacities).toEqual([...opacities].sort((a, b) => b - a));
   });
 
-  test('defaults to md in the secondary text tone, and labels itself', () => {
+  test('defaults to md in the brand tone, and labels itself', () => {
     renderUi(() => <Spinner label="Loading puzzles" />);
     const el = screen.getByRole('status', { name: 'Loading puzzles' });
     expect(el.classList.contains('size-6')).toBe(true);
-    expect(el.classList.contains('text-text-secondary')).toBe(true);
+    expect(el.classList.contains('text-tint')).toBe(true);
   });
 
   test('a decorative spinner is hidden from assistive tech', () => {

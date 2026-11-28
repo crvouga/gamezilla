@@ -23,6 +23,7 @@ const meta = {
     search: {
       players: 2,
       gameName: 'Connect Four',
+      motif: 'discs',
       goal: storyArgs().goal,
       timeControl: '5+3',
       seconds: 42,
@@ -53,6 +54,7 @@ export const SearchingForPlayers: Story = {
       goal: 'Take as few hearts as you can. The lowest score wins.',
       players: 4,
       gameName: 'Hearts',
+      motif: 'cards',
       timeControl: null,
       seconds: 7,
     },

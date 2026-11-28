@@ -25,7 +25,7 @@ export type SurfaceProps = LayoutProps &
  * - `MenuSection` / `MenuList` / `List` for rows: one panel, hairlines
  *   between items. Never stack surfaces to make a list.
  *
- * Three levels, and elevation is a tone, never a shadow or a gradient:
+ * Three levels use the shared neutral gradients:
  * - canvas, `background`: the page.
  * - raised, `surface` (`elevated` / `overlay` for sheets / menus): cards,
  *   lists, sheets, menus.

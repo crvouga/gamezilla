@@ -20,6 +20,7 @@
   border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-surface);
+  background-image: var(--ui-finish-surface);
 }
 .game {
   display: flex;

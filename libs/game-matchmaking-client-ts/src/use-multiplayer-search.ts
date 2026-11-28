@@ -5,6 +5,7 @@ import {
   useTurnGames,
 } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
+import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import { type Accessor, createMemo } from 'solid-js';
 import type { MultiplayerSearchView } from './multiplayer-waiting';
 import { timeControlText } from './time-control-name';
@@ -16,7 +17,8 @@ import { useOfflineSince } from './use-offline-since';
  * second it looks; `null` while there is no waiting search.
  */
 export function useMultiplayerSearch(
-  search: Accessor<MultiplayerSearchRow | null>
+  search: Accessor<MultiplayerSearchRow | null>,
+  motif: Accessor<GameTileMotif>
 ): Accessor<MultiplayerSearchView | null> {
   const offlineSince = useOfflineSince();
   const rules = useTurnGames();
@@ -46,6 +48,7 @@ export function useMultiplayerSearch(
     return {
       players: gameSides(game).length,
       gameName: shown.name(),
+      motif: motif(),
       goal: shown.goal?.(),
       timeControl:
         timeControlOf(row.time_control) === null

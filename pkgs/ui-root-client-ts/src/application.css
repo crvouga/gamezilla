@@ -17,6 +17,7 @@ html[data-app-shell] {
     margin: 0;
     padding: 0;
     background: var(--ui-color-background);
+    background-image: var(--ui-finish-canvas);
     color: var(--ui-color-text);
   }
 

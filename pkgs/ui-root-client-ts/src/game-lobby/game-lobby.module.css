@@ -19,6 +19,7 @@
   border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-surface);
+  background-image: var(--ui-finish-surface);
 }
 .modeWords {
   display: flex;
@@ -42,6 +43,7 @@
   border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-md);
   background: var(--ui-color-surface-muted);
+  background-image: var(--ui-finish-well);
 }
 .fact {
   display: flex;
@@ -72,6 +74,7 @@
     calc(var(--ui-space-3) + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--ui-color-border);
   background: var(--ui-color-surface);
+  background-image: var(--ui-finish-surface);
 }
 .dock[data-inset="true"] {
   padding-inline: var(--ui-space-4);

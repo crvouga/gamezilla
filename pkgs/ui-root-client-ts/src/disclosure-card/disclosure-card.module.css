@@ -47,6 +47,7 @@
 @media (hover: hover) and (pointer: fine) {
   .trigger:hover {
     background: var(--ui-color-surface-muted);
+    background-image: var(--ui-finish-well);
   }
   .card[data-open] .trigger:hover {
     border-end-start-radius: 0;

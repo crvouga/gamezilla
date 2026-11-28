@@ -58,6 +58,7 @@
     calc(var(--ui-space-2) + env(safe-area-inset-bottom, 0px));
   border-block-start: 1px solid var(--ui-color-border);
   background: var(--ui-color-surface);
+  background-image: var(--ui-finish-surface);
 }
 .dock:empty {
   display: none;

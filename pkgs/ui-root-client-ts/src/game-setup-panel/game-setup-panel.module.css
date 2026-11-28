@@ -102,6 +102,7 @@
   border: var(--ui-space-hairline) solid var(--ui-color-border);
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface);
+  background-image: var(--ui-finish-surface);
   box-shadow: 0 var(--ui-space-hairline) var(--ui-color-border);
   cursor: pointer;
   transition:
@@ -128,6 +129,7 @@
 .choices:disabled .choice,
 .choices:disabled .choice[data-selected="true"] {
   background: var(--ui-color-surface-muted);
+  background-image: var(--ui-finish-well);
   border-color: var(--ui-color-border);
   box-shadow: none;
   color: var(--ui-color-text-secondary);

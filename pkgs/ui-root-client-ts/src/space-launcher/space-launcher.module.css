@@ -49,9 +49,9 @@
   }
 }
 
-/* One game: a paper card that is the whole control. Its board is its
+/* One game: a raised card that is the whole control. Its board is its
    face, edge to edge under the card's corners, and its name and fit sit
-   on the paper under it, read from the start edge like a shelf of boxes. */
+   on the surface under it, read from the start edge like a shelf of boxes. */
 .tile {
   display: flex;
   flex-direction: column;
@@ -62,6 +62,7 @@
   border: var(--ui-space-hairline) solid var(--ui-color-border);
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-surface);
+  background-image: var(--ui-finish-surface);
   box-shadow: 0 var(--ui-space-hairline) var(--ui-color-border);
   color: inherit;
   font: inherit;
@@ -103,7 +104,7 @@
 }
 /* The game's face: its board in its own colours, a wide band so a row of
    games reads by its boards. The outline-coloured rule under it keeps a
-   face whose colour is near the paper's (Numberlink's in dark) a shape. */
+   face whose colour is near the panel's a shape. */
 .art {
   display: flex;
   aspect-ratio: 16 / 10;

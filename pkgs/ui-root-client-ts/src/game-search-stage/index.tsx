@@ -4,11 +4,13 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
+import { GameTile, type GameTileMotif } from '../game-tile';
 import { createScreenSlot } from '../screen-slot';
 import { Spinner } from '../spinner/index';
 import styles from './game-search-stage.module.css';
 
 export type GameSearchStageProps = {
+  motif: GameTileMotif;
   /** What the search is doing, in a word or two (`Searching…`). */
   title: JSX.Element;
   /** What is being looked for. Announced politely as it changes. */
@@ -29,16 +31,13 @@ export type GameSearchStageProps = {
 };
 
 /**
- * `GameSearchStage` -- waiting for an opponent, drawn where the board will
- * be: a board-sized, still board carrying one line of state over its
- * squares (spinner, `Searching…`, what is sought, how long), with the
- * person's own seat strip under it. The stop command is the screen's dock,
- * so the search reads as the game's first state and never as a card among
- * cards.
+ * The selected game’s tile sits above the matchmaking status and elapsed time.
+ * The player’s seat follows the stage and Stop stays in the screen dock.
  *
  * @example
  * ```tsx
  * <GameSearchStage
+ *   motif="discs"
  *   title="Searching…"
  *   description="Looking for a 5+3 Connect Four opponent."
  *   elapsed="12 seconds"
@@ -55,13 +54,13 @@ export function GameSearchStage(props: GameSearchStageProps): JSX.Element {
     >
       <div class={styles['board']} data-game-slot="search-board">
         <div class={styles['state']}>
-          <Show
-            when={props.mark}
-            fallback={<Spinner size="lg" color="current" />}
-          >
-            {props.mark}
-          </Show>
-          <h2 class={styles['title']}>{props.title}</h2>
+          <GameTile motif={props.motif} size="xl" />
+          <div class={styles['headline']}>
+            <Show when={props.mark} fallback={<Spinner size="md" />}>
+              {props.mark}
+            </Show>
+            <h2 class={styles['title']}>{props.title}</h2>
+          </div>
           <div class={styles['line']} role="status" aria-live="polite">
             {props.description}
           </div>

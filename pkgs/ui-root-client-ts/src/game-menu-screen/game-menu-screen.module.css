@@ -51,6 +51,7 @@
   border: var(--ui-space-hairline) solid var(--ui-color-border);
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface);
+  background-image: var(--ui-finish-surface);
   box-shadow: 0 var(--ui-space-hairline) var(--ui-color-border);
   color: var(--ui-color-text);
   text-align: start;
