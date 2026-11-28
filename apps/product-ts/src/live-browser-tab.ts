@@ -1,5 +1,6 @@
 // @io-wall-ok — the device's browser process owns this ephemeral tab and its popups.
 import { wallTimers } from '@pkgs/clock-shared-ts/wall';
+import { chromeScreencast } from '@pkgs/ui-testing-bun-webview-server-ts/chrome-screencast';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-driver';
 import { browserNetworkEvidence } from './browser-network-evidence';
 import type { Device, LiveTarget } from './live-browser';
@@ -47,6 +48,7 @@ export async function openBrowserTab(
   });
   return {
     apiOrigin: target.apiOrigin,
+    screencast: chromeScreencast(view),
     view,
     driver,
     console: consoleLines,

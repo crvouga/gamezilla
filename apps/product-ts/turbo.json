@@ -12,7 +12,7 @@
         "$TURBO_ROOT$/specs/billing/open-provider-pages.feature",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
-      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
+      "env": ["JOURNEY_CAPTURE_RUN", "JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
       "outputs": [
         ".cache/release-report/all/**",
         ".cache/critical-journeys/release-all/**"
