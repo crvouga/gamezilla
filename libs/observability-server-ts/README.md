@@ -324,11 +324,15 @@ command names the environment (`--env <env>`). The job's evidence step,
 [`scripts/health-alerts.ts`](scripts/health-alerts.ts), groups them into one
 work item per failing objective per environment (`src/alert-work-items.ts`),
 runs each item's read-only `bun obs` search with CI's credentials (`--json`,
-the command's window capped at a day, the store's result limit, a few traces
+the command's window, the store's result limit, a few traces
 opened, five minutes in all) and writes the items to the job summary, the CI
 artifact `health-alerts-<run id>`, and one `HEALTH_ALERTS_V1` line in the job
 log. Messages are redacted (credentials, tokens, addresses). The step never
 decides the job.
+
+Each completed search or trace lookup also prints its redacted evidence to the
+job log before the next query starts. If a Release cancels Health, completed
+evidence remains readable even when the final artifact was not written.
 
 `bun alerts` ([`scripts/alerts.ts`](scripts/alerts.ts), `src/open-alerts.ts`)
 reads that line back with nothing but `gh`, so an agent without the secret

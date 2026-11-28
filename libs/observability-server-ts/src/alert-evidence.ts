@@ -32,6 +32,8 @@ export type ObsOutcome = {
 export type EvidencePorts = {
   /** Runs `bun obs <args>` with CI's credentials. */
   readonly obs: (args: readonly string[]) => ObsOutcome;
+  /** Receives sanitized evidence before the next potentially blocking query. */
+  readonly report: (evidence: AlertEvidence) => void;
   readonly nowMs: () => number;
   /** No query starts after this. */
   readonly deadlineMs: number;
@@ -61,22 +63,26 @@ export function collectEvidence(
   failures: readonly ObjectiveFailure[],
   ports: EvidencePorts
 ): AlertEvidence {
+  const report = (evidence: AlertEvidence): AlertEvidence => {
+    ports.report(evidence);
+    return evidence;
+  };
   const command = investigateCommand(failures);
   const args = evidenceArgs(command);
   if (args === null) {
-    return missingEvidence(
-      command,
-      'skipped',
-      command === null
-        ? 'the objective gives no investigate command'
-        : 'only read-only bun obs searches (errors, slow, last) are run'
+    return report(
+      missingEvidence(
+        command,
+        'skipped',
+        command === null
+          ? 'the objective gives no investigate command'
+          : 'only read-only bun obs searches (errors, slow, last) are run'
+      )
     );
   }
   if (ports.nowMs() >= ports.deadlineMs)
-    return missingEvidence(
-      command,
-      'skipped',
-      'the evidence time budget was spent'
+    return report(
+      missingEvidence(command, 'skipped', 'the evidence time budget was spent')
     );
   const search = ports.obs(args);
   const found = searchTraces(search.stdout);
@@ -85,19 +91,23 @@ export function collectEvidence(
       search.code === null
         ? 'the query did not finish in time'
         : `bun obs exited ${String(search.code)}: ${whatObsSaid(search.stderr || search.stdout)}`;
-    return missingEvidence(command, 'unavailable', why);
+    return report(missingEvidence(command, 'unavailable', why));
   }
   const opened: string[] = [];
+  const summarize = () =>
+    summarizeEvidence({
+      command: `bun obs ${args.join(' ')}`,
+      traces: found.traces,
+      truncated: found.truncated,
+      messages: traceMessages(opened),
+    });
+  let evidence = report(summarize());
   for (const ref of exampleTraces(found.traces).slice(0, OPENED_TRACES)) {
     if (ports.nowMs() >= ports.deadlineMs) break;
     opened.push(ports.obs(traceArgs(args, ref.traceId)).stdout);
+    evidence = report(summarize());
   }
-  return summarizeEvidence({
-    command: `bun obs ${args.join(' ')}`,
-    traces: found.traces,
-    truncated: found.truncated,
-    messages: traceMessages(opened),
-  });
+  return evidence;
 }
 
 /** Every failure as work items, most urgent first, each with its evidence. */

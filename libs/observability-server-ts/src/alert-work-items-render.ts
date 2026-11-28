@@ -58,7 +58,7 @@ function percent(share: number | null): string {
     : `${String(Number((share * 100).toPrecision(6)))}%`;
 }
 
-function evidenceLines(evidence: AlertEvidence): readonly string[] {
+export function renderEvidence(evidence: AlertEvidence): readonly string[] {
   const lines = [
     `- Query: \`${evidence.command ?? 'none'}\` → ${evidence.status}${evidence.note === null ? '' : ` (${evidence.note})`}`,
   ];
@@ -126,7 +126,7 @@ export function renderWorkItem(item: WorkItem): string {
     '',
     '**Evidence**',
     '',
-    ...evidenceLines(item.evidence),
+    ...renderEvidence(item.evidence),
     '',
     '**Inspect**',
     '',

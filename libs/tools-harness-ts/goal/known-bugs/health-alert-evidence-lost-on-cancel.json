@@ -1,0 +1,4 @@
+{
+  "summary": "Health run 46127632425 was canceled during evidence collection after about two minutes. The collector printed nothing until the whole batch finished, so completed searches and trace results were absent from its log.",
+  "regressionTest": "libs/observability-server-ts/tests/alert-work-items.test.ts"
+}
