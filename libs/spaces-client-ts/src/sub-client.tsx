@@ -1,4 +1,4 @@
-import { SpacesArt } from '@pkgs/ui-root-client-ts/illustration';
+import { GamesArt } from '@pkgs/ui-root-client-ts/illustration';
 import SessionProvider from './session-provider';
 import SpaceScreen from './space';
 import { SpaceMiniplayer } from './space-miniplayer';
@@ -65,7 +65,7 @@ export function createSpacesClient(options: {
         alsoActiveUnder: ['/space'],
         order: 0,
         label: spacesTabLabel,
-        Icon: SpacesArt,
+        Icon: GamesArt,
         testID: Handles.tabSpaces,
       },
     ],

@@ -7,7 +7,6 @@ import {
   GameMenuScreen,
 } from '@pkgs/ui-root-client-ts/game-menu-screen';
 import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
-import { SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
 import {
   BooksArt,
   FriendsArt,
@@ -16,6 +15,7 @@ import {
   MatchmakingArt,
   PuzzleArt,
   RulesArt,
+  SettingsArt,
   StatsArt,
 } from '@pkgs/ui-root-client-ts/illustration';
 import type { JSX } from '@solidjs/web';
@@ -58,7 +58,7 @@ const ICON: Readonly<Record<string, IconComponent>> = {
   [SHARED_GAME_SCREEN.vsBot]: MascotPortrait,
   [SHARED_GAME_SCREEN.matchmakingHome]: MatchmakingArt,
   [SHARED_GAME_SCREEN.historyHome]: HistoryArt,
-  [SHARED_GAME_SCREEN.settings]: SettingsIcon,
+  [SHARED_GAME_SCREEN.settings]: SettingsArt,
   [HOW_TO_PLAY_CHOICE]: RulesArt,
 };
 

@@ -22,6 +22,32 @@ const gameScreens = new Set([
   'screens-game-home--open-more',
   'screens-games-chess-puzzle--solving',
 ]);
+const navigationScreens = new Set([
+  'screens-shell-tab-bar--spaces-current',
+  'screens-shell-header-island--search-current',
+  'screens-shell-header-island--sidebar-spaces-current',
+  'screens-profile-tab--ready',
+  'screens-profile-tab--no-friends',
+  'screens-spaces-home--empty',
+  'screens-space-join--missing',
+  'screens-space-join--unavailable',
+  'screens-space-ended--ended',
+  'screens-shell-not-found--not-found',
+  'screens-game-home--open-more',
+  'screens-game-home--shared-choices',
+]);
+const navigationReview =
+  process.env['STORYBOOK_PATTERN'] === 'navigation-art-review';
+const review = navigationReview
+  ? 'navigation-art-review'
+  : gameReview
+    ? 'game-art-review'
+    : 'screen-art-review';
+const selection = navigationReview
+  ? navigationScreens
+  : gameReview
+    ? gameScreens
+    : undefined;
 const seen = new Set<string>();
 const extra = new Set([
   'components-illustration--catalog',
@@ -54,8 +80,8 @@ for (const entry of Object.values(index.entries)) {
   if (entry.type !== 'story') continue;
   const family = entry.id.split('--')[0] ?? entry.id;
   if (
-    gameReview
-      ? !gameScreens.has(entry.id)
+    selection
+      ? !selection.has(entry.id)
       : !extra.has(entry.id) &&
         (!family.startsWith('screens-') || seen.has(family))
   )
@@ -63,9 +89,7 @@ for (const entry of Object.values(index.entries)) {
   seen.add(family);
   for (const width of gameReview ? [390, 768, 1280] : [390, 1280]) {
     if (!supportsStoryViewport(entry, width)) continue;
-    test(`${gameReview ? 'game-art-review' : 'screen-art-review'} ${entry.id} ${width}`, async ({
-      page,
-    }, info) => {
+    test(`${review} ${entry.id} ${width}`, async ({ page }, info) => {
       const height = width === 390 ? 844 : 800;
       const theme = width === 390 ? 'light' : 'dark';
       try {
@@ -74,7 +98,7 @@ for (const entry of Object.values(index.entries)) {
           height,
           theme,
           suffix: '',
-          globals: gameReview ? { spaceRole: 'host' } : {},
+          globals: selection ? { spaceRole: 'host' } : {},
         });
         const pictures = page.locator('img[data-component="Illustration"]');
         for (const picture of await pictures.all()) {

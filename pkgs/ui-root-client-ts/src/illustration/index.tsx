@@ -81,8 +81,8 @@ export const ProfileArt = illustration(
   new URL('../../assets/fluent-emoji/bust-in-silhouette.svg', import.meta.url)
     .href
 );
-export const SpacesArt = illustration(
-  new URL('../../assets/fluent-emoji/house.svg', import.meta.url).href
+export const SettingsArt = illustration(
+  new URL('../../assets/fluent-emoji/gear.svg', import.meta.url).href
 );
 export const NotificationsArt = illustration(
   new URL('../../assets/fluent-emoji/bell.svg', import.meta.url).href

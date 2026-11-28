@@ -3,7 +3,8 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { SettingsIcon, SquarePenIcon } from '@pkgs/ui-root-client-ts/icons';
+import { SquarePenIcon } from '@pkgs/ui-root-client-ts/icons';
+import { SettingsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -132,7 +133,7 @@ function ProfileSettingsEntry(props: {
       <MenuRow
         title={t`Settings`}
         caption={t`Account, appearance, sound and more`}
-        leading={<SettingsIcon size={20} color="icon" />}
+        leading={<SettingsArt />}
         onClick={() => props.onOpen()}
       />
     </MenuList>

@@ -1,7 +1,7 @@
 import { createDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { UserPlusIcon, UsersIcon } from '@pkgs/ui-root-client-ts/icons';
+import { FriendsArt, SearchArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MonogramTile } from '@pkgs/ui-root-client-ts/monogram-tile';
@@ -96,7 +96,7 @@ export function StoryFriendsStats(props: {
           </For>
         </AvatarGroup>
       }
-      leading={<UsersIcon size={20} color="icon" />}
+      leading={<FriendsArt />}
       title="All friends"
       onClick={() => undefined}
     />
@@ -120,7 +120,7 @@ export function StoryFriendsActions(): JSX.Element {
     <MenuRow
       title="Find friends"
       caption="Search by username"
-      leading={<UserPlusIcon size={20} color="tint" />}
+      leading={<SearchArt />}
       onClick={() => undefined}
     />
   );
