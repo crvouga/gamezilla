@@ -11,6 +11,7 @@ async function expectArtwork(row: Locator, name: string) {
       import.meta.url
     )
   );
+  await expect(image).toHaveAttribute('src', /^data:image\/webp;base64,/);
   const actual = await image.evaluate(async (el: HTMLImageElement) => {
     await el.decode();
     const body = await (await fetch(el.currentSrc)).arrayBuffer();
@@ -20,13 +21,13 @@ async function expectArtwork(row: Locator, name: string) {
   expect(Buffer.from(actual.bytes).equals(expected)).toBe(true);
 }
 
-for (const width of [390, 1280]) {
+for (const width of [390, 470, 1280]) {
   test(`storybook integration: direct Connect Four menu at ${width}px`, async ({
     page,
   }, info) => {
     await verifyStoryScenario(page, 'screens-game-home--shared-choices', {
       width,
-      height: width === 390 ? 844 : 800,
+      height: width === 470 ? 1133 : width === 390 ? 844 : 800,
       suffix: '',
       globals: { spaceRole: 'host' },
     });
@@ -49,6 +50,8 @@ for (const width of [390, 1280]) {
     const rows = await list.boundingBox();
     if (!board || !title || !rows)
       throw new Error('Missing game identity or action list');
+    expect(board.width).toBe(width === 1280 ? 128 : 112);
+    expect(board.height).toBe(board.width);
     expect(board.y + board.height).toBeLessThanOrEqual(title.y);
     expect(title.y + title.height).toBeLessThanOrEqual(rows.y);
     const center = rows.x + rows.width / 2;

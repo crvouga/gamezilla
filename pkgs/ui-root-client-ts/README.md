@@ -15,7 +15,10 @@ as keyboard and pointer input.
 
 The table has one dark appearance. Graphite panels rise above a charcoal
 canvas, with light catching their upper edges. Menus carry that finish across
-the list. Selected rows use a near-neutral wash. Muted iris identifies actions,
+the list. An action has a broad highlight over a compressible rim. A piece
+catches light near its upper-left shoulder and turns into shade at its base.
+A socket reverses that light along its lip. Selected rows use a near-neutral
+wash. Muted iris identifies actions,
 selected marks and keyboard focus. Gold marks a win or earned place.
 Fluent artwork identifies people, destinations and modes. The board itself
 identifies the game. Manrope carries both headlines and labels, with tabular

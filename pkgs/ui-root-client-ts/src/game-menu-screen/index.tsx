@@ -11,7 +11,6 @@ import { GameTile, type GameTileMotif } from '../game-tile/index';
 import { ChevronRightIcon } from '../icons';
 import type { MainMenuItem } from '../main-menu-item-row/index';
 import { useConfirmNavigation } from '../pending-navigation';
-import { useLayoutMode } from '../use-layout-mode';
 import styles from './game-menu-screen.module.css';
 
 /**
@@ -78,7 +77,6 @@ export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
   const primary = createMemo(() =>
     props.choices.find((choice) => choice.emphasis !== 'quiet')
   );
-  const mode = useLayoutMode();
   return (
     <EmbeddedScreen
       screenId={props.screenId}
@@ -86,7 +84,7 @@ export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
       dataSet={{ component: 'GameMenuScreen', ...props.dataSet }}
     >
       <header class={styles['hero']} data-layout="hero">
-        <GameTile motif={props.motif} size={mode() === 'wide' ? 'xl' : 'lg'} />
+        <GameTile motif={props.motif} size="hero" />
         <h1 class="text textTitle min-w-0 break-words">{props.title}</h1>
       </header>
       <ul class={styles['grid']}>

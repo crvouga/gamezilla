@@ -140,9 +140,9 @@ describe('player colors', () => {
   });
 });
 
-/** Include the unlit substrate and every tint actually used in this finish. */
+/** Composite the possible endpoint colors back to front, including overlapping highlights. */
 function faceColors(
-  finish: 'action' | 'slot' | 'piece',
+  finish: 'action' | 'slot' | 'piece' | 'surface',
   substrate: ColorTokenName
 ) {
   const recipe = new Map<string, string>(materialVariables()).get(
@@ -151,16 +151,21 @@ function faceColors(
   const base = parseCssColor(COLOR_PALETTE[substrate]);
   if (!recipe || !base)
     throw new Error(`Invalid material: ${finish} on ${substrate}`);
-  return [
-    rgbaToRgb8(base),
-    ...COLOR_TOKEN_NAMES.filter((role) => recipe.includes(colorVar(role))).map(
-      (role) => {
-        const overlay = parseCssColor(COLOR_PALETTE[role]);
-        if (!overlay) throw new Error(`Invalid material color: ${role}`);
-        return rgbaToRgb8(compositeOver(overlay, base));
-      }
-    ),
-  ];
+  let colors = [base];
+  for (const layer of recipe
+    .split(/, (?=(?:linear|radial)-gradient\()/)
+    .reverse()) {
+    const beneath = colors;
+    colors = [...beneath];
+    for (const role of COLOR_TOKEN_NAMES.filter((name) =>
+      layer.includes(colorVar(name))
+    )) {
+      const overlay = parseCssColor(COLOR_PALETTE[role]);
+      if (!overlay) throw new Error(`Invalid material color: ${role}`);
+      colors.push(...beneath.map((color) => compositeOver(overlay, color)));
+    }
+  }
+  return colors.map(rgbaToRgb8);
 }
 
 describe('palette contrast', () => {
@@ -178,6 +183,20 @@ describe('palette contrast', () => {
           contrastRatio(ink, face),
           `${label} on ${substrate}`
         ).toBeGreaterThanOrEqual(TEXT);
+      }
+    }
+  });
+
+  test('labels remain readable across lit panels, sheets and overlays', () => {
+    const ink = parseColor(COLOR_PALETTE.textSecondary);
+    if (!ink) throw new Error('Invalid secondary ink');
+    for (const base of [
+      'surface',
+      'surfaceElevated',
+      'surfaceOverlay',
+    ] as const) {
+      for (const face of faceColors('surface', base)) {
+        expect(contrastRatio(ink, face), base).toBeGreaterThanOrEqual(TEXT);
       }
     }
   });
