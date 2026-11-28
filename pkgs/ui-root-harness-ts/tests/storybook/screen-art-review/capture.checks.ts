@@ -36,18 +36,25 @@ const navigationScreens = new Set([
   'screens-game-home--open-more',
   'screens-game-home--shared-choices',
 ]);
-const navigationReview =
-  process.env['STORYBOOK_PATTERN'] === 'navigation-art-review';
-const review = navigationReview
-  ? 'navigation-art-review'
-  : gameReview
-    ? 'game-art-review'
-    : 'screen-art-review';
-const selection = navigationReview
-  ? navigationScreens
-  : gameReview
-    ? gameScreens
-    : undefined;
+const listScreens = new Set([
+  'screens-settings-index--with-billing',
+  'screens-settings-index--preferences-changed',
+  'screens-shell-account-menu--open',
+  'screens-account--signed-in',
+  'screens-game-sessions-setup-seat--bot-seat',
+  'screens-game-sessions-stage-menu--player',
+  'screens-matchmaking-home--find-timed',
+  'screens-admin-synthetic-population--operator',
+  'screens-admin-synthetic-user--running',
+  'space-person-menu--add-bot',
+]);
+const selections = new Map([
+  ['game-art-review', gameScreens],
+  ['navigation-art-review', navigationScreens],
+  ['list-icon-review', listScreens],
+]);
+const review = process.env['STORYBOOK_PATTERN'] ?? 'screen-art-review';
+const selection = selections.get(review);
 const seen = new Set<string>();
 const extra = new Set([
   'components-illustration--catalog',

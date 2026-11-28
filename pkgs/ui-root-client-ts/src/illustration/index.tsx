@@ -11,6 +11,7 @@ function illustration(src: string) {
       <img
         {...componentDataAttrs('Illustration', props.dataSet)}
         src={src}
+        data-icon-family="artwork"
         alt=""
         aria-hidden="true"
         width={props.size ?? 32}
@@ -89,4 +90,12 @@ export const NotificationsArt = illustration(
 );
 export const ArchiveArt = illustration(
   new URL('../../assets/fluent-emoji/card-file-box.svg', import.meta.url).href
+);
+
+export const RemoveArt = illustration(
+  new URL('../../assets/fluent-emoji/wastebasket.svg', import.meta.url).href
+);
+
+export const TimeControlArt = illustration(
+  new URL('../../assets/fluent-emoji/stopwatch.svg', import.meta.url).href
 );

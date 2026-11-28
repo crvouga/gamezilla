@@ -8,13 +8,14 @@ import {
   BugIcon,
   CreditCardIcon,
   InfoIcon,
+  PaintbrushIcon,
   SmartphoneIcon,
+  UserIcon,
   Volume2Icon,
   VolumeXIcon,
   WifiIcon,
   WifiOffIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { ProfileArt, ThemeArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -107,7 +108,7 @@ function useAccountGroup(
       {
         title: t`Account`,
         caption: t`Sign-in methods, devices, sign out`,
-        icon: ProfileArt,
+        icon: UserIcon,
         href: '/more/account',
         testid: 'settings-account',
       },
@@ -155,7 +156,7 @@ function usePreferencesGroup(
       {
         title: t`Appearance`,
         value: themeValue(),
-        icon: ThemeArt,
+        icon: PaintbrushIcon,
         href: '/more/theme',
         testid: Handles.settingsTheme,
       },

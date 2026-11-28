@@ -39,6 +39,7 @@ export function createIcon(symbol: string): IconComponent {
     return (
       <span
         class="box inline-flex items-center justify-center shrink-0"
+        data-icon-family="system"
         role={props.label === undefined ? undefined : 'img'}
         aria-label={props.label}
         aria-hidden={props.label === undefined ? 'true' : undefined}

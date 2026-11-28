@@ -144,7 +144,10 @@ function MenuRowBody(
   return (
     <div class="box flex-row items-stretch pl-4 min-h-13">
       <Show when={props.leading !== undefined}>
-        <div class="box items-center justify-center min-w-6 shrink-0 py-3 pr-3">
+        <div
+          data-slot="row-leading"
+          class="box items-center justify-center min-w-6 shrink-0 py-3 pr-3"
+        >
           {props.leading}
         </div>
       </Show>

@@ -6,8 +6,8 @@ import {
   LogOutIcon,
   SmartphoneIcon,
   UserIcon,
+  UserPlusIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { FriendsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import type { JSX } from '@solidjs/web';
@@ -137,7 +137,7 @@ function HolderRows(
       </Show>
       <Show when={props.offered.invitees}>
         <MenuRow
-          leading={<FriendsArt />}
+          leading={<UserPlusIcon />}
           title={<Trans>Someone in this space</Trans>}
           caption={<Trans>They get an invitation</Trans>}
           selected={kind() === 'invitation'}
