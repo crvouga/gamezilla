@@ -60,13 +60,27 @@ async function verifyOpeningLayout(
     'utf8'
   );
   await page.evaluate(
-    ({ css, html }) => {
+    async ({ css, html }) => {
       // Hold font registration constant: this regression isolates the CSS reset.
+      const fontRules = (rules: CSSRuleList, base: string): string[] =>
+        Array.from(rules).flatMap((rule): string[] => {
+          if (rule instanceof CSSFontFaceRule)
+            return [
+              rule.cssText.replace(
+                /url\((["']?)(.*?)\1\)/g,
+                (_, _quote: string, url: string) =>
+                  `url("${new URL(url, base).href}")`
+              ),
+            ];
+          return rule instanceof CSSGroupingRule
+            ? fontRules(rule.cssRules, base)
+            : [];
+        });
       const faces = Array.from(document.styleSheets).flatMap((sheet) =>
-        Array.from(sheet.cssRules)
-          .filter((rule) => rule instanceof CSSFontFaceRule)
-          .map((rule) => rule.cssText)
+        fontRules(sheet.cssRules, sheet.href ?? document.baseURI)
       );
+      if (faces.length === 0)
+        throw new Error('Missing production font registrations');
       for (const sheet of document.styleSheets) sheet.disabled = true;
       const fonts = document.createElement('style');
       fonts.textContent = faces.join('\n');
@@ -86,7 +100,19 @@ async function verifyOpeningLayout(
       title.textContent = 'Spaces';
       lobby.hidden = false;
       tab.setAttribute('aria-current', 'page');
-      document.body.append(document.importNode(opening, true));
+      const mounted = document.importNode(opening, true);
+      document.body.append(mounted);
+      const family = getComputedStyle(mounted).fontFamily;
+      const loaded = await Promise.all(
+        [400, 500, 600, 700].map((weight) =>
+          document.fonts.load(`${weight} 16px ${family}`)
+        )
+      );
+      if (loaded.some((faces) => faces.length === 0))
+        throw new Error(
+          'Opening fixture did not load its production font faces'
+        );
+      await document.fonts.ready;
     },
     { css, html }
   );
@@ -120,6 +146,7 @@ async function verifyOpeningLayout(
 }
 
 // regression: startup-reset-and-action-shift
+// regression: startup-layout-oracle-unsettled-fonts
 test('storybook integration: opening layout survives stylesheet arrival at 390', async ({
   page,
 }, info) => {

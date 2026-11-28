@@ -1,0 +1,4 @@
+{
+  "summary": "The startup layout oracle measured fallback text immediately after recreating font-face rules, before those recreated faces loaded, then compared it against loaded application fonts.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/startup-layout/integration.checks.ts"
+}
