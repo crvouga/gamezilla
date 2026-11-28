@@ -36,7 +36,12 @@ export async function renderBrandImage(
       side * (artifact.path.endsWith('.ico') ? 1 : artifact.splash ? 0.28 : 0.8)
     )
   );
-  const mark = await sharp(Buffer.from(renderBrandMark(identity)))
+  // A tiny mark can opt out of details smaller than one raster pixel.
+  const mark = await sharp(Buffer.from(renderBrandMark(identity)), {
+    svg: {
+      stylesheet: markSize <= 16 ? '.fine-detail { display: none }' : undefined,
+    },
+  })
     .resize(markSize, markSize)
     .png()
     .toBuffer();
