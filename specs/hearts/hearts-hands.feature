@@ -6,8 +6,8 @@ Feature: Hands only their own player sees
     No counter-example: only the game deals, and nobody can choose or see the cards another player is dealt.
 
     Scenario: Starting a Hearts game deals each player their own 13 cards
-      Given Alice, Bob, Carol and Dave are ready for a custom game of Hearts as South, West, North and East
-      When Alice starts the custom game
+      Given Alice, Bob, Carol and Dave are ready for a game session of Hearts as South, West, North and East
+      When Alice starts the game session
       Then each player holds 13 cards and every card of the deck is in exactly one hand
       And Alice sees her own 13 cards and how many cards West, North and East hold, but none of their cards
 
@@ -17,14 +17,14 @@ Feature: Hands only their own player sees
       Given Alice, Bob, Carol and Dave are playing Hearts as South, West, North and East
 
     Scenario: A watcher sees each card played and how many cards each hand holds
-      Given Eve is watching the custom game
+      Given Eve is watching the game session
       And South has led the two of clubs to the first trick
       When Bob plays the nine of clubs
       Then Eve sees the two of clubs and the nine of clubs in the current trick
       And Eve sees how many cards each hand holds, but none of their cards
 
     Scenario: A watcher sees who has passed but cannot see the cards passed
-      Given Eve is watching the custom game
+      Given Eve is watching the game session
       And the first deal is awaiting passes
       When Bob passes the ace, king and queen of hearts
       Then Eve sees West has passed
@@ -33,7 +33,7 @@ Feature: Hands only their own player sees
     Scenario: A watcher who arrives during a deal cannot see any hand
       Given Eve is in Alice's space
       And the first trick of the second deal has been played
-      When Eve watches the custom game
+      When Eve watches the game session
       Then Eve sees the board with every cumulative score
       And Eve cannot see any player's hand or the cards anyone passed
 

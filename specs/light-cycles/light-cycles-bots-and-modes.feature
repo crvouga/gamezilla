@@ -5,7 +5,7 @@ Feature: Ride against bots or find players for a mode
   Rule: Any rider can be a bot, always shown as a bot with its level, and the bots are chosen before the game starts
 
     Background:
-      Given Alice has created a Light Cycles Trio custom game
+      Given Alice has created a Light Cycles Trio game session
 
     Scenario Outline: A bot of each level rides Nova
       When Alice chooses a <level> bot to ride Nova
@@ -29,12 +29,12 @@ Feature: Ride against bots or find players for a mode
         | called off |
 
     Scenario: Only the creator chooses the bots
-      Given Bob rides Ember in Alice's custom game
+      Given Bob rides Ember in Alice's game session
       When Bob chooses a hard bot to ride Nova
       Then Bob is told only the creator chooses the bots
 
     Scenario: Nobody steers a rider a bot rides
-      Given Alice has started the custom game with Alice riding Comet and a hard bot riding Nova
+      Given Alice has started the game session with Alice riding Comet and a hard bot riding Nova
       When Alice steers Nova up
       Then Alice cannot steer Nova because a bot rides it
 
@@ -67,7 +67,7 @@ Feature: Ride against bots or find players for a mode
       Then Comet is at column 35, row 14 heading right
       And Alice can steer Comet
 
-    @regression:custom-game-navigation-offline-or-watching
+    @regression:game-session-navigation-offline-or-watching
     Scenario: Practice reaches a victory without a connection
       Given Alice is offline
       And Alice's Light Cycles Duel practice has Comet on 2 round wins against a hard bot with a target score of 3
@@ -91,12 +91,12 @@ Feature: Ride against bots or find players for a mode
       Then Alice cannot steer Comet from her other device because her practice stays on her first device
       And Alice can steer Comet
 
-  Rule: People choose how many ride when they set up a custom game or find players
+  Rule: People choose how many ride when they set up a game session or find players
 
-    Scenario: Everyone in the space sees the mode the host chooses for a custom game
+    Scenario: Everyone in the space sees the mode the host chooses for a game session
       Given Bob has joined Alice's space
-      When Alice chooses Light Cycles Trio for a custom game
-      Then Alice and Bob see Light Cycles Trio chosen for the custom game
+      When Alice chooses Light Cycles Trio for a game session
+      Then Alice and Bob see Light Cycles Trio chosen for the game session
 
     Scenario: People finding players for the same mode ride together
       Given Alice, Bob and Carol are finding players for Light Cycles Trio

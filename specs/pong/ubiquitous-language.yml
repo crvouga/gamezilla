@@ -96,7 +96,7 @@ terms:
   - term: join
     from: spaces
 
-  - term: custom game
+  - term: game session
     from: games
 
   - term: seconds pass

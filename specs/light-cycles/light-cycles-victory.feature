@@ -19,13 +19,13 @@ Feature: Win or draw a Light Cycles game
       Then Comet has 2 round wins and Ember has 1
       And the Light Cycles game is still unfinished
 
-  Rule: The custom game's creator may choose a target score from 1 to 9 before it starts, and it is 3 otherwise
+  Rule: The game session's creator may choose a target score from 1 to 9 before it starts, and it is 3 otherwise
 
     Background:
-      Given Alice has created a Light Cycles Duel custom game with Bob riding Ember
+      Given Alice has created a Light Cycles Duel game session with Bob riding Ember
 
-    Scenario: A new custom game is played to 3 round wins
-      When Alice starts the custom game
+    Scenario: A new game session is played to 3 round wins
+      When Alice starts the game session
       Then the Light Cycles game has a target score of 3
 
     Scenario Outline: The creator chooses a target score from 1 to 9

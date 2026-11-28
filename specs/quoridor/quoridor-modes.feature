@@ -7,7 +7,7 @@ Feature: Choose a Quoridor mode
 
     Scenario: Classic begins with opposed pawns and equal wall inventories
       Given Alice has chosen Classic Quoridor with two ready players
-      When Alice starts the Quoridor custom game
+      When Alice starts the Quoridor game session
       Then the Quoridor board has nine columns and nine rows
       And South begins on e1 and North begins on e9 with ten walls each
       And South has the Quoridor turn and each goal is the opposite home row
@@ -17,7 +17,7 @@ Feature: Choose a Quoridor mode
 
     Scenario: The four players begin at the middle of the four edges
       Given Alice has chosen Four-Player King of the Hill with four ready players
-      When Alice starts the Quoridor custom game
+      When Alice starts the Quoridor game session
       Then South begins on e1, West on a5, North on e9 and East on i5 with five walls each
       And the Quoridor turn order is South, West, North, East
       And the Quoridor hill is the single square e5 and first arrival wins

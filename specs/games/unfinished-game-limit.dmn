@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="unfinished-game-limit-decisions" name="The unfinished matched game limit" namespace="urn:product:decisions">
   <decision id="unfinished-game-limit" name="May this person start another matched game?">
-    <description>A guest or an account may seek an opponent for a new matched game, in any game, only after its earlier matched game is over or aborted, and only while it is not a participant of a custom game under way. A matched game that is over or aborted no longer counts as unfinished. Guests, free accounts and Plus members have the same limit of one unfinished matched game; the daily matched game limit for guests is decided separately. A refusal offers the person to return to their game in place of seeking.</description>
+    <description>A guest or an account may seek an opponent for a new matched game, in any game, only after its earlier matched game is over or aborted, and only while it is not a participant of a game session under way. A matched game that is over or aborted no longer counts as unfinished. Guests, free accounts and Plus members have the same limit of one unfinished matched game; the daily matched game limit for guests is decided separately. A refusal offers the person to return to their game in place of seeking.</description>
     <decisionTable id="unfinished-game-limit-table" hitPolicy="UNIQUE">
       <input id="who" label="who is asking">
         <inputExpression id="who-expression" typeRef="string"><text>who is asking</text></inputExpression>
@@ -11,21 +11,21 @@
         <inputExpression id="unfinished-expression" typeRef="number"><text>unfinished matched games</text></inputExpression>
         <inputValues id="unfinished-values"><text>[0..2]</text></inputValues>
       </input>
-      <input id="custom" label="custom games under way as a participant">
-        <inputExpression id="custom-expression" typeRef="number"><text>custom games under way as a participant</text></inputExpression>
+      <input id="custom" label="game sessions under way as a participant">
+        <inputExpression id="custom-expression" typeRef="number"><text>game sessions under way as a participant</text></inputExpression>
         <inputValues id="custom-values"><text>[0..1]</text></inputValues>
       </input>
       <output id="answer" name="answer" typeRef="string">
         <outputValues id="answer-values"><text>"yes","no"</text></outputValues>
       </output>
       <output id="reason" name="reason" typeRef="string">
-        <outputValues id="reason-values"><text>"none","finish the current matched game","finish the current custom game"</text></outputValues>
+        <outputValues id="reason-values"><text>"none","finish the current matched game","finish the current game session"</text></outputValues>
       </output>
       <output id="offer" name="offer" typeRef="string">
-        <outputValues id="offer-values"><text>"seek an opponent","return to their matched game","return to the custom game"</text></outputValues>
+        <outputValues id="offer-values"><text>"seek an opponent","return to their matched game","return to the game session"</text></outputValues>
       </output>
       <rule id="no-unfinished-game">
-        <description>A person without an unfinished matched game or custom game may seek an opponent.</description>
+        <description>A person without an unfinished matched game or game session may seek an opponent.</description>
         <inputEntry id="no-unfinished-game-in-1"><text>-</text></inputEntry>
         <inputEntry id="no-unfinished-game-in-2"><text>&lt; 1</text></inputEntry>
         <inputEntry id="no-unfinished-game-in-3"><text>&lt; 1</text></inputEntry>
@@ -42,14 +42,14 @@
         <outputEntry id="finish-first-out-2"><text>"finish the current matched game"</text></outputEntry>
         <outputEntry id="finish-first-out-3"><text>"return to their matched game"</text></outputEntry>
       </rule>
-      <rule id="finish-custom-game-first">
-        <description>A participant of a custom game under way must finish it first.</description>
-        <inputEntry id="finish-custom-game-first-in-1"><text>-</text></inputEntry>
-        <inputEntry id="finish-custom-game-first-in-2"><text>&lt; 1</text></inputEntry>
-        <inputEntry id="finish-custom-game-first-in-3"><text>&gt;= 1</text></inputEntry>
-        <outputEntry id="finish-custom-game-first-out-1"><text>"no"</text></outputEntry>
-        <outputEntry id="finish-custom-game-first-out-2"><text>"finish the current custom game"</text></outputEntry>
-        <outputEntry id="finish-custom-game-first-out-3"><text>"return to the custom game"</text></outputEntry>
+      <rule id="finish-game-session-first">
+        <description>A participant of a game session under way must finish it first.</description>
+        <inputEntry id="finish-game-session-first-in-1"><text>-</text></inputEntry>
+        <inputEntry id="finish-game-session-first-in-2"><text>&lt; 1</text></inputEntry>
+        <inputEntry id="finish-game-session-first-in-3"><text>&gt;= 1</text></inputEntry>
+        <outputEntry id="finish-game-session-first-out-1"><text>"no"</text></outputEntry>
+        <outputEntry id="finish-game-session-first-out-2"><text>"finish the current game session"</text></outputEntry>
+        <outputEntry id="finish-game-session-first-out-3"><text>"return to the game session"</text></outputEntry>
       </rule>
     </decisionTable>
   </decision>

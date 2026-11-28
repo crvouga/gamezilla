@@ -6,23 +6,23 @@ Feature: Share a victory
     No counter-example: the game's own rules alone decide who shares the best result; a side behind it is shown as no winner below.
 
     Background:
-      Given Alice, Bob, Carol and Dave have a four-player custom game under way
+      Given Alice, Bob, Carol and Dave have a four-player game session under way
 
     Scenario: Two sides tied for the best result share the victory
-      Given the custom game is one move from a victory Alice and Carol share
+      Given the game session is one move from a victory Alice and Carol share
       When Dave makes his move
       Then Alice, Bob, Carol and Dave see Alice and Carol share the victory
       And Bob and Dave are not shown as winners
 
     Scenario: A side alone with the best result wins alone
-      Given the custom game is one move from Carol's victory alone
+      Given the game session is one move from Carol's victory alone
       When Dave makes his move
       Then Alice, Bob, Carol and Dave see Carol as the only winner
 
   Rule: Each person on a winning side counts a shared victory once in their history and statistics
 
     Background:
-      Given Alice and Carol have shared the victory in a four-player custom game with Bob and Dave
+      Given Alice and Carol have shared the victory in a four-player game session with Bob and Dave
 
     Scenario: A person who shared the victory counts it as their victory
       When Carol opens the game's history

@@ -5,20 +5,20 @@ Feature: Start shooting in Battleship
   Rule: Shooting begins once both players are ready and the game starts
 
     Scenario: Starting the game gives the first player the first turn
-      Given Alice and Bob are ready for the custom game with random fleets
-      When Alice starts the custom game
+      Given Alice and Bob are ready for the game session with random fleets
+      When Alice starts the game session
       Then Alice has the Battleship turn
 
     Scenario: The game cannot start while a fleet is incomplete
-      Given Alice is ready for the custom game with a random fleet
+      Given Alice is ready for the game session with a random fleet
       And Bob has placed four of his five ships
-      When Alice starts the custom game
+      When Alice starts the game session
       Then Alice is told every person must be ready
 
     Scenario: A player without a connection cannot start the game
-      Given Alice and Bob are ready for the custom game with random fleets
+      Given Alice and Bob are ready for the game session with random fleets
       And Alice is offline
-      When Alice starts the custom game
+      When Alice starts the game session
       Then Alice is told the game needs a connection
 
     Scenario: A shot before the game starts is refused

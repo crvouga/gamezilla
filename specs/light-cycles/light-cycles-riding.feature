@@ -60,10 +60,10 @@ Feature: Ride and steer a rider
       When Alice steers Comet up
       Then Alice cannot steer Comet because the round result is showing
 
-    Scenario: Steering before the custom game starts is refused
-      Given the custom game has not started
+    Scenario: Steering before the game session starts is refused
+      Given the game session has not started
       When Alice steers Comet up
-      Then Alice cannot steer Comet because the custom game has not started
+      Then Alice cannot steer Comet because the game session has not started
 
   Rule: A turn never carries into another round
     No counter-example: every round begins with each rider heading in its starting direction.

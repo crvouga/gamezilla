@@ -80,9 +80,9 @@ terms:
     from: chess
   - term: multiplayer result
     from: chess
-  - term: custom game
+  - term: game session
     from: chess
-  - term: custom game move list
+  - term: game session move list
     from: chess
 
   - term: Connect Four

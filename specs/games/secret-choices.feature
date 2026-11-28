@@ -1,11 +1,11 @@
 @domain:games
 Feature: Make secret choices at the same time
-  When a game's rules have every side choose in secret before play goes on, each person wants to choose without anyone learning their choice or seeing others choose first, so nobody gains by waiting. It holds for every game with secret choices that offers custom games.
+  When a game's rules have every side choose in secret before play goes on, each person wants to choose without anyone learning their choice or seeing others choose first, so nobody gains by waiting. It holds for every game with secret choices that offers game sessions.
 
   Rule: A participant makes one secret choice in each round of secret choices
 
     Background:
-      Given Alice, Bob, Carol and Dave have a four-player custom game awaiting secret choices
+      Given Alice, Bob, Carol and Dave have a four-player game session awaiting secret choices
 
     Scenario: A participant's secret choice is accepted
       When Bob makes his secret choice
@@ -19,37 +19,37 @@ Feature: Make secret choices at the same time
       And Bob's secret choice is unchanged
 
     Scenario: A watcher cannot make a secret choice
-      Given Eve is watching the custom game
+      Given Eve is watching the game session
       When Eve makes a secret choice
       Then Eve is told she is not a participant
       And nobody has made a secret choice
 
-  Rule: A secret choice is refused when the custom game is not awaiting one from that round
+  Rule: A secret choice is refused when the game session is not awaiting one from that round
 
     Scenario: A secret choice for an earlier round is refused
-      Given Alice, Bob, Carol and Dave have a four-player custom game in its second round of secret choices
+      Given Alice, Bob, Carol and Dave have a four-player game session in its second round of secret choices
       When Bob makes his secret choice for the earlier round of secret choices
       Then Bob is told that secret choice was for an earlier round of secret choices
       And nobody has made a secret choice
 
     Scenario: A secret choice while play goes on is refused
-      Given Alice, Bob, Carol and Dave have a four-player custom game with Bob to move
+      Given Alice, Bob, Carol and Dave have a four-player game session with Bob to move
       When Carol makes her secret choice
-      Then Carol is told the custom game is not awaiting secret choices
-      And Bob keeps the custom game turn
+      Then Carol is told the game session is not awaiting secret choices
+      And Bob keeps the game session turn
 
     Scenario: A new round of secret choices starts with nobody chosen
-      Given Alice, Bob, Carol and Dave have a four-player custom game whose secret choices have taken effect
+      Given Alice, Bob, Carol and Dave have a four-player game session whose secret choices have taken effect
       When play reaches the next round of secret choices
-      Then the custom game is awaiting secret choices
+      Then the game session is awaiting secret choices
       And nobody has made a secret choice
 
   Rule: Only its own person sees a secret choice, and everyone sees which sides have made theirs
     No counter-example: nothing anyone does shows them another side's secret choice; a watcher's attempt to choose is refused above.
 
     Background:
-      Given Alice, Bob, Carol and Dave have a four-player custom game awaiting secret choices
-      And Eve is watching the custom game
+      Given Alice, Bob, Carol and Dave have a four-player game session awaiting secret choices
+      And Eve is watching the game session
 
     Scenario: Others see that a side has chosen but not its secret choice
       When Bob makes his secret choice
@@ -65,46 +65,46 @@ Feature: Make secret choices at the same time
   Rule: Nothing a round's secret choices decide happens until every side has made one, and then all take effect at once
 
     Background:
-      Given Alice, Bob, Carol and Dave have a four-player custom game awaiting secret choices
+      Given Alice, Bob, Carol and Dave have a four-player game session awaiting secret choices
 
     Scenario: The last secret choice makes every secret choice take effect together
       Given Alice, Bob and Carol have made their secret choices
       When Dave makes his secret choice
       Then every secret choice of the round takes effect at once
-      And the custom game goes on as the game's rules say
+      And the game session goes on as the game's rules say
       And nobody sees that round's secret choices any more
 
     Scenario: Play waits for the last secret choice
       Given Alice, Bob and Carol have made their secret choices
       When Alice makes her move
-      Then Alice is told the custom game is awaiting Dave's secret choice
+      Then Alice is told the game session is awaiting Dave's secret choice
       And no secret choice has taken effect
 
   Rule: A bot makes its own side's secret choice
     No counter-example: a bot never waits for anyone to choose for it.
 
     Scenario: Bots choose for their sides, so the person's secret choice completes the round
-      Given Alice has a four-player custom game against three bots awaiting secret choices
+      Given Alice has a four-player game session against three bots awaiting secret choices
       When Alice makes her secret choice
       Then every secret choice of the round takes effect at once
 
-  Rule: With another person in the custom game, making a secret choice needs a connection
+  Rule: With another person in the game session, making a secret choice needs a connection
 
     Scenario: A participant back online makes their secret choice
-      Given Alice, Bob, Carol and Dave have a four-player custom game awaiting secret choices
+      Given Alice, Bob, Carol and Dave have a four-player game session awaiting secret choices
       And Bob is back online after his offline secret choice was refused
       When Bob makes his secret choice
       Then Alice, Carol and Dave see Bob has made his secret choice
 
     Scenario: A participant without a connection cannot make a secret choice
-      Given Alice, Bob, Carol and Dave have a four-player custom game awaiting secret choices
+      Given Alice, Bob, Carol and Dave have a four-player game session awaiting secret choices
       And Bob is offline
       When Bob makes his secret choice
       Then Bob is told the game needs a connection
       And nobody has made a secret choice
 
     Scenario: A person alone with three bots makes their secret choice offline
-      Given Alice has a four-player custom game against three bots awaiting secret choices
+      Given Alice has a four-player game session against three bots awaiting secret choices
       And Alice is offline
       When Alice makes her secret choice
       Then every secret choice of the round takes effect at once

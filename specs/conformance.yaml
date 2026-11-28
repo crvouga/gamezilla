@@ -83,15 +83,15 @@ product:
     - { id: playtest a puzzle draft, context: puzzles, decided by: puzzle-content-access }
     - { id: publish a puzzle or pack, context: puzzles, decided by: puzzle-content-access }
     - { id: continue a puzzle attempt, context: puzzles, decided by: puzzle-content-access }
-    - { id: create a custom game, context: games, decided by: custom-game-access }
-    - { id: configure a custom game, context: games, decided by: custom-game-access }
-    - { id: invite a custom game participant, context: games, decided by: custom-game-access }
-    - { id: configure a custom game bot, context: games, decided by: custom-game-access }
-    - { id: start a custom game, context: games, decided by: custom-game-access }
-    - { id: cancel a custom game, context: games, decided by: custom-game-access }
-    - { id: join a custom game, context: games, decided by: custom-game-access }
-    - { id: watch a custom game, context: games, decided by: custom-game-access }
-    - { id: play a custom game, context: games, decided by: custom-game-access }
+    - { id: create a game session, context: games, decided by: game-session-access }
+    - { id: configure a game session, context: games, decided by: game-session-access }
+    - { id: invite a game session participant, context: games, decided by: game-session-access }
+    - { id: configure a game session bot, context: games, decided by: game-session-access }
+    - { id: start a game session, context: games, decided by: game-session-access }
+    - { id: cancel a game session, context: games, decided by: game-session-access }
+    - { id: join a game session, context: games, decided by: game-session-access }
+    - { id: watch a game session, context: games, decided by: game-session-access }
+    - { id: play a game session, context: games, decided by: game-session-access }
     - { id: create a space, context: spaces, decided by: access }
     - { id: join a space, context: spaces, decided by: access }
     - { id: host another open space, context: spaces, decided by: hosting-limit }

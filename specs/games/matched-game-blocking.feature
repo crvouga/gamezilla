@@ -1,6 +1,6 @@
 @domain:games
 Feature: Blocking when finding an opponent
-  When someone has blocked another person, both want never to be paired together, so a block works when finding an opponent as it does in custom games.
+  When someone has blocked another person, both want never to be paired together, so a block works when finding an opponent as it does in game sessions.
 
   Rule: Blocking in either direction stops two people from being paired
 
@@ -18,7 +18,7 @@ Feature: Blocking when finding an opponent
       And Bob is not told Alice blocked him
 
   Rule: A block after they were paired does not end their matched game
-    No counter-example: blocking changes nothing about a matched game already under way, as with a custom game.
+    No counter-example: blocking changes nothing about a matched game already under way, as with a game session.
 
     Scenario: A block after they were paired keeps the matched game
       Given Alice blocked Bob after they were paired
