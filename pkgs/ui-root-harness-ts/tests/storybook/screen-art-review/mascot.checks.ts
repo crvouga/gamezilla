@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { verifyStoryScenario } from '../verify-story-scenario';
 
 const screens = [
+  'space-person-menu--add-bot',
   'screens-game-home--with-puzzles-and-settings',
   'screens-game-sessions-setup--host-ready-to-start',
   'screens-game-sessions-setup--bot-table',

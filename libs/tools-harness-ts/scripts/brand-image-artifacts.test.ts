@@ -126,6 +126,28 @@ describe('configured brand artwork', () => {
     );
   });
 
+  test('fine details drop out of the favicon but survive on the install icon', async () => {
+    const identity = syntheticIdentity();
+    const mark =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" fill="red"/><circle class="fine-detail" cx="16" cy="16" r="5" fill="blue"/></svg>';
+    const brand = { ...identity.brand, markSvg: mark };
+    for (const size of [16, 64]) {
+      const artifact = {
+        path: 'icon.png',
+        width: size,
+        height: size,
+        splash: false,
+      };
+      const image = await renderBrandImage(artifact, { ...identity, brand });
+      const pixel = await sharp(image)
+        .extract({ left: size / 2, top: size / 2, width: 1, height: 1 })
+        .removeAlpha()
+        .raw()
+        .toBuffer();
+      expect([...pixel]).toEqual(size === 16 ? [255, 0, 0] : [0, 0, 255]);
+    }
+  });
+
   test('configuration changes the actual icon pixels, including the background', async () => {
     // regression: brand-artwork-not-configurable
     const identity = syntheticIdentity();

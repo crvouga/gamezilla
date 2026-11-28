@@ -39,3 +39,12 @@ export const HostRemovesGuest: StoryObj<Args> = {
     await expect(cell).toHaveAttribute('aria-expanded', 'false');
   },
 };
+
+export const AddBot: StoryObj<Args> = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole('button', { name: /^Open seat/i }));
+    const addBot = await canvas.findByRole('menuitem', { name: 'Add bot' });
+    await expect(addBot.querySelector('img')).toHaveAttribute('alt', '');
+  },
+};
