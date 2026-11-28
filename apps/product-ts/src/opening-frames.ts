@@ -6,10 +6,7 @@ export type OpeningControls = {
   readonly spinner: string;
 };
 
-/** Serialized into the measured document. All durations use its navigation time origin. */
-export function observeOpening(controls: OpeningControls): void {
-  if (window.top !== window) return;
-  const selector = (id: string) => `[data-testid="${id}"]`;
+function findExposed(selector: string, interactive = true) {
   function visibleCenter(node: Element) {
     if (
       !node.checkVisibility({ opacityProperty: true, visibilityProperty: true })
@@ -21,18 +18,34 @@ export function observeOpening(controls: OpeningControls): void {
     if (
       !rect.width ||
       !rect.height ||
-      !node.contains(document.elementFromPoint(x, y))
+      rect.right <= 0 ||
+      rect.bottom <= 0 ||
+      rect.left >= innerWidth ||
+      rect.top >= innerHeight
     )
       return null;
     return { x, y };
   }
-  function exposed(selector: string) {
-    for (const node of document.querySelectorAll(selector)) {
-      const point = visibleCenter(node);
-      if (point) return { node, point };
-    }
-    return null;
+
+  for (const node of document.querySelectorAll(selector)) {
+    const point = visibleCenter(node);
+    if (
+      point &&
+      (!interactive ||
+        node.contains(document.elementFromPoint(point.x, point.y)))
+    )
+      return { node, point };
   }
+  return null;
+}
+
+/** Serialized into the measured document. All durations use its navigation time origin. */
+function observeOpening(
+  controls: OpeningControls,
+  exposed: typeof findExposed
+): void {
+  if (window.top !== window) return;
+  const selector = (id: string) => `[data-testid="${id}"]`;
   let activated = false;
   document.addEventListener(
     'click',
@@ -46,21 +59,31 @@ export function observeOpening(controls: OpeningControls): void {
     },
     true
   );
-  const result = {
-    settingsAtMs: null as number | null,
-    spinnerAtMs: null as number | null,
+  const result: {
+    settingsAtMs: number | null;
+    spinnerAtMs: number | null;
+    spinnerFrames: number;
+    runtimeSettingsVisible: boolean;
+  } = {
+    settingsAtMs: null,
+    spinnerAtMs: null,
+    spinnerFrames: 0,
     runtimeSettingsVisible: false,
   };
+  let settingsOnPreviousFrame = false;
   let runtimeOnPreviousFrame = false;
   let target: { id: string; x: number; y: number } | null = null;
   function sample() {
     const now = performance.now();
-    if (result.spinnerAtMs === null && exposed(controls.spinner))
-      result.spinnerAtMs = now;
+    if (exposed(controls.spinner, false)) {
+      result.spinnerFrames++;
+      result.spinnerAtMs ??= now;
+    }
     const settings = exposed(selector(controls.appearance));
     const arrived =
       activated && location.pathname === '/more' && settings !== null;
-    if (arrived) result.settingsAtMs ??= now;
+    if (arrived && settingsOnPreviousFrame) result.settingsAtMs ??= now;
+    settingsOnPreviousFrame = arrived;
     const runtime =
       arrived &&
       !settings.node.closest('[data-startup-shell]') &&
@@ -68,7 +91,10 @@ export function observeOpening(controls: OpeningControls): void {
     result.runtimeSettingsVisible = runtime && runtimeOnPreviousFrame;
     runtimeOnPreviousFrame = runtime;
     target = null;
-    if (!activated) {
+    if (
+      !activated &&
+      performance.getEntriesByName('first-contentful-paint', 'paint').length > 0
+    ) {
       for (const id of [controls.settings, controls.menu]) {
         const control = exposed(selector(id));
         if (control) {
@@ -81,4 +107,8 @@ export function observeOpening(controls: OpeningControls): void {
   }
   Reflect.set(window, '__observedAppOpening', () => ({ target, result }));
   requestAnimationFrame(sample);
+}
+
+export function openingObserverScript(controls: OpeningControls): string {
+  return `(${observeOpening.toString()})(${JSON.stringify(controls)}, ${findExposed.toString()})`;
 }

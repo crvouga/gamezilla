@@ -37,6 +37,7 @@ export type OpeningResult =
   | {
       readonly kind: 'browser';
       readonly settingsAtMs: number | null;
+      readonly spinnerFrames: number;
       readonly spinnerAtMs: number | null;
       readonly runtimeSettingsVisible: boolean;
     };

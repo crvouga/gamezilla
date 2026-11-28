@@ -1,0 +1,202 @@
+/* The document paints with the design tokens before stylesheets arrive. */
+html,
+body,
+#root {
+  min-height: 100%;
+  margin: 0;
+}
+
+html,
+body {
+  background: var(--ui-color-background);
+  color: var(--ui-color-text);
+  color-scheme: dark;
+}
+
+html[data-theme="light"],
+html[data-theme="light"] body {
+  color-scheme: light;
+}
+
+[data-startup-shell] ~ #root {
+  visibility: hidden;
+}
+
+.startup-shell {
+  box-sizing: border-box;
+  font:
+    400 16px / 24px system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  inset: 0;
+  overflow: auto;
+  padding: max(12px, env(safe-area-inset-top)) 16px
+    calc(68px + env(safe-area-inset-bottom));
+  position: fixed;
+}
+
+.startup-shell main {
+  margin: 0 auto;
+  max-width: 640px;
+}
+
+.startup-shell .opening-header {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  min-height: 52px;
+}
+
+.startup-shell h1 {
+  font-size: 28px;
+  line-height: 36px;
+  margin: 0;
+}
+
+.startup-shell nav {
+  align-items: stretch;
+  border-top: 1px solid var(--ui-color-border);
+  bottom: 0;
+  display: flex;
+  left: 0;
+  padding-bottom: env(safe-area-inset-bottom);
+  position: fixed;
+  right: 0;
+}
+
+.startup-shell nav a {
+  flex: 1;
+  flex-direction: column;
+  font-size: 12px;
+  gap: 0;
+  justify-content: center;
+  line-height: 16px;
+  min-height: 52px;
+  padding: 0;
+  text-decoration: none;
+}
+
+.startup-shell nav a::before {
+  content: attr(data-icon) / "";
+  font-size: 24px;
+  line-height: 28px;
+}
+
+.startup-shell nav strong {
+  display: none;
+}
+
+.startup-shell [data-route] {
+  background: var(--ui-color-surface);
+  border: 1px solid var(--ui-color-border);
+  border-radius: 12px;
+  margin: 16px 0;
+  padding: 8px 12px;
+}
+
+.startup-shell a,
+.startup-shell label {
+  align-items: center;
+  color: inherit;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 8px;
+}
+
+.startup-shell input[type="text"] {
+  box-sizing: border-box;
+  font: inherit;
+  min-height: 44px;
+  padding: 0 12px;
+  width: 100%;
+}
+
+.startup-shell a[aria-current] {
+  color: var(--ui-color-tint);
+  font-weight: 700;
+}
+
+.startup-shell-failed {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+  text-align: center;
+}
+
+.startup-shell-mark {
+  align-items: center;
+  background: var(--ui-color-destructive-surface);
+  border-radius: 9999px;
+  color: var(--ui-color-destructive);
+  display: flex;
+  font-size: 20px;
+  font-weight: 700;
+  height: 48px;
+  justify-content: center;
+  width: 48px;
+}
+
+.startup-shell-guidance {
+  color: var(--ui-color-text-secondary);
+}
+
+.startup-shell-detail {
+  color: var(--ui-color-destructive);
+  max-width: min(640px, calc(100vw - 32px));
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.startup-shell-reload {
+  background: var(--ui-color-tint-active);
+  border: 0;
+  border-radius: 9999px;
+  color: var(--ui-color-on-primary);
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+  margin-top: 4px;
+  min-height: 44px;
+  padding: 0 16px;
+}
+
+@media (min-width: 1024px) {
+  .startup-shell {
+    padding: 16px 16px 16px 256px;
+  }
+
+  .startup-shell nav {
+    border-right: 1px solid var(--ui-color-border);
+    border-top: 0;
+    box-sizing: border-box;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 12px;
+    right: auto;
+    top: 0;
+    width: 240px;
+  }
+
+  .startup-shell nav strong {
+    align-items: center;
+    display: flex;
+    height: 44px;
+    margin: 0 0 20px 12px;
+  }
+
+  .startup-shell nav a {
+    flex: 0 0 auto;
+    flex-direction: row;
+    font-size: 16px;
+    gap: 12px;
+    justify-content: start;
+    min-height: 44px;
+    padding: 0 12px;
+  }
+}

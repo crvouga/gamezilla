@@ -3,18 +3,18 @@ import { JOURNEY_WAIT_MS } from '@libs/runtime-harness-ts/journey-gestures';
 import type { OpeningResult } from '@libs/runtime-harness-ts/journey-types';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
+import { processLifecycle } from '@pkgs/os-server-ts/process-lifecycle';
 import type { Device } from './live-browser';
 import { openDevice } from './live-browser';
 import type { LiveDevices } from './live-journey-devices';
-import { type OpeningControls, observeOpening } from './opening-frames';
+import { type OpeningControls, openingObserverScript } from './opening-frames';
 
 const controls: OpeningControls = {
   settings: Handles.globalMenuSettings,
   menu: Handles.statusCurrentUser,
   appearance: Handles.settingsTheme,
-  // data-component is stripped in production. The design system's SVG geometry ships.
   spinner:
-    '[data-testid="boot-loading"], .activity-indicator, [role="progressbar"]:not([aria-valuenow]), svg[viewBox="0 0 100 100"]:has(rect[transform="rotate(0 50 50)"])',
+    '[data-testid="boot-loading"], .activity-indicator, [role="progressbar"]:not([aria-valuenow]), [data-activity-indicator]',
 };
 
 type Observation = Omit<Extract<OpeningResult, { kind: 'browser' }>, 'kind'>;
@@ -69,13 +69,14 @@ export async function measureAppOpening(
   target: Parameters<typeof openDevice>[0],
   devices: LiveDevices
 ): Promise<OpeningResult> {
-  let slowScripts = devices.host === null;
+  const profile = devices.host === null ? 'fresh' : 'returning';
+  let slowScripts = profile === 'fresh';
   devices.host ??= await openDevice(target);
   devices.shown = devices.host;
   const view = devices.host.view;
   await view.cdp('Page.bringToFront', {});
   await view.cdp('Page.addScriptToEvaluateOnNewDocument', {
-    source: `(${observeOpening.toString()})(${JSON.stringify(controls)})`,
+    source: openingObserverScript(controls),
   });
   if (slowScripts) await scriptLatency(view, true);
   await view.cdp('Page.navigate', { url: target.webOrigin });
@@ -84,6 +85,7 @@ export async function measureAppOpening(
   let observation: Observation = {
     settingsAtMs: null,
     spinnerAtMs: null,
+    spinnerFrames: 0,
     runtimeSettingsVisible: false,
   };
   while (monotonicClock.now() < deadline) {
@@ -100,8 +102,11 @@ export async function measureAppOpening(
         slowScripts = false;
       }
     }
-    await Bun.sleep(8);
+    // After the click the document samples every frame without driver polling.
+    await Bun.sleep(tapped.has(controls.settings) ? 80 : 8);
   }
-  console.info(`App opening measurement: ${JSON.stringify(observation)}`);
+  processLifecycle().writeOutput(
+    `App opening measurement (${profile}): ${JSON.stringify(observation)}\n`
+  );
   return { kind: 'browser', ...observation };
 }

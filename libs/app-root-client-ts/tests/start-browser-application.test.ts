@@ -56,7 +56,7 @@ describe('browser application startup', () => {
     expect(setup.events).toEqual(['clear']);
   });
 
-  test('replaces the spinner with a reloadable failure in development', () => {
+  test('replaces the opening document with a reloadable failure in development', () => {
     const shell = document.createElement('div');
     shell.dataset['startupShell'] = '';
     document.body.append(shell);

@@ -1,15 +1,18 @@
 <div class="startup-shell" data-startup-shell>
   <main>
-    <h1 tabindex="-1">Spaces</h1>
-    <nav aria-label="Navigation">
-      <a href="/">Spaces</a>
-      <a href="/search">Search</a>
-      <a href="/notifications">Notifications</a>
-      <a href="/profile">Profile</a>
+    <div class="opening-header">
+      <h1 tabindex="-1">%BRAND_NAME%</h1>
       <a href="/more" data-testid="global-menu-settings">Settings</a>
+    </div>
+    <nav aria-label="Navigation">
+      <strong>%BRAND_NAME%</strong>
+      <a href="/" data-icon="🎮">Spaces</a>
+      <a href="/search" data-icon="🔍">Search</a>
+      <a href="/notifications" data-icon="🔔">Notifications</a>
+      <a href="/profile" data-icon="👤">Profile</a>
     </nav>
     <div data-route="/search" hidden>
-      <input type="text" aria-label="Search people" placeholder="Search people by username"
+      <input type="text" name="people-search" aria-label="Search people" placeholder="Search people by username"
         autocapitalize="none" autocorrect="off" autocomplete="off"
         data-testid="search-input" data-sensitive="true" />
     </div>
@@ -31,6 +34,9 @@
     const links = Array.from(shell.querySelectorAll('a[href]'));
     const views = shell.querySelectorAll('[data-route]');
     const choices = shell.querySelectorAll('input[name="theme"]');
+    const search = shell.querySelector('input[name="people-search"]');
+    search.addEventListener('compositionstart', () => search.setAttribute('data-composing', ''));
+    search.addEventListener('compositionend', () => search.removeAttribute('data-composing'));
     let preference = 'system';
     try {
       const stored = JSON.parse(localStorage.getItem('ui.prefs/color-scheme'));
@@ -56,7 +62,7 @@
         history.pushState(null, '', link.href);
         window.dispatchEvent(new PopStateEvent('popstate'));
       }
-      const focus = location.pathname === '/search' ? shell.querySelector('[data-testid="search-input"]') : title;
+      const focus = location.pathname === '/search' ? search : title;
       focus.focus();
     });
     shell.addEventListener('change', event => {

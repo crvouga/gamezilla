@@ -10,9 +10,18 @@ import type { JSX } from '@solidjs/web';
  * keep their interactive document until the selected route or recovery mounts. */
 export function BootLoadingShell(): JSX.Element {
   return (
-    <Surface tone="background" grow align="center" justify="center"
-      role="status" testId={Handles.bootLoading} dataSet={{component: 'BootLoadingShell'}}>
-      <P variant="caption"><Trans>Opening saved data…</Trans></P>
+    <Surface
+      tone="background"
+      grow
+      align="center"
+      justify="center"
+      role="status"
+      testId={Handles.bootLoading}
+      dataSet={{ component: 'BootLoadingShell' }}
+    >
+      <P variant="caption">
+        <Trans>Opening saved data…</Trans>
+      </P>
     </Surface>
   );
 }

@@ -21,148 +21,7 @@
       document.documentElement.setAttribute('data-theme', scheme);
     })();
   </script>
-  <style>
-    /* The document paints with the design tokens before stylesheets arrive. */
-    html,
-    body,
-    #root {
-      min-height: 100%;
-      margin: 0;
-    }
-
-    html,
-    body {
-      background: var(--ui-color-background, #0f1115);
-      color: var(--ui-color-text, #e8eaef);
-      color-scheme: dark;
-    }
-
-    html[data-theme="light"],
-    html[data-theme="light"] body {
-      background: var(--ui-color-background, #f5f6f8);
-      color: var(--ui-color-text, #151821);
-      color-scheme: light;
-    }
-
-    [data-startup-shell] ~ #root {
-      visibility: hidden;
-    }
-
-    .startup-shell {
-      box-sizing: border-box;
-      font: 400 16px/24px system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-      inset: 0;
-      overflow: auto;
-      padding: max(24px, env(safe-area-inset-top)) 16px;
-      position: fixed;
-    }
-
-    .startup-shell main {
-      margin: 0 auto;
-      max-width: 640px;
-    }
-
-    .startup-shell h1 {
-      font-size: 28px;
-      line-height: 36px;
-      margin: 0 0 16px;
-    }
-
-    .startup-shell nav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px;
-      margin-bottom: 16px;
-    }
-
-    .startup-shell a,
-    .startup-shell label {
-      align-items: center;
-      color: inherit;
-      cursor: pointer;
-      display: inline-flex;
-      gap: 8px;
-      min-height: 44px;
-      padding: 0 8px;
-    }
-
-    .startup-shell input[type="text"] {
-      box-sizing: border-box;
-      font: inherit;
-      min-height: 44px;
-      padding: 0 12px;
-      width: 100%;
-    }
-
-    .startup-shell a[aria-current] {
-      font-weight: 700;
-    }
-
-    .startup-shell-failed {
-      align-items: center;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      justify-content: center;
-      text-align: center;
-    }
-
-    .startup-shell-mark {
-      align-items: center;
-      background: var(--ui-color-destructive-surface, #f8717121);
-      border-radius: 9999px;
-      color: var(--ui-color-destructive, #f87171);
-      display: flex;
-      font-size: 20px;
-      font-weight: 700;
-      height: 48px;
-      justify-content: center;
-      width: 48px;
-    }
-
-    .startup-shell-guidance {
-      color: var(--ui-color-text-secondary, #9ca4b3);
-    }
-
-    .startup-shell-detail {
-      color: var(--ui-color-destructive, #f87171);
-      max-width: min(640px, calc(100vw - 32px));
-      overflow-wrap: anywhere;
-      text-align: center;
-    }
-
-    .startup-shell-reload {
-      background: var(--ui-color-tint-active, #5c61f2);
-      border: 0;
-      border-radius: 9999px;
-      color: var(--ui-color-on-primary, #ffffff);
-      cursor: pointer;
-      font: inherit;
-      font-weight: 600;
-      margin-top: 4px;
-      min-height: 44px;
-      padding: 0 16px;
-    }
-
-    html[data-theme="light"] .startup-shell-mark {
-      background: var(--ui-color-destructive-surface, #dc262617);
-      color: var(--ui-color-destructive, #c81e1e);
-    }
-
-    html[data-theme="light"] .startup-shell-guidance {
-      color: var(--ui-color-text-secondary, #566072);
-    }
-
-    html[data-theme="light"] .startup-shell-detail {
-      color: var(--ui-color-destructive, #c81e1e);
-    }
-
-    html[data-theme="light"] .startup-shell-reload {
-      background: var(--ui-color-tint-active, #4f46e5);
-      color: var(--ui-color-on-primary, #ffffff);
-    }
-
-  </style>
+  <style>/* include browser-opening.css */</style>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
   <title>%BRAND_NAME%</title>
 
@@ -255,7 +114,7 @@
 <body>
   <noscript> You need to enable JavaScript to run this app. </noscript>
 
-  <!-- browser-opening -->
+  <!-- include browser-opening.html -->
   <div id="root"></div>
   <script type="module" src="/src/root.ts"></script>
 </body>

@@ -11,7 +11,7 @@ export const SPIN_DURATION_MS = ACTIVITY_REVOLUTION_MS;
 type SpinnerContextValue = {
   /** Phase offset (ms, 0 ≤ n < SPIN_DURATION_MS) for a spinner mounting now. */
   phaseOffsetMs: () => number;
-  quietActivity?: (() => boolean) | undefined;
+  quietActivity: () => boolean;
 };
 
 const SpinnerContext = createContext<SpinnerContextValue | null>(null);
@@ -26,7 +26,10 @@ const SpinnerContext = createContext<SpinnerContextValue | null>(null);
  * `animation-delay` equal to the elapsed phase, so all instances share one
  * virtual timeline. Opt-in: without a provider each spinner starts at 0°.
  */
-export function SpinnerProvider(props: { children: JSX.Element; quietActivity?: (() => boolean) | undefined }): JSX.Element {
+export function SpinnerProvider(props: {
+  children: JSX.Element;
+  quietActivity?: (() => boolean) | undefined;
+}): JSX.Element {
   const clock = useClock();
   const origin = clock.now();
   const value: SpinnerContextValue = {
@@ -49,5 +52,5 @@ export function useSharedSpinnerDelay(): string | undefined {
 
 /** Sample once when an operation starts. A gesture never animates earlier work. */
 export function quietActivityAtMount(): boolean {
-  return useContext(SpinnerContext)?.quietActivity?.() ?? false;
+  return useContext(SpinnerContext)?.quietActivity() ?? false;
 }

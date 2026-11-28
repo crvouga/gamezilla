@@ -8,11 +8,11 @@ import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web-client-ts/recover-in-process';
 import { isLeaderLostError } from '@pkgs/sql-client-sqlite-web-shared-ts/rpc';
 import type { JSX } from '@solidjs/web';
-import { OpeningContent } from './browser-opening';
 import {
   type LocalDatabaseBootErrorKind,
   LocalDatabaseBootErrorScreenView,
 } from './boot-error-screen-view';
+import { OpeningContent } from './browser-opening';
 
 /** Synthetic error when open hangs past the UI watchdog (stale worker / SW). */
 export const BOOT_STUCK_MESSAGE =
@@ -60,13 +60,13 @@ export function LocalDatabaseBootErrorScreen(props: {
 
   return (
     <OpeningContent>
-    <LocalDatabaseBootErrorScreenView
-      kind={kind()}
-      message={props.error.message}
-      onReload={reloadApp}
-      onReset={onReset}
-      onReportBug={() => requestBugReport()}
-    />
+      <LocalDatabaseBootErrorScreenView
+        kind={kind()}
+        message={props.error.message}
+        onReload={reloadApp}
+        onReset={onReset}
+        onReportBug={() => requestBugReport()}
+      />
     </OpeningContent>
   );
 }

@@ -1,4 +1,5 @@
 import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
+
 /** @jsxImportSource @solidjs/web */
 // @io-wall-ok — browser composition root
 /**
@@ -7,8 +8,8 @@ import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
  * truth). `pagehide` releases the sync engines (web OPFS handles).
  */
 
-import { BrowserOpening } from '@libs/app-root-client-ts/browser-opening';
 import { bootBrowserObservability } from '@libs/app-root-client-ts/boot-browser-observability';
+import { BrowserOpening } from '@libs/app-root-client-ts/browser-opening';
 import { createClient } from '@libs/app-root-client-ts/create-client';
 import { wallClientEnv } from '@libs/app-root-client-ts/wall-client-env';
 import { wallOfflineNetworkController } from '@libs/app-root-client-ts/wall-offline-network';
@@ -53,5 +54,12 @@ window.addEventListener('pagehide', () => {
 });
 
 root.replaceChildren();
-const dispose = renderApplication(() => <BrowserOpening root={root}><client.App /></BrowserOpening>, root);
+const dispose = renderApplication(
+  () => (
+    <BrowserOpening root={root}>
+      <client.App />
+    </BrowserOpening>
+  ),
+  root
+);
 if (import.meta.hot) import.meta.hot.dispose(dispose);

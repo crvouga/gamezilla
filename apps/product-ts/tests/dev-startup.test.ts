@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { runInNewContext } from 'node:vm';
 import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
+import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/css-vars';
 
 const repoRoot = join(import.meta.dirname, '../../..');
 
@@ -82,7 +83,12 @@ describe('boot theme', () => {
     expect(preference).toContain("asKeyword('ui.prefs/color-scheme')");
     expect(preference).toContain("asKeyword('ui.prefs/value')");
     for (const app of ['product-client-ts', 'product-ts']) {
-      const html = source(`apps/${app}/index.html`);
+      const html = source(`apps/${app}/index.html`).replace(
+        '/* include browser-opening.css */',
+        withDocumentPalette(
+          source('pkgs/ui-root-client-ts/src/browser-opening.css')
+        )
+      );
       expect(html).toContain('html[data-theme="light"]');
       expect(html).toContain('color-scheme: light');
     }
@@ -93,14 +99,19 @@ describe('development client startup', () => {
   test('paints immediately while Vite prepares the client graph', () => {
     // regression: dev-cold-load-white-screen
     for (const app of ['product-client-ts', 'product-ts']) {
-      const html = source(`apps/${app}/index.html`);
-      expect(html).toContain('<!-- browser-opening -->');
+      const html = source(`apps/${app}/index.html`).replace(
+        '/* include browser-opening.css */',
+        withDocumentPalette(
+          source('pkgs/ui-root-client-ts/src/browser-opening.css')
+        )
+      );
+      expect(html).toContain('<!-- include browser-opening.html -->');
       expect(html).not.toContain('startup-shell-caption');
       expect(html).toContain(
-        `background: var(--ui-color-background, ${COLOR_PALETTE.dark.background});`
+        `--ui-color-background:${COLOR_PALETTE.dark.background}`
       );
       expect(html).toContain(
-        `background: var(--ui-color-background, ${COLOR_PALETTE.light.background});`
+        `--ui-color-background:${COLOR_PALETTE.light.background}`
       );
       expect(html).not.toContain('animation:');
     }

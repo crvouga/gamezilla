@@ -33,12 +33,12 @@ function CrashRecovery(
   onSettled(() => announceCrash(normalized()));
   return (
     <OpeningContent>
-    <CrashScreen
-      error={normalized()}
-      reset={props.reset}
-      goToSpaces={props.goToSpaces}
-      copyError={props.copyError}
-    />
+      <CrashScreen
+        error={normalized()}
+        reset={props.reset}
+        goToSpaces={props.goToSpaces}
+        copyError={props.copyError}
+      />
     </OpeningContent>
   );
 }

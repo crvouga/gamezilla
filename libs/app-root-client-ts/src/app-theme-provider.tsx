@@ -28,7 +28,7 @@ function AppTheme(props: {
 }): JSX.Element {
   const { preference, settled, setPreference } = useThemePreference();
   const opening = useBrowserOpening();
-  if (opening !== undefined) onSettled(() => opening.bindTheme(setPreference));
+  if (opening !== null) onSettled(() => opening.bindTheme(setPreference));
   // Hold the painted scheme until the stored preference is read, so the first
   // frame never shows the system scheme over a pinned one.
   const painted = paintedScheme();

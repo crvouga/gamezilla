@@ -277,6 +277,9 @@ test('recovery setup can establish its unfinished game beyond the separate timed
     browser: null,
     showsPuzzleAnswers: false,
     open: async () => {},
+    openAndChooseSettings: async () => {
+      throw new Error('Unexpected app opening');
+    },
     openPeer: async () => {},
     peerDevice: {
       spaceLink: async () => '',
