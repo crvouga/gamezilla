@@ -5,6 +5,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Show } from 'solid-js';
+import { sidebarRow } from '../app-header-island/sidebar-row';
 import type { IconComponent } from '../create-icon/index';
 import { FloatingMenu } from '../floating-menu/index';
 import type { FloatingMenuPlacement } from '../floating-menu-position';
@@ -98,8 +99,7 @@ export type OverflowMenuButtonProps = {
   trigger?: JSX.Element | undefined;
   /**
    * A short visible word beside the icon (`Move`), drawn as an outlined
-   * pill, for a menu whose purpose an icon alone does not say. Ignored
-   * when `trigger`.
+   * pill. With a custom face, the face and label form a full sidebar row.
    */
   label?: string | undefined;
   /** Trigger accessible name. */
@@ -196,6 +196,7 @@ function TriggerFace(props: {
   size: number;
   icon: IconComponent;
   trigger: JSX.Element | undefined;
+  sidebarLabel: string | undefined;
   'aria-label': string;
   tooltipPlacement: TooltipPlacement;
   onOpen: () => void;
@@ -221,7 +222,11 @@ function TriggerFace(props: {
       }
     >
       <SdkButton
-        class="clickable clickableTint rounded-full overflow-hidden"
+        class={
+          props.sidebarLabel === undefined
+            ? 'clickable clickableTint rounded-full overflow-hidden'
+            : sidebarRow
+        }
         {...dataAttrs(props.dataSet)}
         type="button"
         onClick={() => props.onOpen()}
@@ -230,6 +235,11 @@ function TriggerFace(props: {
         aria-expanded={props.menu.open() ? 'true' : 'false'}
       >
         {props.trigger}
+        <Show when={props.sidebarLabel}>
+          <span class="text textBodyBold text-text-secondary truncate">
+            {props.sidebarLabel}
+          </span>
+        </Show>
       </SdkButton>
     </Show>
   );
@@ -279,6 +289,7 @@ export function OverflowMenuButton(
       >
         <TriggerFace
           menu={menu}
+          sidebarLabel={props.trigger === undefined ? undefined : props.label}
           size={props.size ?? 40}
           icon={props.icon ?? MenuIcon}
           trigger={

@@ -15,12 +15,10 @@ import type {
   OverflowMenuHeader,
 } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { StatusDotStatus } from '@pkgs/ui-root-client-ts/status-dot';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
-import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createMemo, Show } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 
 const CONNECTIVITY_DOT_SIZE = 14;
 const TRIGGER_AVATAR_SIZE = 32;
@@ -159,25 +157,6 @@ function shownName(props: AppHeaderGlobalMenuViewProps): string | null {
     : null;
 }
 
-/** The trigger: the face, with the person's name beside it when shown. */
-function MenuTrigger(props: {
-  readonly face: JSX.Element;
-  readonly name: string | null;
-}): JSX.Element {
-  return (
-    <Show when={props.name} keyed fallback={props.face}>
-      {(name) => (
-        <StackHorizontal align="center" gap="sm" shrink>
-          {props.face}
-          <Text variant="label" tone="secondary" lines={1}>
-            {name}
-          </Text>
-        </StackHorizontal>
-      )}
-    </Show>
-  );
-}
-
 /**
  * The global account menu, presentational: the account face as trigger
  * (with the person's name beside it in the wide sidebar), a header naming
@@ -192,10 +171,12 @@ export function AppHeaderGlobalMenuView(
   const actions = useGlobalMenuActions(props);
   const header = useGlobalMenuHeader(props);
   const face = createMemo(() =>
-    accountFace(props.identity, TRIGGER_AVATAR_SIZE)
+    accountFace(
+      props.identity,
+      props.showName ? HEADER_AVATAR_SIZE : TRIGGER_AVATAR_SIZE
+    )
   );
   const name = (): string | null => shownName(props);
-  const trigger = createMemo(() => <MenuTrigger face={face()} name={name()} />);
   // A shown name is part of what the trigger is called (WCAG 2.5.3).
   const label = (): string => {
     const shown = name();
@@ -211,7 +192,8 @@ export function AppHeaderGlobalMenuView(
       tooltipPlacement={placement()}
       actions={actions()}
       header={header()}
-      trigger={trigger()}
+      trigger={face()}
+      label={props.showName ? (name() ?? t`Account`) : undefined}
       aria-label={label()}
       dataSet={{ testid: Handles.statusCurrentUser }}
     />

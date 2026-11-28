@@ -39,12 +39,15 @@ export const ProfileCurrent: Story = { args: { pathname: '/profile/friends' } };
 /**
  * The global account menu as the shell mounts it: the signed-in person's
  * face (their name too, in the sidebar) opening Settings, Connectivity,
- * Account, Theme and Sound.
+ * Account and Sound.
  */
-function accountMenu(showName: boolean) {
+function accountMenu(
+  showName: boolean,
+  usernameLabel = STORY_SIGNED_IN_IDENTITY.usernameLabel
+) {
   return (
     <AppHeaderGlobalMenuView
-      identity={STORY_SIGNED_IN_IDENTITY}
+      identity={{ ...STORY_SIGNED_IN_IDENTITY, usernameLabel }}
       connectivity="online"
       muted={false}
       onNavigate={fn()}
@@ -90,7 +93,7 @@ export const SidebarSpacesCurrent: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const menu = await canvas.findByRole('button', {
-      name: '@avery, account menu',
+      name: /, account menu$/,
     });
     await expect(menu).toBeVisible();
   },
@@ -122,4 +125,24 @@ export const SidebarNoneCurrent: Story = {
   ...SidebarSpacesCurrent,
   tags: ['viewport-desktop'],
   args: { orientation: 'vertical', pathname: '/no-such-page' },
+};
+
+export const SidebarPlayerAccount: Story = {
+  ...SidebarSpacesCurrent,
+  render: (args) => (
+    <AppHeaderIslandView
+      {...args}
+      trailing={accountMenu(true, '@DominantLeopon123')}
+    />
+  ),
+};
+
+export const SidebarLongestAccount: Story = {
+  ...SidebarSpacesCurrent,
+  render: (args) => (
+    <AppHeaderIslandView
+      {...args}
+      trailing={accountMenu(true, '@' + 'W'.repeat(32))}
+    />
+  ),
 };

@@ -77,3 +77,52 @@ for (const state of [
     });
   }
 }
+
+// regression: desktop-sidebar-account-overflow
+test('storybook integration: aligned desktop account row contains the longest valid handle', async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  for (const [story, handle] of [
+    ['sidebar-player-account', '@DominantLeopon123'],
+    ['sidebar-longest-account', '@' + 'W'.repeat(32)],
+  ] as const) {
+    await page.goto(
+      `/iframe.html?id=screens-shell-header-island--${story}&viewMode=story`
+    );
+    const rail = page.locator('[data-region="rail"]');
+    const row = rail.getByRole('button', { name: 'Spaces', exact: true });
+    const account = rail.getByRole('button', {
+      name: handle + ', account menu',
+    });
+    const label = account.getByText(handle, { exact: true });
+    await expect(label).toBeVisible();
+    const left = (element: Locator) =>
+      element.evaluate((node) => node.getBoundingClientRect().left);
+    expect(await left(account)).toBe(await left(row));
+    expect(await left(account.locator('[data-component="Avatar"]'))).toBe(
+      await left(row.locator('[data-slot="tile"]'))
+    );
+    expect(await left(label)).toBe(await left(row.getByText('Spaces')));
+    expect(
+      await account.evaluate((node) => node.getBoundingClientRect().right)
+    ).toBe(await row.evaluate((node) => node.getBoundingClientRect().right));
+    expect(await rail.evaluate((node) => node.scrollWidth)).toBe(
+      await rail.evaluate((node) => node.clientWidth)
+    );
+    if (story === 'sidebar-longest-account') {
+      expect(
+        await label.evaluate((node) => node.scrollWidth > node.clientWidth)
+      ).toBe(true);
+      await expect(label).toHaveCSS('text-overflow', 'ellipsis');
+    }
+    await page.screenshot({
+      path: info.outputPath(story + '.png'),
+      animations: 'disabled',
+    });
+    await account.focus();
+    await account.press('Enter');
+    await expect(page.getByText(handle, { exact: true }).last()).toBeVisible();
+    await expect(account).toHaveAttribute('aria-expanded', 'true');
+  }
+});
