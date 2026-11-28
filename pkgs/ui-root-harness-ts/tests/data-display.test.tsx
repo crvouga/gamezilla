@@ -6,6 +6,7 @@ import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { AvatarHero } from '@pkgs/ui-root-client-ts/avatar-hero';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { List, ListItem } from '@pkgs/ui-root-client-ts/list';
+import { MascotSource } from '@pkgs/ui-root-client-ts/mascot-portrait';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -225,6 +226,22 @@ describe('SpeakingAvatar', () => {
     expect(head?.getAttribute('src')).toContain('mascot/portrait.svg');
     expect(root).toHaveTextContent('Coach');
     expect(head).toHaveAttribute('width', '32');
+  });
+
+  test('the opponent and coach both use the configured product mark', () => {
+    const mark = '/configured-portrait.svg';
+    renderUi(() => (
+      <MascotSource value={mark}>
+        <Avatar kind="bot" />
+        <SpeakingAvatar message="Your move" />
+      </MascotSource>
+    ));
+    const bot = screen.getByRole('img', { name: 'Bot' });
+    expect(bot.querySelector('img')).toHaveAttribute('src', mark);
+    expect(byComponent('SpeakingAvatar').querySelector('img')).toHaveAttribute(
+      'src',
+      mark
+    );
   });
 
   test('with a speaker, the head toggles mute (aria-pressed)', () => {

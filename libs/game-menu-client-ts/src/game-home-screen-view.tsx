@@ -9,7 +9,6 @@ import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import { SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
 import {
   BooksArt,
-  BotArt,
   FriendsArt,
   GamesArt,
   HistoryArt,
@@ -18,6 +17,7 @@ import {
   RulesArt,
   StatsArt,
 } from '@pkgs/ui-root-client-ts/illustration';
+import { MascotPortrait } from '@pkgs/ui-root-client-ts/mascot-portrait';
 import type { JSX } from '@solidjs/web';
 import { createMemo, Match, Show, Switch } from 'solid-js';
 import { GameHowToPlayView } from './game-how-to-play-view';
@@ -55,7 +55,7 @@ const ICON: Readonly<Record<string, IconComponent>> = {
   [SHARED_GAME_SCREEN.puzzleStats]: StatsArt,
   [SHARED_GAME_SCREEN.puzzlePacksHome]: BooksArt,
   [SHARED_GAME_SCREEN.vsHuman]: FriendsArt,
-  [SHARED_GAME_SCREEN.vsBot]: BotArt,
+  [SHARED_GAME_SCREEN.vsBot]: MascotPortrait,
   [SHARED_GAME_SCREEN.matchmakingHome]: MatchmakingArt,
   [SHARED_GAME_SCREEN.historyHome]: HistoryArt,
   [SHARED_GAME_SCREEN.settings]: SettingsIcon,

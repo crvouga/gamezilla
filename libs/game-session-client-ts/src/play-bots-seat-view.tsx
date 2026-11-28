@@ -1,6 +1,6 @@
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
-import { BotArt } from '@pkgs/ui-root-client-ts/illustration';
+import { MascotPortrait } from '@pkgs/ui-root-client-ts/mascot-portrait';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
@@ -29,7 +29,7 @@ export function BotDifficultyPlace(
       <MenuSection
         title={
           <StackHorizontal align="center" gap="sm">
-            <BotArt />
+            <MascotPortrait />
             <Trans>How this bot plays</Trans>
           </StackHorizontal>
         }

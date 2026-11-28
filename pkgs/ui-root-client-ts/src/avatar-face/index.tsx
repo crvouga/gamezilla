@@ -6,7 +6,7 @@ import { AvatarFallback, AvatarImage } from '@ui-sdk/solid/avatar';
 import { Match, Show, Switch } from 'solid-js';
 import styles from '../avatar/avatar.module.css';
 import type { IconComponent } from '../create-icon/index';
-import { BotArt } from '../illustration/index';
+import { MascotPortrait } from '../mascot-portrait/index';
 
 export type AvatarFaceProps = {
   /** Draw the bot glyph whatever the other sources are. */
@@ -49,7 +49,7 @@ function glyphSize(size: number): number {
  */
 export function AvatarFace(props: AvatarFaceProps): JSX.Element {
   const icon = (): IconComponent | undefined =>
-    props.bot ? BotArt : props.icon;
+    props.bot ? MascotPortrait : props.icon;
   const Glyph = dynamic(icon);
   const image = (): string | undefined => {
     if (props.bot) return undefined;

@@ -19,6 +19,8 @@
  */
 
 import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
+import { brandMarkSource } from '@libs/product-brand-shared-ts/brand-mark';
+import { MascotSource } from '@pkgs/ui-root-client-ts/mascot-portrait';
 import type { JSX } from '@solidjs/web';
 import { AppAuthProvider } from './app-auth-provider';
 import { AppInfrastructureProvider } from './app-infrastructure-provider';
@@ -39,7 +41,9 @@ export function AppProvidersOuter(props: {
         <AppInfrastructureProvider>
           <AppAuthProvider>
             <AppServicesProvider>
-              <AppUiPortals>{props.children}</AppUiPortals>
+              <MascotSource value={brandMarkSource()}>
+                <AppUiPortals>{props.children}</AppUiPortals>
+              </MascotSource>
             </AppServicesProvider>
           </AppAuthProvider>
         </AppInfrastructureProvider>
