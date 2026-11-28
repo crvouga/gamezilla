@@ -3,13 +3,12 @@
  * lint-package.ts over each package its profile names.
  *
  * `@pkgs/ui-root-client-ts` owns how things look: type roles, surfaces, radii,
- * the one shadow and every color token. The theme (`theme.css`) only
+ * material finishes, depth and every color token. The theme (`theme.css`) only
  * generates token utilities, and this lint rejects what the theme cannot:
  *
  * - every UI package (`design-system`, `component`, `product`): arbitrary
  *   values (`w-[37px]`), raw colors (`#fff`, `rgba(…)`, in TS, TSX and CSS),
- *   steps off the 4px grid (`gap-1.5`), and the `dark:` variant (light and
- *   dark are one variable swap);
+ *   steps off the 4px grid (`gap-1.5`), the `dark:` variant, and component-local lighting;
  * - `component` and `product` packages: ad-hoc type (`text-xs`,
  *   `font-bold`) and shadows, which only design-system components paint;
  * - `product` packages: raw elements and restyling attributes
@@ -62,6 +61,11 @@ const TOKEN_RULES: readonly Rule[] = [
     instead: 'a color token (`text-tint`, `var(--ui-color-*)`)',
   },
   {
+    name: 'local surface gradient',
+    test: (token) => GRADIENT.test(token),
+    instead: 'a material finish (`var(--ui-finish-*)`)',
+  },
+  {
     name: 'off-grid step',
     test: (token) => OFF_GRID.test(utility(token)),
     instead: 'a whole step on the 4px grid (`gap-2`, `p-3`)',
@@ -83,8 +87,7 @@ const PAINT_RULES: readonly Rule[] = [
   {
     name: 'shadow',
     test: (token) => /^(drop-)?shadow(-.+)?$/.test(utility(token)),
-    instead:
-      'a design-system surface: the system is flat, and only floating surfaces carry `shadow-float`',
+    instead: 'a shared component with the appropriate material depth',
   },
 ];
 
@@ -161,9 +164,119 @@ function scriptViolations(
   return out;
 }
 
+/** Alpha masks hide content at a scroll edge. Painted gradients must be shared
+ * materials except for these individual board marks and the sticky heading fade. */
+const DRAWN_GRADIENTS: Readonly<Record<string, readonly string[]>> = {
+  'src/chess-board/chess-board.module.css': [
+    '.background',
+    '.wash[data-kind="check"]',
+    '.hint',
+    '.hintCapture',
+  ],
+  'src/chess-board-squares/move-marks.module.css': [
+    '.mark[data-kind="check"]::after',
+  ],
+  'src/board.css': [
+    '[data-board-theme="quoridor"][data-fill] [data-goal="true"]',
+    '[data-board-theme="quoridor"][data-fill] [data-cell="e5"][data-goal="true"]',
+  ],
+  'src/warehouse.module.css': [
+    '[data-board-theme="warehouse"] [data-marked="true"]::after',
+  ],
+  'src/cell-grid-board/cell-grid-board.module.css': [
+    '.board[data-board-theme="checkered"] .cell[data-emphasis="pending"], .board[data-board-theme="checkered"] .cell[data-emphasis="preview"]',
+    '.board[data-board-theme="sokoban"] .cell[data-identity="four"] .glyph',
+  ],
+  'src/cell-grid-board/cell-grid-board-battleship.module.css': [
+    '.board[data-battleship-surface="target"] .cell[data-tone="open"]',
+  ],
+  'src/tile-board/tile-board.module.css': ['.mark'],
+  'src/disc-drop-board/disc-drop-board.module.css': [
+    '.board [data-winning="true"]',
+  ],
+  'src/game-move-list/game-move-list.module.css': [
+    '[data-game-fixed="true"] [data-game-slot="history"] .list[data-layout="table"] .heading::after',
+  ],
+};
+
+const GRADIENT = /(?:repeating-)?(?:linear|radial|conic)-gradient\(/i;
+const DEPTH = /^var\(--ui-(?:depth-[a-z]+|shadow-float)\)$/;
+// A hard-edged ring with no offset or blur can mark focus, selection or a scrim.
+const RING =
+  /^(?:inset )?0 0 0 (?:\d+(?:px|vmax)|var\(--ui-space-[\w-]+\)) (?:var\(--[\w-]+\)|currentColor)$/;
+const ACCENT_STRIPES = new Set([
+  'inset 4px 0 0 var(--ui-color-tint-active)',
+  'inset 0 var(--ui-space-xs) var(--result-accent)',
+  'inset 0 calc(-1 * var(--ui-space-1)) var(--ui-color-game-hearts-accent)',
+  'inset var(--ui-space-hairline) 0 currentColor',
+  'inset calc(-1 * var(--ui-space-hairline)) 0 currentColor',
+]);
+
+function selectorAt(code: string, offset: number): string {
+  const open = code.lastIndexOf('{', offset);
+  const previous = Math.max(
+    code.lastIndexOf('{', open - 1),
+    code.lastIndexOf('}', open - 1)
+  );
+  return code
+    .slice(previous + 1, open)
+    .trim()
+    .replace(/\s+/g, ' ');
+}
+
+function materialIssue(
+  file: DesignSource,
+  code: string,
+  match: RegExpExecArray
+): string | undefined {
+  const offset = match.index;
+  const property = match[1]?.toLowerCase() ?? '';
+  const value = (match[2] ?? '').trim().replace(/\s+/g, ' ');
+  if (/^--ui-(depth|finish)-/.test(property))
+    return 'local material definition — define the finish or depth in the shared token generator';
+  if (
+    GRADIENT.test(value) &&
+    !/^(?:-webkit-)?mask(?:-image)?$/.test(property)
+  ) {
+    const drawing =
+      (property === 'background' ||
+        property === 'background-image' ||
+        property === '--warehouse-stencil') &&
+      DRAWN_GRADIENTS[file.path]?.includes(selectorAt(code, offset));
+    if (!drawing)
+      return 'local surface gradient — use a material finish (`var(--ui-finish-*)`)';
+  }
+  if (
+    property === 'box-shadow' &&
+    !/^(?:none|initial|inherit|unset|revert|revert-layer)$/.test(value)
+  ) {
+    const layers = value.split(',').map((layer) => layer.trim());
+    if (
+      layers.some(
+        (layer) =>
+          !(DEPTH.test(layer) || RING.test(layer) || ACCENT_STRIPES.has(layer))
+      )
+    ) {
+      return 'local surface shadow — use a material depth (`var(--ui-depth-*)`)';
+    }
+  }
+  if (/\bdrop-shadow\(/i.test(value)) {
+    const windowOutline =
+      file.path === 'src/word-tile-board/word-tile-overview.module.css' &&
+      selectorAt(code, offset) === '.window' &&
+      value === 'drop-shadow(0 0 1px var(--ui-color-board-card-ink))';
+    if (!windowOutline)
+      return 'local drop shadow — use a material depth (`var(--ui-depth-*)`)';
+  }
+  return undefined;
+}
+
 /** Raw colors in a stylesheet; comments are skipped. */
-function stylesheetViolations(file: DesignSource): string[] {
-  if (allowsColor(file.path)) return [];
+function stylesheetViolations(
+  file: DesignSource,
+  profile: DesignProfile
+): string[] {
+  if (profile === 'design-system' && file.path === 'src/tokens.css') return [];
   const out: string[] = [];
   const code = file.text.replace(/\/\*[\s\S]*?\*\//g, (comment) =>
     comment.replace(/[^\n]/g, ' ')
@@ -173,6 +286,25 @@ function stylesheetViolations(file: DesignSource): string[] {
     for (const match of (lines[i] ?? '').matchAll(CSS_COLOR)) {
       out.push(
         `${file.path}:${i + 1}: raw color "${match[0]}" — use a color token (\`var(--ui-color-*)\`)`
+      );
+    }
+  }
+  if (
+    !/gradient\(|box-shadow\s*:|drop-shadow\(|--ui-(depth|finish)-[\w-]+\s*:/i.test(
+      code
+    )
+  )
+    return out;
+  // Bound a declaration by its block or semicolon, including multiline paints.
+  for (const match of code.matchAll(
+    /(?:^|[;{])\s*([\w-]+)\s*:\s*([^;{}]+)(?=[;}]|$)/g
+  )) {
+    const property = match[1] ?? '';
+    const issue = materialIssue(file, code, match);
+    if (issue !== undefined) {
+      const at = match.index + match[0].indexOf(property);
+      out.push(
+        `${file.path}:${code.slice(0, at).split('\n').length}: ${issue}`
       );
     }
   }
@@ -189,7 +321,7 @@ export function designVocabularyViolations(
   for (const file of files) {
     if (!isDesignSource(file.path)) continue;
     if (file.path.endsWith('.css')) {
-      out.push(...stylesheetViolations(file));
+      out.push(...stylesheetViolations(file, profile));
       continue;
     }
     out.push(...scriptViolations(file, rules));
