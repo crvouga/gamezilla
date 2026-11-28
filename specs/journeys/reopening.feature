@@ -8,5 +8,5 @@ Feature: Using the app on a device that has opened the app before
 
     Scenario: A person reaches Settings immediately on a device that has opened the app before
       Given the app has been opened on a fresh device
-      When the app reopens
+      When they open the app and choose Settings
       Then they can open Settings in under one second without seeing an opening screen
