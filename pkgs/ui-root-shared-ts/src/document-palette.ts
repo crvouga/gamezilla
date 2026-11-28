@@ -1,5 +1,6 @@
 import { COLOR_PALETTE } from './color-palette.ts';
 import type { ColorTokenName } from './colors-types';
+import { documentMetrics } from './document-metrics.ts';
 
 export const COLOR_TOKEN_NAMES = Object.keys(
   COLOR_PALETTE.light
@@ -25,5 +26,5 @@ export function withDocumentPalette(css: string): string {
     );
     return `html[data-theme="${scheme}"]{${declarations.join(';')}}`;
   });
-  return [...schemes, css].join('\n');
+  return [...schemes, documentMetrics(css), css].join('\n');
 }
