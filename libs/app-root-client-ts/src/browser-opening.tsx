@@ -10,7 +10,7 @@ import {
   useContext,
 } from 'solid-js';
 
-import { finishOpeningGesture } from './finish-opening-gesture';
+import { finishOpeningAfterFonts } from './finish-opening-after-fonts';
 import { restoreOpeningSearch } from './restore-opening-search';
 
 type Opening = {
@@ -106,7 +106,13 @@ export function BrowserOpening(props: {
     <OpeningContext
       value={{
         ready: () =>
-          opening === null ? undefined : finishOpeningGesture(opening, reveal),
+          opening === null
+            ? undefined
+            : finishOpeningAfterFonts({
+                opening,
+                fonts: document.fonts,
+                finish: reveal,
+              }),
         quietActivity: () => !interactions.signal.aborted,
         bindTheme,
       }}

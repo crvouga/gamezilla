@@ -1,4 +1,11 @@
 /* The document paints with the design tokens before stylesheets arrive. */
+.startup-shell,
+.startup-shell *,
+.startup-shell *::before,
+.startup-shell *::after {
+  box-sizing: border-box;
+}
+
 html,
 body,
 #root {
@@ -26,28 +33,36 @@ html[data-theme="light"] body {
   box-sizing: border-box;
   font-family: var(--ui-font-sans, Manrope, system-ui, sans-serif);
   font-size: var(--ui-text-body-size, 15px);
+  font-weight: var(--ui-font-weight-regular);
   line-height: var(--ui-text-body-leading, 22px);
   inset: 0;
   overflow: auto;
-  padding: max(12px, env(safe-area-inset-top)) 16px
-    calc(72px + env(safe-area-inset-bottom));
+  padding: env(safe-area-inset-top) 0 calc(57px + env(safe-area-inset-bottom));
   position: fixed;
 }
 
 .startup-shell main {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
   margin: 0 auto;
-  max-width: 640px;
 }
 
 .startup-shell .opening-header {
   align-items: center;
   display: flex;
   justify-content: space-between;
-  min-height: 52px;
+  flex: 0 0 53px;
+  min-height: 53px;
+  padding: 0 16px;
+  border-bottom: 1px solid transparent;
 }
 
 .startup-shell h1 {
+  font-family: var(--ui-font-sans);
   font-size: var(--ui-text-display-size, 26px);
+  font-weight: var(--ui-text-display-weight);
   line-height: var(--ui-text-display-leading, 30px);
   letter-spacing: -0.02em;
   margin: 0;
@@ -74,6 +89,7 @@ html[data-theme="light"] body {
   min-height: 56px;
   padding: 0;
   text-decoration: none;
+  font-weight: var(--ui-font-weight-regular);
 }
 
 /* Reserve the same artwork box before and after the app takes over. */
@@ -93,7 +109,7 @@ html[data-theme="light"] body {
   background: var(--ui-color-surface);
   border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-control, 12px);
-  margin: 16px 0;
+  margin: 16px;
   padding: 8px 12px;
 }
 
@@ -102,6 +118,7 @@ html[data-theme="light"] body {
   align-items: center;
   color: inherit;
   cursor: pointer;
+  text-decoration: none;
   display: inline-flex;
   gap: 8px;
   min-height: 44px;
@@ -166,7 +183,48 @@ html[data-theme="light"] body {
 .startup-shell .opening-create {
   background: transparent;
   border: 0;
-  padding: 0;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 16px;
+}
+
+.startup-shell [hidden] {
+  display: none;
+}
+
+.startup-shell p {
+  margin: 0;
+}
+
+.startup-shell .opening-create p {
+  color: var(--ui-color-text-secondary);
+  font-size: var(--ui-text-caption-size);
+  line-height: var(--ui-text-caption-leading);
+  text-align: center;
+}
+
+.startup-shell .opening-create [data-startup-create] {
+  align-items: center;
+  display: inline-flex;
+  gap: 8px;
+  position: fixed;
+  right: 16px;
+  bottom: calc(73px + env(safe-area-inset-bottom));
+  height: 52px;
+  padding: 0 24px 0 16px;
+}
+
+.startup-shell [data-startup-create]::before {
+  content: "+";
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  font-size: 24px;
+  font-weight: var(--ui-font-weight-regular);
 }
 
 .startup-shell [data-startup-create],
@@ -178,8 +236,8 @@ html[data-theme="light"] body {
   color: var(--ui-color-on-primary);
   cursor: pointer;
   font: inherit;
-  font-weight: 600;
-  margin-top: 4px;
+  font-weight: var(--ui-font-weight-semibold);
+  margin: 0;
   min-height: 44px;
   padding: 0 16px;
 }
@@ -187,6 +245,10 @@ html[data-theme="light"] body {
 @media (min-width: 1024px) {
   .startup-shell {
     padding: 16px 16px 16px 256px;
+  }
+
+  .startup-shell main {
+    max-width: 640px;
   }
 
   .startup-shell nav {
@@ -199,6 +261,12 @@ html[data-theme="light"] body {
     right: auto;
     top: 0;
     width: 240px;
+  }
+
+  .startup-shell .opening-create [data-startup-create] {
+    bottom: auto;
+    top: 16px;
+    right: 16px;
   }
 
   .startup-shell nav strong {

@@ -1,0 +1,4 @@
+{
+  "summary": "The browser could reveal the application before its text faces loaded, allowing the visible application to change metrics after handoff.",
+  "regressionTest": "libs/app-root-client-ts/tests/finish-opening-after-fonts.test.ts"
+}
