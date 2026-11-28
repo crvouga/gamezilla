@@ -1,14 +1,13 @@
-/* A game's menu: the hero block (the game's tile, name and what it is), the
-   first way to play as one primary control, the other ways to play as
-   full-width rows, then the quiet choices behind More. */
+/* A game's menu: the hero (the game's board and name, from the start
+   edge), the first way to play as one primary control, the other ways to
+   play as full-width rows, then the quiet choices behind More. */
 .hero {
   display: flex;
-  flex-direction: column;
-  text-align: center;
+  flex-direction: row;
   align-items: center;
-  gap: var(--ui-space-6);
+  gap: var(--ui-space-4);
   min-width: 0;
-  padding-block: var(--ui-space-4) var(--ui-space-2);
+  padding-block: var(--ui-space-2);
 }
 .heroWords {
   display: flex;
@@ -16,55 +15,30 @@
   gap: var(--ui-space-1);
   min-width: 0;
 }
-/* The first way to play: full width, the one filled control of the menu. */
+@media (min-width: 1024px) {
+  .hero {
+    gap: var(--ui-space-6);
+    padding-block: var(--ui-space-4) var(--ui-space-2);
+  }
+}
+/* The first way to play: full width, the one control of the menu that
+   stands on the accent. */
 .lead {
   display: flex;
   min-width: 0;
 }
-.primary {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ui-space-3);
-  width: 100%;
-  min-height: 64px;
-  padding: var(--ui-space-4) var(--ui-space-6);
-  border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-card);
-  background: var(--ui-color-surface);
-  color: var(--ui-color-text);
-  text-align: center;
-}
-.primary:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
-}
-.primaryTitle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--ui-space-3);
-  min-width: 0;
-}
-.primaryIcon {
-  display: flex;
-  flex-shrink: 0;
-  --ui-on-icon: var(--ui-color-text);
-}
-
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--ui-space-4);
+  gap: var(--ui-space-2);
 }
 .item {
   display: flex;
   min-width: 0;
 }
-/* One choice, read across: its picture, its words (the name with the lead's
-   tag beside it, what it opens under them), a chevron centred at the far
-   edge. As tall as its words, so no card is mostly empty room. */
+/* One choice, read across: its picture, its name, a chevron centred at the
+   far edge. As tall as its words, so no card is mostly empty room. Paper
+   with a fine lower edge, like every choice a person presses. */
 .tile {
   position: relative;
   display: flex;
@@ -74,15 +48,32 @@
   width: 100%;
   min-height: 64px;
   padding: var(--ui-space-3) var(--ui-space-6);
-  border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-card);
+  border: var(--ui-space-hairline) solid var(--ui-color-border);
+  border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface);
+  box-shadow: 0 var(--ui-space-hairline) var(--ui-color-border);
   color: var(--ui-color-text);
   text-align: start;
 }
 .tile:focus-visible {
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: 2px;
+}
+/* The way in: the accent edge and a firm accent foot inside the card, so
+   it is the menu's one primary control and still the rows' own kind (the
+   foot is inset, so the card keeps its size when it settles on press). */
+.tile[data-emphasis="primary"] {
+  min-height: 72px;
+  border-color: var(--ui-color-tint);
+  box-shadow: inset 0 calc(-1 * var(--ui-space-xs)) var(--ui-color-tint);
+}
+.tile[data-emphasis="primary"]:active {
+  box-shadow: inset 0 calc(-1 * var(--ui-space-hairline)) var(--ui-color-tint);
+}
+@media (hover: hover) and (pointer: fine) {
+  .tile:not([data-emphasis="primary"]):hover {
+    border-color: var(--ui-color-outline);
+  }
 }
 /* The name, and anything placed right beside it. */
 .titleRow {
@@ -102,59 +93,33 @@
 .title {
   min-width: 0;
 }
-.caption {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  overflow: hidden;
-}
 .chevron {
   display: flex;
   flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
   --ui-on-icon: var(--ui-color-text-secondary);
 }
-/* A look back or a setting says less: a secondary picture. */
-/* The quiet choices under the tiles: compact rows sharing the tiles'
-   edges (one alone spans them), up to three across. */
+/* The primary's chevron is a filled play disc in the accent. */
+.tile[data-emphasis="primary"] .chevron {
+  width: var(--ui-control-size-sm);
+  height: var(--ui-control-size-sm);
+  border-radius: var(--ui-radius-full);
+  background: var(--ui-color-tint-active);
+  --ui-on-icon: var(--ui-color-on-primary);
+}
+/* The quiet choices under the rows: compact rows sharing the rows' edges,
+   one column. */
 .links {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: var(--ui-space-3);
+  gap: var(--ui-space-2);
   margin-top: var(--ui-space-2);
 }
-/* A quiet choice is a card of the tiles' own kind (their surface, edge,
-   radius and inner start edge, so its picture, words and chevron line up
-   with theirs), only shorter, with a smaller picture and title: one
-   family of cards, the look back the least of them. */
-.link {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: var(--ui-space-4);
-  width: 100%;
-  min-height: 64px;
-  padding: var(--ui-space-3) var(--ui-space-6);
-  border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-card);
-  background: var(--ui-color-surface);
-  color: var(--ui-color-text);
-  text-align: start;
-}
-.link:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
-}
-.linkWords {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 0;
-}
-.linkCaption {
-  color: var(--ui-color-text-secondary);
-}
-.linkChevron {
-  display: flex;
-  flex-shrink: 0;
-  --ui-on-icon: var(--ui-color-text-secondary);
+/* A phone keeps the rows' inner edge at the page's own inset. */
+@media (max-width: 767px) {
+  .tile {
+    gap: var(--ui-space-3);
+    padding-inline: var(--ui-space-4);
+  }
 }

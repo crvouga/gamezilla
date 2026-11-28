@@ -11,15 +11,13 @@ the ref from a snapshot. A marked confirmation leaves the final action to the
 person in the app. Game moves and editor changes go through the same callbacks
 as keyboard and pointer input.
 
-## The look: calm chrome, one accent, expressive games
+## The look of the game table
 
-Application chrome is quiet slate in both schemes: ink-blue charcoal and soft
-paper surfaces with cool gray inks, so long sessions are easy on the eyes.
-One indigo accent marks what a person can act on or has chosen: links, the
-primary fill, selection and focus rings. Feedback keeps its words and icons
-and adds its named hue (red, green, amber, blue); it never depends on hue
-alone. Manrope sets every line of copy, headlines and numbers (tabular
-figures).
+Warm paper and walnut surfaces frame the board. The blackberry accent marks
+play, selection, links and keyboard focus. A filled action has a firm lower
+edge that settles on press. Fluent artwork identifies people, destinations
+and modes. The board itself identifies the game. Manrope carries both the
+headlines and the smaller labels, with tabular figures for scores and clocks.
 
 Game-prefixed color tokens belong only to playing surfaces. Component-local
 variables scope them to the board, leaving the surrounding chrome neutral.
@@ -32,7 +30,8 @@ Light Cycles uses a dark cyan arena with patterned bright trails.
 
 Values live in `pkgs/ui-root-shared-ts/src/design-tokens.json`. CSS
 variables, TypeScript token names and a resolved `tokens.json` are generated
-from it (`bun run tokens:generate`).
+from it (`bun run tokens:generate`). The same task writes the adaptive background
+and text color assets used by the SwiftUI opening screen.
 Dark is the `:root` default; light is one variable swap on
 `[data-theme="light"]` (and `prefers-color-scheme: light` before a theme is
 set), never two sets of classes. `palette-contrast.test.ts` holds every
@@ -44,9 +43,9 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 | Type | eight styles: `display-xl` 40/44, `display` 26/30, `stat` 20/24 (numbers), `title` 18/24, `body` 15/22, `body-strong` 15/22, `caption` 13/18, `label` 12/16 |
 | Face | Manrope 400 / 500 / 600 / 700 for copy, headlines and numbers (tabular figures); self-hosted, `font-display: swap` |
 | Space | the 4px grid only: `none xs sm md lg xl 2xl 3xl` = 0 4 8 12 16 24 32 48; phone gutter 16 |
-| Radius | 6 (`sm`: small details), 12 (`control`, `card`: inputs, rows, cards, lists), 20 (`sheet`: sheets, dialogs, boards), `full` (buttons, chips, tags, header tabs, avatars, stat pills) |
+| Radius | Small for tags and details, control for buttons and choices, card for grouped content, sheet for dialogs and boards. Avatars, dots and compact counters are round. |
 | Control height | 32 / 44 / 52; every control keeps a 44px hit area |
-| Shadow | one: `shadow-float`, for what floats above content |
+| Depth | Fine lower edges on paper panels, an inset foot on filled actions and `shadow-float` for overlays |
 | Motion | 150 / 200 / 250ms, one ease-out curve, only in answer to a tap; off under reduced motion |
 | Breakpoints | sm 640, md 768, lg 1024, xl 1280 |
 
@@ -67,20 +66,16 @@ preserve its interactive target when changing the size of its glyph.
 
 ## Rules
 
-1. **Calm chrome, one accent.** Neutrals are slate and never carry a hue of
-   their own. The indigo accent is the primary fill (`tint-active`), links
-   (`tint`), selection (`tint-subtle` and `on-primary-soft`) and focus; it is
-   never decoration. Status takes its named hue and is always named or
-   accompanied by an icon. Richer color belongs to playing surfaces, seat
-   colors, the product mark and vendor-mandated identity artwork
-   (`palette-contrast.test.ts` holds neutrals quiet and the accent to one
-   hue).
+1. **Reserve the brand color for interaction.** Use `tint-active` for the
+   main action, `tint` for links, and `tint-subtle` with `on-primary-soft` for
+   selection. Give status its named hue and a word or icon. Game pieces,
+   seat colors and artwork keep their own palettes.
 2. **Pick a role, never a size.** Text is `P` / `Text` with a `variant`
    (`body`, `rowTitle`, `bodyBold`, `label`, `caption`, `footnote`,
    `sectionLabel`, `stat`, `mono`) or `H1`–`H6` with a `size` (`displayXl`,
    `title`, `heading`, `subtitle`, `navigationTitle`, `label`, `stat`).
    `rowTitle` is the title of a row or card a screen lays out itself (body at
-   medium weight, as `MenuRow` sets its own), so the thing never weighs less
+   semibold weight, as `MenuRow` sets its own), so the thing never weighs less
    than the action beside it. Each role wears
    one of the eight text styles; the mapping is in `hosts.css` and
    `docs/ui-overhaul/DECISIONS.md`. `numeral` (Manrope 600, tabular) for
@@ -97,13 +92,14 @@ preserve its interactive target when changing the size of its glyph.
 4a. **Nobody is an icon.** A person without a picture is the `Avatar`
    placeholder, never an outlined glyph in a ring. `icon` on an `Avatar` is
    for things that are not people: a bot, a game, a device.
-5. **Radius encodes hierarchy.** `rounded-full` chips, tags and header tabs,
-   `rounded-control` inputs and rows, `rounded-card` cards and panels,
-   `rounded-sheet` dialogs, sheets and boards. `rounded-full` for buttons and
-   round things: avatars, stat pills, the FAB, dots.
-6. **Flat.** Hairlines separate, tone steps raise. The one shadow,
-   `shadow-float`, is for what floats: sheets, dialogs, menus, popovers,
-   tooltips and the FAB. No gradients, no glows.
+5. **Choose corners by role.** Use the control radius for actions and
+   choices. Use the small radius for metadata, the card radius for a group
+   of choices, and the sheet radius for a dialog or board. Reserve round
+   silhouettes for identity, small counts and floating controls.
+6. **Use depth to show what moves.** Paper panels have a fine lower edge.
+   A filled primary or destructive button has an inset foot that compresses
+   on press without resizing the control. Sheets, menus, popovers, tooltips
+   and the floating action button use `shadow-float`.
 7. **One navigation surface.** Wide layouts navigate from the sidebar
    (`AppHeaderIsland orientation="vertical"` in `AppFrame` `rail`): logo,
    one row per destination, the global chrome at its foot. Screens beside it
@@ -118,10 +114,9 @@ preserve its interactive target when changing the size of its glyph.
    strings joined with `·`. Every tag is one shape, one type size and
    sentence case; only the tone changes: a status is the `subtle` wash
    (`Live`, `Current`, `Friends`, `Host`), a count the `solid` fill.
-9. **Motion answers a person.** Hover and press fade in 150ms, a control
-   changes state in 200ms, a surface enters in 250ms. Press is a tone shift
-   and a 0.97 scale; nothing bounces. `prefers-reduced-motion` (and the app's
-   reduced-motion setting) turns it all off.
+9. **Motion answers a person.** Use the fast transition for hover, the
+   normal transition for selection, and the slow transition for surfaces.
+   Both the device and in-app reduced-motion settings keep controls still.
 10. **One activity indicator.** Every wait shows `Spinner` (twelve petals,
     stepping once a second): alone, in `LoadingState`, inside a loading
     `Button`, and on the boot screen in `index.html`. A whole-screen wait

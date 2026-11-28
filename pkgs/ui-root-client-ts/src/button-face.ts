@@ -6,26 +6,6 @@
  * success / error face is showing. The result is a `data-face` name: every
  * color, border, hover / press tint and disabled tone for it lives in
  * `skin.css`, so a face never recomputes on a scheme switch.
- *
- * The four buttons of the design brief, as `intent` × `variant`:
- *
- * - **Primary** (`primary` solid, the default): the one saturated fill at
- *   rest (`tint-active` + `on-primary`).
- * - **Secondary** (`neutral` solid or outline): transparent, a 1px `outline`
- *   (line-strong) border, ink label. Both variants paint the same face; a
- *   neutral fill would be a second saturated-looking plate.
- * - **Ghost** (`ghost`): no border and no fill at rest; the intent colors
- *   the label (`neutral` ink, `primary` the `tint`).
- * - **Danger** (`danger`): `outline` is destructive text and border;
- *   `solid` is the `destructive-active` fill with a white label, for the
- *   action that confirms a destruction. Always with a word or an icon.
- *
- * A **locked** button (`locked`) is an action that waits on an earlier
- * step: no border or fill, the label in the secondary ink behind a lock.
- * It stays pressable, so pressing it can say what is still missing.
- *
- * Every face is a pill (`--ui-radius-full`). Success is never a resting
- * face: green appears only as the `feedback-success` phase.
  */
 
 import type { IconComponent } from './create-icon/index';
@@ -102,7 +82,7 @@ export function buttonFaceName(input: ButtonRenderInput): ButtonFaceName {
   // Loading keeps its intent face (the spinner sits on the same fill); the
   // control is still inert and `aria-busy`. Only `disabled` greys it out.
   const disabled = input.disabled ?? false;
-  // Secondary (`neutral` solid) is drawn as an outline, so it disables as one.
+  // Secondary actions retain a quiet outline while unavailable.
   const outlined =
     variant === 'outline' || (variant === 'solid' && intent === 'neutral');
   if (disabled && outlined) return 'disabled-outline';

@@ -146,15 +146,21 @@ describe('GameMenuScreen', () => {
   // It is a card of the rows' kind, their surface, edge and inner start
   // edge, only shorter.
   test("wide: the look back is a shorter card of the rows' own kind", () => {
+    const view = threeChoices(1440);
+    openMore(view);
+    const history = view.getByTestId('choice-history');
+    expect(history.className).toBe(view.getByTestId('choice-find').className);
+    expect(history).toHaveAttribute('data-emphasis', 'quiet');
     const tile = body('.tile');
-    const link = body('.link');
-    for (const property of ['background', 'border', 'border-radius']) {
-      const value = new RegExp(`\\n\\s*${property}:\\s*([^;]+);`);
-      expect(link.match(value)?.[1]).toBe(tile.match(value)?.[1]);
-    }
-    expect(link).toContain('padding: var(--ui-space-3) var(--ui-space-6);');
+    expect(tile).toContain('background: var(--ui-color-surface);');
+    expect(tile).toContain('solid var(--ui-color-border);');
+    expect(tile).toContain('border-radius: var(--ui-radius-control);');
     expect(tile).toContain('padding: var(--ui-space-3) var(--ui-space-6);');
-    expect(link).toContain('min-height: 64px;');
+    expect(tile).toContain('min-height: 64px;');
+    expect(body('.tile[data-emphasis="primary"]')).toContain(
+      'min-height: 72px;'
+    );
+    view.unmount();
   });
 
   // regression: game-menu-recommended-badge-detached — the "Recommended"
@@ -186,15 +192,21 @@ describe('GameMenuScreen', () => {
   test('only the primary control is filled; every row wears the card surface', () => {
     expect(CSS).not.toContain(':first-child');
     expect(CSS).not.toContain('--ui-color-primary-strong');
-    for (const row of ['.tile', '.link']) {
-      expect(body(row)).toContain('background: var(--ui-color-surface);');
-      expect(body(row)).not.toContain('--ui-color-tint-active');
-      expect(body(row)).not.toContain('--ui-color-on-primary');
-    }
-    const primary = body('.primary');
-    expect(primary).toContain('background: var(--ui-color-surface);');
-    expect(primary).toContain('color: var(--ui-color-text);');
-    expect(primary).toContain('width: 100%;');
+    const view = threeChoices(1440);
+    const play = view.getByTestId('choice-play');
+    expect(play).toHaveAttribute('data-emphasis', 'primary');
+    expect(play.className).toBe(view.getByTestId('choice-find').className);
+    const tile = body('.tile');
+    expect(tile).toContain('width: 100%;');
+    expect(tile).toContain('color: var(--ui-color-text);');
+    expect(tile).toContain('background: var(--ui-color-surface);');
+    const primary = body('.tile[data-emphasis="primary"]');
+    expect(primary).not.toContain('background:');
+    expect(primary).toContain('border-color: var(--ui-color-tint);');
+    expect(body('.tile[data-emphasis="primary"] .chevron')).toContain(
+      'background: var(--ui-color-tint-active);'
+    );
+    view.unmount();
   });
 
   test('phone: the same choices, the primary control above the rows', () => {

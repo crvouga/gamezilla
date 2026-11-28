@@ -55,7 +55,7 @@ function BadgeHost(props: {
   return (
     <span
       // Not a `.box`: that host reset (`padding: 0`, later in the same layer)
-      // would strip the pill's own padding.
+      // would strip the tag's own padding.
       class={[
         'badge inline-flex shrink-0 self-start items-center justify-center min-w-0 max-w-full',
         {
@@ -81,7 +81,7 @@ function BadgeHost(props: {
 /**
  * `Badge` -- a tag: one short fact, or a count.
  *
- * One family: every tag is the pill (`skin.css` `.badge`), 24px tall (`md`)
+ * One family: every tag uses the same face (`skin.css` `.badge`), 24px tall (`md`)
  * with the `label` text style (12/16 bold, tabular numerals) and a
  * sentence-case label; `sm` is 16px tall, for a count over an icon or a
  * dense row of tags. A label too long for its row ends in an ellipsis. Only

@@ -26,7 +26,7 @@ function byComponent(name: string): HTMLElement {
 }
 
 describe('Badge', () => {
-  test('renders label with intent/tone colors and pill radius', () => {
+  test('renders the label and its semantic tone', () => {
     renderUi(() => <Badge label="Beta" intent="success" tone="solid" />);
     const root = byComponent('Badge');
     expect(root).toHaveTextContent('Beta');

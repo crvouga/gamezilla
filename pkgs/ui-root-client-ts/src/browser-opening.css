@@ -33,7 +33,7 @@ html[data-theme="light"] body {
   inset: 0;
   overflow: auto;
   padding: max(12px, env(safe-area-inset-top)) 16px
-    calc(68px + env(safe-area-inset-bottom));
+    calc(72px + env(safe-area-inset-bottom));
   position: fixed;
 }
 
@@ -70,18 +70,21 @@ html[data-theme="light"] body {
   flex: 1;
   flex-direction: column;
   font-size: 12px;
-  gap: 0;
+  gap: 4px;
   justify-content: center;
   line-height: 16px;
-  min-height: 52px;
+  min-height: 56px;
   padding: 0;
   text-decoration: none;
 }
 
-.startup-shell nav a::before {
-  content: attr(data-icon) / "";
-  font-size: 24px;
-  line-height: 28px;
+/* Reserve the same artwork box before and after the app takes over. */
+.startup-shell nav .opening-art {
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  height: 32px;
+  width: 48px;
 }
 
 .startup-shell nav strong {
@@ -120,6 +123,15 @@ html[data-theme="light"] body {
   font-weight: 700;
 }
 
+.startup-shell nav a[aria-current] {
+  color: var(--ui-color-text);
+  font-weight: 600;
+}
+
+.startup-shell nav a[aria-current] .opening-art {
+  background: var(--ui-color-tint-subtle);
+}
+
 .startup-shell-failed {
   align-items: center;
   display: flex;
@@ -156,7 +168,8 @@ html[data-theme="light"] body {
 .startup-shell-reload {
   background: var(--ui-color-tint-active);
   border: 0;
-  border-radius: 9999px;
+  border-radius: 12px;
+  box-shadow: inset 0 -4px var(--ui-color-on-tint-scrim);
   color: var(--ui-color-on-primary);
   cursor: pointer;
   font: inherit;
@@ -190,13 +203,33 @@ html[data-theme="light"] body {
     margin: 0 0 20px 12px;
   }
 
+  /* The sidebar's rows: the picture on a tile, the current row in the
+     accent's subtle tone and its tile in the accent. */
   .startup-shell nav a {
+    border-radius: 12px;
     flex: 0 0 auto;
     flex-direction: row;
     font-size: 16px;
     gap: 12px;
     justify-content: start;
-    min-height: 44px;
-    padding: 0 12px;
+    min-height: 52px;
+    padding: 0 12px 0 8px;
+  }
+
+  .startup-shell nav .opening-art {
+    background: var(--ui-color-surface);
+    border-radius: 12px;
+    height: 40px;
+    width: 40px;
+  }
+
+  .startup-shell nav a[aria-current] {
+    background: var(--ui-color-tint-subtle);
+    color: var(--ui-color-on-primary-soft);
+    font-weight: 700;
+  }
+
+  .startup-shell nav a[aria-current] .opening-art {
+    background: var(--ui-color-tint-active);
   }
 }

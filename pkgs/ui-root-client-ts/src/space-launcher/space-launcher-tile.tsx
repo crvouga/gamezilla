@@ -105,10 +105,11 @@ function TileMark(props: {
 }
 
 /**
- * One launcher tile: the game's art, its name and one line under it (its
- * fit with the room, a suggestion, or where the host is). A game too few
- * people are here for is dimmed and says why. The host can still pick it
- * (its own choices find or invite the players); a guest cannot suggest it.
+ * One launcher card: the game's board as its face, then its name and one
+ * line under it (its fit with the room, a suggestion, or where the host
+ * is). A game too few people are here for is dimmed and says why. The host
+ * can still pick it (its own choices find or invite the players); a guest
+ * cannot suggest it.
  */
 export function SpaceLauncherTile(props: {
   game: SpaceLauncherGame;
@@ -149,21 +150,23 @@ export function SpaceLauncherTile(props: {
       onClick={() => press()?.()}
     >
       <span class={styles['art']}>
-        <GameTile motif={props.game.motif} size="xl" />
+        <GameTile motif={props.game.motif} size="cover" />
       </span>
-      <span class={`text textBodyBold ${styles['name']}`}>
-        {props.game.name}
+      <span class={styles['words']}>
+        <span class={`text textBodyBold ${styles['name']}`}>
+          {props.game.name}
+        </span>
+        <TileMark
+          game={props.game}
+          fit={fit()}
+          present={props.present}
+          // A guest who only watches reads each count as the host's tile
+          // says it (`3 players + 1 bot`), so every tile counts the same room.
+          guest={props.role === 'guest' && !watching()}
+          looking={props.looking}
+          hostName={props.hostName}
+        />
       </span>
-      <TileMark
-        game={props.game}
-        fit={fit()}
-        present={props.present}
-        // A guest who only watches reads each count as the host's tile
-        // says it (`3 players + 1 bot`), so every tile counts the same room.
-        guest={props.role === 'guest' && !watching()}
-        looking={props.looking}
-        hostName={props.hostName}
-      />
     </SdkButton>
   );
 }

@@ -4,7 +4,7 @@ import type { JSX } from '@solidjs/web';
 import { radioGroup } from '@ui-sdk/core/radio';
 import { usePrimitive } from '@ui-sdk/solid/primitive';
 import { createUniqueId, For, Show } from 'solid-js';
-import styles from '../game-ui.module.css';
+import styles from '../game-setup-panel/game-setup-panel.module.css';
 
 export type GameChoice = {
   value: string;
@@ -38,7 +38,7 @@ export function GameChoiceGrid(props: {
       disabled={props.disabled}
       {...dataAttrs({ component: 'GameChoiceGrid' })}
     >
-      <legend id={name} class={`${styles['meta']} text textFootnote`}>
+      <legend id={name} class={`${styles['legend']} text textFootnote`}>
         {props.label}
       </legend>
       <div class={styles['choiceGrid']}>

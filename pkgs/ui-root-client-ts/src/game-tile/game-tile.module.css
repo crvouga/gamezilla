@@ -17,6 +17,16 @@
   width: 96px;
   height: 96px;
 }
+/* The face of a game's card: the board's own colour edge to edge, the
+   board centred in it at the height it is given. */
+.tile[data-size="cover"] {
+  box-sizing: border-box;
+  width: 100%;
+  height: 100%;
+  padding: var(--ui-space-2);
+  background: var(--tile-bg);
+  box-shadow: none;
+}
 .art {
   display: block;
   width: 100%;

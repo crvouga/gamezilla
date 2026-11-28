@@ -74,3 +74,94 @@
     grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
   }
 }
+
+/* A setup choice among a few (a mode, a side, a size), as a native radio
+   group of cards. */
+.choices {
+  border: 0;
+  padding: 0;
+  min-width: 0;
+}
+.choiceGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--ui-space-2);
+  margin-top: var(--ui-space-3);
+}
+/* One choice: paper with a fine lower edge, like every choice a person
+   presses. Chosen is the selection wash inside the accent edge, never the
+   action fill, so a chosen mode never reads as a button to press. */
+.choice {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--ui-space-1);
+  padding: var(--ui-space-3);
+  min-height: 76px;
+  border: var(--ui-space-hairline) solid var(--ui-color-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-surface);
+  box-shadow: 0 var(--ui-space-hairline) var(--ui-color-border);
+  cursor: pointer;
+  transition:
+    background-color var(--ui-duration-fast) var(--ui-easing-standard),
+    border-color var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.choice[data-selected="true"] {
+  background: var(--ui-color-tint-subtle);
+  border-color: var(--ui-color-tint);
+  box-shadow: inset 0 0 0 var(--ui-space-hairline) var(--ui-color-tint);
+  color: var(--ui-color-on-primary-soft);
+}
+.choice[data-selected="true"] .choiceTitle,
+.choice[data-selected="true"] .choiceDetail {
+  color: var(--ui-color-on-primary-soft);
+}
+.choice:focus-within {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.choices:not(:disabled) .choice:active {
+  box-shadow: inset 0 0 0 var(--ui-space-hairline) var(--ui-color-outline);
+}
+.choices:disabled .choice,
+.choices:disabled .choice[data-selected="true"] {
+  background: var(--ui-color-surface-muted);
+  border-color: var(--ui-color-border);
+  box-shadow: none;
+  color: var(--ui-color-text-secondary);
+  cursor: default;
+}
+.choices:disabled .choice .choiceTitle,
+.choices:disabled .choice .choiceDetail {
+  color: var(--ui-color-text-secondary);
+}
+.choiceInput {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: inherit;
+}
+.choiceTitle,
+.choiceDetail {
+  min-width: 0;
+}
+.legend {
+  min-width: 0;
+}
+@media (hover: hover) and (pointer: fine) {
+  .choices:not(:disabled) .choice:hover {
+    background: var(--ui-color-interactive-hover);
+  }
+  .choices:not(:disabled) .choice[data-selected="true"]:hover {
+    background: var(--ui-color-tint-subtle);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .choice {
+    transition: none;
+  }
+}

@@ -91,7 +91,7 @@ function buttonClass(args: {
   fullWidth: boolean;
 }): string {
   return [
-    // `hitTarget` grows a short (`sm`) pill to 44px; it needs the button
+    // `hitTarget` grows a short (`sm`) control to 44px; it needs the button
     // unclipped, so the label row clips its own overflow instead.
     'hitTarget max-w-full flex-row items-center justify-center select-none',
     args.fullWidth && 'self-stretch w-full',
@@ -105,19 +105,9 @@ function buttonClass(args: {
  * Run an action in the current view, such as saving a form or confirming a
  * choice. Use Link for navigation to another route.
  *
- * `Button` -- a themed pill `<button>`: three intents, three sizes, three
- * variants. The design brief's four buttons are:
- *
- * | Brief | Props | Look |
- * | --- | --- | --- |
- * | Primary | `intent="primary"` (default) | `tint-active` fill, `on-primary` label |
- * | Secondary | `intent="neutral"` (solid or `variant="outline"`) | transparent, 1px `outline` border, ink label |
- * | Ghost | `variant="ghost"` | no border, no fill at rest |
- * | Danger | `intent="danger" variant="outline"` | destructive label and border |
- * | Danger, confirming | `intent="danger"` (solid) | `destructive-active` fill, `on-destructive` label |
- *
- * Hover tints, press tints and settles to 0.97 (150ms, off under reduced
- * motion), keyboard focus draws the 2px `focus-ring` 2px outside the pill.
+ * Filled primary actions have a recessed lower edge that flattens on press.
+ * Use a neutral button for alternatives and a danger face for confirmations.
+ * Keyboard focus draws the shared ring outside the control.
  * `disabled` greys the face; `loading` / `feedback` drive the inline
  * mutation faces (spinner, check, retry) -- pair with `useMutationButton`.
  * A `size="sm"` button is 32px tall but keeps a 44px hit area.

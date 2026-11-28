@@ -1,11 +1,4 @@
-/* Component paint. One class + data-face / data-status. Every value is a
- * token (`--ui-*`).
- *
- * The design contract lives in README.md. Application paint is achromatic;
- * the board components scope their own game palettes. Buttons, chips and tags
- * use the full radius; fields and rows use the control radius. Selected
- * controls use the neutral `tint-subtle` fill and `on-primary-soft` ink.
- * Every control keeps hover, press, focus, disabled and loading feedback. */
+/* Shared component paint. Semantic colors and geometry come from the theme. */
 
 @layer components {
   .themeHost {
@@ -28,7 +21,6 @@
     color: var(--ui-color-text);
   }
 
-  /* The wordmark uses the same neutral ink as interactive text. */
   .text.appLogo {
     font-weight: var(--ui-font-weight-bold);
     letter-spacing: -0.03em;
@@ -68,9 +60,36 @@
     cursor: progress;
   }
 
-  .btn:not(:disabled):active,
-  .fab:not(:disabled):active {
-    transform: scale(0.97);
+  .clickable.btn {
+    border-radius: var(--ui-radius-control);
+    font-weight: var(--ui-font-weight-bold);
+  }
+
+  /* The foot is inside the face so the action occupies the same space
+     when it is pressed, waiting, or showing a result. */
+  .btn:is(
+    [data-face="primary"],
+    [data-face="danger"],
+    [data-face="feedback-error"]
+  ) {
+    box-shadow: inset 0 calc(-1 * var(--ui-space-xs))
+      var(--ui-color-on-tint-scrim);
+  }
+
+  .btn:is(
+    [data-face="primary"],
+    [data-face="danger"],
+    [data-face="feedback-error"]
+  ):enabled:active {
+    box-shadow: inset 0 calc(-1 * var(--ui-space-hairline))
+      var(--ui-color-on-tint-scrim);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .btn:enabled:active > span,
+    .fab:enabled:active {
+      transform: translateY(var(--ui-space-hairline));
+    }
   }
 
   .btn .text,
@@ -85,7 +104,6 @@
   .btn[data-size="sm"] {
     min-height: var(--ui-control-size-sm);
     padding: 0 var(--ui-space-md);
-    border-radius: var(--ui-radius-full);
     font-size: var(--ui-font-size-sm);
     line-height: var(--ui-leading-sm);
   }
@@ -93,7 +111,6 @@
   .btn[data-size="md"] {
     min-height: var(--ui-control-size-md);
     padding: 0 var(--ui-space-lg);
-    border-radius: var(--ui-radius-full);
     font-size: var(--ui-font-size-sm);
     line-height: var(--ui-leading-sm);
   }
@@ -101,7 +118,6 @@
   .btn[data-size="lg"] {
     min-height: var(--ui-control-size-lg);
     padding: 0 var(--ui-space-xl);
-    border-radius: var(--ui-radius-full);
     font-size: var(--ui-font-size-base);
     line-height: var(--ui-leading-base);
   }
@@ -173,7 +189,11 @@
     --ui-on-fg-muted: var(--ui-color-destructive);
   }
 
-  /* Secondary: transparent, the 3:1 `outline` (line-strong) edge, ink. */
+  /* A solid secondary action sits on paper; outlines let the host show through. */
+  .btn[data-face="neutral"] {
+    background: var(--ui-color-surface);
+  }
+
   .btn[data-face="neutral"],
   .btn[data-face="neutral-outline"] {
     border-color: var(--ui-color-outline);
@@ -251,18 +271,13 @@
     --ui-on-icon: var(--ui-color-on-destructive);
   }
 
-  /* Chips are choices: a 32px tag at the pill radius (its hit area is
-     44px, `.hitTarget`). Unchosen is transparent inside the 3:1 `outline`
-     edge with an ink label; chosen is the soft neutral, like every other "this
-     one". Doubled with `.clickable` for the same reason as `.btn`: the host
-     reset (`padding: 0`, `border: 0`, `font: inherit`, later in this layer)
-     must not win over the chip's own shape. */
+  /* The chip face is compact; hitTarget extends the pointer area. */
   .clickable.chip {
     height: var(--ui-control-size-sm);
     min-width: var(--ui-control-size-md);
     padding-left: var(--ui-space-md);
     padding-right: var(--ui-space-md);
-    border-radius: var(--ui-radius-full);
+    border-radius: var(--ui-radius-control);
     border: 1px solid var(--ui-color-outline);
     background: transparent;
     color: var(--ui-color-text);
@@ -299,11 +314,11 @@
     cursor: not-allowed;
   }
 
-  /* A tag: the pill radius and the `label` text style, at either size. */
+  /* Tags use the small radius; icon counters stay round. */
   .badge {
     min-height: var(--ui-space-xl);
     padding: 0 var(--ui-space-sm);
-    border-radius: var(--ui-radius-full);
+    border-radius: var(--ui-radius-sm);
     background: var(--ui-color-tint-subtle);
     color: var(--ui-color-on-primary-soft);
     font-family: var(--ui-text-label-family);
@@ -311,6 +326,10 @@
     font-weight: var(--ui-text-label-weight);
     line-height: var(--ui-text-label-leading);
     font-variant-numeric: tabular-nums lining-nums;
+  }
+
+  .badge[data-size="sm"][data-tone="solid"] {
+    border-radius: var(--ui-radius-full);
   }
 
   .badge[data-size="sm"] {
@@ -433,8 +452,7 @@
     }
   }
 
-  /* Segmented control: a clear pill track inside the `outline` edge; the
-     selected segment is the soft neutral pill, sliding in 200ms. */
+  /* The chosen segment slides inside its track. */
   .segmentIndicator {
     transition:
       left var(--ui-duration-normal) var(--ui-easing-standard),
@@ -476,15 +494,10 @@
     .switchTrack > .switchThumb {
       transition: none;
     }
-
-    .btn:active,
-    .fab:active {
-      transform: none;
-    }
   }
 }
 
-[data-reduced-motion="true"] .btn:active,
+[data-reduced-motion="true"] .btn:active > span,
 [data-reduced-motion="true"] .fab:active {
   transform: none;
 }

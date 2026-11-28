@@ -267,70 +267,6 @@
   align-items: center;
   gap: var(--ui-space-2);
 }
-.choices {
-  border: 0;
-  padding: 0;
-  min-width: 0;
-}
-.choiceGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--ui-space-2);
-  margin-top: var(--ui-space-3);
-}
-.choice {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: var(--ui-space-1);
-  padding: var(--ui-space-3);
-  min-height: 76px;
-  border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-md);
-  background: var(--ui-color-surface);
-  cursor: pointer;
-  transition:
-    background var(--ui-duration-fast) var(--ui-easing-standard),
-    border-color var(--ui-duration-fast) var(--ui-easing-standard),
-    transform var(--ui-duration-fast) var(--ui-easing-standard);
-}
-.choice[data-selected="true"] {
-  background: var(--ui-color-tint-active);
-  border-color: var(--ui-color-tint-active);
-  color: var(--ui-color-on-primary);
-}
-.choice[data-selected="true"] .choiceTitle,
-.choice[data-selected="true"] .choiceDetail {
-  color: var(--ui-color-on-primary);
-}
-.choice:focus-within {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
-}
-.choice:active {
-  transform: scale(0.97);
-}
-.choices:disabled .choice,
-.choices:disabled .choice[data-selected="true"] {
-  background: var(--ui-color-surface-muted);
-  border-color: var(--ui-color-border);
-  color: var(--ui-color-text-secondary);
-  cursor: default;
-  transform: none;
-}
-.choices:disabled .choice .choiceTitle,
-.choices:disabled .choice .choiceDetail {
-  color: var(--ui-color-text-secondary);
-}
-.choiceInput {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0;
-  cursor: inherit;
-}
 .disclosure[data-rule="true"] {
   border-top: 1px solid var(--ui-color-border);
 }
@@ -363,8 +299,6 @@
   padding-block: var(--ui-space-3);
 }
 .meta,
-.choiceTitle,
-.choiceDetail,
 .clockValue {
   min-width: 0;
 }
@@ -432,12 +366,6 @@
   min-width: 0;
 }
 @media (hover: hover) and (pointer: fine) {
-  .choices:not(:disabled) .choice:hover {
-    background: var(--ui-color-interactive-hover);
-  }
-  .choices:not(:disabled) .choice[data-selected="true"]:hover {
-    background: var(--ui-color-tint-active);
-  }
   .disclosureTrigger:hover {
     background: var(--ui-color-surface-muted);
   }
@@ -584,11 +512,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .choice,
   .chevron {
     transition: none;
-  }
-  .choice:active {
-    transform: none;
   }
 }

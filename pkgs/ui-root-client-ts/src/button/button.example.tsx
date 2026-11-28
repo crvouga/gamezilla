@@ -196,7 +196,7 @@ const OTHER_VARIANTS: readonly {
   variant: ButtonVariant;
 }[] = [
   {
-    label: 'Neutral · outline (same as secondary)',
+    label: 'Neutral outline',
     intent: 'neutral',
     variant: 'outline',
   },
@@ -210,7 +210,7 @@ export default function ButtonExample(): JSX.Element {
     <ExampleRoot>
       <p class="text textCaption">
         {
-          'Hover for the tint, press for the 0.97 settle, Tab for the 2px focus ring. Each row: default, with icon, disabled, loading.'
+          'Press a filled action to see its edge settle. Use Tab to check keyboard focus.'
         }
       </p>
       <For each={BRIEF_VARIANTS}>

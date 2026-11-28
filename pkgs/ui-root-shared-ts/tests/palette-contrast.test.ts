@@ -151,7 +151,7 @@ describe('palette contrast', () => {
   }
 });
 
-/** Chrome roles: quiet slate neutrals that carry no hue of their own. */
+/** Chrome roles: quiet paper and walnut neutrals that carry no hue of their own. */
 const NEUTRALS = [
   'background',
   'surface',
@@ -177,7 +177,7 @@ const ACCENT = [
   'focusRing',
 ] as const satisfies readonly ColorTokenName[];
 
-/** Neutrals may lean cool, never colorful: max channel spread out of 255. */
+/** Neutrals may lean warm, never colorful: max channel spread out of 255. */
 const NEUTRAL_SPREAD = 32;
 /** Accent roles stay within this many degrees of one hue. */
 const ACCENT_HUE_SPAN = 12;

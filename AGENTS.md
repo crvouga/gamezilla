@@ -173,8 +173,7 @@ beside it.
 
 **How it looks** is decided once, in
 [`pkgs/ui-root-client-ts/README.md`](pkgs/ui-root-client-ts/README.md): the
-palette, the type roles, panels for lists, radius by hierarchy, blue only
-for what is chosen, one activity indicator. Screens are compositions of
+palette, the type roles, panels for lists, radius by hierarchy, selection and activity indicators. Screens are compositions of
 components and set only their props; they never write markup, classes or
 styles, and nothing anywhere picks an arbitrary value, a raw color, a step
 off the 4px grid or a `dark:` variant (`design-vocabulary.ts` in every UI

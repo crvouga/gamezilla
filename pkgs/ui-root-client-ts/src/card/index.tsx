@@ -18,7 +18,7 @@ export type CardProps = {
 /**
  * `Card` -- a raised (`surface`) box inside one hairline that holds one
  * self-contained unit of content (a form step, a summary, a settings group).
- * Flat: no shadow, no gradient. Children stack with `gap-4`.
+ * The lower edge separates its contents from the canvas.
  *
  * Pick the host element for the landmark the card is: `as="main"` for the
  * page's one primary card, `section` (the default) otherwise. `id` and
@@ -37,7 +37,7 @@ export function Card(props: CardProps): JSX.Element {
     <Tag
       id={props.id}
       tabindex={props.tabIndex}
-      class="box gap-4 rounded-card border border-border bg-surface px-5 py-6 outline-none sm:px-8 sm:pt-8 sm:pb-7"
+      class="card gap-4 px-5 py-6 outline-none sm:px-8 sm:pt-8 sm:pb-7"
       {...dataAttrs({ component: 'Card', ...props.dataSet })}
     >
       {props.children}

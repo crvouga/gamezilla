@@ -1,7 +1,9 @@
 import { COLOR_PALETTE } from './color-palette.ts';
 import type { ColorTokenName } from './colors-types';
 
-export const COLOR_TOKEN_NAMES = Object.keys(COLOR_PALETTE.light) as ColorTokenName[];
+export const COLOR_TOKEN_NAMES = Object.keys(
+  COLOR_PALETTE.light
+) as ColorTokenName[];
 
 export function kebab(name: string): string {
   return name.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase());
