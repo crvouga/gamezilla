@@ -38,43 +38,51 @@ function trackedModules(root: string): Map<string, string[]> {
   return byPackage;
 }
 
-function sourceTargets(
-  root: string,
-  files: readonly string[],
-  owner: string,
-  names: ReadonlySet<string>
-): string[] {
-  const targets = new Set<string>();
-  for (const file of files) {
-    if (!/\.[cm]?[jt]sx?$/.test(file) || /\.d\.[cm]?ts$/.test(file)) continue;
-    for (const { specifier, typeOnly } of sourceImports(
-      readFileSync(join(root, file), 'utf8'),
-      file
-    )) {
-      const target = importedPackage(file, specifier);
-      if (!typeOnly && target !== owner && names.has(target))
-        targets.add(target);
+export type FileImports = ReadonlyMap<string, readonly string[]>;
+
+export function workspaceImports(root: string, scope: 'all' | 'src') {
+  const tracked = scope === 'all' ? trackedModules(root) : undefined;
+  const workspace = new Map<string, FileImports>();
+  for (const pkg of readGraph(root)) {
+    const files = tracked ? (tracked.get(pkg.dir) ?? []) : pkg.srcFiles;
+    const imports = new Map<string, string[]>();
+    for (const file of files) {
+      if (!/\.[cm]?[jt]sx?$/.test(file) || /\.d\.[cm]?ts$/.test(file)) continue;
+      const references = sourceImports(
+        readFileSync(join(root, file), 'utf8'),
+        file
+      );
+      imports.set(
+        file,
+        references.filter((ref) => !ref.typeOnly).map((ref) => ref.specifier)
+      );
     }
+    workspace.set(pkg.name, imports);
   }
-  return [...targets].sort();
+  return workspace;
+}
+
+export function packageImportEdges(
+  workspace: ReadonlyMap<string, FileImports>
+): PackageEdges {
+  const graph = new Map<string, string[]>();
+  for (const [owner, imports] of workspace) {
+    const targets = new Set<string>();
+    for (const [file, references] of imports)
+      for (const specifier of references) {
+        const target = importedPackage(file, specifier);
+        if (target !== owner && workspace.has(target)) targets.add(target);
+      }
+    graph.set(owner, [...targets].sort());
+  }
+  return graph;
 }
 
 export function packageEdges(root: string, scope: Scope): PackageEdges {
-  const packages = readGraph(root);
-  const names = new Set(packages.map((pkg) => pkg.name));
-  const tracked = scope === 'all' ? trackedModules(root) : undefined;
+  if (scope !== 'declared')
+    return packageImportEdges(workspaceImports(root, scope));
   return new Map(
-    packages.map((pkg) => [
-      pkg.name,
-      scope === 'declared'
-        ? [...pkg.declared].sort()
-        : sourceTargets(
-            root,
-            tracked ? (tracked.get(pkg.dir) ?? []) : pkg.srcFiles,
-            pkg.name,
-            names
-          ),
-    ])
+    readGraph(root).map((pkg) => [pkg.name, [...pkg.declared].sort()])
   );
 }
 

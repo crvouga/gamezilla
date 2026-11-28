@@ -1717,6 +1717,9 @@
     "//#task:deps:complexity": {
       "cache": false
     },
+    "//#task:deps:cycles": {
+      "cache": false
+    },
     "//#task:deps:duplicates": {
       "cache": false
     },
