@@ -1,9 +1,9 @@
 import type { ColorPalette } from './colors-types';
-import { readColor, readGroup } from './design-tokens.ts';
 import designTokens from './design-tokens.json' with { type: 'json' };
+import { readColor, readGroup } from './design-tokens.ts';
 
 /**
- * Achromatic application colors and board-scoped game palettes, projected from
+ * Application colors and board-scoped game palettes, projected from
  * design-tokens.json. Retune that source, then run `bun tokens:generate`.
  * Palette contrast tests hold text/fill pairs to WCAG AA.
  */

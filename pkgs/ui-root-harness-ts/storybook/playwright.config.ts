@@ -36,6 +36,9 @@ export default defineConfig({
     ].includes(process.env['STORYBOOK_PATTERN'] ?? '')
       ? ['**/screen-art-review/capture.checks.ts']
       : []),
+    ...(process.env['STORYBOOK_PATTERN'] === 'tabletop-review'
+      ? ['**/screen-art-review/tabletop.checks.ts']
+      : []),
     ...(process.env['STORYBOOK_PATTERN'] === 'mascot-review'
       ? ['**/screen-art-review/mascot.checks.ts']
       : []),

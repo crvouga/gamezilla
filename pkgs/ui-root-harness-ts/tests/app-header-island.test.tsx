@@ -56,7 +56,7 @@ describe('AppHeaderIsland', () => {
     expect(items).toHaveLength(2);
     expect(items[0]?.getAttribute('aria-current')).toBe('page');
     expect(items[1]?.hasAttribute('aria-current')).toBe(false);
-    expect(items[0]?.className).toMatch(/\brounded-full\b/);
+    expect(items[0]?.className).toMatch(/\brounded-control\b/);
     expect(items[1]?.className).toMatch(/\bborder-transparent\b/);
     await user.click(screen.getByRole('button', { name: 'Settings' }));
     expect(onSettings).toHaveBeenCalledTimes(1);

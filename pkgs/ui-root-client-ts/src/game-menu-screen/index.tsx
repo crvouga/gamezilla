@@ -13,6 +13,7 @@ import { GameTile, type GameTileMotif } from '../game-tile/index';
 import { ChevronRightIcon } from '../icons';
 import type { MainMenuItem } from '../main-menu-item-row/index';
 import { useConfirmNavigation } from '../pending-navigation';
+import { useLayoutMode } from '../use-layout-mode';
 import styles from './game-menu-screen.module.css';
 
 /**
@@ -71,10 +72,10 @@ function splitChoices(choices: readonly GameMenuChoice[]): MenuSplit {
 }
 
 /**
- * A choice as a row, read in one line across: its picture, its name and
- * what it opens under it, then a
- * chevron centred at the far edge, level with the words. Sized by its
- * words, never a tall card of empty room.
+ * A choice as a row, read in one line across: its picture, its name, then
+ * a chevron centred at the far edge, level with the words. Sized by its
+ * words, never a tall card of empty room. The primary choice stands on a
+ * firm accent foot, its chevron a filled play disc.
  */
 function ChoiceTile(props: {
   choice: GameMenuChoice;
@@ -126,12 +127,14 @@ function MoreChoices(props: {
 }
 
 /**
- * A game's menu: its first way to play as one primary control, its other
- * ways to play as full-width rows, and its looks back and settings behind
- * More, closed until opened and opening in place under the rows.
+ * A game's menu: the game's board and name from the start edge, its first
+ * way to play as one primary control, its other ways to play as
+ * full-width rows, and its looks back and settings behind More, closed
+ * until opened and opening in place under the rows.
  */
 export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
   const split = createMemo(() => splitChoices(props.choices));
+  const mode = useLayoutMode();
   return (
     <EmbeddedScreen
       screenId={props.screenId}
@@ -139,7 +142,7 @@ export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
       dataSet={{ component: 'GameMenuScreen', ...props.dataSet }}
     >
       <header class={styles['hero']} data-layout="hero">
-        <GameTile motif={props.motif} size="xl" />
+        <GameTile motif={props.motif} size={mode() === 'wide' ? 'xl' : 'lg'} />
         <div class={styles['heroWords']}>
           <h1 class="text textTitle min-w-0 break-words">{props.title}</h1>
         </div>

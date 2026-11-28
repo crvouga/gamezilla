@@ -9,11 +9,13 @@ struct RootView: View {
         .scaledToFit()
         .frame(width: 64, height: 64)
       Text(ProductIdentity.displayName)
-        .font(.largeTitle.bold())
+        .font(.system(.largeTitle, design: .rounded, weight: .bold))
+        .foregroundStyle(Color("table-text"))
         .accessibilityAddTraits(.isHeader)
         .accessibilityIdentifier(AccessibilityID.title)
     }
     .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .background(Color("table-background").ignoresSafeArea())
     .accessibilityElement(children: .contain)
     .accessibilityIdentifier(AccessibilityID.root)
   }

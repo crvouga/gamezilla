@@ -16,6 +16,11 @@ import { renderUi } from './render';
 
 const COMPACT = { width: 390, height: 800 };
 
+/** The class of an item's picture tile. */
+function tile(item: Element): string {
+  return item.querySelector('[data-slot="indicator"]')?.className ?? '';
+}
+
 describe('TabBar', () => {
   test('is a named navigation landmark of buttons with the current page marked', async () => {
     const user = userEvent.setup();
@@ -57,6 +62,11 @@ describe('TabBar', () => {
     const search = screen.getByRole('button', { name: 'Search' });
     expect(search.textContent).toContain('3');
     expect(search.hasAttribute('aria-current')).toBe(false);
+    // The whole 56px cell takes the press, not only the picture.
+    expect(home.className).toMatch(/\bh-14\b/);
+    // Only the current page's tile is filled.
+    expect(tile(home)).toMatch(/\bbg-tint-subtle\b/);
+    expect(tile(search)).not.toMatch(/\bbg-tint-subtle\b/);
     await user.click(search);
     expect(onSearch).toHaveBeenCalledTimes(1);
     // Updated in place: the same element is now the current page.
@@ -65,6 +75,41 @@ describe('TabBar', () => {
       true
     );
     expect(home.hasAttribute('aria-current')).toBe(false);
+    expect(tile(search)).toMatch(/\bbg-tint-subtle\b/);
+    expect(tile(home)).not.toMatch(/\bbg-tint-subtle\b/);
+  });
+
+  test('every destination is reached with Tab and opened with Enter', async () => {
+    const user = userEvent.setup();
+    const onSearch = mock();
+    renderUi(
+      () => (
+        <TabBar
+          aria-label="Main"
+          items={[
+            { id: 'home', label: 'Home', icon: HouseIcon, current: true },
+            {
+              id: 'search',
+              label: 'Search',
+              icon: SearchIcon,
+              current: false,
+              onPress: onSearch,
+            },
+          ]}
+        />
+      ),
+      COMPACT
+    );
+    await user.tab();
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Home' })
+    );
+    await user.tab();
+    expect(document.activeElement).toBe(
+      screen.getByRole('button', { name: 'Search' })
+    );
+    await user.keyboard('{Enter}');
+    expect(onSearch).toHaveBeenCalledTimes(1);
   });
 
   test('href items are links; onPress takes a plain click, modified clicks stay the browser’s', () => {

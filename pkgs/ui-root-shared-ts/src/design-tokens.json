@@ -94,7 +94,7 @@
         }
       },
       "tintActive": {
-        "$description": "The one neutral fill at rest (`primary`): primary buttons, \"Sit here\". White label.",
+        "$description": "The brand fill (`primary`): primary buttons, \"Sit here\". White label.",
         "$value": {
           "colorSpace": "srgb",
           "components": [0.4784, 0.1804, 0.5569],
@@ -1253,7 +1253,7 @@
         }
       },
       "tintActive": {
-        "$description": "The one neutral fill at rest (`primary`): primary buttons, \"Sit here\". White label.",
+        "$description": "The brand fill (`primary`): primary buttons, \"Sit here\". White label.",
         "$value": {
           "colorSpace": "srgb",
           "components": [0.5412, 0.2275, 0.6275],
@@ -2767,7 +2767,7 @@
       }
     },
     "role": {
-      "$description": "Radius encodes hierarchy: `sm` (6) small details, `control` (12) inputs and rows, `card` (12) cards and lists, `sheet` (20) sheets and boards, `full` buttons, chips, tags, header tabs, avatars and stat pills.",
+      "$description": "Radius encodes hierarchy: `sm` (6) small details, `control` (12) inputs, actions and choices, `card` (12) cards and lists, `sheet` (20) sheets and boards, `full` avatars, counters, floating controls and stat pills.",
       "none": {
         "$value": "{radius.scale.none}"
       },
@@ -2986,7 +2986,7 @@
   },
   "shadow": {
     "$type": "shadow",
-    "$description": "The one soft shadow, for surfaces that float above content (menus, popovers, tooltips). Everything else is flat with hairline borders.",
+    "$description": "The one soft shadow, for surfaces that float above content (menus, popovers, tooltips). Paper surfaces and filled actions use a fine lower edge.",
     "float": {
       "$value": {
         "color": "{color.light.shadowColor}",

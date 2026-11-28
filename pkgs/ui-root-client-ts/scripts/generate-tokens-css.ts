@@ -7,6 +7,8 @@
  */
 import path from 'node:path';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
+import { parseCssColor } from '@pkgs/ui-root-shared-ts/css-color';
 import { renderTokensCss } from '@pkgs/ui-root-shared-ts/css-vars';
 import { renderTokenNamesTs } from '@pkgs/ui-root-shared-ts/render-token-names';
 import { renderTokensJson } from '@pkgs/ui-root-shared-ts/render-tokens-json';
@@ -23,7 +25,41 @@ async function read(file: string): Promise<string> {
   return (await handle.exists()) ? await handle.text() : '';
 }
 
+// Xcode resolves the luminosity variant when the device appearance changes.
+function appleColorSet(role: 'background' | 'text') {
+  const colors = (['light', 'dark'] as const).map((scheme) => {
+    const value = parseCssColor(COLOR_PALETTE[scheme][role]);
+    if (!value) throw new Error(`Invalid ${scheme} color for ${role}`);
+    return {
+      idiom: 'universal',
+      ...(scheme === 'dark' && {
+        appearances: [{ appearance: 'luminosity', value: 'dark' }],
+      }),
+      color: {
+        'color-space': 'srgb',
+        components: {
+          red: String(value.r),
+          green: String(value.g),
+          blue: String(value.b),
+          alpha: String(value.a),
+        },
+      },
+    };
+  });
+  return {
+    file: path.join(
+      REPO,
+      'apps/product-client-swift/src/assets.xcassets',
+      `table-${role}.colorset`,
+      'Contents.json'
+    ),
+    text: `${JSON.stringify({ info: { author: 'xcode', version: 1 }, colors }, null, 2)}\n`,
+  };
+}
+
 const OUTPUTS: readonly { readonly file: string; readonly text: string }[] = [
+  appleColorSet('background'),
+  appleColorSet('text'),
   { file: path.join(PKG, 'src', 'tokens.css'), text: renderTokensCss() },
   { file: path.join(PKG, 'src', 'tokens.json'), text: renderTokensJson() },
   {

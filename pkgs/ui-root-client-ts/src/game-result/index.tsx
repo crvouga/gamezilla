@@ -9,6 +9,7 @@ import { Avatar } from '../avatar/index';
 import { Badge } from '../badge/index';
 import { formatOrdinal } from '../game-ordinal';
 import { GameStat } from '../game-stat/index';
+import { VictoryArt } from '../illustration/index';
 import { VisuallyHidden } from '../visually-hidden/index';
 
 /**
@@ -18,9 +19,10 @@ import { VisuallyHidden } from '../visually-hidden/index';
  *   "You came 2nd", "Erin wins") and an optional caption line (the reason).
  * - `GameStandings`: one to eight players in finishing order, as an ordered
  *   list in a panel. Each row: the place ("1st", supplied or computed from
- *   `place`), avatar, name (truncated), score in the `stat` style and an
- *   optional readiness tag ("Ready", "Not ready"). The viewer's row is the
- *   soft tint and `aria-current`.
+ *   `place`), a trophy beside a winner's place unless everyone tied,
+ *   avatar, name (truncated), score in the `stat` style and an optional
+ *   readiness tag ("Ready", "Not ready"). The viewer's row is the soft
+ *   tint with the accent bar at its start edge, and `aria-current`.
  * - `GameStatTiles`: a grid of `GameStat` tiles for a solo game's numbers.
  *
  * Every word is the caller's.
@@ -92,9 +94,13 @@ function StandingScore(props: {
   );
 }
 
+const STANDING_TROPHY_SIZE = 20;
+
 function StandingRow(props: {
   row: GameStandingRow;
   scoreLabel: string | null | undefined;
+  /** Some placed ahead of others, so a winner's row carries the trophy. */
+  ranked: boolean;
 }): JSX.Element {
   const { i18n } = useLingui();
   const you = (): boolean => props.row.you === true;
@@ -109,17 +115,20 @@ function StandingRow(props: {
     >
       <div
         class={[
-          'box flex-row items-center gap-3 px-4 py-2 min-h-14',
-          { 'bg-tint-subtle': you() },
+          'box flex-row items-center gap-3 pe-4 ps-3 py-2 min-h-14 border-s-4 border-transparent',
+          { 'bg-tint-subtle border-s-tint': you() },
         ]}
       >
         <span
           class={[
-            'text textLabel textNumeral shrink-0 min-w-10',
+            'text textLabel textNumeral inline-flex items-center gap-1 min-w-12 shrink-0',
             { 'text-on-primary-soft': you() },
           ]}
         >
           {props.row.ordinal ?? formatOrdinal(props.row.place, i18n().locale)}
+          <Show when={props.ranked && props.row.place === 1}>
+            <VictoryArt size={STANDING_TROPHY_SIZE} />
+          </Show>
         </span>
         <span class="box shrink-0" aria-hidden="true">
           <Show
@@ -159,6 +168,7 @@ export function GameStandings(props: GameStandingsProps): JSX.Element {
   const rows = createMemo(() =>
     [...props.rows].sort((a, b) => a.place - b.place)
   );
+  const ranked = createMemo(() => rows().some((row) => row.place !== 1));
   return (
     <ol
       class="panel"
@@ -166,7 +176,13 @@ export function GameStandings(props: GameStandingsProps): JSX.Element {
       {...dataAttrs({ component: 'GameStandings', ...props.dataSet })}
     >
       <For each={rows()}>
-        {(row) => <StandingRow row={row} scoreLabel={props.scoreLabel} />}
+        {(row) => (
+          <StandingRow
+            row={row}
+            scoreLabel={props.scoreLabel}
+            ranked={ranked()}
+          />
+        )}
       </For>
     </ol>
   );
@@ -197,7 +213,7 @@ export function GameStatTiles(props: {
       <For each={props.tiles}>
         {(tile) => (
           <li
-            class="box rounded-card border border-border bg-surface p-4 min-w-0"
+            class="card p-4 min-w-0"
             data-stat={tile.id}
             {...dataAttrs(tile.dataSet)}
           >

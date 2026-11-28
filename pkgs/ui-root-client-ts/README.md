@@ -30,7 +30,8 @@ Light Cycles uses a dark cyan arena with patterned bright trails.
 
 Values live in `pkgs/ui-root-shared-ts/src/design-tokens.json`. CSS
 variables, TypeScript token names and a resolved `tokens.json` are generated
-from it (`bun run tokens:generate`).
+from it (`bun run tokens:generate`). The same task writes the adaptive background
+and text color assets used by the SwiftUI opening screen.
 Dark is the `:root` default; light is one variable swap on
 `[data-theme="light"]` (and `prefers-color-scheme: light` before a theme is
 set), never two sets of classes. `palette-contrast.test.ts` holds every

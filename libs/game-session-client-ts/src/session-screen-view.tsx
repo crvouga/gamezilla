@@ -78,6 +78,7 @@ function SessionPlaces(
   );
 }
 
+/** Shows setup, play or the result from the session state, with shared denial and confirmation controls. */
 export function SessionScreenView(
   props: GameSessionScreenViewProps & SessionPages
 ): JSX.Element {
