@@ -497,6 +497,7 @@ jobs:
           name: verify-nightly-coverage-${{ github.run_id }}
           path: |
             .cache/coverage
+            .cache/architecture/*.json
             .turbo/runs/*.json
           retention-days: 3
           overwrite: true

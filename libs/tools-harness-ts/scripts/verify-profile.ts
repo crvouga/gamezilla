@@ -140,9 +140,12 @@ export const NIGHTLY_SUITES = {
   },
   coverage: {
     summary:
-      'Line and assertion coverage of the unit suites, and the scripted mutants they must kill',
+      'Unit coverage, scripted mutants and workspace architecture reports',
     tasks: [
       '//#task:verify:coverage',
+      '//#task:deps:complexity',
+      '//#task:deps:duplicates',
+      '//#task:deps:unused',
       '@pkgs/db-indexes-root-shared-ts#mutants',
     ],
     deadlineSeconds: SHARD_DEADLINE_SECONDS,

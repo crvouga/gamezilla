@@ -1,157 +1,133 @@
-// @io-wall-ok — composition root
-/**
- * Package-level graph of @apps|@libs|@pkgs/* imports discovered from source.
- * Shared by deps:graph.
- *
- * Graph keys are full scoped names (`@pkgs/ui-rn`, `@apps/product-ts`) so short-name
- * collisions across tiers do not merge unrelated packages.
- */
-
-import { readFileSync } from 'node:fs';
-import { join, relative } from 'node:path';
-import { slashPath } from '@pkgs/os-shared-ts/slash-path';
-import { Glob } from 'bun';
+// @io-wall-ok — reads package sources for the dependency report.
+import { execFileSync } from 'node:child_process';
+import { existsSync, readFileSync } from 'node:fs';
+import { join, posix } from 'node:path';
+import { readGraph } from './cache-graph';
+import { sourceImports } from './source-imports';
 
 export const REPO_ROOT = join(import.meta.dirname, '../../..');
-const SCOPES = ['@apps/', '@libs/', '@pkgs/'] as const;
-export const TIER_DIRS = ['apps', 'libs', 'pkgs'] as const;
-export type Tier = (typeof TIER_DIRS)[number];
-const MAX_IMPORTER_SAMPLES = 3;
+export type PackageEdges = ReadonlyMap<string, readonly string[]>;
 
-/** Full scoped workspace package name, e.g. `@pkgs/ui-rn`. */
-export type PackageName = string;
-
-/** from -> to -> sample importer paths (relative to repo root) */
-export type PackageImportGraph = Map<PackageName, Map<PackageName, string[]>>;
-
-/** Captures the full scoped import (`@libs/server-app`, `@pkgs/ui-rn`, …). */
-export const IMPORT_PATTERN =
-  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"](@(?:apps|libs|pkgs)\/[^/'"\s)]+)/g;
-
-/** Same as {@link IMPORT_PATTERN} but also captures the tier scope + short name. */
-export const TIER_IMPORT_PATTERN =
-  /(?:\bfrom|\bimport\s*\(|\brequire\s*\()\s*['"]@(apps|libs|pkgs)\/([^/'"\s)]+)/g;
-
-export function stripComments(source: string): string {
-  return source
-    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '))
-    .replace(/(^|[^:\\])\/\/[^\n]*/g, (_full, prefix: string) => prefix);
+function importedPackage(file: string, specifier: string): string {
+  if (specifier.startsWith('.')) {
+    const [tier, folder] = posix
+      .normalize(posix.join(posix.dirname(file), specifier))
+      .split('/');
+    return `@${tier}/${folder}`;
+  }
+  return specifier.split('/', 2).join('/');
 }
 
-export function stripTypeOnlyImports(source: string): string {
-  return source.replace(
-    /\b(?:import|export)\s+type\s+(?:\*\s+as\s+\w+|\w+(?:\s*,\s*\{[^}]*\})?|\{[^}]*\})\s+from\s*['"][^'"]+['"]\s*;?/g,
-    (m) => m.replace(/[^\n]/g, ' ')
+type Scope = 'src' | 'all' | 'declared';
+
+function trackedModules(root: string): Map<string, string[]> {
+  const paths = execFileSync(
+    'git',
+    ['ls-files', '-z', '--', 'apps', 'libs', 'pkgs'],
+    { cwd: root, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 }
+  );
+  const byPackage = new Map<string, string[]>();
+  for (const file of paths.split('\0')) {
+    if (!/\.[cm]?[jt]sx?$/.test(file) || !existsSync(join(root, file)))
+      continue;
+    const dir = file.split('/', 2).join('/');
+    const group = byPackage.get(dir) ?? [];
+    group.push(file);
+    byPackage.set(dir, group);
+  }
+  return byPackage;
+}
+
+function sourceTargets(
+  root: string,
+  files: readonly string[],
+  owner: string,
+  names: ReadonlySet<string>
+): string[] {
+  const targets = new Set<string>();
+  for (const file of files) {
+    if (!/\.[cm]?[jt]sx?$/.test(file) || /\.d\.[cm]?ts$/.test(file)) continue;
+    for (const { specifier, typeOnly } of sourceImports(
+      readFileSync(join(root, file), 'utf8'),
+      file
+    )) {
+      const target = importedPackage(file, specifier);
+      if (!typeOnly && target !== owner && names.has(target))
+        targets.add(target);
+    }
+  }
+  return [...targets].sort();
+}
+
+export function packageEdges(root: string, scope: Scope): PackageEdges {
+  const packages = readGraph(root);
+  const names = new Set(packages.map((pkg) => pkg.name));
+  const tracked = scope === 'all' ? trackedModules(root) : undefined;
+  return new Map(
+    packages.map((pkg) => [
+      pkg.name,
+      scope === 'declared'
+        ? [...pkg.declared].sort()
+        : sourceTargets(
+            root,
+            tracked ? (tracked.get(pkg.dir) ?? []) : pkg.srcFiles,
+            pkg.name,
+            names
+          ),
+    ])
   );
 }
 
-export function discoverPackages(): Map<PackageName, string> {
-  const packages = new Map<PackageName, string>();
-  for (const tier of TIER_DIRS) {
-    const glob = new Glob(`${tier}/*/package.json`);
-    for (const rel of glob.scanSync({ cwd: REPO_ROOT, absolute: false })) {
-      const abs = join(REPO_ROOT, rel);
-      let pkg: { name?: unknown };
-      try {
-        pkg = JSON.parse(readFileSync(abs, 'utf8')) as { name?: unknown };
-      } catch {
-        continue;
-      }
-      if (typeof pkg.name !== 'string') continue;
-      const name = pkg.name;
-      const matchedScope = SCOPES.find((s) => name.startsWith(s));
-      if (matchedScope === undefined) continue;
-      packages.set(name, join(abs, '..'));
-    }
-  }
-  return packages;
+function reachable(graph: PackageEdges, name: string): Set<string> {
+  const seen = new Set([name]);
+  for (const from of seen)
+    for (const target of graph.get(from) ?? []) seen.add(target);
+  return seen;
 }
 
-export type PackageInfo = {
-  /** Absolute path of the package directory. */
-  dir: string;
-  /** Tier derived from the parent directory, not the `name` field. */
-  tier: Tier;
-  /** Full scoped name as declared in `package.json` (e.g. `@pkgs/assert-root-shared-ts`). */
-  scopedName: string;
-};
-
-/**
- * Like {@link discoverPackages} but also reports each package's tier (from its
- * parent folder) and its full scoped name. Tier is the source of truth for
- * dependency-direction verifications; mismatches between folder and scope are caught
- * here too.
- */
-export function discoverPackagesWithTier(): Map<PackageName, PackageInfo> {
-  const packages = new Map<PackageName, PackageInfo>();
-  for (const tier of TIER_DIRS) {
-    const glob = new Glob(`${tier}/*/package.json`);
-    for (const rel of glob.scanSync({ cwd: REPO_ROOT, absolute: false })) {
-      const abs = join(REPO_ROOT, rel);
-      let pkg: { name?: unknown };
-      try {
-        pkg = JSON.parse(readFileSync(abs, 'utf8')) as { name?: unknown };
-      } catch {
-        continue;
-      }
-      if (typeof pkg.name !== 'string') continue;
-      const scopedName = pkg.name;
-      const matchedScope = SCOPES.find((s) => scopedName.startsWith(s));
-      if (matchedScope === undefined) continue;
-      packages.set(scopedName, {
-        dir: join(abs, '..'),
-        tier,
-        scopedName,
-      });
-    }
+/** Emit each mutually reachable group once. A package can also depend on itself in a manifest. */
+export function cycleGroups(graph: PackageEdges): string[][] {
+  const closures = new Map(
+    [...graph.keys()].map((name) => [name, reachable(graph, name)])
+  );
+  const seen = new Set<string>();
+  const groups: string[][] = [];
+  for (const [name, closure] of closures) {
+    if (seen.has(name)) continue;
+    const group = [...closure]
+      .filter((other) => closures.get(other)?.has(name))
+      .sort();
+    for (const member of group) seen.add(member);
+    if (group.length > 1 || graph.get(name)?.includes(name)) groups.push(group);
   }
-  return packages;
+  return groups;
 }
 
-export function buildPackageImportGraph(
-  packages: Map<PackageName, string>
-): PackageImportGraph {
-  const graph: PackageImportGraph = new Map();
-  for (const name of packages.keys()) graph.set(name, new Map());
-
-  for (const [pkgName, pkgDir] of packages) {
-    const glob = new Glob('**/*.{ts,tsx,mts,cts}');
-    for (const rel of Array.from(
-      glob.scanSync({ cwd: pkgDir, absolute: false }),
-      slashPath
-    )) {
-      if (rel.startsWith('node_modules/')) continue;
-      if (rel.startsWith('dist/')) continue;
-      if (rel.startsWith('.turbo/')) continue;
-
-      const filePath = join(pkgDir, rel);
-      let source: string;
-      try {
-        source = readFileSync(filePath, 'utf8');
-      } catch {
-        continue;
-      }
-      source = stripComments(source);
-      source = stripTypeOnlyImports(source);
-
-      for (const match of source.matchAll(IMPORT_PATTERN)) {
-        const target = match[1];
-        if (!target) continue;
-        if (target === pkgName) continue;
-        if (!packages.has(target)) continue;
-
-        const edges = graph.get(pkgName);
-        if (!edges) continue;
-        let importers = edges.get(target);
-        if (!importers) {
-          importers = [];
-          edges.set(target, importers);
-        }
-        if (importers.length < MAX_IMPORTER_SAMPLES) {
-          importers.push(slashPath(relative(REPO_ROOT, filePath)));
-        }
-      }
-    }
+export function packageReport(graph: PackageEdges, focus?: string) {
+  const dependents = new Map(
+    [...graph.keys()].map((name) => [name, new Array<string>()])
+  );
+  for (const [name, targets] of graph)
+    for (const target of targets) dependents.get(target)?.push(name);
+  if (focus !== undefined) {
+    const dependencies = graph.get(focus);
+    if (!dependencies) throw new Error(`Unknown workspace package: ${focus}`);
+    return {
+      name: focus,
+      dependencies,
+      dependents: dependents.get(focus)?.sort(),
+    };
   }
-  return graph;
+  const ranked = (edges: PackageEdges) =>
+    [...edges]
+      .map(([name, list]) => ({ name, count: list.length }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'en'))
+      .slice(0, 10);
+  return {
+    packages: graph.size,
+    edges: [...graph.values()].reduce((count, list) => count + list.length, 0),
+    cycleGroups: cycleGroups(graph),
+    mostDependencies: ranked(graph),
+    mostDependents: ranked(dependents),
+  };
 }

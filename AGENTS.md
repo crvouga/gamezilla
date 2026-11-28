@@ -80,6 +80,8 @@ Keep living competitor research with its product area. Follow the [market resear
 
 ## Code graph
 
+Use the [architecture checks](docs/ARCHITECTURE_CHECKS.md) for dependency direction, cycles, dead exports, duplicate code and focused verification.
+
 Graphify turns the repo into a knowledge graph in `graphify-out/` (gitignored).
 It is a pinned `mise.toml` tool, so `mise install` provides it, and a cold
 workspace writes its `/graphify` (Claude Code) / `$graphify` (Codex) skill
