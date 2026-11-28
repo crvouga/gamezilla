@@ -92,23 +92,6 @@
   gap: var(--ui-space-2);
   min-width: 0;
 }
-/* A choice's picture on a neutral chip that stands off the card in both
-   themes: a shade darker on a light card, a step lighter on a dark one,
-   never the near-black well that vanished on a dark card. */
-.icon {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 48px;
-  height: 48px;
-  border-radius: var(--ui-radius-control);
-  background: var(--ui-color-interactive-press);
-  --ui-on-icon: var(--ui-color-text);
-}
-.icon[data-size="row"] {
-  width: 36px;
-  height: 36px;
-}
 .words {
   display: flex;
   flex: 1;
@@ -131,9 +114,6 @@
   --ui-on-icon: var(--ui-color-text-secondary);
 }
 /* A look back or a setting says less: a secondary picture. */
-.icon[data-emphasis="quiet"] {
-  --ui-on-icon: var(--ui-color-text-secondary);
-}
 /* The quiet choices under the tiles: compact rows sharing the tiles'
    edges (one alone spans them), up to three across. */
 .links {
