@@ -66,7 +66,18 @@ export class OpfsSahPoolBackend implements SqliteWorkerBackend {
   async open(dbName: string): Promise<SqliteWorkerOpenedDatabase> {
     const util = await this.pool(dbName);
     const filename = poolDbFilename(dbName);
-    const openDb = (): WasmDatabase => new util.OpfsSAHPoolDb(filename);
+    const openDb = (): WasmDatabase => {
+      const handle = new util.OpfsSAHPoolDb(filename);
+      try {
+        // Reuse the journal file and reduce disk flushes during schema creation.
+        handle.exec('PRAGMA journal_mode=PERSIST; PRAGMA synchronous=NORMAL');
+        return handle;
+      } catch (error) {
+        handle.close();
+        util.pauseVfs();
+        throw error;
+      }
+    };
     const db = new Oo1SqlClient({
       sqlite3: this.sqlite3,
       db: openDb(),

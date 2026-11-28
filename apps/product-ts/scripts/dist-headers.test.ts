@@ -33,9 +33,6 @@ test('documents stay out of the back/forward cache; built assets keep caching', 
       '/sql-workers/*',
       '\t! Cache-Control',
       '',
-      '/sw.js',
-      '\t! Cache-Control',
-      '',
     ].join('\n')
   );
 });

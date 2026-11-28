@@ -24,7 +24,6 @@ export async function reopenOfflineNumberlinkDraft(
   await openNumberlinkSpace(host, link);
   await host.act('reopenOfflineNumberlinkAuthoring', async (ui) => {
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
-    await ui.get('content-offline').expect.visible(device);
     await contentTap(device, `content-draft-${draft.documentId}`);
     await observeJourneyPackDraft(device, draft);
     await leaveContentStage(device);

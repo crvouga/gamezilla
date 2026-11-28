@@ -783,7 +783,7 @@ Feature titles, one line each, so a session can route without listing the tree. 
 
 **Auth** (`specs/auth/`): what people do at Google and Apple; confirming a matching account; keeping sign-in methods straight; how long a sign-in lasts; stolen sign-ins; when Google or Apple is having trouble.
 
-**App** (`specs/runtime/`): the tabs and Settings; settings that stick; the app opens without a connection; connection restore; addresses that lead nowhere; an app too old; using the app without seeing it or without a mouse.
+**App** (`specs/runtime/`): the tabs and Settings; settings that stick; an open web tab works offline; reopening after connection restore; addresses that lead nowhere; an app too old; using the app without seeing it or without a mouse.
 
 **Spaces** (`specs/spaces/`): create; a guest can host; how many spaces a person can host; rename; find and return; join from the lobby; join from a link; what a link leads to; presence; losing the connection; spaces need a connection; end; the host leaving ends the space.
 
