@@ -382,6 +382,16 @@
     color: var(--ui-color-on-primary);
   }
 
+  .badge[data-intent="reward"][data-tone="subtle"] {
+    background: var(--ui-color-reward-surface);
+    color: var(--ui-color-reward);
+  }
+
+  .badge[data-intent="reward"][data-tone="solid"] {
+    background: var(--ui-color-reward);
+    color: var(--ui-color-on-primary);
+  }
+
   .badge[data-intent="success"][data-tone="subtle"] {
     background: var(--ui-color-success-surface);
     color: var(--ui-color-success);

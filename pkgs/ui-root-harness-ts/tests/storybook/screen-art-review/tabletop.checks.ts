@@ -4,6 +4,7 @@ import { verifyStoryScenario } from '../verify-story-scenario';
 const screens = [
   'components-feedback-spinner--states',
   'components-inputs-button--interactive',
+  'components-inputs-button--states',
   'components-data-display-menurow--states',
   'screens-spaces-home--empty',
   'screens-space-home--host-choosing',
@@ -75,3 +76,27 @@ for (const width of [390, 768, 1280]) {
     });
   }
 }
+
+// regression: solved-puzzle-coach-clipped
+test('tabletop-review the solved puzzle shows a complete line under its trophy at 390px', async ({
+  page,
+}) => {
+  await verifyStoryScenario(page, 'screens-puzzles-result--solved', {
+    width: 390,
+    height: 844,
+    globals: {},
+    suffix: '',
+  });
+  const message = page.locator(
+    '[data-component="SpeechBubble"] p[role="status"]'
+  );
+  await expect(message).toContainText('Checkmate');
+  expect(
+    await message.evaluate(
+      (el) =>
+        el.getBoundingClientRect().height >=
+        Number.parseFloat(getComputedStyle(el).lineHeight)
+    )
+  ).toBe(true);
+  await expect(page.getByText('3 puzzle streak')).toBeVisible();
+});

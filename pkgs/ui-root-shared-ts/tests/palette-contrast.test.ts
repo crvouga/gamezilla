@@ -79,6 +79,7 @@ const PAIRS: readonly Pair[] = [
   ]),
   ['onLive', 'live', TEXT],
   ['reward', 'rewardSurface', TEXT],
+  ['onPrimary', 'reward', TEXT],
   ['reward', 'surfaceElevated', TEXT],
   ['onPrimarySoft', 'tintSubtle', TEXT],
   ['text', 'tintSubtle', TEXT],
