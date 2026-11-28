@@ -14,20 +14,6 @@
     height: 100%;
   }
 
-  /* A menu's rows share the finish of their panel. Selected rows keep
-     their own wash and the panel's hairlines show between them. */
-  :where(.bg-background) {
-    background-image: var(--ui-finish-canvas);
-  }
-
-  :where(.bg-surface, .bg-surface-elevated, .bg-surface-overlay) {
-    background-image: var(--ui-finish-surface);
-  }
-
-  :where(.bg-surface-muted) {
-    background-image: var(--ui-finish-well);
-  }
-
   .card {
     display: flex;
     flex-direction: column;

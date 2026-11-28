@@ -1,6 +1,20 @@
 /* Shared component paint. Semantic colors and geometry come from the theme. */
 
 @layer components {
+  /* A menu's rows share the finish of their panel. Selected rows keep
+     their own wash and the panel's hairlines show between them. */
+  :where(.bg-background) {
+    background-image: var(--ui-finish-canvas);
+  }
+
+  :where(.bg-surface, .bg-surface-elevated, .bg-surface-overlay) {
+    background-image: var(--ui-finish-surface);
+  }
+
+  :where(.bg-surface-muted) {
+    background-image: var(--ui-finish-well);
+  }
+
   .themeHost {
     display: flex;
     flex-direction: column;
