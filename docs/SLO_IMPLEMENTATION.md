@@ -40,8 +40,9 @@ watchdog and a non-Grafana notification destination are deferred at the owner's
 request; they do not block this PR. This does not establish delivery during a
 Grafana outage.
 
-1. Bind the proposed client startup, error-free activity, local interaction and
-   accessibility measures to real outcomes and timed independent journeys.
+1. Measure startup across people's own devices, error-free activity, local
+   interaction and accessibility. The [opening journeys](../specs/journeys/using-the-tabs.openslo.yaml)
+   measure first and returning visits in scheduled browser checks.
 2. Instrument complete identity and profile outcomes, including consent return,
    wrong-account checks, revocation and progress carryover.
 3. Measure space lifecycle, presence, every supported game's setup/play/result,
