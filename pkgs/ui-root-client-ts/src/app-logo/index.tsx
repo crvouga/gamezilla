@@ -9,10 +9,10 @@ import {
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
 import type { JSX } from '@solidjs/web';
 import { createContext, Show, useContext } from 'solid-js';
+import portrait from '../../assets/mascot/portrait.svg?inline';
 import type { IconProps } from '../create-icon/index';
 import { useThemeTokens } from '../theme-context/index';
-
-const mark = new URL('./mark.svg', import.meta.url).href;
+import mark from './mark.svg?inline';
 
 export type AppLogoProps = {
   /** Product wordmark supplied by the host. */
@@ -86,9 +86,7 @@ export function AppLogo(props: AppLogoProps): JSX.Element {
 }
 
 /** Product hosts supply their configured app mark. Standalone stories use the source portrait. */
-export const MascotSource = createContext(
-  new URL('../../assets/mascot/portrait.svg', import.meta.url).href
-);
+export const MascotSource = createContext(portrait);
 
 export function MascotPortrait(
   props: Pick<IconProps, 'size' | 'dataSet'>

@@ -1,6 +1,8 @@
 // @io-wall-ok — first-document fixtures read from the production sources.
 import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/document-palette';
+import { inlineDocumentImages } from '@pkgs/vite-workspace-resolver-server-ts/inline-document-fragments';
 import { expect, type Page, type TestInfo, test } from '@playwright/test';
 
 async function geometry(page: Page) {
@@ -52,12 +54,13 @@ async function verifyOpeningLayout(
       'utf8'
     )
   );
-  const html = await readFile(
-    new URL(
-      '../../../../../libs/app-root-client-ts/src/browser-opening.html',
-      import.meta.url
-    ),
-    'utf8'
+  const fragment = new URL(
+    '../../../../../libs/app-root-client-ts/src/browser-opening.html',
+    import.meta.url
+  );
+  const html = inlineDocumentImages(
+    await readFile(fragment, 'utf8'),
+    fileURLToPath(fragment)
   );
   await page.evaluate(
     async ({ css, html }) => {

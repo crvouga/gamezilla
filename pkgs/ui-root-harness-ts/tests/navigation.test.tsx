@@ -190,7 +190,7 @@ describe('brand + providers', () => {
     const image = wrapper.querySelector('img');
     expect(image?.getAttribute('width')).toBe('20');
     expect(image?.getAttribute('height')).toBe('20');
-    expect(image?.getAttribute('src')).toContain('google-g.png');
+    expect(image?.getAttribute('src')).toStartWith('data:image/webp;base64,');
     expect(wrapper.className).not.toContain('grayscale');
   });
 

@@ -222,7 +222,7 @@ describe('SpeakingAvatar', () => {
     expect(root).toHaveTextContent('Your move');
     expect(root.querySelector('button')).toBeNull();
     const head = root.querySelector('img');
-    expect(head?.getAttribute('src')).toContain('mascot/portrait.svg');
+    expect(head?.getAttribute('src')).toMatch(/^data:image\/svg\+xml[;,]/);
     expect(root).toHaveTextContent('Coach');
     expect(head).toHaveAttribute('width', '32');
   });

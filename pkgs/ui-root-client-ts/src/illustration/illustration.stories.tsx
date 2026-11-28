@@ -30,6 +30,7 @@ export const Catalog: StoryObj = {
     const pictures = canvasElement.querySelectorAll('img');
     await expect(pictures).toHaveLength(Object.keys(artwork).length);
     for (const picture of pictures) {
+      await expect(picture.currentSrc).toMatch(/^data:image\/webp;base64,/);
       await picture.decode();
       await expect(picture.naturalWidth).toBeGreaterThan(0);
       await expect(picture).toHaveAttribute('alt', '');

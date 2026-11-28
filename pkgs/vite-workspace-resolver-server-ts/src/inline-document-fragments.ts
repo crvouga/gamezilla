@@ -1,6 +1,18 @@
 // @io-wall-ok — Vite's HTML transform reads local build inputs.
 import { readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import type { Plugin } from 'vite';
+
+/** Embed the fragment's local artwork while reading its markup, including in dev. */
+export function inlineDocumentImages(source: string, file: string): string {
+  return source.replace(
+    /\bsrc="(\.{1,2}\/[^"?#]+\.webp)\?inline"/g,
+    (_attribute, relative: string) => {
+      const bytes = readFileSync(resolve(dirname(file), relative));
+      return `src="data:image/webp;base64,${bytes.toString('base64')}"`;
+    }
+  );
+}
 
 /** Keep first-paint styles and markup in the HTML response in dev and builds. */
 export function inlineDocumentFragments(
@@ -20,7 +32,9 @@ export function inlineDocumentFragments(
             if (file === undefined)
               throw new Error(`Unknown document fragment: ${name}`);
             const source = readFileSync(file, 'utf8');
-            return name.endsWith('.css') ? renderCss(source) : source;
+            return name.endsWith('.css')
+              ? renderCss(source)
+              : inlineDocumentImages(source, file);
           }
         ),
     },

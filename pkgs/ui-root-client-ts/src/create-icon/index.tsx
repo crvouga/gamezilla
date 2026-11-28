@@ -24,12 +24,7 @@ const DEFAULT_ICON_COLOR = 'var(--ui-on-icon)';
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
-const sprite = new URL(
-  '../../assets/fluent-icons/fluent-regular.svg',
-  import.meta.url
-).href;
-
-export function createIcon(symbol: string): IconComponent {
+export function createIcon(pathData: string): IconComponent {
   return function Icon(props: IconProps): JSX.Element {
     const tokens = useThemeTokens();
     const color = (): string => {
@@ -55,7 +50,7 @@ export function createIcon(symbol: string): IconComponent {
           stroke-width={Math.max(0, (props.strokeWidth ?? 2) - 2) / 2}
           aria-hidden="true"
         >
-          <use href={`${sprite}#${symbol}`} />
+          <path d={pathData} />
         </svg>
       </span>
     );
