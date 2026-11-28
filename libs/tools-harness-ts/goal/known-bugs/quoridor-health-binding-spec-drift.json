@@ -1,0 +1,4 @@
+{
+  "summary": "The live and release registry checks still looked for the retired two-person King of the Hill journey after the feature changed to a game with a spectator.",
+  "regressionTest": "apps/product-ts/scripts/health.test.ts"
+}
