@@ -1,5 +1,16 @@
+// @io-wall-ok — compare the hosted images with the shared portrait source.
+import { readFileSync } from 'node:fs';
 import { expect, test } from '@playwright/test';
 import { verifyStoryScenario } from '../verify-story-scenario';
+
+const portraitFile = new URL(
+  '../../../../ui-root-client-ts/assets/mascot/portrait.svg',
+  import.meta.url
+);
+const silhouette = readFileSync(portraitFile, 'utf8').match(
+  /<path[^>]+ d="([^"]+)"/
+)?.[1];
+if (!silhouette) throw new Error('Missing mascot silhouette');
 
 const screens = [
   'space-person-menu--add-bot',
@@ -17,21 +28,31 @@ const screens = [
 for (const id of screens) {
   for (const width of [390, 1280]) {
     test(`mascot-review ${id} ${width}`, async ({ page }, info) => {
-      await verifyStoryScenario(page, id, {
-        width,
-        height: width === 390 ? 844 : 800,
-        theme: width === 390 ? 'light' : 'dark',
-        suffix: '',
-        globals: { spaceRole: 'host' },
-      });
-      const portrait = page
-        .locator('img[data-component="MascotPortrait"]')
-        .first();
-      await expect(portrait).toBeVisible();
-      await portrait.evaluate((image: HTMLImageElement) => image.decode());
-      await page.screenshot({ path: info.outputPath(`${id}--${width}.png`) });
+      try {
+        await verifyStoryScenario(page, id, {
+          width,
+          height: width === 390 ? 844 : 800,
+          theme: width === 390 ? 'light' : 'dark',
+          suffix: '',
+          globals: { spaceRole: 'host' },
+        });
+      } finally {
+        await page.screenshot({ path: info.outputPath(`${id}--${width}.png`) });
+      }
+      const images = page.locator('#storybook-root img:visible');
+      const index = await images.evaluateAll(async (nodes, outline) => {
+        for (const [i, node] of nodes.entries()) {
+          const image = node as HTMLImageElement;
+          await image.decode();
+          const source = await (await fetch(image.currentSrc)).text();
+          if (source.includes(outline)) return i;
+        }
+        return -1;
+      }, silhouette);
+      expect(index).toBeGreaterThanOrEqual(0);
+      const portrait = images.nth(index);
       if (id === 'screens-game-sessions-stage--against-bot') {
-        const bars = page.locator('[data-component="GamePlayerBar"]');
+        const bars = page.getByTestId(/^game-session-(white|black)$/);
         for (const [index, bar] of (await bars.all()).entries()) {
           await bar.screenshot({
             path: info.outputPath(`seat-${index}--${width}.png`),
@@ -41,7 +62,8 @@ for (const id of screens) {
       if (id === 'screens-puzzles-stage--hint') {
         await expect(portrait).toHaveAttribute('width', '32');
         await page
-          .locator('[data-component="SpeakingAvatar"]')
+          .getByText('Coach', { exact: true })
+          .locator('../..')
           .screenshot({ path: info.outputPath(`coach--${width}.png`) });
       }
     });
