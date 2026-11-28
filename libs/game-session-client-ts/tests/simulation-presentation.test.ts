@@ -7,7 +7,7 @@ import {
   RequestSimulationSnapshot,
   SimulationStateChanged,
   SubmitSimulationInput,
-} from '@libs/game-session-shared-ts/simulation-messages';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { raceGame } from './reference-race-game';
 import { virtualFrames } from './virtual-frames';

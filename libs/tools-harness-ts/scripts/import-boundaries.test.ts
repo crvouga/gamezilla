@@ -197,7 +197,7 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'libs/game-session-shared-ts/src/simulation-failure.ts',
+    path: 'libs/game-simulation-shared-ts/src/simulation-failure.ts',
     source:
       "import { recordException } from '@pkgs/observability-root-shared-ts/span';",
     message: 'confined to the ADR boundary-file inventory',

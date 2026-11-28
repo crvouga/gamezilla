@@ -1,10 +1,9 @@
 // @io-wall-ok — bounded benchmark entry; wall time measures execution, virtual time drives gameplay.
 import { join } from 'node:path';
-
-import { withSimulationBots } from '@libs/game-session-shared-ts/simulation-bots';
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
-import { SimulationStateChanged } from '@libs/game-session-shared-ts/simulation-messages';
-import { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
+import { withSimulationBots } from '@libs/game-simulation-shared-ts/simulation-bots';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
+import { SimulationStateChanged } from '@libs/game-simulation-shared-ts/simulation-messages';
+import { SimulationReplica } from '@libs/game-simulation-shared-ts/simulation-replica';
 import {
   pongRoomProfile,
   primePongProfile,

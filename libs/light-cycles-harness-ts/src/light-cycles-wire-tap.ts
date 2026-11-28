@@ -3,7 +3,7 @@ import {
   type SimulationSnapshotPayload,
   SimulationStateChanged,
   SubmitSimulationInput,
-} from '@libs/game-session-shared-ts/simulation-messages';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import {
   ROOM_SERVER_ENDPOINT,
   type RoomServerIngress,

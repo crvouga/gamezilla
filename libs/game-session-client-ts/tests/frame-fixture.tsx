@@ -168,7 +168,6 @@ export function frameProps(
     stopped: false,
     status: status(),
     canCreate: true,
-    mode: 'vs-human',
     sides: ['white', 'black'],
     setup: null,
     table: {

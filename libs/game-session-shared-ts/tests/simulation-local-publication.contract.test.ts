@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
-import { SimulationStateChanged } from '@libs/game-session-shared-ts/simulation-messages';
+import { SimulationStateChanged } from '@libs/game-simulation-shared-ts/simulation-messages';
 import { InMemoryClientStorage } from '@pkgs/room-adapter-memory-shared-ts/client-storage';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { continuousRaceGame } from './reference-continuous-game';

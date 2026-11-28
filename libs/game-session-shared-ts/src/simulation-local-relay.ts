@@ -1,3 +1,8 @@
+import {
+  RequestSimulationSnapshot,
+  type SimulationSnapshotPayload,
+  SimulationStateChanged,
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type { RoomRuntimePorts } from '@pkgs/room-root-shared-ts/runtime';
 import {
@@ -12,11 +17,6 @@ import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simula
 import { soloGameSession } from './game-session-local';
 import { type GameSession, GameSessionsAttr } from './game-session-state';
 import { simulationCommandKey } from './simulation-command-state';
-import {
-  RequestSimulationSnapshot,
-  type SimulationSnapshotPayload,
-  SimulationStateChanged,
-} from './simulation-messages';
 
 /** One current local court, forwarded by its creator through this existing room. */
 export class LocalSimulationRelay {

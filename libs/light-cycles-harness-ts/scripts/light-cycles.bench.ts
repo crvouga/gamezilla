@@ -1,8 +1,7 @@
 // @io-wall-ok — bounded benchmark entry; wall time measures execution, virtual time drives gameplay.
 import { join } from 'node:path';
-
-import { withSimulationBots } from '@libs/game-session-shared-ts/simulation-bots';
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
+import { withSimulationBots } from '@libs/game-simulation-shared-ts/simulation-bots';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 import { LIGHT_CYCLES_QUAD_SIMULATION } from '@libs/light-cycles-harness-ts/light-cycles-quad';
 import {
   LIGHT_CYCLES_PROFILE_WORKLOAD,

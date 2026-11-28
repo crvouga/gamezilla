@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import { ChangeGameSession } from '@libs/game-session-shared-ts/game-session-commands';
 import { assertGameSessionPosition } from '@libs/game-session-shared-ts/game-session-position';
-import { SubmitSimulationInput } from '@libs/game-session-shared-ts/simulation-messages';
 import { CheckpointSimulation } from '@libs/game-session-shared-ts/simulation-session-state';
+import { SubmitSimulationInput } from '@libs/game-simulation-shared-ts/simulation-messages';
 import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-root-shared-ts/service-identity';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { hybridRaceGame, timedRaceCodec } from './reference-hybrid-race';

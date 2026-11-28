@@ -15,8 +15,8 @@ import {
   FrameErrorView,
   FrameStatusView,
 } from './game-frame-status-view';
+import { FrameFacts } from './game-session-board-layout';
 import type { FramePlaceProps } from './game-session-screen-view';
-import { FrameFacts } from './play-friend-stage-view';
 
 type Props = FramePlaceProps;
 

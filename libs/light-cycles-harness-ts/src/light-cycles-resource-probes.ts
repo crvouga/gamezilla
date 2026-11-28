@@ -1,4 +1,4 @@
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 
 /** Live subscriptions, opened through a probe and not yet closed. */
 export type SubscriptionLedger = { active: number };

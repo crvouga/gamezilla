@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 import type { SimulationInput } from '@pkgs/turn-game-shared-ts/simulation';
 import {
   type RaceState,

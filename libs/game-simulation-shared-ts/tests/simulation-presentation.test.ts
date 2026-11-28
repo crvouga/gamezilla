@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { SnapshotInterpolation } from '@libs/game-session-shared-ts/simulation-interpolation';
-import { InputPrediction } from '@libs/game-session-shared-ts/simulation-prediction';
+import { SnapshotInterpolation } from '@libs/game-simulation-shared-ts/simulation-interpolation';
+import { InputPrediction } from '@libs/game-simulation-shared-ts/simulation-prediction';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 

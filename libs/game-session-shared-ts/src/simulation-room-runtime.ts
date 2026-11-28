@@ -1,3 +1,7 @@
+import {
+  RequestSimulationSnapshot,
+  SubmitSimulationInput,
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type {
   RoomRuntime,
@@ -10,10 +14,6 @@ import {
 } from '@pkgs/room-root-shared-ts/types';
 import type { GameSide, TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { LocalSimulationRelay } from './simulation-local-relay';
-import {
-  RequestSimulationSnapshot,
-  SubmitSimulationInput,
-} from './simulation-messages';
 import {
   projectRoomSimulation,
   selectRoomSimulation,

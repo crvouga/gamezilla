@@ -1,4 +1,4 @@
-import { SubmitSimulationInput } from '@libs/game-session-shared-ts/simulation-messages';
+import { SubmitSimulationInput } from '@libs/game-simulation-shared-ts/simulation-messages';
 import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
 import type { RoomHarnessRuntime } from '@pkgs/room-root-harness-ts/api';
 import {

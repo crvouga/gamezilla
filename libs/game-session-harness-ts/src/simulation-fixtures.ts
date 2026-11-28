@@ -1,6 +1,6 @@
 import type { GameRegistration } from '@libs/game-session-shared-ts/game-definition';
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
 import { RecoverSimulation } from '@libs/game-session-shared-ts/simulation-recovery';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 import {
   ensureActor,
   pollUntil,

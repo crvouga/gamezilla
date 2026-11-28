@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 import {
   LIGHT_CYCLES_SEATS,
   type LightCyclesConfig,

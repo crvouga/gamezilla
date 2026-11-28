@@ -4,7 +4,7 @@ import {
   RequestSimulationSnapshot,
   type SimulationSnapshotPayload,
   SimulationStateChanged,
-} from '@libs/game-session-shared-ts/simulation-messages';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import { WebClientStorage } from '@pkgs/room-adapter-web-shared-ts/client-storage';
 
 export function localByteStorage(bytes: Map<string, string>) {

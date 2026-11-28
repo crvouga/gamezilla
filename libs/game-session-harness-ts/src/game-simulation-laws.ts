@@ -1,4 +1,4 @@
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
 import fc from 'fast-check';

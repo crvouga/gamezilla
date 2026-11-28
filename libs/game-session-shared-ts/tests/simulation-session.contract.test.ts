@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
-import { SubmitSimulationInput } from '@libs/game-session-shared-ts/simulation-messages';
 import { CheckpointSimulation } from '@libs/game-session-shared-ts/simulation-session-state';
+import { SubmitSimulationInput } from '@libs/game-simulation-shared-ts/simulation-messages';
 import { WIRE_VERSION } from '@pkgs/room-root-shared-ts/wire';
 import { continuousRaceGame } from './reference-continuous-game';
 import { liveSessionRoom } from './reference-live-session-room';

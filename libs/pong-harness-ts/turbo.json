@@ -9,7 +9,7 @@
       "dependsOn": [
         "@libs/game-matchmaking-harness-ts#src",
         "@libs/game-session-harness-ts#src",
-        "@libs/game-session-shared-ts#src",
+        "@libs/game-simulation-shared-ts#src",
         "@libs/harness-ts#src",
         "@libs/pong-client-ts#src",
         "@libs/pong-shared-ts#src",

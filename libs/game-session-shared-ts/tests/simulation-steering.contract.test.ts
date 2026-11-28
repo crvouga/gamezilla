@@ -1,9 +1,9 @@
 import { expect, test } from 'bun:test';
-import { SubmitSimulationInput } from '@libs/game-session-shared-ts/simulation-messages';
 import {
   ClaimSimulationControl,
   SimulationSteeringChanged,
 } from '@libs/game-session-shared-ts/simulation-steering';
+import { SubmitSimulationInput } from '@libs/game-simulation-shared-ts/simulation-messages';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type { RoomClient } from '@pkgs/room-root-client-ts/room-client';
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';

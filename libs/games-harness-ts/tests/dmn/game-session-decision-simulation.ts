@@ -1,11 +1,11 @@
 import type { SimulationHarnessGame } from '@libs/game-session-harness-ts/harness-game';
+import { ClaimSimulationControl } from '@libs/game-session-shared-ts/simulation-steering';
 import {
   RequestSimulationSnapshot,
   type SimulationSnapshotPayload,
   SimulationStateChanged,
   SubmitSimulationInput,
-} from '@libs/game-session-shared-ts/simulation-messages';
-import { ClaimSimulationControl } from '@libs/game-session-shared-ts/simulation-steering';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import type { HarnessRoomNode } from '@libs/harness-ts/composition';
 import { OperationRefused } from '@libs/permissions-shared-ts/server';
 import type { HarnessClockBundle } from '@pkgs/clock-shared-ts/harness-clock';

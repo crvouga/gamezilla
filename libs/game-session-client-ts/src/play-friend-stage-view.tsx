@@ -3,51 +3,25 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-
-import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import {
-  FixedGameSession,
-  type GameSessionAllMoves,
-} from '@pkgs/ui-root-client-ts/game-session-layout';
-
-import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
 import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { P } from '@pkgs/ui-root-client-ts/text';
-
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
-import { FrameMovesCard } from './game-frame-moves-view';
-import { FrameStage } from './game-frame-stage';
 import {
   FrameDrawOfferLine,
-  FrameErrorView,
-  FrameFactsView,
   FrameStageConditionLine,
   FrameStatusView,
   frameStageHeldUp,
-  frameWatchersLabel,
 } from './game-frame-status-view';
 import type { FramePlaySeat } from './game-frame-view-types';
+import {
+  FrameFacts,
+  GameSessionBoardLayout,
+} from './game-session-board-layout';
 import type { FramePlaceProps } from './game-session-screen-view';
 
 type Props = FramePlaceProps;
-
-/** The title-row facts and exact watcher count. */
-export function FrameFacts(props: Props): JSX.Element {
-  return (
-    <>
-      <FrameFactsView status={props.status} />
-      <Show when={props.watchers > 0}>
-        <GameWatcherCount
-          value={props.watchers}
-          label={frameWatchersLabel(props.watchers)}
-          dataSet={{ testid: 'game-session-watchers' }}
-        />
-      </Show>
-    </>
-  );
-}
 
 /** The name of the one seat to move, for a watcher's line. */
 function moverName(props: Props): string | null {
@@ -266,106 +240,73 @@ function LiveActions(props: Props): JSX.Element {
 }
 
 /** The way from the line of moves to every move, once one is played. */
-function allMovesOf(props: Props): GameSessionAllMoves | undefined {
-  const record = props.record;
-  if (record === null || !record.turns || record.moves.length === 0)
-    return undefined;
-  return {
-    label: <Trans>All moves</Trans>,
-    testId: 'game-session-all-moves',
-    onPress: () => {
-      props.onSeek(record.displayedPly);
-      props.onOpen({ screen: 'moves' });
-    },
-  };
-}
-
 /**
  * Play Friend's board: the live position and what playing people needs
  * now. A bot game has its own play screen.
  */
 export function PlayFriendStagePlace(props: Props): JSX.Element {
   return (
-    <GameScreen
-      screenId="vs-human-play"
-      title={props.title}
-      compactInset={props.table.compactInset}
+    <GameSessionBoardLayout
+      {...props}
       facts={<FrameFacts {...props} />}
-    >
-      <FixedGameSession
-        dataSet={{
-          component: 'GameSessionContent',
-          testid: 'game-session-content',
-          phase: props.phase,
-          place: props.place.screen,
-        }}
-        notices={<FrameErrorView text={props.error} />}
-        status={
-          <>
-            <Show when={props.connection === 'offline-local'}>
-              <P variant="caption" tone="default" role="status">
-                <Trans>You're offline. Your local game can continue.</Trans>
-              </P>
-            </Show>
-            <Show
-              when={props.phase === 'active' && props.viewerSide === null}
-              fallback={
-                <Show
-                  when={!frameStageHeldUp(props)}
-                  fallback={<FrameStageConditionLine {...props} />}
-                >
-                  <Show
-                    when={props.play.drawOffered}
-                    fallback={<PlayLine {...props} />}
-                  >
-                    <FrameDrawOfferLine
-                      play={props.play}
-                      people={props.people}
-                    />
-                  </Show>
-                </Show>
-              }
-            >
-              <P
-                variant="caption"
-                tone="secondary"
-                align="center"
-                testId="game-session-watching"
+      statusLine={
+        <>
+          <Show when={props.connection === 'offline-local'}>
+            <P variant="caption" tone="default" role="status">
+              <Trans>You're offline. Your local game can continue.</Trans>
+            </P>
+          </Show>
+          <Show
+            when={props.phase === 'active' && props.viewerSide === null}
+            fallback={
+              <Show
+                when={!frameStageHeldUp(props)}
+                fallback={<FrameStageConditionLine {...props} />}
               >
-                {/* Whose move it is, as the matchmaking band says it. */}
                 <Show
-                  when={props.status?.plainTurn ? props.status : null}
-                  fallback={
-                    <Trans>
-                      You're watching. Moves appear as they're played.
-                    </Trans>
-                  }
+                  when={props.play.drawOffered}
+                  fallback={<PlayLine {...props} />}
                 >
-                  {(line) => (
-                    // The player to move by name, as the matchmaking band says
-                    // it; the side's words when no seat is to move.
-                    <Show
-                      when={moverName(props)}
-                      fallback={
-                        <Trans>You're watching. {line().description}</Trans>
-                      }
-                    >
-                      {(name) => (
-                        <Trans>You're watching. {name()} to move.</Trans>
-                      )}
-                    </Show>
-                  )}
+                  <FrameDrawOfferLine play={props.play} people={props.people} />
                 </Show>
-              </P>
-            </Show>
-          </>
-        }
-        actions={<PlayActions {...props} />}
-        history={<FrameMovesCard {...props} />}
-        allMoves={allMovesOf(props)}
-      >
-        {(information) => <FrameStage {...props} information={information} />}
-      </FixedGameSession>
-    </GameScreen>
+              </Show>
+            }
+          >
+            <P
+              variant="caption"
+              tone="secondary"
+              align="center"
+              testId="game-session-watching"
+            >
+              {/* Whose move it is, as the matchmaking band says it. */}
+              <Show
+                when={props.status?.plainTurn ? props.status : null}
+                fallback={
+                  <Trans>
+                    You're watching. Moves appear as they're played.
+                  </Trans>
+                }
+              >
+                {(line) => (
+                  // The player to move by name, as the matchmaking band says
+                  // it; the side's words when no seat is to move.
+                  <Show
+                    when={moverName(props)}
+                    fallback={
+                      <Trans>You're watching. {line().description}</Trans>
+                    }
+                  >
+                    {(name) => (
+                      <Trans>You're watching. {name()} to move.</Trans>
+                    )}
+                  </Show>
+                )}
+              </Show>
+            </P>
+          </Show>
+        </>
+      }
+      actions={<PlayActions {...props} />}
+    />
   );
 }

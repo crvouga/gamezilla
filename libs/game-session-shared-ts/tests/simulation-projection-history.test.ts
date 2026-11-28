@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { InputPrediction } from '@libs/game-session-shared-ts/simulation-prediction';
+import { InputPrediction } from '@libs/game-simulation-shared-ts/simulation-prediction';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 

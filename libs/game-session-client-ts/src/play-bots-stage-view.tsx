@@ -3,24 +3,17 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import {
-  FixedGameSession,
-  type GameSessionAllMoves,
-} from '@pkgs/ui-root-client-ts/game-session-layout';
 import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
-import { FrameMovesCard } from './game-frame-moves-view';
-import { FrameStage } from './game-frame-stage';
 import {
-  FrameErrorView,
   FrameFactsView,
   FrameStageConditionLine,
   FrameStatusView,
   frameStageHeldUp,
 } from './game-frame-status-view';
+import { GameSessionBoardLayout } from './game-session-board-layout';
 import type { FramePlaceProps } from './game-session-screen-view';
 
 type Props = FramePlaceProps;
@@ -124,63 +117,33 @@ function PlayActions(props: Props): JSX.Element {
   );
 }
 
-function allMovesOf(props: Props): GameSessionAllMoves | undefined {
-  const record = props.record;
-  if (record === null || !record.turns || record.moves.length === 0)
-    return undefined;
-  return {
-    label: <Trans>All moves</Trans>,
-    testId: 'play-bots-all-moves',
-    onPress: () => {
-      props.onSeek(record.displayedPly);
-      props.onOpen({ screen: 'moves' });
-    },
-  };
-}
-
 /**
  * Play Bots' board. The opponent is a bot, so there is no draw to offer
  * and nobody else watches the table.
  */
 export function PlayBotsStagePlace(props: Props): JSX.Element {
   return (
-    <GameScreen
-      screenId="vs-bot-play"
-      title={props.title}
-      compactInset={props.table.compactInset}
+    <GameSessionBoardLayout
+      {...props}
       facts={<FrameFactsView status={props.status} />}
-    >
-      <FixedGameSession
-        dataSet={{
-          component: 'PlayBotsContent',
-          testid: 'game-session-content',
-          phase: props.phase,
-          place: props.place.screen,
-        }}
-        notices={<FrameErrorView text={props.error} />}
-        status={
-          <>
-            <Show when={props.connection === 'offline-local'}>
-              <P variant="caption" tone="default" role="status">
-                <Trans>
-                  You're offline. Your game against the bot can continue.
-                </Trans>
-              </P>
-            </Show>
-            <Show
-              when={!frameStageHeldUp(props)}
-              fallback={<FrameStageConditionLine {...props} />}
-            >
-              <PlayLine {...props} />
-            </Show>
-          </>
-        }
-        actions={<PlayActions {...props} />}
-        history={<FrameMovesCard {...props} />}
-        allMoves={allMovesOf(props)}
-      >
-        {(information) => <FrameStage {...props} information={information} />}
-      </FixedGameSession>
-    </GameScreen>
+      statusLine={
+        <>
+          <Show when={props.connection === 'offline-local'}>
+            <P variant="caption" tone="default" role="status">
+              <Trans>
+                You're offline. Your game against the bot can continue.
+              </Trans>
+            </P>
+          </Show>
+          <Show
+            when={!frameStageHeldUp(props)}
+            fallback={<FrameStageConditionLine {...props} />}
+          >
+            <PlayLine {...props} />
+          </Show>
+        </>
+      }
+      actions={<PlayActions {...props} />}
+    />
   );
 }

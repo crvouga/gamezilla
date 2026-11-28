@@ -1,9 +1,9 @@
 import { afterEach, expect, test } from 'bun:test';
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 import {
   SimulationFailure,
   type SimulationReproduction,
-} from '@libs/game-session-shared-ts/simulation-failure';
+} from '@libs/game-simulation-shared-ts/simulation-failure';
 import { context, propagation, trace } from '@opentelemetry/api';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { createWorkerTelemetry } from '@pkgs/observability-root-server-ts/worker-worker';

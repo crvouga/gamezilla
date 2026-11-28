@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { SimulationStateChanged } from '@libs/game-session-shared-ts/simulation-messages';
-import { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
+import { SimulationStateChanged } from '@libs/game-simulation-shared-ts/simulation-messages';
+import { SimulationReplica } from '@libs/game-simulation-shared-ts/simulation-replica';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { continuousRaceGame } from './reference-continuous-game';
 

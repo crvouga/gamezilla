@@ -7,7 +7,7 @@ import { connectSimulationRoomFixture } from '@libs/game-session-harness-ts/simu
 import {
   type SimulationSnapshotPayload,
   SimulationStateChanged,
-} from '@libs/game-session-shared-ts/simulation-messages';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import type { LightCyclesSeat } from '@libs/light-cycles-shared-ts/light-cycles-config';
 import { lightCyclesQuadShared } from '@libs/light-cycles-shared-ts/light-cycles-game';
 import type { LightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles-state';

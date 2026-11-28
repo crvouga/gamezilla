@@ -9,6 +9,7 @@
         "@libs/game-matchmaking-shared-ts#src",
         "@libs/game-session-shared-ts#src",
         "@libs/game-session-sub-shared-ts#src",
+        "@libs/game-simulation-shared-ts#src",
         "@libs/moderation-client-ts#src",
         "@libs/moderation-shared-ts#src",
         "@libs/permissions-client-ts#src",

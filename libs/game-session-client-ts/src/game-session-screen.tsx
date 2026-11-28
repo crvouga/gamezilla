@@ -15,11 +15,6 @@ import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { dynamic, type JSX } from '@solidjs/web';
 import { createEffect, Show } from 'solid-js';
 import {
-  FRAME_NO_NEXT,
-  FRAME_NO_PLAY,
-  FRAME_NO_TABLE,
-} from './game-frame-empty';
-import {
   FrameBoardMount,
   useBoardLineStatus,
   useFrameBoard,
@@ -31,11 +26,11 @@ import { GameSessionBack } from './game-session-back';
 import { useRefusalText } from './game-session-error';
 import { GAME_SESSION_PLACES } from './game-session-places';
 import { GameSessionSetupBoard } from './game-session-private-setup';
-import type { GameSessionScreenViewProps } from './game-session-screen-view';
 import { frameConnection, useFrameStatus } from './game-session-status';
 import { GameSessionTest } from './game-session-test';
 import { PlayBotsScreenView } from './play-bots-screen-view';
 import { PlayFriendScreenView } from './play-friend-screen-view';
+import { SessionDenial } from './session-screen-view';
 import {
   useFrameBoardState,
   useFrameNext,
@@ -66,38 +61,6 @@ const PEOPLE: FramePeople = {
     <UserProfileAvatar profileId={person} size={size} />
   ),
 };
-
-const nothing = async (): Promise<void> => undefined;
-
-/** The frame behind a denial: no game, nothing to do. */
-const DENIED_FRAME = {
-  phase: 'none',
-  viewerSide: null,
-  watchers: 0,
-  connection: 'online',
-  error: '',
-  stopped: false,
-  status: null,
-  canCreate: false,
-  mode: 'vs-human',
-  sides: ['white', 'black'],
-  setup: null,
-  table: FRAME_NO_TABLE,
-  play: FRAME_NO_PLAY,
-  result: null,
-  next: FRAME_NO_NEXT,
-  record: null,
-  onChoose: nothing,
-  onReady: nothing,
-  onRandomSetup: nothing,
-  onSeek: () => undefined,
-  onReturnLive: () => undefined,
-  onSelectRecord: () => undefined,
-  onOpenHistory: () => undefined,
-  place: GAME_SESSION_PLACES.home.none,
-  onOpen: () => undefined,
-  onClose: () => undefined,
-} satisfies Omit<GameSessionScreenViewProps, 'title' | 'onBack'>;
 
 type FrameProps = {
   model: GameSessionScreenModel;
@@ -229,7 +192,6 @@ function GameSessionFrame(props: FrameProps): JSX.Element {
         onReopen={() => model.simulation.restart()}
         status={status()}
         canCreate={model.canCreate()}
-        mode={mode()}
         sides={model.sides()}
         setup={setup()}
         table={table()}
@@ -290,7 +252,6 @@ function RoomPlayScreen(props: PlayScreenProps & WiredPlay): JSX.Element {
   );
   const title = (): JSX.Element => props.title ?? props.fallbackTitle;
   const choices = useGameChoicesName();
-  const Screen = dynamic(() => views[props.mode]);
   return (
     <>
       <DecisionGate
@@ -299,13 +260,7 @@ function RoomPlayScreen(props: PlayScreenProps & WiredPlay): JSX.Element {
         denied={(denial) => (
           <>
             <DefineBackButton onPress={model.back} label={choices()} />
-            <Screen
-              {...DENIED_FRAME}
-              mode={props.mode}
-              title={title()}
-              denial={denial}
-              onBack={model.back}
-            />
+            <SessionDenial mode={props.mode} title={title()} denial={denial} />
           </>
         )}
       >

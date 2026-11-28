@@ -18,6 +18,7 @@
         "@libs/game-session-server-ts#src",
         "@libs/game-session-shared-ts#src",
         "@libs/game-session-sub-shared-ts#src",
+        "@libs/game-simulation-shared-ts#src",
         "@libs/harness-ts#src",
         "@libs/notifications-harness-ts#src",
         "@libs/permissions-shared-ts#src",

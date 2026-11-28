@@ -4,7 +4,7 @@ import {
   RequestSimulationSnapshot,
   type SimulationSnapshotPayload,
   SimulationStateChanged,
-} from '@libs/game-session-shared-ts/simulation-messages';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import { createSpaceModule } from '@libs/spaces-shared-ts/space-module';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { Message } from '@pkgs/message-shared-ts/message';

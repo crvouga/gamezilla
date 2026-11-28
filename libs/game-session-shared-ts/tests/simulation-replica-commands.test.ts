@@ -1,11 +1,11 @@
 import { expect, test } from 'bun:test';
-import { SimulationCommandOutbox } from '@libs/game-session-shared-ts/simulation-command-outbox';
+import { SimulationCommandOutbox } from '@libs/game-simulation-shared-ts/simulation-command-outbox';
 import {
   type SimulationInputPayload,
   SimulationStateChanged,
   SubmitSimulationInput,
-} from '@libs/game-session-shared-ts/simulation-messages';
-import { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
+import { SimulationReplica } from '@libs/game-simulation-shared-ts/simulation-replica';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';

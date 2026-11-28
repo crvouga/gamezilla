@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
-import { withSimulationBots } from '@libs/game-session-shared-ts/simulation-bots';
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
-import { SubmitSimulationInput } from '@libs/game-session-shared-ts/simulation-messages';
+import { withSimulationBots } from '@libs/game-simulation-shared-ts/simulation-bots';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
+import { SubmitSimulationInput } from '@libs/game-simulation-shared-ts/simulation-messages';
 import { raceStep, simulationOptions } from './reference-simulation';
 import {
   parseRaceInput,

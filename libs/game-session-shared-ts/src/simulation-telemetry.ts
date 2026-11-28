@@ -1,5 +1,5 @@
+import type { SimulationReplicaSample } from '@libs/game-simulation-shared-ts/simulation-replica';
 import { createMetric } from '@pkgs/observability-root-shared-ts/metric-contract';
-import type { SimulationReplicaSample } from './simulation-replica';
 
 const dimensions = { 'game.mode': ['room', 'matched', 'local'] } as const;
 const tickDuration = createMetric({
