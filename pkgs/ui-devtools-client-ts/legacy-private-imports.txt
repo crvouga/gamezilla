@@ -1,0 +1,5 @@
+src/app-stage/app-stage.example.tsx -> pkgs/ui-root-client-ts/storybook/fixtures/example-root
+src/data-table/data-table.example.tsx -> pkgs/ui-root-client-ts/storybook/fixtures/example-root
+src/json-view/json-view.example.tsx -> pkgs/ui-root-client-ts/storybook/fixtures/example-root
+src/tab-strip/tab-strip.example.tsx -> pkgs/ui-root-client-ts/storybook/fixtures/example-root
+src/window-manager/window-manager.example.tsx -> pkgs/ui-root-client-ts/storybook/fixtures/example-root

@@ -1,4 +1,5 @@
 export const previewAnnotations = [
+  'pkgs/chess-board-root-client-ts/src/chess-board/space-preview.example.tsx',
   'apps/product-ts/src/storybook-preview.example.tsx',
   'libs/games-client-ts/src/game-menu-preview.example.tsx',
 ];

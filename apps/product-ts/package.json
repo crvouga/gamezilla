@@ -116,6 +116,7 @@
     "@libs/billing-harness-ts": "workspace:*",
     "@libs/billing-shared-ts": "workspace:*",
     "@libs/db-shared-ts": "workspace:*",
+    "@libs/infra-server-ts": "workspace:*",
     "@libs/infra-shared-ts": "workspace:*",
     "@libs/observability-server-ts": "workspace:*",
     "@libs/observability-shared-ts": "workspace:*",

@@ -5,7 +5,7 @@ import type {
   SpaceRole,
 } from '@pkgs/ui-root-client-ts/space-types';
 import type { JSX } from '@solidjs/web';
-import { createMemo, Show } from 'solid-js';
+import { type Component, createMemo, Show } from 'solid-js';
 import {
   SpaceExampleFrame,
   type SpaceExampleSpies,
@@ -22,6 +22,12 @@ export type SpaceInGameTemplateExampleProps = SpaceExampleSpies & {
   game: SpaceExamplePlayKey;
   role: SpaceRole;
   onGameAction: (id: string) => void;
+};
+
+export type SpaceInGameStoryParameters = {
+  spaceInGameChessExample: Component<
+    Omit<SpaceInGameTemplateExampleProps, 'game'>
+  >;
 };
 
 function playing(

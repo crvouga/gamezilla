@@ -6,8 +6,8 @@
  * hostname.
  */
 import { join } from 'node:path';
+import { deployStorybookWorker } from '@libs/infra-server-ts/worker-deploy';
 import { GLOBAL } from '@libs/infra-shared-ts/global';
-import { deployStorybookWorker } from '../../../libs/infra-server-ts/scripts/worker-deploy';
 
 deployStorybookWorker({ appDir: join(import.meta.dirname, '..') });
 console.log(

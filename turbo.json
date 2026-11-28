@@ -176,6 +176,7 @@
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/banned-words.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/biome-scope.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/package-boundaries.ts",
+        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/private-package-imports.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/task-runner-policy.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/tc-scope.ts",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/turbo-config.ts",

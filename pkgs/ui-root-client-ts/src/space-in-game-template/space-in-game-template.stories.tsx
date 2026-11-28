@@ -1,8 +1,6 @@
 import { Show } from 'solid-js';
 import { expect, fn, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-// Chess draws its own board, so its moment of this screen is its package's.
-import SpaceInGameChessExample from '../../../chess-board-root-client-ts/src/chess-board/space-chess.example';
 import {
   expectSpaceBarActions,
   SPACE_STORY_GAMES,
@@ -14,6 +12,7 @@ import {
 } from '../../storybook/fixtures/space-story-globals';
 import { SpaceInGameTemplate } from './index';
 import SpaceInGameTemplateExample, {
+  type SpaceInGameStoryParameters,
   type SpaceInGameTemplateExampleProps,
 } from './space-in-game-template.example';
 
@@ -35,13 +34,27 @@ const meta = {
     onGameAction: fn(),
   },
   parameters: { layout: 'fullscreen', controls: { disable: true } },
-  render: (args, { globals }) => {
+  render: (
+    args,
+    {
+      globals,
+      parameters,
+    }: {
+      globals: Record<string, unknown>;
+      parameters: Partial<SpaceInGameStoryParameters>;
+    }
+  ) => {
     const game = spaceStoryGame(globals);
     const role = spaceStoryRole(globals);
+    const ChessExample = parameters.spaceInGameChessExample;
+    if (game === 'chess' && !ChessExample)
+      throw new Error(
+        'The chess space story requires its chess preview annotation'
+      );
     return (
       <Show
         when={game !== 'chess' && SPACE_STORY_PLAY_FIXTURE[game]}
-        fallback={<SpaceInGameChessExample {...args} role={role} />}
+        fallback={ChessExample && <ChessExample {...args} role={role} />}
       >
         {(fixture) => (
           <SpaceInGameTemplateExample {...args} game={fixture()} role={role} />

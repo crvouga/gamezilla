@@ -63,6 +63,7 @@
     "@pkgs/ui-testing-bun-webview-server-ts": "workspace:*",
     "@solidjs/web": "catalog:",
     "fast-check": "catalog:",
+    "resolve-pkg-maps": "catalog:",
     "sharp": "0.35.5",
     "typescript": "catalog:",
     "wrangler": "catalog:"

@@ -11,6 +11,10 @@
 import { readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import {
+  activeEnvFile,
+  deployWorker,
+} from '@libs/infra-server-ts/worker-deploy';
+import {
   assertRoomNamespacePreserved,
   roomMigrations,
 } from '@libs/infra-shared-ts/worker-lifecycle';
@@ -24,10 +28,6 @@ import {
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git-shared-ts/git';
-import {
-  activeEnvFile,
-  deployWorker,
-} from '../../../libs/infra-server-ts/scripts/worker-deploy';
 import { workerState } from '../../../libs/infra-shared-ts/scripts/worker-state';
 import { assertDistBuiltFor } from './dist-commit';
 import { distHeadersFile } from './dist-headers';

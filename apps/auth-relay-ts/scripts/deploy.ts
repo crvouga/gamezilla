@@ -7,9 +7,9 @@
  * the OpenTofu fleet stack.
  */
 import { join } from 'node:path';
+import { deployAuthRelayWorker } from '@libs/infra-server-ts/worker-deploy';
 import { GLOBAL } from '@libs/infra-shared-ts/global';
 import { ok } from '@libs/secrets-server-ts/fmt';
-import { deployAuthRelayWorker } from '../../../libs/infra-server-ts/scripts/worker-deploy';
 
 deployAuthRelayWorker({ appDir: join(import.meta.dirname, '..') });
 ok('Auth relay Worker', `released as ${GLOBAL.auth_relay.worker}`);

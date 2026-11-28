@@ -1,0 +1,1 @@
+tests/global-file.test.ts -> libs/infra-shared-ts/tofu/stacks/foundation/secrets.json

@@ -1,0 +1,4 @@
+{
+  "summary": "Worker deploy scripts loaded the infrastructure implementation by relative path, leaving their shared deployment dependency out of the workspace graph.",
+  "regressionTest": "libs/tools-harness-ts/scripts/private-package-imports.test.ts"
+}
