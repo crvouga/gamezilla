@@ -10,7 +10,7 @@ const meta = {
 } satisfies Meta;
 export default meta;
 
-/** Every motif in both schemes, at row, name and card-face size, and the title lockup. */
+/** Every motif at row, name and card-face size, and the title lockup. */
 export const Motifs: StoryObj = {
   parameters: { controls: { disable: true } },
   render: () => <Example />,

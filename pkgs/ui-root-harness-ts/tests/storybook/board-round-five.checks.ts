@@ -20,10 +20,8 @@ test('screens-games-chess-puzzle--wrong-move-recovery regression chess-puzzle-bo
   const story =
     index.entries['screens-games-chess-puzzle--wrong-move-recovery'];
   if (!story) throw new Error('Missing literal regression story');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 390 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing phone light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 390);
+  if (!scenario) throw new Error('Missing phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -33,10 +31,8 @@ test('screens-games-chess-puzzle--keyboard-help regression chess-puzzle-phone-bo
 }) => {
   const story = index.entries['screens-games-chess-puzzle--keyboard-help'];
   if (!story) throw new Error('Missing literal regression story');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 390 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing phone light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 390);
+  if (!scenario) throw new Error('Missing phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -46,10 +42,8 @@ test('screens-games-hearts-board--your-turn-to-play regression hearts-unavailabl
 }) => {
   const story = index.entries['screens-games-hearts-board--your-turn-to-play'];
   if (!story) throw new Error('Missing literal regression story');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 390 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing phone light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 390);
+  if (!scenario) throw new Error('Missing phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -61,10 +55,8 @@ test('screens-games-quoridor-hill--precise-coordinates regression quoridor-spati
   const story =
     index.entries['screens-games-quoridor-hill--precise-coordinates'];
   if (!story) throw new Error('Missing literal regression story');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 390 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing phone light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 390);
+  if (!scenario) throw new Error('Missing phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -75,10 +67,8 @@ test('screens-game-sessions-stage-board-priority--long-name-rail regression shar
   const story =
     index.entries['screens-game-sessions-stage-board-priority--long-name-rail'];
   if (!story) throw new Error('Missing literal regression story');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 390 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing phone light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 390);
+  if (!scenario) throw new Error('Missing phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -90,10 +80,8 @@ test('screens-game-sessions-stage-board-priority--four-players regression shared
   const story =
     index.entries['screens-game-sessions-stage-board-priority--four-players'];
   if (!story) throw new Error('Missing literal regression story');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 390 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing phone light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 390);
+  if (!scenario) throw new Error('Missing phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -103,10 +91,8 @@ test('screens-games-sokoban-puzzle--in-progress regression sokoban-story-restart
 }) => {
   const story = index.entries['screens-games-sokoban-puzzle--in-progress'];
   if (!story) throw new Error('Missing literal regression story');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 390 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing phone light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 390);
+  if (!scenario) throw new Error('Missing phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -117,10 +103,8 @@ test('screens-game-sessions-stage-board-priority--two-players regression shared-
   const story =
     index.entries['screens-game-sessions-stage-board-priority--two-players'];
   if (!story) throw new Error('Missing literal two-player regression');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 1440 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing desktop light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 1440);
+  if (!scenario) throw new Error('Missing desktop scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -130,10 +114,8 @@ test('screens-games-sokoban-puzzle--corner-recovery regression sokoban-history-f
 }) => {
   const story = index.entries['screens-games-sokoban-puzzle--corner-recovery'];
   if (!story) throw new Error('Missing literal saved completion regression');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 390 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing phone light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 390);
+  if (!scenario) throw new Error('Missing phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -147,10 +129,8 @@ test('storybook integration: product-cardtable--states regression card-table-pas
 }) => {
   const story = index.entries['product-cardtable--states'];
   if (!story) throw new Error('Missing literal card table regression');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 390 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing phone light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 390);
+  if (!scenario) throw new Error('Missing phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -163,9 +143,7 @@ test('screens-games-battleship-board--correct-target-before-firing regression ba
       'screens-games-battleship-board--correct-target-before-firing'
     ];
   if (!story) throw new Error('Missing literal desktop targeting regression');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 1440 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing desktop light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 1440);
+  if (!scenario) throw new Error('Missing desktop scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });

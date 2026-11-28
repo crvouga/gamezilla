@@ -12,17 +12,12 @@ scope = json.loads(Path(__file__).with_name("scope.json").read_text())
 groups = {story: group for group, stories in scope["boards"].items() for story in stories}
 expected = {}
 pictures = set()
-for theme in ("light", "dark"):
-    stories = set(scope[theme])
-    if theme == "light":
-        stories.update(scope["interaction"])
-        stories.update(groups)
-    for story in stories:
-        for width, height in ((390, 844), (1280, 800)):
-            stem = f"{story}--{width}x{height}-{theme}"
-            expected[stem] = (story, width, height, theme)
-            if story in scope[theme]:
-                pictures.add(stem)
+for story in set(scope["screens"]) | set(scope["interaction"]) | set(groups):
+    for width, height in ((390, 844), (1280, 800)):
+        stem = f"{story}--{width}x{height}-dark"
+        expected[stem] = (story, width, height)
+        if story in scope["screens"]:
+            pictures.add(stem)
 
 def inventory(extension, names):
     files = list(root.rglob(f"*--*x*-*.{extension}"))
@@ -36,12 +31,12 @@ def inventory(extension, names):
 images = inventory("png", pictures)
 results = inventory("json", set(expected))
 index = []
-for stem, (story, width, height, theme) in sorted(expected.items()):
+for stem, (story, width, height) in sorted(expected.items()):
     result = json.loads(results[stem].read_text())
-    interaction = theme == "light" and story in scope["interaction"]
-    group = groups.get(story) if theme == "light" else None
-    if (result["id"], result["width"], result["height"], result["theme"], result["sha"],
-        result["interaction"], result.get("group")) != (story, width, height, theme, sha, interaction, group):
+    interaction = story in scope["interaction"]
+    group = groups.get(story)
+    if (result["id"], result["width"], result["height"], result["sha"],
+        result["interaction"], result.get("group")) != (story, width, height, sha, interaction, group):
         sys.exit(f"Unexpected result in {stem}")
     if group and not result.get("box"):
         sys.exit(f"Missing board measurement in {stem}")

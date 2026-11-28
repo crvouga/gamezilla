@@ -11,7 +11,6 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const noop = (): void => undefined;
 
@@ -102,17 +101,16 @@ export default function BottomActionBarExample(): JSX.Element {
         }
       </p>
       <SectionLabel label="Actions only" />
-      <SchemePreview>
-        <BottomActionBar items={ACTIONS_ONLY} />
-      </SchemePreview>
+
+      <BottomActionBar items={ACTIONS_ONLY} />
+
       <SectionLabel label="Mixed" />
-      <SchemePreview>
-        <BottomActionBar items={mixed} />
-      </SchemePreview>
+
+      <BottomActionBar items={mixed} />
+
       <SectionLabel label="Buttons only" />
-      <SchemePreview>
-        <BottomActionBar items={BUTTONS_ONLY} />
-      </SchemePreview>
+
+      <BottomActionBar items={BUTTONS_ONLY} />
     </ExampleRoot>
   );
 }

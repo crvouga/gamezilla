@@ -56,12 +56,8 @@ async function stopRecording(page: Page) {
  * board: keyboard selection samples, a cancelled mouse drag's frame pacing
  * and the fit's response to a viewport resize, all at 4x CPU throttling.
  */
-export async function measureChessFrame(
-  page: Page,
-  info: TestInfo,
-  theme: string
-) {
-  await openChessStory(page, 'screens-games-chess-board--your-turn', theme);
+export async function measureChessFrame(page: Page, info: TestInfo) {
+  await openChessStory(page, 'screens-games-chess-board--your-turn');
   const session = await page.context().newCDPSession(page);
   await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
   const selection = await page.evaluate(async () => {

@@ -9,15 +9,9 @@ test.use({
   trace: timingTrace,
 });
 
-test('storybook integration: Sokoban overhaul solve and recover 1440/light', async ({
-  page,
-}, info) => {
-  await solveAndRecover(page, info, viewport, 'light');
-});
-
 // regression: sokoban-recording-video-option-worker-scope
-test('storybook integration: Sokoban overhaul solve and recover 1440/dark', async ({
+test('storybook integration: Sokoban overhaul solve and recover 1440', async ({
   page,
 }, info) => {
-  await solveAndRecover(page, info, viewport, 'dark');
+  await solveAndRecover(page, info, viewport);
 });

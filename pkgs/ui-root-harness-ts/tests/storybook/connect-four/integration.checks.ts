@@ -8,7 +8,7 @@ test.use(boardContext(390));
 test('storybook integration: connect-four spectator native touch remains inert', async ({
   page,
 }) => {
-  await openBoard(page, 'watching', 'light');
+  await openBoard(page, 'watching');
   const board = page.getByTestId('game-session-board');
   const before = await board.getAttribute('data-cells');
   await touchSpectatorColumn(page);

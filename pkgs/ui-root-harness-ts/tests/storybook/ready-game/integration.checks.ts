@@ -8,9 +8,7 @@ async function firstMove(
   info: TestInfo,
   flow: { story: string; start: string; introduction: string }
 ) {
-  await page.goto(
-    `/iframe.html?id=${flow.story}&viewMode=story&globals=theme:dark`
-  );
+  await page.goto(`/iframe.html?id=${flow.story}&viewMode=story`);
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
     'true'

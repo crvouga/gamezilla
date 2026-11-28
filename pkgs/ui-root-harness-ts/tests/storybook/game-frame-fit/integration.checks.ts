@@ -3,7 +3,7 @@ import { expect, type Page, test } from '@playwright/test';
 test.use({ trace: 'on', hasTouch: true });
 
 async function openStory(page: Page, id: string) {
-  await page.goto(`/iframe.html?id=${id}&viewMode=story&globals=theme:light`);
+  await page.goto(`/iframe.html?id=${id}&viewMode=story`);
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
     'true'

@@ -131,12 +131,11 @@ for (const entry of Object.values(index.entries)) {
     if (!supportsStoryViewport(entry, width)) continue;
     test(`${review} ${entry.id} ${width}`, async ({ page }, info) => {
       const height = width === 390 ? 844 : 800;
-      const theme = width === 390 ? 'light' : 'dark';
+
       try {
         await verifyStoryScenario(page, entry.id, {
           width,
           height,
-          theme,
           suffix: '',
           globals: selection ? { spaceRole: 'host' } : {},
         });

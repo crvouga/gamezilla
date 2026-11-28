@@ -50,13 +50,7 @@ test('storybook integration: Controls updates the production component', async (
     .click();
   await page.getByText('Phone', { exact: true }).click();
   await expect(canvas.locator('html')).toHaveJSProperty('clientWidth', 390);
-  await page
-    .getByRole('button', { name: 'Production color scheme light' })
-    .click();
-  await page.getByText('dark', { exact: true }).click();
-  await expect(
-    canvas.locator('#storybook-root [data-theme="dark"]').first()
-  ).toBeVisible();
+  await expect(canvas.locator('html')).toHaveCSS('color-scheme', 'dark');
   await expect(
     canvas.getByRole('button', { name: 'Publish puzzle' })
   ).toBeVisible();
@@ -143,9 +137,7 @@ for (const story of [
       page,
     }) => {
       await page.setViewportSize(size);
-      await page.goto(
-        `/iframe.html?id=${story}&viewMode=story&globals=theme:dark`
-      );
+      await page.goto(`/iframe.html?id=${story}&viewMode=story`);
       await expect
         .poll(() =>
           page.locator('#storybook-root').getAttribute('data-story-ready')
@@ -192,9 +184,7 @@ for (const story of [
     page,
   }) => {
     await page.setViewportSize({ width: 390, height: 791 });
-    await page.goto(
-      `/iframe.html?id=${story}&viewMode=story&globals=theme:dark`
-    );
+    await page.goto(`/iframe.html?id=${story}&viewMode=story`);
     await expect
       .poll(() =>
         page.locator('#storybook-root').getAttribute('data-story-ready')
@@ -248,9 +238,7 @@ test('storybook integration: pack 390 and Sokoban 1200 controls remain reachable
     ['screens-games-sokoban-editor--two-crates', 1200, 884],
   ] as const) {
     await page.setViewportSize({ width, height });
-    await page.goto(
-      `/iframe.html?id=${story}&viewMode=story&globals=theme:dark`
-    );
+    await page.goto(`/iframe.html?id=${story}&viewMode=story`);
     await expect(page.locator('#storybook-root')).toHaveAttribute(
       'data-story-ready',
       'true'

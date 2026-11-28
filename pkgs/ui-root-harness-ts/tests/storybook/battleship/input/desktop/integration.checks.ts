@@ -25,7 +25,6 @@ test('storybook integration: battleship desktop first view fits target and confi
   await openBattleStory(
     page,
     'screens-games-battleship-board--your-turn',
-    'light',
     info
   );
   const grid = page.getByTestId('game-session-board-target-grid');

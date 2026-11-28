@@ -10,7 +10,7 @@ test('storybook integration: the phone record strip never moves the board betwee
   for (const width of [320, 390]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto(
-      '/iframe.html?id=screens-games-connect-four-board--drop-a-disc&viewMode=story&globals=theme:light'
+      '/iframe.html?id=screens-games-connect-four-board--drop-a-disc&viewMode=story'
     );
     await expect(page.locator('#storybook-root')).toHaveAttribute(
       'data-story-ready',

@@ -6,7 +6,7 @@ test.use({ viewport: { width: 390, height: 844 } });
 test('storybook integration: play Sokoban catalog from Receiving dock', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'catalog--first-warehouse', 'light');
+  await openSokoban(page, 'catalog--first-warehouse');
   const board = page.getByTestId('sokoban-board');
   await expect(board).toBeVisible();
   await expect(

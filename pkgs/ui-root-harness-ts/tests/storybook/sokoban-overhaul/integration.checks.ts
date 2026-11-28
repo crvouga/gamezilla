@@ -10,14 +10,8 @@ test.use({
 });
 
 // regression: sokoban-push-undo-timing-queries-input-targets
-test('storybook integration: Sokoban overhaul solve and recover 390/light', async ({
+test('storybook integration: Sokoban overhaul solve and recover 390', async ({
   page,
 }, info) => {
-  await solveAndRecover(page, info, viewport, 'light');
-});
-
-test('storybook integration: Sokoban overhaul solve and recover 390/dark', async ({
-  page,
-}, info) => {
-  await solveAndRecover(page, info, viewport, 'dark');
+  await solveAndRecover(page, info, viewport);
 });

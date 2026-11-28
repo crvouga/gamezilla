@@ -5,7 +5,6 @@ import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from '@solidjs/web';
 import { createSignal, For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const tags = ['Solid', 'TypeScript', 'Vite', 'Design System', 'UI'];
 
@@ -30,33 +29,32 @@ export default function ChipExample(): JSX.Element {
           'Toggle chips (aria-pressed). Hover darkens the edge, Tab shows the focus ring; each 32px chip has a 44px hit area.'
         }
       </p>
-      <SchemePreview>
-        <div class="box flex-col gap-3">
-          <div class="box flex-row gap-2 flex-wrap">
-            <For each={tags}>
-              {(tag) => (
-                <Chip
-                  label={tag}
-                  selected={selected().has(tag)}
-                  onClick={() => toggle(tag)}
-                />
-              )}
-            </For>
-          </div>
 
-          <div class="box flex-row flex-wrap gap-2">
-            <Chip label="Unselected" />
-            <Chip label="Selected" selected />
-            <Chip label="Disabled" disabled />
-            <Chip label="Disabled · selected" selected disabled />
-          </div>
-
-          <div class="box flex-row flex-wrap gap-2">
-            <Chip label="5 min" startIcon={<ClockIcon size={16} />} />
-            <Chip label="10 min" selected startIcon={<ClockIcon size={16} />} />
-          </div>
+      <div class="box flex-col gap-3">
+        <div class="box flex-row gap-2 flex-wrap">
+          <For each={tags}>
+            {(tag) => (
+              <Chip
+                label={tag}
+                selected={selected().has(tag)}
+                onClick={() => toggle(tag)}
+              />
+            )}
+          </For>
         </div>
-      </SchemePreview>
+
+        <div class="box flex-row flex-wrap gap-2">
+          <Chip label="Unselected" />
+          <Chip label="Selected" selected />
+          <Chip label="Disabled" disabled />
+          <Chip label="Disabled · selected" selected disabled />
+        </div>
+
+        <div class="box flex-row flex-wrap gap-2">
+          <Chip label="5 min" startIcon={<ClockIcon size={16} />} />
+          <Chip label="10 min" selected startIcon={<ClockIcon size={16} />} />
+        </div>
+      </div>
     </ExampleRoot>
   );
 }

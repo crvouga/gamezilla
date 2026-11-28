@@ -16,7 +16,6 @@ export async function touchSpectatorColumn(page: Page) {
 export async function openBoard(
   page: Page,
   story: string,
-  theme: string,
   motion: 'reduced' | 'system' = 'reduced'
 ) {
   await page.route('**/*', (route) =>
@@ -36,7 +35,7 @@ export async function openBoard(
     });
   }
   await page.goto(
-    `/iframe.html?id=screens-games-connect-four-board--${story}&viewMode=story&globals=theme:${theme};motion:${motion}`
+    `/iframe.html?id=screens-games-connect-four-board--${story}&viewMode=story&globals=motion:${motion}`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

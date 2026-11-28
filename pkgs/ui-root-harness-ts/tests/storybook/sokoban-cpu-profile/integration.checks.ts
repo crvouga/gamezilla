@@ -45,7 +45,7 @@ test.use({ viewport: { width: 320, height: 740 }, trace: 'off', video: 'off' });
 test('storybook integration: Sokoban maximum close view CPU profile at 4x for diagnosis', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'puzzle--maximum-board', 'light');
+  await openSokoban(page, 'puzzle--maximum-board');
   const board = page.getByTestId('sokoban-board');
   await page.getByRole('button', { name: 'Look closer' }).click();
   await expect(board.getByRole('img')).toHaveCount(36);

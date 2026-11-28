@@ -13,7 +13,6 @@ import type { JSX } from '@solidjs/web';
 import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const ROLES: readonly TextRole[] = [
   'body',
@@ -143,10 +142,9 @@ function Inline(): JSX.Element {
 export default function TextExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <Roles />
-        <Tones />
-      </SchemePreview>
+      <Roles />
+      <Tones />
+
       <Shape />
       <Inline />
     </ExampleRoot>

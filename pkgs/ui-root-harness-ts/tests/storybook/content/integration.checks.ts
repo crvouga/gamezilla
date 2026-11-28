@@ -4,7 +4,7 @@ import { expect, type Locator, type Page, test } from '@playwright/test';
 test('storybook integration: Apple connection retry fits at 390 pixels', async ({
   page,
 }) => {
-  await open(page, 'screens-account--connect-failed', 390, 'light');
+  await open(page, 'screens-account--connect-failed', 390);
   const retry = page.getByTestId('account-link-provider-apple');
   await expect(retry).toBeVisible();
   await expect(page.getByRole('alert')).toContainText("Couldn't reach Apple");
@@ -18,7 +18,7 @@ test('storybook integration: Apple connection retry fits at 390 pixels', async (
 test('storybook integration: the long username leaves Block reachable at 390 pixels', async ({
   page,
 }) => {
-  await open(page, 'screens-friends-user--long-name', 390, 'light');
+  await open(page, 'screens-friends-user--long-name', 390);
   await expect(page.getByTestId('friend-user-username')).toHaveText(
     `@${'w'.repeat(32)}`
   );
@@ -39,12 +39,7 @@ test('storybook integration: the long username leaves Block reachable at 390 pix
 test('storybook integration: failed initial population configuration cannot be saved', async ({
   page,
 }) => {
-  await open(
-    page,
-    'screens-admin-synthetic-population-config--failed',
-    390,
-    'light'
-  );
+  await open(page, 'screens-admin-synthetic-population-config--failed', 390);
   await expect(
     page.getByRole('button', {
       name: 'Save synthetic population',
@@ -53,11 +48,9 @@ test('storybook integration: failed initial population configuration cannot be s
   ).toBeDisabled();
 });
 
-async function open(page: Page, story: string, width: number, theme: string) {
+async function open(page: Page, story: string, width: number) {
   await page.setViewportSize({ width, height: 900 });
-  await page.goto(
-    `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme}`
-  );
+  await page.goto(`/iframe.html?id=${story}&viewMode=story`);
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
     'true'
@@ -87,40 +80,39 @@ async function textBounds(label: Locator) {
   });
 }
 
-for (const width of [390, 768, 1440])
-  for (const theme of ['light', 'dark']) {
-    // regression: account-connect-error-label-clipped
-    for (const story of [
-      'screens-matchmaking-home--choose-time-control',
-      'screens-billing--checkout-provider-unavailable',
-    ])
-      test(`storybook integration: feedback remains readable in ${story} at ${width}/${theme}`, async ({
-        page,
-      }) => {
-        await open(page, story, width, theme);
-        const feedback = page.locator(
-          'button[data-phase="success"], button[data-phase="error"]'
-        );
-        await expect(feedback).toHaveCount(1);
-        const label = feedback.locator('p:not([aria-hidden="true"] p)');
-        await expect(label).toBeVisible();
-        expect(await textBounds(label)).toEqual([]);
-      });
-
-    // regression: account-connect-error-label-clipped
-    test(`storybook integration: account retry label stays readable at ${width}/${theme}`, async ({
+for (const width of [390, 768, 1440]) {
+  // regression: account-connect-error-label-clipped
+  for (const story of [
+    'screens-matchmaking-home--choose-time-control',
+    'screens-billing--checkout-provider-unavailable',
+  ])
+    test(`storybook integration: feedback remains readable in ${story} at ${width}/dark`, async ({
       page,
     }) => {
-      await assertAccountRetry(page, width, theme);
+      await open(page, story, width);
+      const feedback = page.locator(
+        'button[data-phase="success"], button[data-phase="error"]'
+      );
+      await expect(feedback).toHaveCount(1);
+      const label = feedback.locator('p:not([aria-hidden="true"] p)');
+      await expect(label).toBeVisible();
+      expect(await textBounds(label)).toEqual([]);
     });
 
-    // regression: friend-long-name-escapes-profile
-    test(`storybook integration: a long friend name stays inside its profile at ${width}/${theme}`, async ({
-      page,
-    }) => {
-      await assertFriendName(page, width, theme);
-    });
-  }
+  // regression: account-connect-error-label-clipped
+  test(`storybook integration: account retry label stays readable at ${width}/dark`, async ({
+    page,
+  }) => {
+    await assertAccountRetry(page, width);
+  });
+
+  // regression: friend-long-name-escapes-profile
+  test(`storybook integration: a long friend name stays inside its profile at ${width}/dark`, async ({
+    page,
+  }) => {
+    await assertFriendName(page, width);
+  });
+}
 
 // regression: account-connect-error-label-clipped
 for (const sample of [
@@ -131,7 +123,7 @@ for (const sample of [
   test(`storybook integration: ${sample.story} feedback fits beyond the shorter idle label`, async ({
     page,
   }) => {
-    await open(page, `components-inputs-button--${sample.story}`, 390, 'light');
+    await open(page, `components-inputs-button--${sample.story}`, 390);
     const label = page
       .locator('button p:not([aria-hidden="true"] p)')
       .filter({ hasText: sample.label });
@@ -149,7 +141,7 @@ for (const width of [390, 768, 1440])
   test(`storybook integration: one-line inline text keeps a constrained box at ${width}`, async ({
     page,
   }) => {
-    await open(page, 'primitives-text--single-line', width, 'light');
+    await open(page, 'primitives-text--single-line', width);
     for (const id of [
       'clamped-text',
       'clamped-inherited-text',
@@ -196,8 +188,7 @@ for (const state of ['loading', 'failed'])
     await open(
       page,
       `screens-admin-synthetic-population-config--${state}`,
-      390,
-      'light'
+      390
     );
     await expect(
       page.getByRole('button', {
@@ -212,12 +203,7 @@ for (const state of ['won', 'lost', 'full-board-draw'])
   test(`storybook integration: ${state} board retains its move record`, async ({
     page,
   }) => {
-    await open(
-      page,
-      `screens-games-connect-four-board--${state}`,
-      390,
-      'light'
-    );
+    await open(page, `screens-games-connect-four-board--${state}`, 390);
     await expect(page.getByText('No moves yet.', { exact: true })).toHaveCount(
       0
     );
@@ -228,7 +214,7 @@ for (const state of ['won', 'lost', 'full-board-draw'])
 test('storybook integration: literal won Connect Four retains its move record', async ({
   page,
 }) => {
-  await open(page, 'screens-games-connect-four-board--won', 390, 'light');
+  await open(page, 'screens-games-connect-four-board--won', 390);
   await expect(page.getByText('No moves yet.', { exact: true })).toHaveCount(0);
   await expectFinishedRecord(page);
 });
@@ -257,8 +243,8 @@ async function expectFinishedRecord(page: Page) {
   await expect(moves.first()).toBeVisible();
 }
 
-async function assertAccountRetry(page: Page, width: number, theme: string) {
-  await open(page, 'screens-account--connect-failed', width, theme);
+async function assertAccountRetry(page: Page, width: number) {
+  await open(page, 'screens-account--connect-failed', width);
   const retry = page.getByTestId('account-link-provider-apple');
   await expect(retry).toBeVisible();
   await expect(page.getByRole('alert')).toContainText("Couldn't reach Apple");
@@ -268,14 +254,14 @@ async function assertAccountRetry(page: Page, width: number, theme: string) {
 }
 
 // regression: account-connect-error-label-clipped
-test('storybook integration: literal account retry label stays readable on a light phone', async ({
+test('storybook integration: literal account retry label stays readable on a phone', async ({
   page,
 }) => {
-  await assertAccountRetry(page, 390, 'light');
+  await assertAccountRetry(page, 390);
 });
 
-async function assertFriendName(page: Page, width: number, theme: string) {
-  await open(page, 'screens-friends-user--long-name', width, theme);
+async function assertFriendName(page: Page, width: number) {
+  await open(page, 'screens-friends-user--long-name', width);
   const name = page.getByTestId('friend-user-username');
   await expect(name).toHaveText('@wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww');
   const headings = page.getByRole('heading');
@@ -328,22 +314,17 @@ async function assertFriendName(page: Page, width: number, theme: string) {
 }
 
 // regression: friend-long-name-escapes-profile
-test('storybook integration: literal a long friend name stays inside its profile on a light phone', async ({
+test('storybook integration: literal a long friend name stays inside its profile on a phone', async ({
   page,
 }) => {
-  await assertFriendName(page, 390, 'light');
+  await assertFriendName(page, 390);
 });
 
 // regression: synthetic-population-initial-state-fixture-saveable
 test('storybook integration: literal initial loading cannot save unknown configuration', async ({
   page,
 }) => {
-  await open(
-    page,
-    'screens-admin-synthetic-population-config--loading',
-    390,
-    'light'
-  );
+  await open(page, 'screens-admin-synthetic-population-config--loading', 390);
   await expect(
     page.getByRole('button', {
       name: 'Save synthetic population',
@@ -356,7 +337,7 @@ test('storybook integration: literal initial loading cannot save unknown configu
 test('storybook integration: a deleted profile has a readable heading and direct Friends recovery', async ({
   page,
 }) => {
-  await open(page, 'screens-friends-user--deleted', 390, 'light');
+  await open(page, 'screens-friends-user--deleted', 390);
   await expect(
     page.getByRole('heading', { level: 1, name: 'Account deleted' })
   ).toBeVisible();

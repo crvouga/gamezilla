@@ -38,7 +38,7 @@ for (const condition of [
       page,
     }, info) => {
       await page.setViewportSize(condition);
-      await openPong(page, 'live-rally', 'light');
+      await openPong(page, 'live-rally');
       const cdp = await page.context().newCDPSession(page);
       await cdp.send('Emulation.setCPUThrottlingRate', {
         rate: condition.cpuRate,
@@ -96,7 +96,7 @@ test('storybook integration: pong-overhaul live rally releases a held key on blu
   page,
 }, info) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openPong(page, 'live-rally', 'light');
+  await openPong(page, 'live-rally');
   await page.keyboard.down('ArrowDown');
   await frames(page, 10);
   const heldStart = await paddleY(page);
@@ -137,7 +137,7 @@ test('storybook integration: pong-overhaul reconnect returns control promptly', 
   page,
 }, info) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openPong(page, 'return-score-and-reconnect', 'light');
+  await openPong(page, 'return-score-and-reconnect');
   const court = page.getByRole('application', { name: 'Pong court' });
   await court.focus();
   await page.keyboard.down('ArrowUp');

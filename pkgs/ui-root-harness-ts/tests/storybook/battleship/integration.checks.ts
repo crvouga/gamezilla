@@ -28,43 +28,40 @@ const stories = [
 ];
 
 for (const viewport of screens)
-  for (const theme of ['light', 'dark'])
-    for (const story of stories)
-      test(`storybook integration: battleship ${story} ${viewport.width}/${theme}`, async ({
+  for (const story of stories)
+    test(`storybook integration: battleship ${story} ${viewport.width}/dark`, async ({
+      page,
+    }, info) => {
+      // The opening case also runs six timed sequences at 6x CPU.
+      if (story === 'board--opening') test.slow();
+      await page.setViewportSize(viewport);
+      const errors = await openBattleStory(
         page,
-      }, info) => {
-        // The opening case also runs six timed sequences at 6x CPU.
-        if (story === 'board--opening') test.slow();
-        await page.setViewportSize(viewport);
-        const errors = await openBattleStory(
-          page,
-          `screens-games-battleship-${story}`,
-          theme,
-          info
-        );
-        if (story === 'board--fire-a-shot') {
-          const impact = page
-            .getByTestId('game-session-board-target-e5')
-            .locator('span')
-            .first();
-          await expect(impact).toHaveAttribute('aria-hidden', 'true');
-          await page.emulateMedia({ reducedMotion: 'no-preference' });
-          await expect(impact).toHaveCSS('animation-name', /settle/);
-          await page.emulateMedia({ reducedMotion: 'reduce' });
-          await expect(impact).toHaveCSS('animation-name', 'none');
-        }
-        await captureBattleEvidence(page, info);
-        if (story === 'board--opening') await measureTargeting(page, info);
-        expect(errors).toEqual([]);
-        await info.attach('task-evidence-limits', {
-          body: JSON.stringify({
-            story,
-            viewport,
-            theme,
-            result: 'Storybook production component and native play completed',
-            limits:
-              'Component fixture evidence. Does not establish live multiplayer transport, persisted setup, or recovery in the running app. Native play may use synthesized touch; hasTouch alone is not physical touch evidence.',
-          }),
-          contentType: 'application/json',
-        });
+        `screens-games-battleship-${story}`,
+        info
+      );
+      if (story === 'board--fire-a-shot') {
+        const impact = page
+          .getByTestId('game-session-board-target-e5')
+          .locator('span')
+          .first();
+        await expect(impact).toHaveAttribute('aria-hidden', 'true');
+        await page.emulateMedia({ reducedMotion: 'no-preference' });
+        await expect(impact).toHaveCSS('animation-name', /settle/);
+        await page.emulateMedia({ reducedMotion: 'reduce' });
+        await expect(impact).toHaveCSS('animation-name', 'none');
+      }
+      await captureBattleEvidence(page, info);
+      if (story === 'board--opening') await measureTargeting(page, info);
+      expect(errors).toEqual([]);
+      await info.attach('task-evidence-limits', {
+        body: JSON.stringify({
+          story,
+          viewport,
+          result: 'Storybook production component and native play completed',
+          limits:
+            'Component fixture evidence. Does not establish live multiplayer transport, persisted setup, or recovery in the running app. Native play may use synthesized touch; hasTouch alone is not physical touch evidence.',
+        }),
+        contentType: 'application/json',
       });
+    });

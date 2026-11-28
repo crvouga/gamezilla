@@ -63,13 +63,7 @@ test('storybook integration: token backgrounds and grid preserve component state
     'background-size',
     '16px 16px, 16px 16px, 4px 4px, 4px 4px'
   );
-  await page
-    .getByRole('button', { name: 'Production color scheme light' })
-    .click();
-  await page.getByText('dark', { exact: true }).click();
-  await expect(
-    canvas.locator('[data-component="ThemeProvider"]').first()
-  ).toHaveAttribute('data-theme', 'dark');
+  await expect(canvas.locator('html')).toHaveCSS('color-scheme', 'dark');
   await expect(field).toHaveValue('Keep this draft');
   await expect(canvas.locator('body')).toHaveCSS(
     'background-color',
@@ -211,7 +205,7 @@ test('storybook integration: native accessibility inspection leaves automated ax
 });
 
 // regression: storybook-gallery-play-ambiguous-theme-target
-test('storybook integration: gallery plays scope their targets to both theme panes', async ({
+test('storybook integration: gallery play operates one visible set of controls', async ({
   page,
 }) => {
   await page.goto(
@@ -225,7 +219,6 @@ test('storybook integration: gallery plays scope their targets to both theme pan
     name: 'Horizontal wall',
     exact: true,
   });
-  await expect(walls).toHaveCount(2);
-  await expect(walls.nth(0)).toHaveAttribute('aria-pressed', 'false');
-  await expect(walls.nth(1)).toHaveAttribute('aria-pressed', 'false');
+  await expect(walls).toHaveCount(1);
+  await expect(walls).toHaveAttribute('aria-pressed', 'false');
 });

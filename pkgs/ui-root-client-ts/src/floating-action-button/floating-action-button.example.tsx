@@ -5,7 +5,6 @@ import { PlusIcon, SquarePenIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const DEMO_MS = 900;
 
@@ -70,12 +69,10 @@ function FabStates(): JSX.Element {
 export default function FloatingActionButtonExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <div class="box gap-4">
-          <FabStates />
-          <FabDemo />
-        </div>
-      </SchemePreview>
+      <div class="box gap-4">
+        <FabStates />
+        <FabDemo />
+      </div>
     </ExampleRoot>
   );
 }

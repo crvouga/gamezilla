@@ -9,7 +9,6 @@ import { render } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
 
 type RenderOptions = {
-  colorScheme?: 'light' | 'dark';
   width?: number;
   height?: number;
 };
@@ -25,7 +24,6 @@ export function renderUi(ui: () => JSX.Element, options: RenderOptions = {}) {
     <I18nProvider i18n={i18n}>
       <ClockProvider clock={harness.clock} timers={harness.timers}>
         <ThemeProvider
-          colorScheme={options.colorScheme ?? 'light'}
           fixedLayout={{
             width: options.width ?? 1024,
             height: options.height ?? 768,

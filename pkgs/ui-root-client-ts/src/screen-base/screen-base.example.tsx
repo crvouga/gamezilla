@@ -10,7 +10,6 @@ import { TopBarTitle } from '@pkgs/ui-root-client-ts/top-bar-title';
 import type { JSX } from '@solidjs/web';
 import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const noop = (): void => undefined;
 
@@ -51,7 +50,7 @@ function Actions(): JSX.Element {
 /** Every top bar shape a screen can have, drawn in place. */
 function TopBarVariants(): JSX.Element {
   return (
-    <SchemePreview>
+    <>
       <SectionLabel label="Root screen: title and an action, at rest" />
       <TopBar
         safeAreaTop={false}
@@ -79,7 +78,7 @@ function TopBarVariants(): JSX.Element {
         }
         trailing={<Actions />}
       />
-    </SchemePreview>
+    </>
   );
 }
 

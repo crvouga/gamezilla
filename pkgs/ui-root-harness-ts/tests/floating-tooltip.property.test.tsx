@@ -10,17 +10,13 @@ function checkTooltip(input: {
   x: number;
   y: number;
   placement: 'top-start' | 'bottom-end';
-  scheme: 'dark' | 'light';
 }) {
-  const { x, y, placement, scheme } = input;
-  const mounted = renderUi(
-    () => (
-      <Tooltip floating placement={placement} label="Attach">
-        <button type="button">Attach</button>
-      </Tooltip>
-    ),
-    { colorScheme: scheme }
-  );
+  const { x, y, placement } = input;
+  const mounted = renderUi(() => (
+    <Tooltip floating placement={placement} label="Attach">
+      <button type="button">Attach</button>
+    </Tooltip>
+  ));
   try {
     const button = mounted.getByRole('button', { name: 'Attach' });
     const anchor = button.parentElement;
@@ -41,22 +37,20 @@ function checkTooltip(input: {
     expect(Number.parseFloat(layer.style.top) + 30).toBeLessThanOrEqual(
       window.innerHeight - 8
     );
-    expect(layer.getAttribute('data-theme')).toBe(scheme);
   } finally {
     mounted.unmount();
   }
 }
 
-test('floating tooltip labels stay within the viewport and retain their theme', () => {
+test('floating tooltip labels stay within the viewport', () => {
   assertProperty(
     'floating-tooltip',
     fc.property(
       fc.integer({ min: 0, max: 1100 }),
       fc.integer({ min: 0, max: 800 }),
       fc.constantFrom('top-start' as const, 'bottom-end' as const),
-      fc.constantFrom('dark' as const, 'light' as const),
-      (x, y, placement, scheme) => {
-        checkTooltip({ x, y, placement, scheme });
+      (x, y, placement) => {
+        checkTooltip({ x, y, placement });
       }
     )
   );

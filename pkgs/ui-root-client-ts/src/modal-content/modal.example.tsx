@@ -13,38 +13,35 @@ import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import type { JSX } from '@solidjs/web';
 import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const noop = (): void => undefined;
 
-/** The dialog drawn in place, so both schemes show its anatomy. */
+/** The dialog anatomy drawn in place. */
 function DialogAnatomy(): JSX.Element {
   return (
-    <SchemePreview>
-      <div class="box gap-4 p-4 bg-scrim rounded-card">
-        <ModalContent size="small">
-          <ModalHeader title="Leave space?" />
-          <ModalBody message="You can join again later if the space is still live." />
-          <ModalFooter>
-            <ModalButton label="Leave" onClick={noop} />
-            <ModalButton label="Cancel" variant="cancel" onClick={noop} />
-          </ModalFooter>
-        </ModalContent>
-        <ModalContent size="small">
-          <ModalHeader title="Delete puzzle set?" />
-          <ModalBody message="This cannot be undone." />
-          <ModalFooter>
-            <ModalButton label="Delete" variant="destructive" onClick={noop} />
-            <ModalButton
-              label="Cancel"
-              variant="cancel"
-              onClick={noop}
-              disabled
-            />
-          </ModalFooter>
-        </ModalContent>
-      </div>
-    </SchemePreview>
+    <div class="box gap-4 p-4 bg-scrim rounded-card">
+      <ModalContent size="small">
+        <ModalHeader title="Leave space?" />
+        <ModalBody message="You can join again later if the space is still live." />
+        <ModalFooter>
+          <ModalButton label="Leave" onClick={noop} />
+          <ModalButton label="Cancel" variant="cancel" onClick={noop} />
+        </ModalFooter>
+      </ModalContent>
+      <ModalContent size="small">
+        <ModalHeader title="Delete puzzle set?" />
+        <ModalBody message="This cannot be undone." />
+        <ModalFooter>
+          <ModalButton label="Delete" variant="destructive" onClick={noop} />
+          <ModalButton
+            label="Cancel"
+            variant="cancel"
+            onClick={noop}
+            disabled
+          />
+        </ModalFooter>
+      </ModalContent>
+    </div>
   );
 }
 

@@ -20,8 +20,7 @@ test('storybook integration: Quoridor wall lesson story places the wall', async 
 }) => {
   await expectQuoridorStoryPasses(
     page,
-    'screens-game-home-how-to-play--place-a-wall',
-    'light'
+    'screens-game-home-how-to-play--place-a-wall'
   );
   await expect(page.getByTestId('practice-next')).toBeEnabled();
 });
@@ -43,7 +42,7 @@ for (const [mode, goal] of [
       page,
     }, info) => {
       await page.goto(
-        `/iframe.html?id=screens-game-home-how-to-play--first-move&args=gameId:${mode}&viewMode=story&globals=theme:light`
+        `/iframe.html?id=screens-game-home-how-to-play--first-move&args=gameId:${mode}&viewMode=story`
       );
       const ui = (id: string) => page.getByTestId(`practice-${id}`);
       const next = ui('next');

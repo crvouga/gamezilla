@@ -51,9 +51,9 @@ async function reachable(target: Locator, scroll = true): Promise<void> {
 export async function narrowWorkspace(
   page: Page,
   info: TestInfo,
-  fixture: { players: string; theme: string }
+  players: string
 ): Promise<void> {
-  await openStory(page, `${fixture.players}-player-match`, fixture.theme);
+  await openStory(page, `${players}-player-match`);
   await reachable(page.getByTestId('game-session-seat-near'), false);
   await retainEvidence(info, 'local-score-initial.png', {
     body: await page.screenshot(),
@@ -128,9 +128,9 @@ async function rackTargets(
 export async function narrowOpeningFits(
   page: Page,
   info: TestInfo,
-  fixture: { players: string; theme: string }
+  players: string
 ): Promise<void> {
-  await openStory(page, `${fixture.players}-player-match`, fixture.theme);
+  await openStory(page, `${players}-player-match`);
   const tops = await page
     .getByTestId('game-session-board-rack')
     .getByRole('button')

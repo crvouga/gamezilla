@@ -5,7 +5,6 @@ import axe from 'axe-core';
 export async function openSokoban(
   page: Page,
   story: string,
-  theme: string,
   motion?: 'system'
 ) {
   await page.route('**/*', (route) =>
@@ -21,7 +20,7 @@ export async function openSokoban(
     ).__STORYBOOK_HIGHLIGHT_INITIALIZED = true;
   });
   await page.goto(
-    `/iframe.html?id=screens-games-sokoban-${story}&viewMode=story&globals=theme:${theme}${motion ? ';motion:system' : ''}`
+    `/iframe.html?id=screens-games-sokoban-${story}&viewMode=story${motion ? ';motion:system' : ''}`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

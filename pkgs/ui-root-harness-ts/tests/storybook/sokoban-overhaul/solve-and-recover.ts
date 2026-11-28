@@ -19,12 +19,11 @@ async function controlTops(page: Page) {
 export async function solveAndRecover(
   page: Page,
   info: TestInfo,
-  viewport: { width: number; height: number },
-  theme: string
+  viewport: { width: number; height: number }
 ) {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
-  await openSokoban(page, 'puzzle--fresh', theme);
+  await openSokoban(page, 'puzzle--fresh');
   await capture(page, info, 'fresh');
   // Every state is scanned at every viewport, with measured text contrast.
   await accessibility(page, info, 'fresh');

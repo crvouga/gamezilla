@@ -32,7 +32,6 @@ for (const id of screens) {
         await verifyStoryScenario(page, id, {
           width,
           height: width === 390 ? 844 : 800,
-          theme: width === 390 ? 'light' : 'dark',
           suffix: '',
           globals: { spaceRole: 'host' },
         });

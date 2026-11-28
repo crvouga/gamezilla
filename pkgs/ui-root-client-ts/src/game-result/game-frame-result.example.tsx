@@ -14,7 +14,6 @@ import {
   exampleAvatar,
   exampleSeats,
 } from '../../storybook/fixtures/game-frame-example-data';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const STANDING_AVATAR = 32;
 
@@ -92,11 +91,9 @@ function Solo(): JSX.Element {
 export default function GameFrameResultExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <TwoPlayers />
-        <EightPlayers />
-        <Solo />
-      </SchemePreview>
+      <TwoPlayers />
+      <EightPlayers />
+      <Solo />
     </ExampleRoot>
   );
 }

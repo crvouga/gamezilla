@@ -6,7 +6,6 @@ import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from '@solidjs/web';
 import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 type Intensity = 'off' | 'mid' | 'high';
 
@@ -81,12 +80,10 @@ function MultipleBlock(): JSX.Element {
 export default function ChipGroupExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <div class="box gap-6">
-          <SingleBlock />
-          <MultipleBlock />
-        </div>
-      </SchemePreview>
+      <div class="box gap-6">
+        <SingleBlock />
+        <MultipleBlock />
+      </div>
     </ExampleRoot>
   );
 }

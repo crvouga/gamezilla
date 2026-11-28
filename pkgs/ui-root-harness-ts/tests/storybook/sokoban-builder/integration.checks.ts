@@ -6,7 +6,7 @@ test.use({ viewport, video: { mode: 'on', size: viewport }, trace: 'on' });
 
 async function openBuilder(page: Page) {
   await page.goto(
-    '/iframe.html?id=screens-games-sokoban-editor--two-crates&viewMode=story&globals=theme:dark'
+    '/iframe.html?id=screens-games-sokoban-editor--two-crates&viewMode=story'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

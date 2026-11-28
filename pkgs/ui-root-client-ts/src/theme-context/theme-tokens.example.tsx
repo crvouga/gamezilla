@@ -19,7 +19,6 @@ import { borderRadius, spacing } from '@pkgs/ui-root-shared-ts/scale';
 import type { JSX } from '@solidjs/web';
 import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 type ColorGroup = {
   title: string;
@@ -80,29 +79,24 @@ export default function ThemeTokensExample(): JSX.Element {
   return (
     <ExampleRoot gap="xl">
       <SectionTitle title="Colors" />
-      <SchemePreview>
-        <ColorGroups />
-      </SchemePreview>
+
+      <ColorGroups />
 
       <SectionTitle title="Radius" />
-      <SchemePreview>
-        <RadiusRow />
-      </SchemePreview>
+
+      <RadiusRow />
 
       <SectionTitle title="Spacing" />
-      <SchemePreview>
-        <SpacingRow />
-      </SchemePreview>
+
+      <SpacingRow />
 
       <SectionTitle title="Elevation" />
-      <SchemePreview>
-        <ElevationRow />
-      </SchemePreview>
+
+      <ElevationRow />
 
       <SectionTitle title="Motion" />
-      <SchemePreview>
-        <MotionRow />
-      </SchemePreview>
+
+      <MotionRow />
     </ExampleRoot>
   );
 }

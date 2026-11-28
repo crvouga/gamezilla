@@ -14,7 +14,7 @@ test.use(boardContext(390));
 test('storybook integration: connect-four 390px gives the board the whole width and keeps one page edge', async ({
   page,
 }, info) => {
-  await openBoard(page, 'drop-a-disc', 'light');
+  await openBoard(page, 'drop-a-disc');
   const edges = await page.evaluate(() => {
     const rect = (selector: string) => {
       const box = document.querySelector(selector)?.getBoundingClientRect();

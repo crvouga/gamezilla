@@ -37,11 +37,7 @@ test('storybook integration: Hearts players disclosure keeps its whole focus rin
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 568 });
-  await openHearts(
-    page,
-    'screens-games-hearts-interaction--pass-and-play',
-    'light'
-  );
+  await openHearts(page, 'screens-games-hearts-interaction--pass-and-play');
   const toggle = page.getByRole('button', { name: 'Players and scores' });
   await toggle.focus();
   await expect(toggle).toBeFocused();
@@ -52,11 +48,7 @@ test('storybook integration: Hearts pass button keeps its whole focus ring at 14
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 844 });
-  await openHearts(
-    page,
-    'screens-games-hearts-interaction--pass-and-play',
-    'dark'
-  );
+  await openHearts(page, 'screens-games-hearts-interaction--pass-and-play');
   const cards = page
     .getByRole('toolbar', { name: 'Your hand' })
     .getByRole('button');

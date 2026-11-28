@@ -85,6 +85,14 @@ export const SharedChoices: Story = {};
 
 /** A game offering puzzles and settings: matchmaking leads, puzzles stay a row, settings wait behind More. */
 export const WithPuzzlesAndSettings: Story = {
+  parameters: {
+    storyRoute: {
+      pathname: '/space/story-room',
+      tab: false,
+      spaceBody: 'shell',
+      spaceTitle: 'Chess',
+    },
+  },
   args: {
     title: 'Chess',
     tile: 'checkered',

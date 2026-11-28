@@ -48,7 +48,7 @@ test('storybook integration: word-tiles gesture phone pinch pan interrupted pick
     enabled: true,
     maxTouchPoints: 2,
   });
-  await openStory(page, 'four-player-match', 'light');
+  await openStory(page, 'four-player-match');
   await measureGestures(page);
   await retainEvidence(info, 'opening-board.png', {
     body: await viewport(page).screenshot(),
@@ -116,7 +116,7 @@ test('storybook integration: word-tiles gesture phone pinch pan interrupted pick
 test('storybook integration: word-tiles gesture phone opens tools immediately after a rack drop', async ({
   page,
 }) => {
-  await openStory(page, 'four-player-match', 'light');
+  await openStory(page, 'four-player-match');
   const cdp = await page.context().newCDPSession(page);
   const source = await point(rackTile(page));
   const destination = await point(centerCell(page));

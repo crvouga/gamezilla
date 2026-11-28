@@ -17,7 +17,6 @@ import {
   exampleAvatar,
   exampleSeats,
 } from '../../storybook/fixtures/game-frame-example-data';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 function SetupSeat(props: { seat: ExampleSeat }): JSX.Element {
   const open = (): boolean => props.seat.kind === 'emptySeat';
@@ -119,10 +118,8 @@ function OptionFields(): JSX.Element {
 export default function GameFrameSetupExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <For each={[1, 2, 4, 8]}>{(count) => <SeatList count={count} />}</For>
-        <OptionFields />
-      </SchemePreview>
+      <For each={[1, 2, 4, 8]}>{(count) => <SeatList count={count} />}</For>
+      <OptionFields />
     </ExampleRoot>
   );
 }

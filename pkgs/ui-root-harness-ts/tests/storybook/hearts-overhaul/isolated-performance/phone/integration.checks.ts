@@ -9,14 +9,8 @@ test.use({
 });
 
 // regression: hearts-isolated-trial-timeout
-test('storybook integration: Hearts isolated latency 390 light: five complete touch trials', async ({
+test('storybook integration: Hearts isolated latency 390: five complete touch trials', async ({
   page,
 }, info) => {
-  await measureHeartsTrials(page, info, 390, 'light');
-});
-
-test('storybook integration: Hearts isolated latency 390 dark: five complete touch trials', async ({
-  page,
-}, info) => {
-  await measureHeartsTrials(page, info, 390, 'dark');
+  await measureHeartsTrials(page, info, 390);
 });

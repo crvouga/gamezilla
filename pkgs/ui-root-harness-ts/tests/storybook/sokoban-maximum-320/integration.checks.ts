@@ -22,7 +22,7 @@ test.use({
 test('storybook integration: Sokoban close view keeps maximum-board pieces readable at 320px', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'puzzle--maximum-board', 'light');
+  await openSokoban(page, 'puzzle--maximum-board');
   const board = page.getByTestId('sokoban-board');
   await capture(page, info, 'maximum-overview-320');
   await page.getByRole('button', { name: 'Look closer' }).click();

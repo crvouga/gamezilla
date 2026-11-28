@@ -14,7 +14,7 @@ test.afterEach(async ({ page }, info) => recordEvidence(page, info));
 test('storybook integration: word-tiles pointer press keeps the square beneath release', async ({
   page,
 }) => {
-  await openStory(page, 'opening', 'light');
+  await openStory(page, 'opening');
   await page.getByTestId('game-session-board-rack-11').click();
   const target = page.getByTestId('game-session-board-cell-g8');
   const before = await target.boundingBox();

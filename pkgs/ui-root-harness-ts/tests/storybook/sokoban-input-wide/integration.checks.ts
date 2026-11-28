@@ -13,7 +13,7 @@ test.use({
 test('storybook integration: Sokoban wide touch pad keeps full targets and sends one move per tap', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'puzzle--fresh', 'dark');
+  await openSokoban(page, 'puzzle--fresh');
   const right = page.getByRole('button', { name: 'Move right' });
   const box = await right.boundingBox();
   if (!box) throw new Error('Movement control is missing');

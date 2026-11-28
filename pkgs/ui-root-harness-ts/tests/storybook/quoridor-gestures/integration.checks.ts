@@ -30,7 +30,6 @@ for (const phone of [true, false]) {
       await expectQuoridorStoryPasses(
         page,
         `screens-games-quoridor-${phone ? 'hill' : 'classic'}--direct-manipulation`,
-        'light',
         'system'
       );
       await expect(page.locator('[data-reduced-motion="true"]')).toHaveCount(0);

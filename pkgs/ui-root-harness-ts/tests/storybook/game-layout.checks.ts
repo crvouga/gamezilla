@@ -2,9 +2,7 @@ import { expect, type Locator, type Page, test } from '@playwright/test';
 
 async function openGame(page: Page, story: string, width: number) {
   await page.setViewportSize({ width, height: 900 });
-  await page.goto(
-    `/iframe.html?id=${story}&viewMode=story&globals=theme:light`
-  );
+  await page.goto(`/iframe.html?id=${story}&viewMode=story`);
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
     'true'

@@ -35,14 +35,14 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-async function openArena(page: Page, story: string, theme: string) {
+async function openArena(page: Page, story: string) {
   await page.route('**/*', (route) =>
     new URL(route.request().url()).hostname === '127.0.0.1'
       ? route.continue()
       : route.abort()
   );
   await page.goto(
-    `/iframe.html?id=screens-games-light-cycles-stage--${story}&viewMode=story&globals=theme:${theme};motion:system`
+    `/iframe.html?id=screens-games-light-cycles-stage--${story}&viewMode=story&globals=motion:system`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -105,68 +105,65 @@ async function accessibility(page: Page, info: TestInfo) {
 }
 
 for (const screen of screens) {
-  for (const theme of ['light', 'dark']) {
-    for (const variant of variants) {
-      test(`storybook integration: light-cycles evidence ${variant} ${screen.width} ${theme}`, async ({
-        page,
-      }, info) => {
-        const errors: string[] = [];
-        page.on('pageerror', (error) => errors.push(error.message));
-        await page.setViewportSize(screen);
-        const cpuRate = screen.width === 390 ? 4 : 1;
-        await openArena(page, variant, theme);
-        await capture(page, info, 'before-input');
-        const arena = await page
-          .getByTestId('game-session-board-arena')
-          .boundingBox();
-        if (!arena) throw new Error('Arena missing from viewport audit');
-        expect(arena.x).toBeGreaterThanOrEqual(0);
-        expect(arena.x + arena.width).toBeLessThanOrEqual(screen.width);
-        expect(arena.y + arena.height).toBeLessThanOrEqual(screen.height);
-        const measurements = await measureSteering(page, cpuRate);
-        expect(measurements.inputToPaintMs).toHaveLength(6 * STEERING_TRIALS);
-        // regression: player-chip-grows-when-a-badge-appears — a seat going
-        // Out during play must not move the arena.
-        const settled = await page
-          .getByTestId('game-session-board-arena')
-          .boundingBox();
-        expect(Math.abs((settled?.y ?? 0) - arena.y)).toBeLessThanOrEqual(0.5);
-        expect(
-          Math.abs((settled?.height ?? 0) - arena.height)
-        ).toBeLessThanOrEqual(0.5);
-        logEvidence('TIMING', {
-          test: info.title,
-          kind: 'keyboard',
-          cpuRate,
-          inputToPaintMs: {
-            p50: percentile(measurements.inputToPaintMs, 0.5),
-            p95: percentile(measurements.inputToPaintMs, 0.95),
-            max: percentile(measurements.inputToPaintMs, 1),
-          },
-          frameP95Ms: percentile(measurements.frameMs, 0.95),
-          longTasks: longTasks(measurements.longTasksMs),
-        });
-        await info.attach('responsiveness.json', {
-          body: JSON.stringify(
-            {
-              variant,
-              screen,
-              theme,
-              cpuRate,
-              samples: measurements,
-              limits:
-                'Four fresh six-input trials (24 inputs). Storybook loading and axe run at normal CPU; only the input window uses the recorded CPU rate. Deterministic production-step fixture. Event dispatch to second animation frame is a paint-opportunity bound, not physical display latency. No live network or continuous simulation claim. CPU throttling is not a physical low-end phone.',
-            },
-            null,
-            2
-          ),
-          contentType: 'application/json',
-        });
-        await capture(page, info, 'after-input');
-        await accessibility(page, info);
-        expect(errors).toEqual([]);
+  for (const variant of variants) {
+    test(`storybook integration: light-cycles evidence ${variant} ${screen.width} dark`, async ({
+      page,
+    }, info) => {
+      const errors: string[] = [];
+      page.on('pageerror', (error) => errors.push(error.message));
+      await page.setViewportSize(screen);
+      const cpuRate = screen.width === 390 ? 4 : 1;
+      await openArena(page, variant);
+      await capture(page, info, 'before-input');
+      const arena = await page
+        .getByTestId('game-session-board-arena')
+        .boundingBox();
+      if (!arena) throw new Error('Arena missing from viewport audit');
+      expect(arena.x).toBeGreaterThanOrEqual(0);
+      expect(arena.x + arena.width).toBeLessThanOrEqual(screen.width);
+      expect(arena.y + arena.height).toBeLessThanOrEqual(screen.height);
+      const measurements = await measureSteering(page, cpuRate);
+      expect(measurements.inputToPaintMs).toHaveLength(6 * STEERING_TRIALS);
+      // regression: player-chip-grows-when-a-badge-appears — a seat going
+      // Out during play must not move the arena.
+      const settled = await page
+        .getByTestId('game-session-board-arena')
+        .boundingBox();
+      expect(Math.abs((settled?.y ?? 0) - arena.y)).toBeLessThanOrEqual(0.5);
+      expect(
+        Math.abs((settled?.height ?? 0) - arena.height)
+      ).toBeLessThanOrEqual(0.5);
+      logEvidence('TIMING', {
+        test: info.title,
+        kind: 'keyboard',
+        cpuRate,
+        inputToPaintMs: {
+          p50: percentile(measurements.inputToPaintMs, 0.5),
+          p95: percentile(measurements.inputToPaintMs, 0.95),
+          max: percentile(measurements.inputToPaintMs, 1),
+        },
+        frameP95Ms: percentile(measurements.frameMs, 0.95),
+        longTasks: longTasks(measurements.longTasksMs),
       });
-    }
+      await info.attach('responsiveness.json', {
+        body: JSON.stringify(
+          {
+            variant,
+            screen,
+            cpuRate,
+            samples: measurements,
+            limits:
+              'Four fresh six-input trials (24 inputs). Storybook loading and axe run at normal CPU; only the input window uses the recorded CPU rate. Deterministic production-step fixture. Event dispatch to second animation frame is a paint-opportunity bound, not physical display latency. No live network or continuous simulation claim. CPU throttling is not a physical low-end phone.',
+          },
+          null,
+          2
+        ),
+        contentType: 'application/json',
+      });
+      await capture(page, info, 'after-input');
+      await accessibility(page, info);
+      expect(errors).toEqual([]);
+    });
   }
 }
 
@@ -183,19 +180,17 @@ for (const state of [
   'resumed-steering',
   'shared-keyboard',
 ]) {
-  for (const theme of ['light', 'dark']) {
-    // The phone size keeps its original title; tablet and desktop add theirs.
-    for (const screen of [null, screens[1], screens[2]]) {
-      const size = screen === null ? '' : ` ${screen.width}`;
-      test(`storybook integration: light-cycles evidence ${state} ${theme}${size}`, async ({
-        page,
-      }, info) => {
-        if (screen !== null) await page.setViewportSize(screen);
-        await openArena(page, state, theme);
-        await capture(page, info, state);
-        await accessibility(page, info);
-      });
-    }
+  // The phone size keeps its original title; tablet and desktop add theirs.
+  for (const screen of [null, screens[1], screens[2]]) {
+    const size = screen === null ? '' : ` ${screen.width}`;
+    test(`storybook integration: light-cycles evidence ${state} dark${size}`, async ({
+      page,
+    }, info) => {
+      if (screen !== null) await page.setViewportSize(screen);
+      await openArena(page, state);
+      await capture(page, info, state);
+      await accessibility(page, info);
+    });
   }
 }
 
@@ -203,7 +198,7 @@ test('storybook integration: light-cycles evidence desktop mouse drag steers', a
   page,
 }, info) => {
   await page.setViewportSize(screens[2]);
-  await openArena(page, 'duel-steering', 'light');
+  await openArena(page, 'duel-steering');
   const arena = page.getByTestId('game-session-board-arena');
   const bounds = await arena.boundingBox();
   if (!bounds) throw new Error('Missing desktop arena');
@@ -231,7 +226,7 @@ test('storybook integration: light-cycles evidence shared native pointer', async
 test('storybook integration: light-cycles evidence simultaneous native touch', async ({
   page,
 }, info) => {
-  await openArena(page, 'shared-swipe', 'light');
+  await openArena(page, 'shared-swipe');
   await capture(page, info, 'before-touch');
   await sharedNativeTouch(page);
   await capture(page, info, 'after-touch');
@@ -242,7 +237,7 @@ test('storybook integration: light-cycles evidence native Tab focus and first st
   page,
 }, info) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await openArena(page, 'duel-steering', 'light');
+  await openArena(page, 'duel-steering');
   const arena = page.getByTestId('game-session-board-arena');
   await expect(arena).toBeFocused();
   await page.keyboard.press('Shift+Tab');
@@ -268,7 +263,7 @@ test('storybook integration: light-cycles evidence Quad measures every active in
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openArena(page, 'quad-steering', 'light');
+  await openArena(page, 'quad-steering');
   const measurements = await measureSteering(page, 4);
   expect(measurements.inputToPaintMs).toHaveLength(6 * STEERING_TRIALS);
   expect(measurements.frameMs.length).toBeGreaterThan(0);
@@ -282,7 +277,7 @@ for (const variant of ['duel', 'trio', 'quad']) {
     }, info) => {
       const cdp = await page.context().newCDPSession(page);
       await page.goto(
-        `/iframe.html?id=screens-games-light-cycles-stage-motion--${variant}&viewMode=story&globals=theme:dark;motion:system`
+        `/iframe.html?id=screens-games-light-cycles-stage-motion--${variant}&viewMode=story&globals=motion:system`
       );
       await expect(page.locator('#storybook-root')).toHaveAttribute(
         'data-story-ready',
@@ -305,7 +300,7 @@ for (const variant of ['trio', 'quad']) {
     await page.setViewportSize({ width: 390, height: 844 });
     const cdp = await page.context().newCDPSession(page);
     await page.goto(
-      `/iframe.html?id=screens-games-light-cycles-stage-motion--${variant}&viewMode=story&globals=theme:dark;motion:system`
+      `/iframe.html?id=screens-games-light-cycles-stage-motion--${variant}&viewMode=story&globals=motion:system`
     );
     await expect(page.locator('#storybook-root')).toHaveAttribute(
       'data-story-ready',

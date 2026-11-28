@@ -2,12 +2,8 @@ import { expect, type Page, type TestInfo } from '@playwright/test';
 import { captureChessState, openChessStory, squareCenter } from './evidence';
 
 /** Records the same click-only gesture on baseline and candidate without hiding failures. */
-export async function captureAssistiveActivation(
-  page: Page,
-  info: TestInfo,
-  theme: string
-) {
-  await openChessStory(page, 'product-chessboard--initial', theme);
+export async function captureAssistiveActivation(page: Page, info: TestInfo) {
+  await openChessStory(page, 'product-chessboard--initial');
   await page.locator('[data-square="e2"]').evaluate((node) => {
     (node as HTMLButtonElement).click();
   });
@@ -35,12 +31,8 @@ export async function captureAssistiveActivation(
   expect(taskCompleted).toBe(true);
 }
 
-export async function capturePromotion(
-  page: Page,
-  info: TestInfo,
-  theme: string
-) {
-  await openChessStory(page, 'product-chessboard--promotion', theme);
+export async function capturePromotion(page: Page, info: TestInfo) {
+  await openChessStory(page, 'product-chessboard--promotion');
   for (const square of ['a7', 'a8']) {
     const point = await squareCenter(page, square);
     await page.mouse.click(point.x, point.y);

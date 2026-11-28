@@ -14,7 +14,6 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const noop = (): void => undefined;
 
@@ -88,19 +87,17 @@ function Spaces(): JSX.Element {
 export default function ListExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <StackVertical gap="xl">
-          <People />
-          <Spaces />
-          <ExampleSection title="separator={false}">
-            <List separator={false}>
-              <ListItem title="Item A" />
-              <ListItem title="Item B" />
-              <ListItem title="Item C" />
-            </List>
-          </ExampleSection>
-        </StackVertical>
-      </SchemePreview>
+      <StackVertical gap="xl">
+        <People />
+        <Spaces />
+        <ExampleSection title="separator={false}">
+          <List separator={false}>
+            <ListItem title="Item A" />
+            <ListItem title="Item B" />
+            <ListItem title="Item C" />
+          </List>
+        </ExampleSection>
+      </StackVertical>
     </ExampleRoot>
   );
 }

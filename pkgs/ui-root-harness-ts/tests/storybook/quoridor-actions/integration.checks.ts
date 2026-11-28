@@ -1,23 +1,21 @@
 import { expect, type Page, test } from '@playwright/test';
 
 for (const width of [390, 768, 1440]) {
-  for (const theme of ['light', 'dark']) {
-    // regression: quoridor-forced-pass-buried
-    test(`storybook integration: mandatory Hill pass remains readable at ${width} ${theme}`, async ({
-      page,
-    }) => {
-      await checkReadout(page, width, theme);
-    });
-  }
+  // regression: quoridor-forced-pass-buried
+  test(`storybook integration: mandatory Hill pass remains readable at ${width} dark`, async ({
+    page,
+  }) => {
+    await checkReadout(page, width);
+  });
 }
 
-async function checkReadout(page: Page, width: number, theme: string) {
+async function checkReadout(page: Page, width: number) {
   await page.setViewportSize({
     width,
     height: width === 390 ? 844 : width === 768 ? 1024 : 900,
   });
   await page.goto(
-    `/iframe.html?id=screens-games-quoridor-hill--must-pass&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=screens-games-quoridor-hill--must-pass&viewMode=story`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -76,10 +74,10 @@ async function checkReadout(page: Page, width: number, theme: string) {
 }
 
 // regression: storybook-hill-tools-observation
-test('storybook integration: mandatory Hill pass has the sole legal command at 390 light', async ({
+test('storybook integration: mandatory Hill pass has the sole legal command at 390', async ({
   page,
 }) => {
-  await checkReadout(page, 390, 'light');
+  await checkReadout(page, 390);
 });
 
 test.afterEach(async ({ page }, testInfo) => {

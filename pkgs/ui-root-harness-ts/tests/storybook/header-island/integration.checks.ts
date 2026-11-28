@@ -56,7 +56,7 @@ for (const state of [
     }) => {
       await page.setViewportSize({ width, height: 844 });
       await page.goto(
-        `/iframe.html?id=screens-shell-header-island--${state}&viewMode=story&globals=theme:light`
+        `/iframe.html?id=screens-shell-header-island--${state}&viewMode=story`
       );
       await expect(page.locator('#storybook-root')).toHaveAttribute(
         'data-story-ready',

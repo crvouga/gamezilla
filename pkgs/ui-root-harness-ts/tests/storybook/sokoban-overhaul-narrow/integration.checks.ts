@@ -11,8 +11,8 @@ test.use({
 
 // regression: sokoban-narrow-feedback-moves-controls
 // regression: sokoban-solved-way-on-hidden
-test('storybook integration: Sokoban overhaul solve and recover 320/light', async ({
+test('storybook integration: Sokoban overhaul solve and recover 320', async ({
   page,
 }, info) => {
-  await solveAndRecover(page, info, viewport, 'light');
+  await solveAndRecover(page, info, viewport);
 });

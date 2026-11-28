@@ -14,7 +14,6 @@ import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { JSX } from '@solidjs/web';
 import { createSignal, For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const LOAD_DEMO_MS = 2000;
 const FEEDBACK_DEMO_MS = 900;
@@ -67,9 +66,8 @@ function VariantBlock(props: {
   return (
     <>
       <SectionLabel label={props.label} />
-      <SchemePreview>
-        <ButtonRow intent={props.intent} variant={props.variant} />
-      </SchemePreview>
+
+      <ButtonRow intent={props.intent} variant={props.variant} />
     </>
   );
 }
@@ -104,28 +102,27 @@ function FeedbackBlock(): JSX.Element {
   return (
     <>
       <SectionLabel label="Feedback (loading → success / error, tap to retry)" />
-      <SchemePreview>
-        <div class="box flex-col gap-2">
-          <Button {...succeed.buttonProps} />
-          <Button intent="primary" {...fail.buttonProps} />
-          <div class="box flex-row flex-wrap items-center gap-2">
-            <Button title="Saved" feedback="success" successLabel="Saved" />
-            <Button
-              title="Save"
-              feedback="error"
-              errorLabel="Couldn't save"
-              onRetry={() => undefined}
-            />
-            <Button
-              title="Delete"
-              intent="danger"
-              icon={Trash2Icon}
-              loading
-              loadingLabel="Deleting…"
-            />
-          </div>
+
+      <div class="box flex-col gap-2">
+        <Button {...succeed.buttonProps} />
+        <Button intent="primary" {...fail.buttonProps} />
+        <div class="box flex-row flex-wrap items-center gap-2">
+          <Button title="Saved" feedback="success" successLabel="Saved" />
+          <Button
+            title="Save"
+            feedback="error"
+            errorLabel="Couldn't save"
+            onRetry={() => undefined}
+          />
+          <Button
+            title="Delete"
+            intent="danger"
+            icon={Trash2Icon}
+            loading
+            loadingLabel="Deleting…"
+          />
         </div>
-      </SchemePreview>
+      </div>
     </>
   );
 }
@@ -134,21 +131,20 @@ function SizesBlock(): JSX.Element {
   return (
     <>
       <SectionLabel label="Sizes" />
-      <SchemePreview>
-        <div class="box flex-col gap-2">
-          <div class="box flex-row flex-wrap items-center gap-2">
-            <Button title="Small · 32 (44 hit area)" size="sm" />
-            <Button title="Medium · 44" size="md" />
-            <Button title="Large · 52" size="lg" />
-          </div>
-          <div class="box flex-row flex-wrap items-center gap-2">
-            <Button title="Add" size="sm" icon={PlusIcon} intent="neutral" />
-            <Button title="Add" size="md" icon={PlusIcon} intent="neutral" />
-            <Button title="Add" size="lg" icon={PlusIcon} intent="neutral" />
-          </div>
-          <Button title="Full width" size="lg" fullWidth />
+
+      <div class="box flex-col gap-2">
+        <div class="box flex-row flex-wrap items-center gap-2">
+          <Button title="Small · 32 (44 hit area)" size="sm" />
+          <Button title="Medium · 44" size="md" />
+          <Button title="Large · 52" size="lg" />
         </div>
-      </SchemePreview>
+        <div class="box flex-row flex-wrap items-center gap-2">
+          <Button title="Add" size="sm" icon={PlusIcon} intent="neutral" />
+          <Button title="Add" size="md" icon={PlusIcon} intent="neutral" />
+          <Button title="Add" size="lg" icon={PlusIcon} intent="neutral" />
+        </div>
+        <Button title="Full width" size="lg" fullWidth />
+      </div>
     </>
   );
 }
@@ -159,19 +155,18 @@ function LockedBlock(): JSX.Element {
   return (
     <>
       <SectionLabel label="Locked (waits on an earlier step; still pressable)" />
-      <SchemePreview>
-        <div class="box flex-row flex-wrap items-center gap-2">
-          <Button title="Start playtest" />
-          <Button
-            title="Publish"
-            intent="neutral"
-            variant="ghost"
-            locked
-            onClick={() => setPressed((count) => count + 1)}
-          />
-          <p class="text textCaption">{`Pressed ${pressed()} times`}</p>
-        </div>
-      </SchemePreview>
+
+      <div class="box flex-row flex-wrap items-center gap-2">
+        <Button title="Start playtest" />
+        <Button
+          title="Publish"
+          intent="neutral"
+          variant="ghost"
+          locked
+          onClick={() => setPressed((count) => count + 1)}
+        />
+        <p class="text textCaption">{`Pressed ${pressed()} times`}</p>
+      </div>
     </>
   );
 }

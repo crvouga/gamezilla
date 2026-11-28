@@ -10,6 +10,6 @@ test('storybook integration: connect-four desktop recording keeps its 1440 by 10
   browser,
   page,
 }, info) => {
-  await openBoard(page, 'drop-a-disc', 'light');
+  await openBoard(page, 'drop-a-disc');
   await verifyRecordingCanvas(browser, page, info);
 });

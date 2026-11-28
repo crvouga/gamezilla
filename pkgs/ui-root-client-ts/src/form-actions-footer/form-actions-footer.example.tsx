@@ -3,7 +3,6 @@ import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { FormActionsFooter } from '@pkgs/ui-root-client-ts/form-actions-footer';
 import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const SAVE_DEMO_MS = 900;
 
@@ -33,19 +32,18 @@ export default function FormActionsFooterExample(): JSX.Element {
         }
       </p>
       <label class="text textLabel text-text-secondary">{'Succeeds'}</label>
-      <SchemePreview>
-        <FormActionsFooter
-          cancel={{ label: 'Cancel', onClick: () => undefined }}
-          submit={{ ...SUBMIT_LABELS, operation: save }}
-        />
-      </SchemePreview>
+
+      <FormActionsFooter
+        cancel={{ label: 'Cancel', onClick: () => undefined }}
+        submit={{ ...SUBMIT_LABELS, operation: save }}
+      />
+
       <label class="text textLabel text-text-secondary">{'Fails'}</label>
-      <SchemePreview>
-        <FormActionsFooter
-          cancel={{ label: 'Cancel', onClick: () => undefined }}
-          submit={{ ...SUBMIT_LABELS, operation: failingSave }}
-        />
-      </SchemePreview>
+
+      <FormActionsFooter
+        cancel={{ label: 'Cancel', onClick: () => undefined }}
+        submit={{ ...SUBMIT_LABELS, operation: failingSave }}
+      />
     </ExampleRoot>
   );
 }

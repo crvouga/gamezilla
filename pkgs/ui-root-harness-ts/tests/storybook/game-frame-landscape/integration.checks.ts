@@ -2,10 +2,8 @@ import { expect, type Page, test } from '@playwright/test';
 
 test.use({ trace: 'on', hasTouch: true });
 
-async function openStory(page: Page, id: string, theme: string) {
-  await page.goto(
-    `/iframe.html?id=${id}&viewMode=story&globals=theme:${theme}`
-  );
+async function openStory(page: Page, id: string) {
+  await page.goto(`/iframe.html?id=${id}&viewMode=story`);
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
     'true'
@@ -20,9 +18,9 @@ async function box(page: Page, selector: string, index = 0) {
 }
 
 /** The board, both seats and the way to the commands in view, side by side. */
-async function checkLandscapeFrame(page: Page, theme: string) {
+async function checkLandscapeFrame(page: Page) {
   await page.setViewportSize({ width: 844, height: 390 });
-  await openStory(page, 'screens-games-chess-board--your-turn', theme);
+  await openStory(page, 'screens-games-chess-board--your-turn');
   const board = await box(page, '[data-game-board]');
   for (const seat of await page
     .locator('[data-component="GamePlayerBar"]')
@@ -49,14 +47,8 @@ async function checkLandscapeFrame(page: Page, theme: string) {
 }
 
 // regression: game-frame-board-below-short-landscape-fold
-test('storybook integration: chess game frame 844x390 light keeps board, seats and actions in view', async ({
+test('storybook integration: chess game frame 844x390 keeps board, seats and actions in view', async ({
   page,
 }) => {
-  await checkLandscapeFrame(page, 'light');
-});
-
-test('storybook integration: chess game frame 844x390 dark keeps board, seats and actions in view', async ({
-  page,
-}) => {
-  await checkLandscapeFrame(page, 'dark');
+  await checkLandscapeFrame(page);
 });

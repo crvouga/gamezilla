@@ -153,7 +153,6 @@ for (const width of [390, 1440]) {
         await openChessStory(
           page,
           'product-chessboard--gesture-play',
-          'light',
           motion === 'reduce' ? 'reduced' : 'system'
         );
         await capture(page, info, 'fitted');

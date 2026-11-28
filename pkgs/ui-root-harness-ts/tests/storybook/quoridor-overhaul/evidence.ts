@@ -50,10 +50,9 @@ export async function observeQuoridorInput(page: Page): Promise<void> {
 export async function recordQuoridorState(
   page: Page,
   info: TestInfo,
-  story: string,
-  theme: string
+  story: string
 ): Promise<void> {
-  const playMilliseconds = await testStoryReady(page, story, theme);
+  const playMilliseconds = await testStoryReady(page, story);
   // Read timing before axe so its audit work is not counted as board long tasks.
   const metrics = await page.evaluate(
     () => (window as unknown as { quoridorMetrics: unknown }).quoridorMetrics
@@ -69,7 +68,7 @@ export async function recordQuoridorState(
       (v) => v.impact === 'serious' || v.impact === 'critical'
     )
   ).toEqual([]);
-  await info.attach(`${story}-${theme}`, {
+  await info.attach(`${story}-dark`, {
     body: await page.screenshot({ fullPage: true }),
     contentType: 'image/png',
   });
@@ -77,7 +76,6 @@ export async function recordQuoridorState(
     body: JSON.stringify(
       {
         viewport: page.viewportSize(),
-        theme,
         playMilliseconds,
         metrics,
         limits:
@@ -93,20 +91,18 @@ export async function recordQuoridorState(
 /** Loads a story once before measurement so later captures start from a warm bundle. */
 export async function warmQuoridorStory(
   page: Page,
-  story: string,
-  theme: string
+  story: string
 ): Promise<void> {
-  await testStoryReady(page, story, theme);
+  await testStoryReady(page, story);
 }
 
 /** The story's own play (its assertions) completed without error. */
 export async function expectQuoridorStoryPasses(
   page: Page,
   story: string,
-  theme: string,
   motion: 'reduced' | 'system' = 'reduced'
 ): Promise<void> {
-  await testStoryReady(page, story, theme, motion);
+  await testStoryReady(page, story, motion);
 }
 
 /** Longest a story's scripted play may take before it counts as stuck. */
@@ -115,12 +111,11 @@ const STORY_READY_MS = 30_000;
 async function testStoryReady(
   page: Page,
   story: string,
-  theme: string,
   motion: 'reduced' | 'system' = 'reduced'
 ): Promise<number> {
   const started = Date.now();
   await page.goto(
-    `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme};motion:${motion}`
+    `/iframe.html?id=${story}&viewMode=story&globals=motion:${motion}`
   );
   // How long the scripted play takes is recorded (playMilliseconds), never
   // asserted; under 4x CPU throttling on a 2-core runner the longer plays

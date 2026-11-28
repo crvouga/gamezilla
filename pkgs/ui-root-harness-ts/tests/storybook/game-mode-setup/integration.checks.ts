@@ -24,7 +24,6 @@ for (const screen of screens) {
     await verifyStoryScenario(page, screen.story, {
       width: 390,
       height: 844,
-      theme: 'light',
       globals: {},
       suffix: '',
     });

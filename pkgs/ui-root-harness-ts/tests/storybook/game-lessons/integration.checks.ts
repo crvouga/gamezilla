@@ -58,7 +58,7 @@ for (const [id, move] of Object.entries(moves)) {
   }, info) => {
     await page.setViewportSize({ width: 1280, height: 1000 });
     await page.goto(
-      `/iframe.html?id=screens-game-home-how-to-play--first-move&args=gameId:${id}&viewMode=story&globals=theme:light`
+      `/iframe.html?id=screens-game-home-how-to-play--first-move&args=gameId:${id}&viewMode=story`
     );
     const prompt = page.getByTestId('practice-prompt');
     await expect(prompt).toBeVisible();

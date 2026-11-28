@@ -13,7 +13,6 @@ import type { JSX } from '@solidjs/web';
 import { createSignal, For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const ICONS = [ClockIcon, BellIcon, HeartIcon] as const;
 
@@ -21,47 +20,46 @@ export default function IconExample(): JSX.Element {
   const [index, setIndex] = createSignal(0);
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <ExampleSection title="size">
-          <StackHorizontal gap="md" align="end">
-            <For each={ICON_SIZE_TOKENS}>
-              {(size) => (
-                <StackVertical gap="xs" align="center">
-                  <Icon icon={ClockIcon} size={size} />
-                  <Text variant="footnote">{size}</Text>
-                </StackVertical>
-              )}
-            </For>
-          </StackHorizontal>
-        </ExampleSection>
-        <ExampleSection title="tone (unset follows the surface)">
-          <StackHorizontal gap="md" wrap>
-            <Icon icon={BellIcon} />
-            <For each={COLOR_TONES}>
-              {(tone) => (
-                <StackVertical gap="xs" align="center">
-                  <div
-                    class={[
-                      'box rounded-sm p-1',
-                      { 'bg-tint-active': tone === 'on-primary' },
-                    ]}
-                  >
-                    <Icon icon={BellIcon} tone={tone} />
-                  </div>
-                  <Text variant="footnote">{tone}</Text>
-                </StackVertical>
-              )}
-            </For>
-          </StackHorizontal>
-        </ExampleSection>
-        <ExampleSection title="bold, label">
-          <StackHorizontal gap="md">
-            <Icon icon={HeartIcon} />
-            <Icon icon={HeartIcon} bold />
-            <Icon icon={HeartIcon} tone="destructive" label="Liked" />
-          </StackHorizontal>
-        </ExampleSection>
-      </SchemePreview>
+      <ExampleSection title="size">
+        <StackHorizontal gap="md" align="end">
+          <For each={ICON_SIZE_TOKENS}>
+            {(size) => (
+              <StackVertical gap="xs" align="center">
+                <Icon icon={ClockIcon} size={size} />
+                <Text variant="footnote">{size}</Text>
+              </StackVertical>
+            )}
+          </For>
+        </StackHorizontal>
+      </ExampleSection>
+      <ExampleSection title="tone (unset follows the surface)">
+        <StackHorizontal gap="md" wrap>
+          <Icon icon={BellIcon} />
+          <For each={COLOR_TONES}>
+            {(tone) => (
+              <StackVertical gap="xs" align="center">
+                <div
+                  class={[
+                    'box rounded-sm p-1',
+                    { 'bg-tint-active': tone === 'on-primary' },
+                  ]}
+                >
+                  <Icon icon={BellIcon} tone={tone} />
+                </div>
+                <Text variant="footnote">{tone}</Text>
+              </StackVertical>
+            )}
+          </For>
+        </StackHorizontal>
+      </ExampleSection>
+      <ExampleSection title="bold, label">
+        <StackHorizontal gap="md">
+          <Icon icon={HeartIcon} />
+          <Icon icon={HeartIcon} bold />
+          <Icon icon={HeartIcon} tone="destructive" label="Liked" />
+        </StackHorizontal>
+      </ExampleSection>
+
       <ExampleSection title="an icon held in a value follows the value">
         <StackHorizontal gap="md" align="center">
           <Icon icon={ICONS[index()] ?? ClockIcon} size="xl" tone="tint" />

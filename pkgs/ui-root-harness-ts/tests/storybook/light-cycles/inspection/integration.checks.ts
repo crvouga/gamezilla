@@ -11,7 +11,7 @@ test.use({ video: { mode: 'on', size: { width: 1440, height: 900 } } });
 
 async function open(page: Page, story: string) {
   await page.goto(
-    `/iframe.html?id=${story}&viewMode=story&globals=theme:dark;motion:system`
+    `/iframe.html?id=${story}&viewMode=story&globals=motion:system`
   );
   const arena = page.getByTestId('game-session-board-arena');
   await expect(page.locator('#storybook-root')).toHaveAttribute(

@@ -8,7 +8,7 @@ test('screens-games-hearts-board--your-turn-to-play regression hearts-trick-card
   await verifyStoryScenario(
     page,
     'screens-games-hearts-board--your-turn-to-play',
-    { width: 1280, height: 800, theme: 'light', globals: {}, suffix: '' }
+    { width: 1280, height: 800, globals: {}, suffix: '' }
   );
 });
 
@@ -19,7 +19,7 @@ test('screens-games-hearts-board--your-turn-to-play regression hearts-unavailabl
   await verifyStoryScenario(
     page,
     'screens-games-hearts-board--your-turn-to-play',
-    { width: 390, height: 844, theme: 'light', globals: {}, suffix: '' }
+    { width: 390, height: 844, globals: {}, suffix: '' }
   );
 });
 
@@ -30,7 +30,6 @@ test('screens-space-join--live regression space-join-badge-above-title', async (
   await verifyStoryScenario(page, 'screens-space-join--live', {
     width: 390,
     height: 844,
-    theme: 'light',
     globals: {},
     suffix: '',
   });
@@ -43,7 +42,6 @@ test('screens-space-ended--long-content regression space-recovery-off-center', a
   await verifyStoryScenario(page, 'screens-space-ended--long-content', {
     width: 1280,
     height: 800,
-    theme: 'light',
     globals: {},
     suffix: '',
   });
@@ -60,7 +58,6 @@ test('screens-spaces-share--added regression space-share-toast-covers-close', as
     await verifyStoryScenario(page, 'screens-spaces-share--added', {
       width,
       height,
-      theme: 'light',
       globals: {},
       suffix: '',
     });
@@ -88,7 +85,7 @@ test('screens-games-word-tiles-board--four-player-match regression word-tiles-en
   await verifyStoryScenario(
     page,
     'screens-games-word-tiles-board--four-player-match',
-    { width: 390, height: 844, theme: 'light', globals: {}, suffix: '' }
+    { width: 390, height: 844, globals: {}, suffix: '' }
   );
 });
 
@@ -99,7 +96,7 @@ test('screens-games-word-tiles-puzzle--reach-target regression word-tiles-puzzle
   await verifyStoryScenario(
     page,
     'screens-games-word-tiles-puzzle--reach-target',
-    { width: 1280, height: 800, theme: 'light', globals: {}, suffix: '' }
+    { width: 1280, height: 800, globals: {}, suffix: '' }
   );
 });
 
@@ -110,7 +107,6 @@ test('screens-games-chess-board--early-game regression chess-early-game-side-mar
   await verifyStoryScenario(page, 'screens-games-chess-board--early-game', {
     width: 390,
     height: 844,
-    theme: 'light',
     globals: {},
     suffix: '',
   });
@@ -127,7 +123,7 @@ test('screens-games-quoridor-hill--four-player-round regression quoridor-hill-ca
     await verifyStoryScenario(
       page,
       'screens-games-quoridor-hill--four-player-round',
-      { width, height, theme: 'light', globals: {}, suffix: '' }
+      { width, height, globals: {}, suffix: '' }
     );
     await page.screenshot({ path: info.outputPath(`hill-round-${width}.png`) });
   }

@@ -29,7 +29,6 @@ const meta = {
 } satisfies Meta<typeof Switch>;
 export default meta;
 
-/** Representative variants, themes and interaction states from the production contract. */
 export const States: StoryObj = {
   tags: ['!manifest'],
   parameters: { controls: { disable: true } },

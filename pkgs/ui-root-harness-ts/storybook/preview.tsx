@@ -104,7 +104,6 @@ const withProviders = createJSXDecorator((Story, context) => {
     <I18nProvider i18n={i18n}>
       <ClockProvider clock={harness.clock} timers={harness.timers}>
         <ThemeProvider
-          colorScheme={context.globals['theme'] === 'dark' ? 'dark' : 'light'}
           reducedMotion={storyReducedMotion(context.globals)}
           transparent
         >
@@ -130,7 +129,6 @@ export default {
     },
   ],
   initialGlobals: {
-    theme: 'light',
     spaceGame: 'light-cycles',
     spaceRole: 'guest',
     motion: 'reduced',
@@ -155,10 +153,6 @@ export default {
     motion: {
       description: 'Reduced for stable screenshots; system follows the browser',
       toolbar: { icon: 'play', items: ['reduced', 'system'] },
-    },
-    theme: {
-      description: 'Production color scheme',
-      toolbar: { icon: 'circlehollow', items: ['light', 'dark'] },
     },
     // Space screen stories read these; every other story ignores them.
     spaceGame: {

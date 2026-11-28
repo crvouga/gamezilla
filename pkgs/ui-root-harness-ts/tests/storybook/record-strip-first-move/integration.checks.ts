@@ -5,7 +5,7 @@ test.use({ video: 'on', trace: 'on' });
 /** Where the board starts, and the moves' line over it. */
 async function boardGeometry(page: Page, story: string) {
   await page.goto(
-    `/iframe.html?id=screens-games-battleship-board--${story}&viewMode=story&globals=theme:light`
+    `/iframe.html?id=screens-games-battleship-board--${story}&viewMode=story`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

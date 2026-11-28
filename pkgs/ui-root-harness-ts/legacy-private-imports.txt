@@ -1,1 +1,0 @@
-tests/storybook-fixtures.test.tsx -> pkgs/ui-root-client-ts/storybook/fixtures/scheme-preview

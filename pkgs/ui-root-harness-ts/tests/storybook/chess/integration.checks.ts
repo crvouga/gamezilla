@@ -18,7 +18,7 @@ test('a 1280x800 chess puzzle keeps the first rank above the action dock', async
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 800 });
-  await openChessStory(page, 'screens-games-chess-puzzle--solving', 'dark');
+  await openChessStory(page, 'screens-games-chess-puzzle--solving');
   const king = await page
     .getByRole('button', { name: /^e1, White king/ })
     .boundingBox();
@@ -33,11 +33,7 @@ test('storybook integration: chess tablet recovery keeps every square anchored',
   page,
 }, info) => {
   await page.setViewportSize({ width: 768, height: 900 });
-  await openChessStory(
-    page,
-    'screens-games-chess-puzzle--wrong-move-recovery',
-    'light'
-  );
+  await openChessStory(page, 'screens-games-chess-puzzle--wrong-move-recovery');
   await captureChessState(page, info, 'tablet-recovery');
 });
 
@@ -48,11 +44,7 @@ test('storybook integration: chess puzzle 320x640 Retry brings the whole board b
   await page.setViewportSize({ width: 320, height: 640 });
   // The story reaches Retry below the fold, then requires every square
   // unclipped by the scrolling screen after it.
-  await openChessStory(
-    page,
-    'screens-games-chess-puzzle--wrong-move-recovery',
-    'light'
-  );
+  await openChessStory(page, 'screens-games-chess-puzzle--wrong-move-recovery');
   const board = await page
     .locator('[data-component="ChessBoard"]')
     .boundingBox();
@@ -66,7 +58,7 @@ test('storybook integration: chess puzzle 844x390 shows every square beside its 
   page,
 }) => {
   await page.setViewportSize({ width: 844, height: 390 });
-  await openChessStory(page, 'screens-games-chess-puzzle--solving', 'light');
+  await openChessStory(page, 'screens-games-chess-puzzle--solving');
   const board = await page
     .locator('[data-component="ChessBoard"]')
     .boundingBox();
@@ -91,11 +83,7 @@ test('storybook integration: chess puzzle 844x390 opens keyboard help with every
 }) => {
   await page.setViewportSize({ width: 844, height: 390 });
   // The story opens Keyboard controls and asserts every square stays in view.
-  await openChessStory(
-    page,
-    'screens-games-chess-puzzle--keyboard-help',
-    'light'
-  );
+  await openChessStory(page, 'screens-games-chess-puzzle--keyboard-help');
   const summary = await page.getByText('Keyboard controls').boundingBox();
   if (!summary) throw new Error('Missing Keyboard controls');
   expect(summary.y + summary.height).toBeLessThanOrEqual(390);
@@ -106,7 +94,7 @@ test('storybook integration: chess puzzle 768x900 keeps Hint and Skip in the fir
   page,
 }) => {
   await page.setViewportSize({ width: 768, height: 900 });
-  await openChessStory(page, 'screens-games-chess-puzzle--solving', 'light');
+  await openChessStory(page, 'screens-games-chess-puzzle--solving');
   for (const name of [/^Hint/, /^Skip puzzle/]) {
     const action = await page.getByRole('button', { name }).boundingBox();
     if (!action) throw new Error(`Missing action ${String(name)}`);
@@ -121,10 +109,9 @@ test('storybook integration: chess puzzle 768x900 keeps Hint and Skip in the fir
 async function inputJourney(
   page: Page,
   info: TestInfo,
-  theme: string,
   motion: 'reduced' | 'system' = 'reduced'
 ) {
-  await openChessStory(page, 'product-chessboard--initial', theme, motion);
+  await openChessStory(page, 'product-chessboard--initial', motion);
   if (motion === 'reduced')
     await expect(
       page.locator('[data-component="ThemeProvider"]').first()
@@ -198,7 +185,7 @@ test('chess keeps a playable surface inside the 320px phone frame', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 640 });
-  await openChessStory(page, 'screens-games-chess-board--opening', 'light');
+  await openChessStory(page, 'screens-games-chess-board--opening');
   const width = await page
     .locator('[data-component="ChessBoard"]')
     .evaluate((board) => board.clientWidth);
@@ -206,80 +193,71 @@ test('chess keeps a playable surface inside the 320px phone frame', async ({
 });
 
 for (const { width, height } of sizes) {
-  for (const theme of ['light', 'dark']) {
-    test.describe(`chess ${width} ${theme}`, () => {
-      test.use({ viewport: { width, height } });
+  test.describe(`chess ${width} dark`, () => {
+    test.use({ viewport: { width, height } });
 
-      if (height === 900)
-        test('storybook integration: chess full game screen timing', async ({
-          page,
-        }, info) => {
-          await measureChessFrame(page, info, theme);
-        });
-
-      test('storybook integration: chess assistive activation evidence', async ({
+    if (height === 900)
+      test('storybook integration: chess full game screen timing', async ({
         page,
       }, info) => {
-        await captureAssistiveActivation(page, info, theme);
+        await measureChessFrame(page, info);
       });
 
-      test('storybook integration: chess promotion and cancellation evidence', async ({
-        page,
-      }, info) => {
-        await capturePromotion(page, info, theme);
-      });
-
-      // regression: chess-puzzle-dock-clips-ranks — solution shown at 320×640 in both themes.
-      for (const id of states) {
-        test(`storybook integration: ${id} evidence`, async ({
-          page,
-        }, info) => {
-          const errors: string[] = [];
-          page.on('pageerror', (error) => errors.push(error.message));
-          await openChessStory(page, id, theme);
-          await captureChessState(page, info, id);
-          expect(errors).toEqual([]);
-        });
-      }
-
-      test('storybook integration: chess mouse touch keyboard and timing', async ({
-        page,
-      }, info) => {
-        await inputJourney(page, info, theme);
-      });
-    });
-  }
-}
-
-// Animated moves: every other capture runs with reduced motion.
-for (const theme of ['light', 'dark']) {
-  test.describe(`chess 390 ${theme} motion`, () => {
-    test.use({
-      viewport: { width: 390, height: 900 },
-      contextOptions: { reducedMotion: 'no-preference' },
-    });
-    test('storybook integration: chess input journey with motion', async ({
+    test('storybook integration: chess assistive activation evidence', async ({
       page,
     }, info) => {
-      await inputJourney(page, info, theme, 'system');
-      // The story must render with motion, not the preview's reduced default.
-      await expect(
-        page.locator('[data-component="ThemeProvider"]').first()
-      ).not.toHaveAttribute('data-reduced-motion', 'true');
+      await captureAssistiveActivation(page, info);
+    });
+
+    test('storybook integration: chess promotion and cancellation evidence', async ({
+      page,
+    }, info) => {
+      await capturePromotion(page, info);
+    });
+
+    // regression: chess-puzzle-dock-clips-ranks — solution shown at 320×640.
+    for (const id of states) {
+      test(`storybook integration: ${id} evidence`, async ({ page }, info) => {
+        const errors: string[] = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        await openChessStory(page, id);
+        await captureChessState(page, info, id);
+        expect(errors).toEqual([]);
+      });
+    }
+
+    test('storybook integration: chess mouse touch keyboard and timing', async ({
+      page,
+    }, info) => {
+      await inputJourney(page, info);
     });
   });
 }
+
+// Animated moves: every other capture runs with reduced motion.
+
+test.describe(`chess 390 dark motion`, () => {
+  test.use({
+    viewport: { width: 390, height: 900 },
+    contextOptions: { reducedMotion: 'no-preference' },
+  });
+  test('storybook integration: chess input journey with motion', async ({
+    page,
+  }, info) => {
+    await inputJourney(page, info, 'system');
+    // The story must render with motion, not the preview's reduced default.
+    await expect(
+      page.locator('[data-component="ThemeProvider"]').first()
+    ).not.toHaveAttribute('data-reduced-motion', 'true');
+  });
+});
 
 // regression: mobile-chess-stage-obscures-home-rank
 test('the offline phone board accepts taps on all four corners above its commands', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 414, height: 706 });
-  await openChessStory(
-    page,
-    'screens-games-chess-board--offline-mobile',
-    'dark'
-  );
+  await openChessStory(page, 'screens-games-chess-board--offline-mobile');
   await expect(page.getByText(/Your local game can continue/)).toBeInViewport({
     ratio: 1,
   });
