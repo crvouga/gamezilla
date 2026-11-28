@@ -13,6 +13,21 @@ import { measureChessFrame } from './frame-performance';
 
 test.use({ video: 'on', trace: 'on', hasTouch: true });
 
+// regression: wide-chess-puzzle-dock-clips-first-rank
+test('a 1280x800 chess puzzle keeps the first rank above the action dock', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await openChessStory(page, 'screens-games-chess-puzzle--solving', 'dark');
+  const king = await page
+    .getByRole('button', { name: /^e1, White king/ })
+    .boundingBox();
+  const hint = await page.getByRole('button', { name: /^Hint/ }).boundingBox();
+  if (!king || !hint)
+    throw new Error('Expected the first rank and puzzle controls');
+  expect(king.y + king.height).toBeLessThanOrEqual(hint.y);
+});
+
 // regression: chess-tablet-recovery-guidance-collapse
 test('storybook integration: chess tablet recovery keeps every square anchored', async ({
   page,

@@ -4,7 +4,7 @@ import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-contex
 function errorText(reason: string): string {
   const messages: Readonly<Record<string, string>> = {
     'choose Play Bots to play against a bot': t`Choose Play Bots to play against a bot.`,
-    'choose Play Friend to play with another person': t`Choose Play Friend to play with another person.`,
+    'choose Play Friend to play with another person': t`Choose Play a Friend to play with another person.`,
     'connection needed': t`Reconnect before changing or playing the game.`,
     'only the creator': t`Only the creator can make this choice.`,
     'not in the space': t`This game is available to people in its space.`,

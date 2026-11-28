@@ -295,7 +295,7 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
       ? [
           {
             screen: SHARED_GAME_SCREEN.vsHuman,
-            title: () => <Trans>Play Friend</Trans>,
+            title: () => <Trans>Play a Friend</Trans>,
             caption: () => <Trans>Play the people in this space</Trans>,
           },
         ]

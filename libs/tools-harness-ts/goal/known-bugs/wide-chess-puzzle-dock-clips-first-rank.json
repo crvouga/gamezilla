@@ -1,0 +1,4 @@
+{
+  "summary": "At 1280 by 800, the wide chess puzzle ignored the available board height and the action dock clipped the first rank.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/chess/integration.checks.ts"
+}

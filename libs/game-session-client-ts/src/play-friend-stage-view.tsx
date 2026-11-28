@@ -241,7 +241,7 @@ function LiveActions(props: Props): JSX.Element {
 
 /** The way from the line of moves to every move, once one is played. */
 /**
- * Play Friend's board: the live position and what playing people needs
+ * Play a Friend's board: the live position and what playing people needs
  * now. A bot game has its own play screen.
  */
 export function PlayFriendStagePlace(props: Props): JSX.Element {
