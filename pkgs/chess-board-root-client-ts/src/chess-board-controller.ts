@@ -13,7 +13,6 @@ import type {
 import { createBoardHaptics } from '@pkgs/chess-board-root-client-ts/chess-board-haptics';
 import type { MotionPolicy } from '@pkgs/chess-board-root-shared-ts/board-motion';
 import { resolveMotionPolicy } from '@pkgs/chess-board-root-shared-ts/board-motion';
-import type { BoardColorScheme } from '@pkgs/chess-board-root-shared-ts/board-theme';
 import {
   defaultBoardTheme,
   mergeBoardTheme,
@@ -287,7 +286,6 @@ function createInput(args: {
 
 export function createBoardController(args: {
   readonly props: ChessBoardProps;
-  readonly colorScheme: Accessor<BoardColorScheme>;
   readonly timers: Timers;
 }): BoardController {
   const props = args.props;
@@ -327,7 +325,7 @@ export function createBoardController(args: {
     },
   });
   const theme = createMemo(() =>
-    mergeBoardTheme(defaultBoardTheme(args.colorScheme()), props.theme)
+    mergeBoardTheme(defaultBoardTheme(), props.theme)
   );
   const arrows = createMemo(() => [
     ...(props.arrows ?? []),

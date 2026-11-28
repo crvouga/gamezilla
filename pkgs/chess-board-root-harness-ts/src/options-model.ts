@@ -1,3 +1,4 @@
+import { defaultBoardTheme } from '@pkgs/chess-board-root-shared-ts/board-theme';
 import type { BoardWorld } from './board-world';
 import { readOptions } from './options-reads';
 import {
@@ -14,6 +15,7 @@ export const readOptionsModel = (w: BoardWorld) => {
     (t) => t.startsWith('dot@') || t.startsWith('ring@')
   );
   const lastMovePaint = view.marks.some((t) => t.startsWith('last-move@'));
+  const theme = defaultBoardTheme();
   return {
     optionsBoard: {
       position: identifyPreparedPosition(probe.fen, PREPARED_OPTIONS),
@@ -49,9 +51,11 @@ export const readOptionsModel = (w: BoardWorld) => {
       colors:
         view.dark === 'green' && view.light === '#f0d9b5'
           ? 'green and cream'
-          : view.dark === '#b58863' && view.light === '#f0d9b5'
-            ? 'brown and cream'
-            : 'unrecognized ' + view.dark + '/' + view.light,
+          : view.dark === theme.darkSquare && view.light === theme.lightSquare
+            ? 'default'
+            : view.dark === '#b58863' && view.light === '#f0d9b5'
+              ? 'brown and cream'
+              : 'unrecognized ' + view.dark + '/' + view.light,
     },
   };
 };

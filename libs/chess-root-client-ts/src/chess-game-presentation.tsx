@@ -1,4 +1,3 @@
-import { BOARD_THEME } from '@libs/chess-root-shared-ts/board-theme';
 import { chessPositionDraw } from '@libs/chess-sub-shared-ts/chess-game';
 import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-client';
 import { t } from '@lingui/core/macro';
@@ -48,7 +47,6 @@ export function chessMoveSquares(
 export function ChessGameBoard(props: GameBoardProps): JSX.Element {
   return (
     <ChessBoard
-      theme={BOARD_THEME}
       fen={props.position}
       fenSyncKey={props.syncKey}
       lastMove={chessMoveSquares(props.lastAction)}
