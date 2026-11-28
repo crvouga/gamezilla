@@ -12,7 +12,6 @@ import { createMotionPreference } from '@pkgs/device-shared-ts/motion-preference
 import { KvImplInMemory } from '@pkgs/kv-root-shared-ts/impl-in-memory';
 import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { TestViewportProvider } from '@pkgs/ui-root-client-ts/test-viewport';
-import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
 import { createSignal, flush } from 'solid-js';
@@ -27,11 +26,7 @@ function mountCrash(copy?: (text: string) => Promise<void>) {
   const departures: (() => void)[] = [];
   const clipboard = createRecordingClipboard();
   const [broken, setBroken] = createSignal(true);
-  let setTheme: (scheme: 'light' | 'dark') => void = () => {
-    /* Bound when Contents mounts. */
-  };
   function Contents(): JSX.Element {
-    setTheme = useThemePreference().setPreference;
     return (
       <RootErrorBoundary
         copyError={copy ?? clipboard.writeText}
@@ -58,41 +53,34 @@ function mountCrash(copy?: (text: string) => Promise<void>) {
       </ClockProvider>
     </I18nProvider>
   ));
-  return { ...view, harness, clipboard, departures, setBroken, setTheme };
+  return { ...view, harness, clipboard, departures, setBroken };
 }
 
 // regression: crash-screen-hardcoded-theme
-test.each(['light', 'dark'] as const)(
-  'a provider crash retains the %s theme and recovery controls',
-  (scheme) => {
-    const view = mountCrash();
-    view.setTheme(scheme);
-    flush();
-    const alert = screen.getByRole('alert');
-    const root = alert.closest('[data-component="RootErrorBoundary"]');
-    expect(root?.closest('[data-theme]')?.getAttribute('data-theme')).toBe(
-      scheme
-    );
-    expect(root?.classList.contains('bg-background')).toBe(true);
-    expect(
-      screen.getByRole('heading', { name: 'Something went wrong' })
-    ).toBeTruthy();
-    const disclosure = screen.getByRole('button', { name: 'Error details' });
-    expect(disclosure.getAttribute('aria-expanded')).toBe('false');
-    expect(screen.queryByRole('region', { name: 'Error message' })).toBeNull();
-    fireEvent.click(disclosure);
-    expect(
-      screen.getByRole('region', { name: 'Error message' }).textContent
-    ).toContain(FAILURE);
-    expect(screen.getByRole('button', { name: 'Reload app' })).toBeTruthy();
-    expect(screen.queryByText(/^Reference:/)).toBeNull();
-    view.setBroken(false);
-    fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
-    expect(screen.queryByRole('alert')).toBeNull();
-    expect(screen.getByText('Recovered screen')).toBeTruthy();
-    expect(document.documentElement.getAttribute('data-theme')).toBe(scheme);
-  }
-);
+test('a provider crash retains the product surface and recovery controls', () => {
+  const view = mountCrash();
+  flush();
+  const alert = screen.getByRole('alert');
+  const root = alert.closest('[data-component="RootErrorBoundary"]');
+  expect(root?.closest('[data-component="ThemeProvider"]')).toBeTruthy();
+  expect(root?.classList.contains('bg-background')).toBe(true);
+  expect(
+    screen.getByRole('heading', { name: 'Something went wrong' })
+  ).toBeTruthy();
+  const disclosure = screen.getByRole('button', { name: 'Error details' });
+  expect(disclosure.getAttribute('aria-expanded')).toBe('false');
+  expect(screen.queryByRole('region', { name: 'Error message' })).toBeNull();
+  fireEvent.click(disclosure);
+  expect(
+    screen.getByRole('region', { name: 'Error message' }).textContent
+  ).toContain(FAILURE);
+  expect(screen.getByRole('button', { name: 'Reload app' })).toBeTruthy();
+  expect(screen.queryByText(/^Reference:/)).toBeNull();
+  view.setBroken(false);
+  fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
+  expect(screen.queryByRole('alert')).toBeNull();
+  expect(screen.getByText('Recovered screen')).toBeTruthy();
+});
 
 test('copies diagnostic text and releases its feedback timer when recovered', async () => {
   const view = mountCrash();

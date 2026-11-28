@@ -20,10 +20,7 @@ function mountIndicator(initial: ConnectionCause) {
     flush();
   };
   const view = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <ConnectionStatusIndicator cause={cause()} />
     </ThemeProvider>
   ));

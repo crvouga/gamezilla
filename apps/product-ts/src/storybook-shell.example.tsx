@@ -18,7 +18,6 @@ function AccountMenu(props: { readonly showName?: boolean }): JSX.Element {
     <AppHeaderGlobalMenuView
       identity={STORY_SIGNED_IN_IDENTITY}
       connectivity="online"
-      theme="system"
       muted={false}
       showName={props.showName}
       onNavigate={fn()}

@@ -11,7 +11,6 @@ afterEach(cleanup);
 function mountSettings(offline: boolean): void {
   renderChrome(() => (
     <SettingsScreenView
-      theme="system"
       muted={false}
       offline={offline}
       canViewBilling={false}
@@ -74,7 +73,6 @@ test('on a desktop every settings group says what it holds in a short line', () 
   renderChrome(
     () => (
       <SettingsScreenView
-        theme="system"
         muted={false}
         offline={false}
         canViewBilling={false}

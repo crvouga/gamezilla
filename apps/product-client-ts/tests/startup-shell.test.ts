@@ -28,7 +28,7 @@ test('the opening document paints navigation in the product palette', async () =
   ).toEqual([]);
 });
 
-test('opens Settings, changes appearance and accepts a private people search before modules run', async () => {
+test('opens Sound from Settings and accepts a private people search before modules run', async () => {
   const html = await Bun.file(join(import.meta.dir, '..', 'index.html')).text();
   const first = new DOMParser().parseFromString(
     opening.transformIndexHtml.handler(html),
@@ -48,8 +48,6 @@ test('opens Settings, changes appearance and accepts a private people search bef
       throw new Error(`No link to ${path}`);
     link.click();
   };
-  const preference = 'ui.prefs/color-scheme';
-  const previous = localStorage.getItem(preference);
   const initialUrl = location.href;
   try {
     history.replaceState(null, '', '/space/invitation');
@@ -58,11 +56,8 @@ test('opens Settings, changes appearance and accepts a private people search bef
       window,
       location,
       history,
-      localStorage,
       PopStateEvent: eventConstructor(window),
-      CustomEvent,
       MutationObserver,
-      matchMedia: () => ({ matches: false }),
     });
     expect(fallback?.querySelector('h1')?.textContent).not.toBe('Spaces');
     expect(location.pathname).toBe('/space/invitation');
@@ -77,15 +72,12 @@ test('opens Settings, changes appearance and accepts a private people search bef
     expect(create.textContent).toBe('Opening…');
     clickLink('/more');
     expect(create.disabled).toBe(false);
-    clickLink('/more/theme');
-    const dark = fallback?.querySelector<HTMLInputElement>('[value="dark"]');
-    if (!dark || dark.closest('[hidden]'))
-      throw new Error('Missing appearance choices');
-    dark.click();
-    expect(document.documentElement.dataset['theme']).toBe('dark');
-    expect(JSON.parse(localStorage.getItem(preference) ?? 'null')).toEqual({
-      'ui.prefs/value': 'dark',
-    });
+    clickLink('/more/sound');
+    expect(location.pathname).toBe('/more/sound');
+    expect(fallback?.querySelector('h1')?.textContent).toBe('Sound');
+    expect(
+      fallback?.querySelector('[data-route="/more/sound"]')?.closest('[hidden]')
+    ).toBeNull();
     clickLink('/search');
     const field = fallback?.querySelector<HTMLInputElement>(
       'input[name="people-search"]'
@@ -97,9 +89,5 @@ test('opens Settings, changes appearance and accepts a private people search bef
   } finally {
     fallback?.remove();
     history.replaceState(null, '', initialUrl);
-    if (previous === null) localStorage.removeItem(preference);
-    else localStorage.setItem(preference, previous);
-    document.documentElement.removeAttribute('data-startup-preference');
-    document.documentElement.removeAttribute('data-theme');
   }
 });

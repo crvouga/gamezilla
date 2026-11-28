@@ -38,7 +38,6 @@ import {
   type HarnessNodeWindowContext,
   HarnessPanelView,
 } from './harness-node-window';
-import { ProductHarnessAppearanceCommands } from './product-harness-appearance-commands';
 import { ProductHarnessSnapshotSurface } from './product-harness-snapshot-chrome';
 import { ProductHarnessTopologySurface } from './product-harness-topology-chrome';
 import { useHarnessView } from './use-harness-view';
@@ -244,7 +243,6 @@ function SessionInspector(props: {
     <CommandRegistryProvider
       enableDefaultShortcuts={props.active && selected()?.kind !== 'client'}
     >
-      <ProductHarnessAppearanceCommands />
       <ProductHarnessPaletteRegistrations commands={commands()} />
       <Show when={selected() || dashboard()}>
         <Button

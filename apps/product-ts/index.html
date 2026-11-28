@@ -4,22 +4,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#141b1c" />
-  <script>
-    // The theme the app mounts with (`ThemePreferenceProvider`), set before
-    // first paint so boot never flashes from one scheme to the other.
-    (function () {
-      var scheme;
-      try {
-        var stored = JSON.parse(localStorage.getItem('ui.prefs/color-scheme'));
-        scheme = stored && stored['ui.prefs/value'];
-      } catch (_) {}
-      if (scheme !== 'light' && scheme !== 'dark') {
-        scheme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-      }
-      document.documentElement.setAttribute('data-theme', scheme);
-    })();
-  </script>
+  <meta name="theme-color" content="#171823" />
+  <meta name="color-scheme" content="dark" />
+
   <style>/* include browser-opening.css */</style>
   <link rel="icon" type="image/x-icon" sizes="16x16" href="/favicon.ico" />
   <title>%BRAND_NAME%</title>

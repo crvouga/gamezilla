@@ -27,7 +27,6 @@ export const Handles = {
   routeNotFoundAction: 'route-not-found-action',
 
   // settings
-  settingsTheme: 'settings-theme',
   settingsSound: 'settings-sound',
   settingsWorkOffline: 'settings-work-offline',
   settingsWorkOfflineSwitch: 'settings-work-offline-switch',
@@ -35,7 +34,6 @@ export const Handles = {
   commandPaletteInput: 'command-palette-input',
   settingsAbout: 'settings-about',
   /** Appearance picker option (`light` / `dark` / `system`). */
-  themeOption: (key: 'light' | 'dark' | 'system') => `theme-option-${key}`,
   soundEffectsSwitch: 'sound-effects-switch',
   /** Version row on the About screen. */
   aboutSecurityContact: 'about-security-contact',

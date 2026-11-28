@@ -17,7 +17,7 @@ function pendingIdentity() {
   const view = renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
       <LoggerProvider value={createNoopLogger()}>
-        <ThemeProvider colorScheme="light">
+        <ThemeProvider>
           <Show when={bound()} fallback={<IdentityBootPending />}>
             <div>Account ready</div>
           </Show>

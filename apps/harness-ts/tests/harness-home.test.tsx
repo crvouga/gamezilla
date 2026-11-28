@@ -24,10 +24,7 @@ function mount(ui: () => JSX.Element): void {
   dispose = render(
     () => (
       <I18nProvider i18n={setupI18n({ locale: 'en', messages: { en: {} } })}>
-        <ThemeProvider
-          colorScheme="light"
-          fixedLayout={{ width: 1024, height: 768 }}
-        >
+        <ThemeProvider fixedLayout={{ width: 1024, height: 768 }}>
           <ClockProvider clock={time.clock} timers={time.timers}>
             <OverlayPortalProvider>
               <SurfaceStackProvider>{ui()}</SurfaceStackProvider>

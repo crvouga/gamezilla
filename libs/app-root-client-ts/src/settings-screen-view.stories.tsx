@@ -9,7 +9,6 @@ const meta = {
   tags: ['autodocs'],
   parameters: { appRouter: true },
   args: {
-    theme: 'system',
     muted: false,
     offline: false,
     canViewBilling: false,
@@ -27,7 +26,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /**
- * Defaults: online, system appearance, sound on, monitor off, no billing.
+ * Defaults: online, sound on, monitor off, no billing.
  * Everyday groups lead; About and Troubleshooting close the page, each a
  * page of its own behind a right chevron.
  */
@@ -38,7 +37,7 @@ export const WithBilling: Story = { args: { canViewBilling: true } };
 
 /** Every preference away from its default, as its row values say. */
 export const PreferencesChanged: Story = {
-  args: { theme: 'dark', muted: true, offline: true },
+  args: { muted: true, offline: true },
 };
 
 /** On a phone, shaking opens a bug report unless the person turns it off. */
@@ -97,12 +96,12 @@ export const WorkOffline: Story = {
 };
 
 /** A row opens its sub-screen. */
-export const OpenAppearance: Story = {
+export const OpenSound: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    const target = await canvas.findByText('Appearance');
+    const target = await canvas.findByText('Sound');
     await userEvent.click(target);
-    await expect(args.onNavigate).toHaveBeenCalledWith('/more/theme');
+    await expect(args.onNavigate).toHaveBeenCalledWith('/more/sound');
   },
 };
 

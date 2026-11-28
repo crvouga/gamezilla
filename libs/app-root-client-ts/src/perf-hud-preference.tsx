@@ -1,8 +1,5 @@
 /** @jsxImportSource @solidjs/web */
-/**
- * Persisted HUD visibility via Kv (`createKvState`, same pattern as the
- * theme preference). Off by default.
- */
+/** Persisted HUD visibility, off by default. */
 
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';

@@ -4,7 +4,7 @@ import type { Actor } from '@libs/harness-ts/parameter-types';
 import { cutConnection } from '@libs/harness-ts/platform';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { chooseTheme } from '@libs/runtime-harness-ts/app-settings';
+import { turnSoundsOff } from '@libs/runtime-harness-ts/app-settings';
 import { layoutPlaceAndPreferences } from '@libs/runtime-harness-ts/device-layout';
 import {
   attemptSharedChoice,
@@ -19,7 +19,7 @@ import {
 } from '@libs/spaces-harness-ts/space-join-interruption';
 
 async function previewChoice(w: HarnessWorld, actor: Actor): Promise<string> {
-  await w.s.apply(chooseTheme, actor, 'dark');
+  await w.s.apply(turnSoundsOff, actor);
   await w.s.apply(backToTabs, actor);
   w.memo.set(
     'place-preferences',

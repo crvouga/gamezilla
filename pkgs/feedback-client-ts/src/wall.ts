@@ -8,7 +8,6 @@ import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import { browserDetails } from './browser-details';
-import type { ThemePort } from './bug-report-surface';
 import { mountBugReports } from './mount-bug-reports';
 import type { ConnectionPort, MotionPort } from './ports';
 import { browserPort } from './wall-browser';
@@ -55,19 +54,6 @@ const browserConnection: ConnectionPort = {
   },
 };
 
-const browserTheme: ThemePort = {
-  read: () =>
-    document.documentElement.dataset['theme'] === 'light' ? 'light' : 'dark',
-  subscribe(listener) {
-    const observer = new MutationObserver(listener);
-    observer.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['data-theme'],
-    });
-    return () => observer.disconnect();
-  },
-};
-
 /**
  * Starts bug reporting in a browser, then the app. Bug reporting comes
  * first and stands apart, so an app that fails to start can be reported.
@@ -104,7 +90,6 @@ export function bootBrowserBugReports(options: {
     screenshot,
     connection: browserConnection,
     motion: browserMotion(),
-    theme: browserTheme,
     providers: browserDetails(window, options.build ?? 'unknown'),
     // A device with a mouse gets the app's right-click menu; a finger keeps its own.
     browser: browserPort(window),

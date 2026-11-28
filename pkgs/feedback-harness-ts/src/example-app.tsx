@@ -88,7 +88,7 @@ function workingScreen(): HTMLElement[] {
   if (bugReports)
     render(
       () => (
-        <ThemeProvider colorScheme="light" manageDocumentTheme={false}>
+        <ThemeProvider>
           <ShakeSetting shake={bugReports.shake} />
         </ThemeProvider>
       ),
@@ -172,7 +172,6 @@ export function createExampleApp(session: Session) {
       screenshot: phone.screenshot,
       connection: phone.connection,
       motion: phone.motion(),
-      theme: { read: () => 'light', subscribe: () => () => undefined },
       providers: providers(),
       applicationErrorEvent: TROUBLE_EVENT,
       browser: exampleBrowser,

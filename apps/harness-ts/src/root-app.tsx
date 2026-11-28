@@ -9,10 +9,6 @@ import { OverlayPortalProvider } from '@pkgs/ui-root-client-ts/overlay-portal';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import {
-  ThemePreferenceProvider,
-  useThemePreference,
-} from '@pkgs/ui-root-client-ts/theme-preference';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import type { CreateId, Random } from '@pkgs/uuid-shared-ts/create-id';
 import type { JSX } from '@solidjs/web';
@@ -52,11 +48,10 @@ function ConsoleBody(props: {
 function ConsoleShell(props: {
   readonly ports: HarnessConsolePorts;
 }): JSX.Element {
-  const theme = useThemePreference();
   const nav = useConsoleNav();
   return (
     <ConsoleChromeProvider value={nav}>
-      <ThemeProvider colorScheme={theme.preference()}>
+      <ThemeProvider>
         <OverlayPortalProvider>
           <SurfaceStackProvider>
             <DismissibleBannerPortalProvider>
@@ -81,9 +76,7 @@ export function RootApp(props: { readonly env: ConsoleEnv }): JSX.Element {
       <HttpClientProvider value={{ fetch: props.env.ports.fetch }}>
         <IdProvider createId={props.env.createId} random={props.env.random}>
           <I18nProvider i18n={props.env.i18n}>
-            <ThemePreferenceProvider>
-              <ConsoleShell ports={props.env.ports} />
-            </ThemePreferenceProvider>
+            <ConsoleShell ports={props.env.ports} />
           </I18nProvider>
         </IdProvider>
       </HttpClientProvider>

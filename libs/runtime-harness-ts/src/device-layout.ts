@@ -5,13 +5,9 @@ import {
 } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { openSettings } from '@libs/harness-ts/shell-actions';
+import { readSoundsOn } from '@libs/harness-ts/sounds-preference';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import {
-  appearanceShown,
-  chooseTheme,
-  soundShownInSettings,
-  turnSoundsOff,
-} from './app-settings';
+import { turnSoundsOff } from './app-settings';
 
 export const changeAvailableSpace = scenarioAction({
   name: 'changeAvailableSpace',
@@ -26,7 +22,6 @@ export const changeAvailableSpace = scenarioAction({
 export const saveLayoutPreferences = scenarioAction({
   name: 'saveLayoutPreferences',
   act: async (s, actor: string) => {
-    await Promise.resolve(chooseTheme.act(s, actor, 'dark'));
     await Promise.resolve(turnSoundsOff.act(s, actor));
     await Promise.resolve(openSettings.act(s, actor));
   },
@@ -39,8 +34,7 @@ export async function layoutPlaceAndPreferences(
   if (device === undefined) throw new Error('Device missing');
   return {
     place: await device.currentPath(),
-    appearance: await appearanceShown(s, actor),
-    sounds: await soundShownInSettings(s, actor),
+    sounds: await readSoundsOn(s, actor),
   };
 }
 /** Offered Settings controls can be addressed and operated at every viewport. */
@@ -49,11 +43,7 @@ export async function layoutControlsReachable(
   actor: string
 ) {
   const ui = await actorUi(s, actor);
-  const controls = [
-    Handles.settingsTheme,
-    Handles.settingsSound,
-    Handles.settingsAbout,
-  ];
+  const controls = [Handles.settingsSound, Handles.settingsAbout];
   for (const control of controls) {
     if (!(await ui.get(control).isVisible())) return false;
   }

@@ -11,7 +11,7 @@ import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { render } from '@solidjs/web';
-import { createMemo, createSignal, omit, onCleanup, Show } from 'solid-js';
+import { createMemo, omit, Show } from 'solid-js';
 import {
   BugReportFormView,
   type BugReportFormViewProps,
@@ -20,11 +20,6 @@ import type { ContextMenuControl } from './context-menu';
 import { BugReportContextMenu } from './context-menu-view';
 import type { BugReportController } from './controller';
 import { useBugReportState } from './use-bug-reports';
-
-export type ThemePort = {
-  read(): 'light' | 'dark';
-  subscribe(listener: () => void): () => void;
-};
 
 export type BugReportSurfaceViewProps = BugReportFormViewProps & {
   /** Whether the bug report is open. */
@@ -77,7 +72,7 @@ function BugReportSurface(props: { controller: BugReportController }) {
 }
 
 /**
- * Renders the bug report into its own host, with its own theme, words and
+ * Renders the bug report into its own host, with its own words and
  * overlays, so it shows whatever has become of the app beside it.
  */
 export function renderBugReportSurface(
@@ -86,7 +81,6 @@ export function renderBugReportSurface(
   ports: {
     readonly clock: Clock;
     readonly timers: Timers;
-    readonly theme: ThemePort;
     /** The app's right-click menu, where the device has a mouse to use it. */
     readonly contextMenu?: ContextMenuControl | undefined;
   }
@@ -95,17 +89,11 @@ export function renderBugReportSurface(
   host.setAttribute('data-feedback-root', '');
   host.className = 'box fixed inset-0 pointer-events-none';
   host.style.setProperty('z-index', String(OVERLAY_PORTAL_Z_INDEX));
-  return render(() => {
-    const [scheme, setScheme] = createSignal(ports.theme.read());
-    onCleanup(ports.theme.subscribe(() => setScheme(ports.theme.read())));
-    return (
+  return render(
+    () => (
       <I18nProvider i18n={i18n}>
         <ClockProvider clock={ports.clock} timers={ports.timers}>
-          <ThemeProvider
-            colorScheme={scheme()}
-            transparent
-            manageDocumentTheme={false}
-          >
+          <ThemeProvider transparent>
             <OverlayPortalProvider>
               <SurfaceStackProvider>
                 <BugReportSurface controller={controller} />
@@ -117,6 +105,7 @@ export function renderBugReportSurface(
           </ThemeProvider>
         </ClockProvider>
       </I18nProvider>
-    );
-  }, host);
+    ),
+    host
+  );
 }

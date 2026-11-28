@@ -1,7 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { runInNewContext } from 'node:vm';
 import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/document-palette';
 
@@ -11,91 +10,15 @@ function source(path: string): string {
   return readFileSync(join(repoRoot, path), 'utf8');
 }
 
-type BootTheme = {
-  readonly stored: string | null;
-  readonly systemDark: boolean;
-  readonly pathname: string;
-};
-
-/** Runs an app's inline `index.html` theme script against a fake page. */
-function bootTheme(app: string, page: BootTheme): string | undefined {
-  const script = /<script>([\s\S]*?)<\/script>/.exec(
-    source(`apps/${app}/index.html`)
-  )?.[1];
-  if (script === undefined) throw new Error(`apps/${app} has no theme script`);
-  const attributes = new Map<string, string>();
-  runInNewContext(script, {
-    localStorage: { getItem: () => page.stored },
-    matchMedia: () => ({ matches: page.systemDark }),
-    document: {
-      documentElement: {
-        setAttribute: (name: string, value: string) =>
-          attributes.set(name, value),
-      },
-    },
-    location: { pathname: page.pathname },
-  });
-  return attributes.get('data-theme');
-}
-
-function storedScheme(value: string): string {
-  return JSON.stringify({ 'ui.prefs/value': value });
-}
-
-describe('boot theme', () => {
-  // regression: boot-theme-flash
-  test('opens in the stored theme, whatever the system prefers', () => {
-    for (const app of ['product-client-ts', 'product-ts']) {
-      expect(
-        bootTheme(app, {
-          stored: storedScheme('light'),
-          systemDark: true,
-          pathname: '/',
-        })
-      ).toBe('light');
-      expect(
-        bootTheme(app, {
-          stored: storedScheme('dark'),
-          systemDark: false,
-          pathname: '/space/1',
-        })
-      ).toBe('dark');
-    }
-  });
-
-  test('follows the system with no usable stored theme', () => {
-    for (const app of ['product-client-ts', 'product-ts']) {
-      for (const stored of [null, storedScheme('system'), '{not json']) {
-        expect(
-          bootTheme(app, { stored, systemDark: false, pathname: '/' })
-        ).toBe('light');
-        expect(
-          bootTheme(app, { stored, systemDark: true, pathname: '/' })
-        ).toBe('dark');
-      }
-    }
-  });
-
-  test('reads the row the theme preference writes and paints both schemes', () => {
-    const preference = source(
-      'pkgs/ui-root-client-ts/src/theme-preference/index.tsx'
-    );
-    expect(preference).toContain("asKeyword('ui.prefs/color-scheme')");
-    expect(preference).toContain("asKeyword('ui.prefs/value')");
-    for (const app of ['product-client-ts', 'product-ts']) {
-      const html = source(`apps/${app}/index.html`).replace(
-        '/* include browser-opening.css */',
-        withDocumentPalette(
-          source('pkgs/ui-root-client-ts/src/browser-opening.css')
-        )
-      );
-      expect(html).toContain('html[data-theme="light"]');
-      expect(html).toContain('color-scheme: light');
-    }
-  });
-});
-
 describe('development client startup', () => {
+  // regression: boot-theme-flash
+  test('declares the dark appearance before startup independently of stored and OS preferences', () => {
+    for (const app of ['product-client-ts', 'product-ts', 'harness-ts']) {
+      const html = source(`apps/${app}/index.html`);
+      expect(html).toContain('<meta name="color-scheme" content="dark"');
+      expect(html).not.toMatch(/prefers-color-scheme|ui\.prefs\/color-scheme/);
+    }
+  });
   test('paints immediately while Vite prepares the client graph', () => {
     // regression: dev-cold-load-white-screen
     for (const app of ['product-client-ts', 'product-ts']) {
@@ -108,10 +31,7 @@ describe('development client startup', () => {
       expect(html).toContain('<!-- include browser-opening.html -->');
       expect(html).not.toContain('startup-shell-caption');
       expect(html).toContain(
-        `--ui-color-background:${COLOR_PALETTE.dark.background}`
-      );
-      expect(html).toContain(
-        `--ui-color-background:${COLOR_PALETTE.light.background}`
+        `--ui-color-background:${COLOR_PALETTE.background}`
       );
       expect(html).not.toContain('animation:');
     }

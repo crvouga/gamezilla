@@ -8,14 +8,9 @@ body,
 
 html,
 body {
-  background: var(--ui-color-background);
+  background: var(--ui-finish-canvas) var(--ui-color-background);
   color: var(--ui-color-text);
   color-scheme: dark;
-}
-
-html[data-theme="light"],
-html[data-theme="light"] body {
-  color-scheme: light;
 }
 
 [data-startup-shell] ~ #root {
@@ -54,6 +49,7 @@ html[data-theme="light"] body {
 }
 
 .startup-shell nav {
+  background: var(--ui-color-background);
   align-items: stretch;
   border-top: 1px solid var(--ui-color-border);
   bottom: 0;
@@ -90,15 +86,14 @@ html[data-theme="light"] body {
 }
 
 .startup-shell [data-route] {
-  background: var(--ui-color-surface);
+  background: var(--ui-finish-surface) var(--ui-color-surface);
   border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-control, 12px);
   margin: 16px 0;
   padding: 8px 12px;
 }
 
-.startup-shell a,
-.startup-shell label {
+.startup-shell a {
   align-items: center;
   color: inherit;
   cursor: pointer;
@@ -171,7 +166,7 @@ html[data-theme="light"] body {
 
 .startup-shell [data-startup-create],
 .startup-shell-reload {
-  background: var(--ui-color-tint-active);
+  background: var(--ui-finish-action) var(--ui-color-tint-active);
   border: 0;
   border-radius: var(--ui-radius-control, 12px);
   box-shadow: inset 0 -4px var(--ui-color-on-tint-scrim);
@@ -190,6 +185,7 @@ html[data-theme="light"] body {
   }
 
   .startup-shell nav {
+    background: transparent;
     border-right: 1px solid var(--ui-color-border);
     border-top: 0;
     box-sizing: border-box;
@@ -222,7 +218,7 @@ html[data-theme="light"] body {
   }
 
   .startup-shell nav .opening-art {
-    background: var(--ui-color-surface);
+    background: var(--ui-finish-surface) var(--ui-color-surface);
     border-radius: var(--ui-radius-control, 12px);
     height: 40px;
     width: 40px;

@@ -46,7 +46,6 @@ function accountMenu(showName: boolean) {
     <AppHeaderGlobalMenuView
       identity={STORY_SIGNED_IN_IDENTITY}
       connectivity="online"
-      theme="system"
       muted={false}
       onNavigate={fn()}
       showName={showName}

@@ -4,7 +4,7 @@ import { createDebugBuffer } from '@pkgs/feedback-shared-ts/debug-buffer';
 import type { DiagnosticProvider } from '@pkgs/feedback-shared-ts/types';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
-import { renderBugReportSurface, type ThemePort } from './bug-report-surface';
+import { renderBugReportSurface } from './bug-report-surface';
 import { installContextMenu } from './context-menu';
 import { BugReportController } from './controller';
 import { installDebugRecording } from './debug-recording';
@@ -38,7 +38,6 @@ export type MountBugReportsOptions = {
   readonly screenshot: ScreenshotPort;
   readonly connection: ConnectionPort;
   readonly motion: MotionPort;
-  readonly theme: ThemePort;
   /** The device and the version of the app, and whatever else helps reproduce a bug. */
   readonly providers: readonly DiagnosticProvider[];
   /** An event the app dispatches on the document, carrying trouble it caught itself. */
