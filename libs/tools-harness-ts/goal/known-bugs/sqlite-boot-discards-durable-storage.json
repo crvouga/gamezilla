@@ -1,0 +1,4 @@
+{
+  "summary": "Failed durable SQLite was replaced with empty disposable storage, forcing fresh downloads on reload.",
+  "regressionTest": "libs/app-root-client-ts/tests/open-main-sql-client-faults.test.ts"
+}

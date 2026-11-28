@@ -62,12 +62,10 @@ function reportError(error: unknown, source: string): string | undefined {
   return traceId;
 }
 
-/** `db.system.name` of the two local databases a browser can end up on. */
+/** `db.system.name` of the durable browser database. */
 export const LOCAL_DATABASE = {
   /** SQLite in a worker, kept in the origin private file system. */
   worker: 'sqlite.opfs',
-  /** The in-memory stand-in, on the main thread; nothing is kept. */
-  memory: 'sqlite.memory',
 } as const;
 
 /** Time the awaited startup work, separately from the selected-backend report. */
@@ -84,11 +82,7 @@ export function traceBrowserStartup<T>(
   );
 }
 
-/**
- * One `db.open` span saying which local database this page runs on. Landing
- * on the stand-in is an error carrying its cause: every local query then runs
- * on the main thread, which shows up as slow interactions everywhere.
- */
+/** Records the durable database open and any failure. */
 export function recordLocalDatabaseOpen(
   system: (typeof LOCAL_DATABASE)[keyof typeof LOCAL_DATABASE],
   failure?: unknown
@@ -96,8 +90,7 @@ export function recordLocalDatabaseOpen(
   const span = startSpan('db.open', {
     [ATTR.DB_SYSTEM_NAME]: system,
     [ATTR.DB_OPERATION_NAME]: 'open',
-    [ATTR.CODE_FILE_PATH]:
-      'libs/app-root-client-ts/src/open-main-sql-client.ts',
+    [ATTR.CODE_FILE_PATH]: 'libs/app-env-client-ts/src/open-main-sql-client.ts',
     [ATTR.CODE_FUNCTION_NAME]: 'openMainSqlClient',
   });
   if (failure !== undefined) {
@@ -105,7 +98,7 @@ export function recordLocalDatabaseOpen(
     recordException(span, cause);
     span.setStatus({
       code: SpanStatusCode.ERROR,
-      message: `local SQLite unavailable, running on an in-memory database on the main thread: ${cause.message}`,
+      message: `durable local SQLite unavailable: ${cause.message}`,
     });
   }
   span.end();

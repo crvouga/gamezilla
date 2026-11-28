@@ -1,7 +1,4 @@
-import {
-  LOCAL_CALL_DEADLINE_MS,
-  openMainSqlClient,
-} from '@libs/app-env-client-ts/open-main-sql-client';
+import { openMainSqlClient } from '@libs/app-env-client-ts/open-main-sql-client';
 import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import { canSubscribeToTopic } from '@libs/sub-shared-ts/sync';
 
@@ -157,7 +154,6 @@ export function wallClientEnv(args: WallClientEnvArgs): ClientEnv {
         createLogger({ name: 'sqlite-web', now: wallClock.now })
       );
     },
-    localCallDeadlineMs: LOCAL_CALL_DEADLINE_MS,
     kv: new KvImplWeb(),
     secureStorage,
     room: args.room,

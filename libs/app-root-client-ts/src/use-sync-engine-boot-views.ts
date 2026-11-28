@@ -27,10 +27,8 @@ import { useLocalIdentity } from './identity-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
 
 /**
- * UI watchdog for a boot that never finishes. A slow or broken local
- * database cannot trip it: the open deadline and the per-call deadline
- * (`open-main-sql-client`) move the app to a disposable database long before
- * this, so it is only for what is not SQLite (a module that never loads).
+ * UI watchdog for startup work that never settles. A failed durable database
+ * open uses the boot error screen; a stalled worker reaches this deadline.
  */
 const BOOT_STUCK_MS = 30_000;
 
@@ -60,9 +58,6 @@ function useSyncBootAttempt(args: {
     const engine = pool.getOrCreate({
       loadApp,
       openSqlClient: (openArgs) => env.openSqlClient(openArgs),
-      ...(env.localCallDeadlineMs !== undefined
-        ? { localCallDeadlineMs: env.localCallDeadlineMs }
-        : {}),
       ...(env.reconcileIntervalMs !== undefined
         ? { reconcileIntervalMs: env.reconcileIntervalMs }
         : {}),
