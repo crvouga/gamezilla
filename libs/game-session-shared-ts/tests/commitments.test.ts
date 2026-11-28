@@ -298,7 +298,7 @@ test('bots commit for their sides with only their own hands, one wake after anot
   state = started.state;
   const wakes = (effects: readonly RoomEffect[] | undefined) =>
     (effects ?? []).flatMap((e) => (e.type === 'schedule' ? [e] : []));
-  // The creator alone with bots practises solo: the device wakes its bots.
+  // The creator alone with bots practices solo: the device wakes its bots.
   expect(
     JSON.stringify(started.result.ok ? started.result.effects : [])
   ).not.toContain('"side":"black"');

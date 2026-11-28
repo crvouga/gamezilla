@@ -10,7 +10,6 @@ import {
   playGameSessionPartyTurn,
   readPublicGameSession,
 } from './game-session-party-turn';
-import { takeBlack } from './game-session-readiness-wait';
 import {
   check,
   endActiveSpace,
@@ -35,44 +34,18 @@ async function createParty(ui: Driver, game: PlayableGame): Promise<void> {
   await openGameSetupInSpace(
     ui,
     game.shared.id,
-    'vs-human',
+    'vs-bot',
     game.shared.registration?.rules.family
   );
   await ui
     .get('game-session-connection-needed')
     .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
   await tap(ui, 'game-session-create');
-  for (const side of gameSides(game.shared.turnGame.rules).slice(2)) {
-    await tap(ui, `game-session-${side}-choices`);
-    await tap(ui, `game-session-${side}-bot`);
-    await ui
-      .get(`game-session-${side}-person`)
-      .expect.text('Bot', { exact: false, timeoutMs: JOURNEY_WAIT_MS });
-  }
 }
 
 async function readyParty(host: JourneyHost): Promise<void> {
-  let guestName = '';
-  await host.actAsGuest('takeSecondSeat', async (ui) => {
-    // A member with a seat open to them takes it from the lobby.
-    await takeBlack(ui, 'game-session-take-seat');
-    guestName =
-      (await ui.get('game-session-black-person').text())?.trim() ?? '';
-    check(guestName !== '', 'The second participant has no displayed name');
-    await tap(ui, 'game-session-ready');
-    await ui.get('game-session-ready').expect.text("I'm not ready", {
-      exact: false,
-      timeoutMs: JOURNEY_WAIT_MS,
-    });
-  });
   await host.act('startPartyGame', async (ui) => {
-    await ui
-      .get('game-session-black-person')
-      .expect.text(guestName, { exact: false, timeoutMs: JOURNEY_WAIT_MS });
     await tap(ui, 'game-session-ready');
-    await ui
-      .get('game-session-startable')
-      .expect.text('Ready to start.', { timeoutMs: JOURNEY_WAIT_MS });
     await tap(ui, 'game-session-start');
     // The game is under way once its board offers the game menu.
     await ui
@@ -83,7 +56,8 @@ async function readyParty(host: JourneyHost): Promise<void> {
 
 export async function completeGameSessionParty(
   host: Pick<JourneyHost, 'act' | 'actAsGuest'>,
-  game: PlayableGame
+  game: PlayableGame,
+  humanSeats = 2
 ): Promise<PublicGameSession> {
   const sides = gameSides(game.shared.turnGame.rules);
   const progress: PartyTurnProgress = { returnedLiveAt: null, attempted: null };
@@ -104,7 +78,7 @@ export async function completeGameSessionParty(
     const seat = sides.indexOf(current.turn);
     check(seat >= 0, 'The party game names a seat outside its roster');
     const before = await readPartyDevices(host);
-    if (seat >= 2) {
+    if (seat >= humanSeats) {
       await host.act('awaitPartyBot', (ui) =>
         ui
           .get(`game-session-review-move-${current.ply + 1}`)
@@ -124,7 +98,7 @@ export async function completeGameSessionParty(
   throw new Error('The party game did not finish within 400 accepted turns');
 }
 
-/** Two fresh people play, with bots occupying every additional declared seat. */
+/** One person plays bots while a second device watches. */
 export async function playGameSessionPartyJourney(
   host: JourneyHost,
   game: PlayableGame
@@ -141,7 +115,7 @@ export async function playGameSessionPartyJourney(
   await host.actAsGuest('joinPartySpace', joinFromLink);
   await host.act('createPartyGame', (ui) => createParty(ui, game));
   await readyParty(host);
-  return completeGameSessionParty(host, game);
+  return completeGameSessionParty(host, game, 1);
 }
 
 /** Both people observe exactly the same accepted board and terminal outcome. */

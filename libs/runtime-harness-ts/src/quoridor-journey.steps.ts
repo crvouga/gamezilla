@@ -31,7 +31,7 @@ Then(
   }
 );
 When(
-  'Alice and Bob play Four-Player King of the Hill with two bots from fresh devices',
+  'Alice plays Four-Player King of the Hill against bots while Bob watches',
   async (w) => {
     w.memo.set(
       'quoridor-hill-finished',

@@ -28,7 +28,7 @@ const extra = new Set([
   'screens-spaces-home--empty',
   'screens-spaces-members--empty',
   'screens-spaces-share--empty',
-  'screens-custom-games-home--no-game-many-players',
+  'screens-game-sessions-home--no-game-many-players',
   'screens-game-home--with-puzzles-and-settings',
   'screens-game-home--open-more',
   'screens-friends-list--empty',
