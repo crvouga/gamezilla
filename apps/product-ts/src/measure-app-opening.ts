@@ -8,6 +8,7 @@ import type { Device } from './live-browser';
 import { openDevice } from './live-browser';
 import type { LiveDevices } from './live-journey-devices';
 import { type OpeningControls, openingObserverScript } from './opening-frames';
+import { recordOpening } from './opening-review-video';
 
 const controls: OpeningControls = {
   settings: Handles.globalMenuSettings,
@@ -70,16 +71,25 @@ export async function measureAppOpening(
   devices: LiveDevices
 ): Promise<OpeningResult> {
   const profile = devices.host === null ? 'fresh' : 'returning';
+  const device = (devices.host ??= await openDevice(target));
+  devices.shown = device;
+  return recordOpening(device, profile, () =>
+    measure(device.view, target.webOrigin, profile)
+  );
+}
+
+async function measure(
+  view: Device['view'],
+  url: string,
+  profile: 'fresh' | 'returning'
+): Promise<Extract<OpeningResult, { kind: 'browser' }>> {
   let slowScripts = profile === 'fresh';
-  devices.host ??= await openDevice(target);
-  devices.shown = devices.host;
-  const view = devices.host.view;
   await view.cdp('Page.bringToFront', {});
   await view.cdp('Page.addScriptToEvaluateOnNewDocument', {
     source: openingObserverScript(controls),
   });
   if (slowScripts) await scriptLatency(view, true);
-  await view.cdp('Page.navigate', { url: target.webOrigin });
+  await view.cdp('Page.navigate', { url });
   const deadline = monotonicClock.now() + JOURNEY_WAIT_MS;
   const tapped = new Set<string>();
   let observation: Observation = {

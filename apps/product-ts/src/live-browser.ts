@@ -17,6 +17,7 @@ import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import { createIsolatedProcess } from '@pkgs/os-server-ts/wall-isolated-process';
 import type { IsolatedWorker } from '@pkgs/os-server-ts/wall-isolated-worker';
+import type { Screencast } from '@pkgs/ui-testing-bun-webview-server-ts/chrome-screencast';
 import { connectIsolatedBrowser } from '@pkgs/ui-testing-bun-webview-server-ts/wall-io';
 import { nativeHealthEvidence } from './browser-network-evidence';
 
@@ -35,6 +36,7 @@ export type LiveTarget = {
 };
 
 export type Device = {
+  readonly screencast: Screencast;
   readonly apiOrigin: string;
   readonly view: Pick<Bun.WebView, 'navigate' | 'evaluate' | 'cdp'> & {
     screenshot(options: { encoding: 'buffer' }): Promise<Buffer>;

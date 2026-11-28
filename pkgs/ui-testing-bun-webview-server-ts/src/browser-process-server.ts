@@ -4,6 +4,7 @@ import type {
   DriverNode,
 } from '@pkgs/ui-testing-root-shared-ts/driver';
 import type { TraceBrowserCall } from './browser-call-diagnostics';
+import type { Screencast } from './chrome-screencast';
 import {
   documentMarker,
   type RegionMarkers,
@@ -14,6 +15,7 @@ import { type BrowserCall, runsNoPageCode } from './remote-browser-driver';
 export type BrowserDevice = {
   readonly driver: Driver & { get(id: string, scope?: 'document'): DriverNode };
   readonly view: object;
+  readonly screencast?: Screencast;
   readonly console?: readonly string[];
   readonly network?: readonly string[];
   readonly traceCall?: TraceBrowserCall;
@@ -83,10 +85,19 @@ async function readNativeView(
   return found === testId;
 }
 
+function invokeScreencast(screencast: Screencast | undefined, method: string) {
+  if (!screencast) throw new Error('This device cannot record a screencast');
+  if (method === 'start') return screencast.start();
+  if (method === 'stop') return screencast.stop();
+  throw new Error('Unknown screencast operation');
+}
+
 async function invoke(
   device: BrowserDevice,
   call: BrowserCall
 ): Promise<unknown> {
+  if (call.target === 'screencast')
+    return invokeScreencast(device.screencast, call.method);
   if (call.target === 'view' && call.method === 'navigate')
     await device.activateBeforeNavigate?.();
   // Bun updates the native URL when navigation completes. Reading it does

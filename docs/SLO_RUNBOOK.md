@@ -93,6 +93,16 @@ The certificate Synthetic Monitoring was shown for the app, the API or the
 broker expires within 14 days (push) or 3 days (page). See the README's
 [certificate runbook](../libs/observability-server-ts/README.md#a-certificate-people-are-shown-expires).
 
+### Record both opening checks for review
+
+Run the hosted diagnostic on the branch under review. Each dispatch builds the production web app and runs the same first-visit and returning-visit checks used by Release. Every dispatch records fresh measurements.
+
+```sh
+gh workflow run verify-nightly.yml --ref <branch> -f group=browser -f browser-journey=boot-time
+```
+
+Download the run’s `verify-nightly-browser-<run-id>-1` artifact. Each `opening-*/steps` directory contains an MP4 and its `measurement.json`. Chrome records the viewport at presentation time. The check starts its clock at navigation and stops it when Settings is visible after a real click. It keeps watching through the app handoff. The video plays at actual speed and holds the final frame for one second. Use the JSON for the verdict.
+
 ## first-opening-is-immediately-usable
 
 Open the Health browser evidence for `journeys.first-opening`. Inspect the navigation time, the first visible control, what happened when the check selected Settings, and whether that choice survived startup. Check document response latency if the initial controls appeared late. If a loading indicator appeared later, inspect the handoff to the app and its local database. [Opening objectives](../specs/journeys/using-the-tabs.openslo.yaml)
