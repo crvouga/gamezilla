@@ -68,7 +68,7 @@ test('slow spec suites split into independently cached parts that all gate Verif
   // regression: chess-spec-task-budget — parts 3, 7, and 9 hit 600s; part 5 took 593s.
   expectSpecParts('libs/chess-root-harness-ts', 13, ['chess']);
   // regression: games-spec-parts-exceed-capacity-pole
-  expectSpecParts('libs/games-harness-ts', 161, ['games']);
+  expectSpecParts('libs/games-harness-ts', 163, ['games']);
 });
 
 // regression: ci-chess-board-omits-inherited-spec-inputs

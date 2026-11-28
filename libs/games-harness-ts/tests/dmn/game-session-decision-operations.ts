@@ -74,16 +74,20 @@ async function prepare(w: RoomWorld, capability: string): Promise<void> {
   const actor = memberIdOf(w.c);
   if (spacePresenceOf(w.c.input) === 'guest') await join(actor);
   if (capability === 'create a game session') return;
+  const botSetup =
+    capability === 'configure a game session bot' ||
+    (capability === 'configure a game session' && !isTurnHarnessGame(w.game));
   await choice(w, w.host, {
     operation: 'create',
-    mode: 'vs-human',
+    mode: botSetup ? 'vs-bot' : 'vs-human',
     game: w.game.shared.id,
   });
   if (capability === 'join a game session' && actor === w.host)
     await choice(w, w.host, { operation: 'release', side: 'white' });
   if (capability === 'start a game session') {
-    for (const side of gameSides(w.game.shared.registration.rules).slice(1))
-      await choice(w, w.host, { operation: 'bot', side });
+    await choice(w, PEER, { operation: 'claim', side: 'black' });
+    await choice(w, PEER, readyFor(w, 'black'));
+    await fillExtraSides(w);
     await choice(w, w.host, readyFor(w, 'white'));
     return;
   }

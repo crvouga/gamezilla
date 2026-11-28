@@ -18,6 +18,8 @@ const layer = serverEnforcementLayer({
 
 // regression: game-session-access-fixture-readiness
 test.each([
+  ['host', 'configure a game session'],
+  ['host', 'configure a game session bot'],
   ['host', 'start a game session'],
   ['host', 'play a game session'],
   ['joined', 'play a game session'],
