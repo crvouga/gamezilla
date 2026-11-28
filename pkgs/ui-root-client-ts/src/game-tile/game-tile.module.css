@@ -1,0 +1,129 @@
+/* A game's picture: its playing surface in miniature. Each motif maps the
+   tile's few paints onto the game-prefixed tokens of the board it shows, so
+   the tile changes with the board in both schemes. */
+.tile {
+  display: inline-flex;
+  flex-shrink: 0;
+  overflow: hidden;
+  width: 40px;
+  height: 40px;
+  box-shadow: inset 0 0 0 1px var(--ui-color-border);
+}
+.tile[data-size="lg"] {
+  width: 56px;
+  height: 56px;
+}
+.tile[data-size="xl"] {
+  width: 96px;
+  height: 96px;
+}
+.art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.bg {
+  fill: var(--tile-bg);
+}
+.c1 {
+  fill: var(--tile-1);
+}
+.c2 {
+  fill: var(--tile-2);
+}
+.c3 {
+  fill: var(--tile-3);
+}
+.c4 {
+  fill: var(--tile-4);
+}
+.s1 {
+  stroke: var(--tile-1);
+}
+.s2 {
+  stroke: var(--tile-2);
+}
+.line {
+  stroke: var(--tile-4);
+}
+.cut {
+  stroke: var(--tile-bg);
+}
+.glyph {
+  fill: var(--tile-bg);
+  font-family: var(--ui-text-label-family);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.tile[data-motif="checkered"] {
+  --tile-bg: var(--ui-color-board-dark);
+  --tile-1: var(--ui-color-board-light);
+  --tile-2: var(--ui-color-board-dark);
+  --tile-3: var(--ui-color-board-card-face);
+  --tile-4: var(--ui-color-board-card-ink);
+}
+.tile[data-motif="discs"] {
+  --tile-bg: var(--ui-color-game-connect-four-surface);
+  --tile-1: var(--ui-color-game-connect-four-one);
+  --tile-2: var(--ui-color-game-connect-four-two);
+  --tile-4: var(--ui-color-game-connect-four-canvas);
+}
+.tile[data-motif="fleet"] {
+  --tile-bg: var(--ui-color-game-battleship-canvas);
+  --tile-1: var(--ui-color-game-battleship-one);
+  --tile-2: var(--ui-color-game-battleship-accent);
+  --tile-3: var(--ui-color-game-battleship-muted);
+  --tile-4: var(--ui-color-game-battleship-surface);
+}
+.tile[data-motif="cards"] {
+  --tile-bg: var(--ui-color-game-hearts-canvas);
+  --tile-1: var(--ui-color-board-card-ink-red);
+  --tile-3: var(--ui-color-board-card-face);
+}
+.tile[data-motif="walls"] {
+  --tile-bg: var(--ui-color-game-quoridor-canvas);
+  --tile-1: var(--ui-color-game-quoridor-one);
+  --tile-2: var(--ui-color-game-quoridor-two);
+  --tile-3: var(--ui-color-game-quoridor-surface);
+  --tile-4: var(--ui-color-game-quoridor-muted);
+}
+.tile[data-motif="letters"] {
+  --tile-bg: var(--ui-color-game-word-tiles-canvas);
+  --tile-1: var(--ui-color-game-word-tiles-one);
+  --tile-2: var(--ui-color-game-word-tiles-two);
+  --tile-3: var(--ui-color-game-word-tiles-ink);
+}
+.tile[data-motif="crates"] {
+  --tile-bg: var(--ui-color-game-sokoban-canvas);
+  --tile-3: var(--ui-color-game-sokoban-accent);
+  --tile-4: var(--ui-color-game-sokoban-surface);
+}
+.tile[data-motif="paths"] {
+  --tile-bg: var(--ui-color-game-numberlink-canvas);
+  --tile-1: var(--ui-color-game-numberlink-one);
+  --tile-2: var(--ui-color-game-numberlink-two);
+}
+.tile[data-motif="court"] {
+  --tile-bg: var(--ui-color-game-pong-canvas);
+  --tile-1: var(--ui-color-game-pong-one);
+  --tile-2: var(--ui-color-game-pong-two);
+  --tile-3: var(--ui-color-game-pong-ink);
+  --tile-4: var(--ui-color-game-pong-muted);
+}
+.tile[data-motif="trails"] {
+  --tile-bg: var(--ui-color-game-light-cycles-canvas);
+  --tile-1: var(--ui-color-game-light-cycles-one);
+  --tile-2: var(--ui-color-game-light-cycles-two);
+}
+
+.lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ui-space-3);
+  max-width: 100%;
+  vertical-align: middle;
+}
+.lockupName {
+  min-width: 0;
+}

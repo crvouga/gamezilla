@@ -8,6 +8,7 @@ import {
 } from '../../storybook/fixtures/space-story-globals';
 import { SpaceLauncher } from './index';
 import SpaceLauncherExample, {
+  SPACE_EXAMPLE_LAUNCHER_GAMES,
   type SpaceLauncherExampleProps,
 } from './space-launcher.example';
 
@@ -54,6 +55,18 @@ export const Screen: Story = {
   },
   play: async ({ args, canvasElement, globals }) => {
     const canvas = within(canvasElement);
+    // regression: game-picker-board-art-replaced-with-emoji
+    for (const game of SPACE_EXAMPLE_LAUNCHER_GAMES) {
+      const tile = canvasElement.querySelector(
+        `[data-component="GameTile"][data-motif="${game.motif}"]`
+      );
+      await expect(tile).toHaveAttribute('aria-hidden', 'true');
+      const board = tile?.querySelector('svg');
+      await expect(board).toBeVisible();
+      await expect(
+        board?.querySelectorAll('rect, circle, path, line').length
+      ).toBeGreaterThan(1);
+    }
     if (spaceStoryRole(globals) === 'host') {
       await expect(
         canvas.getByRole('heading', { name: 'Pick a game for 2 players' })

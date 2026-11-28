@@ -1,0 +1,4 @@
+{
+  "summary": "The ten-game picker and game headers displayed generic emoji instead of each game's custom board miniature.",
+  "regressionTest": "pkgs/ui-root-client-ts/src/space-launcher/space-launcher.stories.tsx"
+}

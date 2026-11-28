@@ -11,6 +11,17 @@ const index = JSON.parse(
     'utf8'
   )
 ) as { entries: Record<string, Entry> };
+const gameReview = process.env['STORYBOOK_PATTERN'] === 'game-art-review';
+const gameScreens = new Set([
+  'space-choosing--screen',
+  'space-setting-up--screen',
+  'games-shared-game-tile--motifs',
+  'screens-space-home--host-choosing',
+  'screens-space-home--guest-waiting',
+  'screens-game-home--with-puzzles-and-settings',
+  'screens-game-home--open-more',
+  'screens-games-chess-puzzle--solving',
+]);
 const seen = new Set<string>();
 const extra = new Set([
   'components-illustration--catalog',
@@ -43,14 +54,18 @@ for (const entry of Object.values(index.entries)) {
   if (entry.type !== 'story') continue;
   const family = entry.id.split('--')[0] ?? entry.id;
   if (
-    !extra.has(entry.id) &&
-    (!family.startsWith('screens-') || seen.has(family))
+    gameReview
+      ? !gameScreens.has(entry.id)
+      : !extra.has(entry.id) &&
+        (!family.startsWith('screens-') || seen.has(family))
   )
     continue;
   seen.add(family);
-  for (const width of [390, 1280]) {
+  for (const width of gameReview ? [390, 768, 1280] : [390, 1280]) {
     if (!supportsStoryViewport(entry, width)) continue;
-    test(`screen-art-review ${entry.id} ${width}`, async ({ page }, info) => {
+    test(`${gameReview ? 'game-art-review' : 'screen-art-review'} ${entry.id} ${width}`, async ({
+      page,
+    }, info) => {
       const height = width === 390 ? 844 : 800;
       const theme = width === 390 ? 'light' : 'dark';
       try {
