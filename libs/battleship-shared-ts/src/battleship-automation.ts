@@ -9,6 +9,8 @@ export const battleshipAutomation: TurnGame['turnAutomation'] = {
     battleshipBots.choose(position, strength, random, null),
   async perform(ui, board, action) {
     if (!isCell(action)) throw new Error('Invalid automated Battleship shot');
+    // Controls appear together when the preceding shot reaches this player.
+    await ui.get(`${board}-confirmation`).wait('visible');
     const precise = await ui.get(`${board}-region`).isVisible();
     if (precise) {
       const area =
