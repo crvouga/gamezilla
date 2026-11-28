@@ -1,14 +1,11 @@
-import { SearchArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { PuzzleFeedConfig } from '@libs/game-puzzle-shared-ts/feed-config';
 import { puzzleFeedHasNarrowingFilters } from '@libs/game-puzzle-shared-ts/feed-config';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import {
-  ClockIcon,
-  WifiOffIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+import { ClockIcon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
+import { SearchArt } from '@pkgs/ui-root-client-ts/illustration';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';

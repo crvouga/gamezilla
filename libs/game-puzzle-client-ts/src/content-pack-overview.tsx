@@ -1,4 +1,3 @@
-import { PuzzleArt } from '@pkgs/ui-root-client-ts/illustration';
 import {
   type PackPuzzleProgress,
   packProgress,
@@ -6,6 +5,7 @@ import {
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
+import { PuzzleArt } from '@pkgs/ui-root-client-ts/illustration';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -177,7 +177,7 @@ export function ContentPackOverview(props: {
                   when={pack().total > 0}
                   fallback={
                     <EmptyState
-          icon={PuzzleArt}
+                      icon={PuzzleArt}
                       variant="compact"
                       title={t`This pack has no puzzles yet`}
                       body={t`Its author has not added a puzzle. Return to puzzles and choose another pack.`}

@@ -50,7 +50,6 @@ export function createIcon(symbol: string): IconComponent {
           stroke={color()}
           stroke-width={Math.max(0, (props.strokeWidth ?? 2) - 2) / 2}
           aria-hidden="true"
-          focusable="false"
         >
           <use href={`${sprite}#${symbol}`} />
         </svg>

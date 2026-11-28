@@ -7,7 +7,15 @@ import {
 } from '@pkgs/ui-root-client-ts/game-menu-screen';
 import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import { SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
-import { BooksArt, GamesArt, HistoryArt, MatchmakingArt, PuzzleArt, RulesArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
+import {
+  BooksArt,
+  GamesArt,
+  HistoryArt,
+  MatchmakingArt,
+  PuzzleArt,
+  RulesArt,
+  StatsArt,
+} from '@pkgs/ui-root-client-ts/illustration';
 import type { JSX } from '@solidjs/web';
 import { createMemo, Match, Show, Switch } from 'solid-js';
 import { GameHowToPlayView } from './game-how-to-play-view';

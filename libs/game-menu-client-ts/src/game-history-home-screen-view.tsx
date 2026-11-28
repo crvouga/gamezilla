@@ -1,7 +1,7 @@
-import { HistoryArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
+import { HistoryArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import type { JSX } from '@solidjs/web';

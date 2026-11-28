@@ -1,4 +1,3 @@
-import { SearchArt } from '@pkgs/ui-root-client-ts/illustration';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
@@ -7,6 +6,7 @@ import { ChipGroup } from '@pkgs/ui-root-client-ts/chip-group';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { SearchIcon } from '@pkgs/ui-root-client-ts/icons';
+import { SearchArt } from '@pkgs/ui-root-client-ts/illustration';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
@@ -94,7 +94,7 @@ export function PuzzleFeedThemesView(
           when={shown().length > 0}
           fallback={
             <EmptyState
-          icon={SearchArt}
+              icon={SearchArt}
               variant="compact"
               title={<Trans>No matching themes</Trans>}
               body={<Trans>Try another word.</Trans>}

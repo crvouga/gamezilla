@@ -13,6 +13,8 @@ vendored: each keeps its license in its own package (`node_modules`).
 | `frontend-design` agent skill (Apache-2.0) | [`.agents/skills/frontend-design/LICENSE.txt`](.agents/skills/frontend-design/LICENSE.txt) |
 | ui-sdk agent skill (vercel-labs/ui, Apache-2.0) | [Apache License, Version 2.0](#apache-license-version-20) |
 | pstack agent skills, subagents and docs (MIT, cursor/plugins) | [`.agents/docs/LICENSE`](.agents/docs/LICENSE) |
+| [Microsoft Fluent Emoji Flat](https://github.com/microsoft/fluentui-emoji/tree/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets) (MIT) | [Illustration license](pkgs/ui-root-client-ts/src/illustration/LICENSE) |
+| [Microsoft Fluent UI System Icons Regular](https://github.com/microsoft/fluentui-system-icons) (MIT, npm 1.1.347) | [Icon license](pkgs/ui-root-client-ts/src/create-icon/LICENSE) |
 | Sound effects (CC0 1.0) | [`pkgs/sounds-shared-ts/docs/LICENSES.md`](pkgs/sounds-shared-ts/docs/LICENSES.md) |
 | Chess piece artwork (Colin M.L. Burnett) | [`pkgs/chess-board-root-harness-ts/docs/PIECE_LICENSES.md`](pkgs/chess-board-root-harness-ts/docs/PIECE_LICENSES.md) |
 | UIClip-derived model assets, ONNX Runtime, Sharp, FFmpeg | [`pkgs/ui-quality-check-server-ts/NOTICE.md`](pkgs/ui-quality-check-server-ts/NOTICE.md), [`MODEL.md`](pkgs/ui-quality-check-server-ts/MODEL.md) |

@@ -1,8 +1,8 @@
-import { MatchmakingArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
+import { MatchmakingArt } from '@pkgs/ui-root-client-ts/illustration';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { JSX } from '@solidjs/web';
 import { Match, Switch } from 'solid-js';

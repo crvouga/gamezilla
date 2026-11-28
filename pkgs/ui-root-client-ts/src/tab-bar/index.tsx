@@ -138,9 +138,7 @@ function TabBarButton(props: { item: TabBarItem }): JSX.Element {
  *
  * - **Look.** A 52px row on the canvas with one hairline above it and the
  *   bottom safe-area inset below. Each destination has a picture with a 12px label
- *   under them. The current item is drawn in the accent with a heavier
- *   stroke and a semibold label; the rest are secondary, so where you are
- *   reads at a glance. No indicator pill. Each label box
+ *   underneath. The current label uses the accent and semibold weight. Each label box
  *   is held at its semibold width (`reserveBold`), so selection never
  *   reflows the labels.
  * - **Meaning.** A `navigation` landmark of links or buttons, never an ARIA

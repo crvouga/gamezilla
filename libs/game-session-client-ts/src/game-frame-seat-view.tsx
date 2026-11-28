@@ -1,4 +1,3 @@
-import { BotArt, FriendsArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -9,6 +8,7 @@ import {
   SmartphoneIcon,
   UserIcon,
 } from '@pkgs/ui-root-client-ts/icons';
+import { BotArt, FriendsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import type { JSX } from '@solidjs/web';
@@ -68,7 +68,7 @@ function OwnSeatRows(props: SeatProps): JSX.Element {
           <FrameChoiceRow
             choices={props.choices}
             id={`custom-game-${side()}-claim`}
-            leading={<UserIcon size={24} />}
+            leading={<UserIcon size={20} />}
             title={<Trans>Sit here</Trans>}
             operation={seatChoice(props, 'claim')}
           />
@@ -100,7 +100,7 @@ function OwnSeatRows(props: SeatProps): JSX.Element {
           <FrameChoiceRow
             choices={props.choices}
             id={`custom-game-${side()}-release`}
-            leading={<LogOutIcon size={24} />}
+            leading={<LogOutIcon size={20} />}
             title={<Trans>Leave seat</Trans>}
             operation={seatChoice(props, 'release')}
           />
@@ -121,7 +121,7 @@ function HolderRows(
       <FrameChoiceRow
         choices={props.choices}
         id={`custom-game-${side()}-take`}
-        leading={<UserIcon size={24} />}
+        leading={<UserIcon size={20} />}
         title={<Trans>Me</Trans>}
         selected={props.seat.own && kind() === 'person'}
         operation={seatChoice(props, 'take')}
@@ -150,7 +150,7 @@ function HolderRows(
         <FrameChoiceRow
           choices={props.choices}
           id={`custom-game-${side()}-local`}
-          leading={<SmartphoneIcon size={24} />}
+          leading={<SmartphoneIcon size={20} />}
           title={<Trans>A player on this device</Trans>}
           selected={kind() === 'local'}
           operation={seatChoice(props, 'local')}
@@ -159,7 +159,7 @@ function HolderRows(
       <FrameChoiceRow
         choices={props.choices}
         id={`custom-game-${side()}-open`}
-        leading={<DoorOpenIcon size={24} />}
+        leading={<DoorOpenIcon size={20} />}
         title={<Trans>Open seat</Trans>}
         caption={<Trans>Anyone in this space may sit</Trans>}
         selected={kind() === 'open'}
@@ -168,7 +168,7 @@ function HolderRows(
       <FrameChoiceRow
         choices={props.choices}
         id={`custom-game-${side()}-close`}
-        leading={<LockIcon size={24} />}
+        leading={<LockIcon size={20} />}
         title={<Trans>Closed seat</Trans>}
         caption={<Trans>Nobody may sit until you choose</Trans>}
         selected={kind() === 'closed'}

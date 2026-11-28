@@ -1,11 +1,10 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
-  BotIcon,
-  HistoryIcon,
   ServerIcon,
   SlidersHorizontalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
+import { BotArt, HistoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -37,7 +36,7 @@ function SyntheticPopulationHub(
     <MenuScreen screenId="synthetic-population" breadcrumbs={panelCrumbs([])}>
       <MenuSection title={<Trans>Synthetic Population</Trans>}>
         <MenuRow
-          leading={<BotIcon size={20} color="icon" />}
+          leading={<BotArt />}
           title={t`Synthetic Users`}
           caption={t`Every Synthetic User, what each is doing and its control panel`}
           onClick={() => props.onOpen('directory')}
@@ -51,7 +50,7 @@ function SyntheticPopulationHub(
           dataSet={{ testid: 'synthetic-population-open-workers' }}
         />
         <MenuRow
-          leading={<HistoryIcon size={20} color="icon" />}
+          leading={<HistoryArt />}
           title={t`Events`}
           caption={t`What the Synthetic Population recorded, newest first`}
           onClick={() => props.onOpen('events')}

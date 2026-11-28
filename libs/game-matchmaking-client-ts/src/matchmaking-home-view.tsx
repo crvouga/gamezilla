@@ -1,4 +1,3 @@
-import { RulesArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { GameSetupMode } from '@libs/spaces-client-ts/game-setup-mode';
@@ -12,6 +11,7 @@ import {
   GameModeCard,
 } from '@pkgs/ui-root-client-ts/game-lobby';
 import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
+import { RulesArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';

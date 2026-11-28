@@ -72,7 +72,9 @@ export function CustomGamesHomePlace(props: FramePlaceProps): JSX.Element {
               leading={<FriendsArt />}
               title={<Trans>Play a Friend</Trans>}
               caption={
-                <Trans>Open table · Let people in this space take the open seats</Trans>
+                <Trans>
+                  Open table · Let people in this space take the open seats
+                </Trans>
               }
               operation={() => props.onChoose({ operation: 'create' })}
             />

@@ -1,10 +1,10 @@
-import { HistoryArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { formatPuzzleRating } from '@libs/game-puzzle-shared-ts/rating';
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
+import { HistoryArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';

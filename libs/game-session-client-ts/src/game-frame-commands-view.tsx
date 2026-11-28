@@ -4,10 +4,10 @@ import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import {
   CheckCheckIcon,
   CircleStopIcon,
-  HistoryIcon,
   ListIcon,
   XIcon,
 } from '@pkgs/ui-root-client-ts/icons';
+import { HistoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
@@ -46,7 +46,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
             <FrameChoiceRow
               choices={choices}
               id="custom-game-offer"
-              leading={<CheckCheckIcon size={24} />}
+              leading={<CheckCheckIcon size={20} />}
               title={<Trans>Offer draw</Trans>}
               caption={
                 <Show when={props.play.offerAgainLater}>
@@ -62,7 +62,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
           <MenuSection>
             <Show when={recordPlayed(props.record)}>
               <MenuRow
-                leading={<ListIcon size={24} />}
+                leading={<ListIcon size={20} />}
                 title={<Trans>Review moves</Trans>}
                 onClick={() => props.onOpen({ screen: 'moves' })}
                 dataSet={{ testid: 'custom-game-review-moves' }}
@@ -70,7 +70,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
             </Show>
             <Show when={props.record?.history}>
               <MenuRow
-                leading={<HistoryIcon size={24} />}
+                leading={<HistoryArt />}
                 title={<Trans>History and stats</Trans>}
                 onClick={() => props.onOpenHistory()}
                 dataSet={{ testid: 'custom-game-history-stats' }}
@@ -82,7 +82,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
           <MenuSection>
             <Show when={props.play.canResign}>
               <MenuRow
-                leading={<CircleStopIcon size={24} color="destructive" />}
+                leading={<CircleStopIcon size={20} color="destructive" />}
                 title={<Trans>Resign</Trans>}
                 tone="destructive"
                 hideChevron
@@ -92,7 +92,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
             </Show>
             <Show when={props.play.canCancel}>
               <MenuRow
-                leading={<XIcon size={24} color="destructive" />}
+                leading={<XIcon size={20} color="destructive" />}
                 title={<Trans>Cancel game</Trans>}
                 tone="destructive"
                 hideChevron

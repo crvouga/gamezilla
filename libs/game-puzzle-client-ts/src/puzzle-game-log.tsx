@@ -1,7 +1,7 @@
-import { HistoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
+import { HistoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';

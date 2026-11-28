@@ -15,6 +15,7 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { SlidersHorizontalIcon } from '@pkgs/ui-root-client-ts/icons';
+import { DeviceArt } from '@pkgs/ui-root-client-ts/illustration';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { ScreenMirror } from '@pkgs/ui-root-client-ts/screen-mirror';
@@ -212,6 +213,7 @@ function LiveWatchBody(props: LiveWatchScreenViewProps): JSX.Element {
       <Match when={props.state.kind === 'offline' ? props.state : null} keyed>
         {(state) => (
           <EmptyState
+            icon={DeviceArt}
             variant="compact"
             title={
               state.username === null

@@ -1,4 +1,3 @@
-import { PuzzleArt } from '@pkgs/ui-root-client-ts/illustration';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
@@ -9,6 +8,7 @@ import {
   PlusIcon,
   Trash2Icon,
 } from '@pkgs/ui-root-client-ts/icons';
+import { PuzzleArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
@@ -252,7 +252,7 @@ function PackOrder(props: ContentPackEditorViewProps): JSX.Element {
           when={props.count > 0}
           fallback={
             <EmptyState
-          icon={PuzzleArt}
+              icon={PuzzleArt}
               variant="compact"
               title={<Trans>No puzzles yet</Trans>}
               body={

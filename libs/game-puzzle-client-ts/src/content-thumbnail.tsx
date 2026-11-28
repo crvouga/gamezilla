@@ -1,5 +1,5 @@
 import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
-import { LightbulbIcon, SquareStackIcon } from '@pkgs/ui-root-client-ts/icons';
+import { BooksArt, PuzzleArt } from '@pkgs/ui-root-client-ts/illustration';
 import {
   PreviewThumbnail,
   type PreviewThumbnailSize,
@@ -32,11 +32,8 @@ export function ContentThumbnail(props: {
       <Show
         when={board()}
         fallback={
-          <Show
-            when={props.kind === 'pack'}
-            fallback={<LightbulbIcon size={96} color="icon" />}
-          >
-            <SquareStackIcon size={96} color="icon" />
+          <Show when={props.kind === 'pack'} fallback={<PuzzleArt size={96} />}>
+            <BooksArt size={96} />
           </Show>
         }
       >

@@ -112,7 +112,9 @@ function ResultCard(
       )}
     >
       <div class={styles['cardHead']}>
-        <Show when={props.tone === 'won'}><VictoryArt /></Show>
+        <Show when={props.tone === 'won'}>
+          <VictoryArt />
+        </Show>
         <div
           class={styles['cardTitle']}
           role={props.live === true ? 'status' : undefined}

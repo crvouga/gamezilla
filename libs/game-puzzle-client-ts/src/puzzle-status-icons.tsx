@@ -1,58 +1,17 @@
 import type { PuzzleStatusKind } from '@libs/game-puzzle-shared-ts/status-kind';
-import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
-import { Badge, type BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
 import {
+  ChevronsRightIcon,
   ClockIcon,
   SearchIcon,
   WifiOffIcon,
+  XIcon,
 } from '@pkgs/ui-root-client-ts/icons';
+import { VictoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { Match, Switch } from 'solid-js';
 
-const ICON_SIZE = 18;
-
-type MarkKind = 'failed' | 'solved' | 'skipped';
-
-/** Failed is the destructive fill, solved the warning star, skipped quiet. */
-const MARK_INTENT: Readonly<Record<MarkKind, BadgeIntent>> = {
-  failed: 'destructive',
-  solved: 'warning',
-  skipped: 'neutral',
-};
-
-function StatusMark(props: { kind: MarkKind }): JSX.Element {
-  // The badge sets itself at the start of its row; its own column centers
-  // it on the status line instead.
-  return (
-    <StackVertical>
-      <Badge
-        size="sm"
-        intent={MARK_INTENT[props.kind]}
-        tone={props.kind === 'skipped' ? 'subtle' : 'solid'}
-        label={
-          <Switch
-            fallback={<Trans id="chess.puzzleStatus.skippedMark">»</Trans>}
-          >
-            <Match when={props.kind === 'failed'}>
-              <Trans id="chess.puzzleStatus.failedMark">✕</Trans>
-            </Match>
-            <Match when={props.kind === 'solved'}>
-              <Trans id="chess.puzzleStatus.solvedMark">★</Trans>
-            </Match>
-          </Switch>
-        }
-      />
-    </StackVertical>
-  );
-}
-
-function markKind(kind: PuzzleStatusKind): MarkKind | null {
-  return kind === 'failed' || kind === 'solved' || kind === 'skipped'
-    ? kind
-    : null;
-}
+const ICON_SIZE = 20;
 
 /**
  * The glyph for one status, leading the status row. The solver's own turn
@@ -77,8 +36,14 @@ export function PuzzleStatusIcon(props: {
       <Match when={kind() === 'waiting'}>
         <ClockIcon size={ICON_SIZE} color="textSecondary" />
       </Match>
-      <Match when={markKind(kind())}>
-        {(mark) => <StatusMark kind={mark()} />}
+      <Match when={kind() === 'solved'}>
+        <VictoryArt />
+      </Match>
+      <Match when={kind() === 'failed'}>
+        <XIcon size={ICON_SIZE} color="destructive" />
+      </Match>
+      <Match when={kind() === 'skipped'}>
+        <ChevronsRightIcon size={ICON_SIZE} color="textSecondary" />
       </Match>
     </Switch>
   );

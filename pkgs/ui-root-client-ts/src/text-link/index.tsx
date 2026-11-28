@@ -4,12 +4,11 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
-import { ArrowUpRightIcon } from '../icons';
 import { Icon } from '../icon/index';
+import { ArrowUpRightIcon } from '../icons';
 import { spaced } from '../layout-classes';
 import { LinkHost } from '../link-host';
 import { VisuallyHidden } from '../visually-hidden/index';
-
 
 /** `inline` inside a sentence; `standalone` on its own line. */
 export type TextLinkVariant = 'inline' | 'standalone';

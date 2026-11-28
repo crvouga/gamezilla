@@ -1,4 +1,3 @@
-import { HistoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { t } from '@lingui/core/macro';
@@ -9,6 +8,7 @@ import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
+import { HistoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MainMenuItemRow } from '@pkgs/ui-root-client-ts/main-menu-item-row';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';

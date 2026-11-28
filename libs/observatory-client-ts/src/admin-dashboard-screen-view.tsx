@@ -1,4 +1,9 @@
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import {
+  BotArt,
+  PuzzleArt,
+  StatsArt,
+} from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -28,11 +33,13 @@ export function AdminDashboardScreenView(props: {
     >
       <MenuSection title={<Trans>People and activity</Trans>}>
         <MenuRow
+          leading={<StatsArt />}
           title={<Trans>User Observatory</Trans>}
           caption={<Trans>See who is online and watch a live session.</Trans>}
           onClick={() => props.onObservatory()}
         />
         <MenuRow
+          leading={<BotArt />}
           title={<Trans>Synthetic Population</Trans>}
           caption={
             <Trans>
@@ -45,6 +52,7 @@ export function AdminDashboardScreenView(props: {
       </MenuSection>
       <MenuSection title={<Trans>Game content</Trans>}>
         <MenuRow
+          leading={<PuzzleArt />}
           title={<Trans>Chess puzzle catalogue</Trans>}
           caption={<Trans>Manage the source file and load puzzles.</Trans>}
           onClick={() => props.onPuzzles()}

@@ -39,13 +39,13 @@ export default function IconButtonExample(): JSX.Element {
       </p>
       <SchemePreview>
         <div class="box gap-4">
-          <Row label="Header controls: 40px disc, 24px outline icon">
+          <Row label="Header controls: 40px disc, 20px Regular icon">
             <BackIconButton onClick={() => undefined} />
             <IconButton label="Notifications" onClick={() => undefined}>
-              <BellIcon size={24} color="text" />
+              <BellIcon size={20} color="text" />
             </IconButton>
             <IconButton label="More" onClick={() => undefined}>
-              <EllipsisIcon size={24} color="text" />
+              <EllipsisIcon size={20} color="text" />
             </IconButton>
             <CloseIconButton onClick={() => undefined} />
           </Row>
@@ -95,7 +95,7 @@ export default function IconButtonExample(): JSX.Element {
               tooltip="default"
               onClick={() => undefined}
             >
-              <EllipsisIcon size={24} color="text" />
+              <EllipsisIcon size={20} color="text" />
             </IconButton>
           </Row>
           <Row label="Avatar trigger">

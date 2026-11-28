@@ -48,10 +48,7 @@ export function BackIconButton(props: BackIconButtonProps): JSX.Element {
       aria-label={label()}
       dataSet={{ component: 'BackIconButton', ...props.dataSet }}
     >
-      <ChevronLeftIcon
-        size={ICON_SIZE}
-        color="text"
-      />
+      <ChevronLeftIcon size={ICON_SIZE} color="text" />
     </IconButton>
   );
 }
