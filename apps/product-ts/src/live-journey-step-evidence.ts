@@ -54,3 +54,32 @@ export function createJourneyStepRecorder(
     return result;
   };
 }
+
+/** Long multiplayer steps can start and finish a match before the step screenshot.
+ * Capture its first visible board after a successful gesture on the active device. */
+export function createJourneyBoardCapture(
+  scenarioId: string,
+  store: ObjectStore
+) {
+  let captured = false;
+  return async (view: JourneyStepView, action: string): Promise<void> => {
+    if (captured) return;
+    const visible = await view.evaluate(`Array.from(document.querySelectorAll(
+      '[data-game-board], [data-testid="game-session-board"], [data-testid="chess-puzzle-board-frame"], [data-testid="sokoban-board"], [data-testid="numberlink-board"]'
+    )).some(board => {
+      const { width, height, top, bottom } = board.getBoundingClientRect();
+      return width > 0 && height > 0 && top < innerHeight && bottom > 0;
+    })`);
+    if (!visible || captured) return;
+    captured = true;
+    const record = createJourneyStepRecorder(
+      `${scenarioId}.board`,
+      store,
+      () => view
+    );
+    await record(
+      { keyword: 'Board after', text: action },
+      async () => undefined
+    );
+  };
+}

@@ -63,6 +63,10 @@ export function ArenaPatterns(props: {
 }): JSX.Element {
   return (
     <defs>
+      <linearGradient id={`${props.arenaId}-rim`} x2="85%" y2="100%">
+        <stop stop-color="var(--ui-color-text)" />
+        <stop offset="0.64" stop-color="var(--ui-color-outline)" />
+      </linearGradient>
       <pattern
         id={`${props.arenaId}-cells`}
         width="1"

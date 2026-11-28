@@ -61,7 +61,7 @@ function TabBarItemFace(props: { item: TabBarItem }): JSX.Element {
         class={[
           'box h-8 w-12 max-w-full items-center justify-center rounded-control transition-colors',
           {
-            'bg-tint-subtle': props.item.current,
+            'bg-tint-subtle artMount': props.item.current,
             'group-hover:bg-interactive-hover': !props.item.current,
           },
         ]}

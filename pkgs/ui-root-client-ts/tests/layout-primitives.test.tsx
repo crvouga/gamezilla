@@ -220,6 +220,7 @@ describe('Surface', () => {
       'box',
       'flex-row',
       'p-ui-md',
+      'wellTrack',
       'bg-surface-muted',
       'rounded-control',
       'border',

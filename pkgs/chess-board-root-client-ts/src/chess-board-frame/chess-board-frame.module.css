@@ -36,7 +36,7 @@
   align-items: center;
   justify-content: center;
   color: var(--ui-color-text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--ui-font-sans, system-ui, sans-serif);
   font-size: 14px;
   font-weight: 600;
   line-height: 1;

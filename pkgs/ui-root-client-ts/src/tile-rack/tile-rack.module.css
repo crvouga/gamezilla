@@ -12,8 +12,8 @@
   gap: 0;
   padding: var(--ui-space-1);
   border-radius: var(--ui-radius-sm);
-  background: var(--ui-color-surface-sunken);
-  box-shadow: inset 0 -2px var(--ui-color-game-word-tiles-muted);
+  background: var(--ui-finish-slot) var(--ui-color-surface-sunken);
+  box-shadow: var(--ui-depth-slot);
 }
 @container (max-width: 20rem) {
   .rack {
@@ -46,8 +46,8 @@
   border: 1px solid var(--ui-color-board-dark);
   border-bottom-width: var(--ui-space-1);
   border-radius: var(--ui-radius-sm);
-  background: var(--ui-color-game-word-tiles-accent);
-  box-shadow: inset 0 2px var(--ui-color-board-card-face);
+  background: var(--ui-finish-piece) var(--ui-color-game-word-tiles-accent);
+  box-shadow: var(--ui-depth-piece);
 }
 .tile[aria-disabled="true"] {
   cursor: default;
@@ -116,7 +116,7 @@
   border: 1px solid var(--ui-color-game-word-tiles-muted);
   border-bottom-width: var(--ui-space-1);
   border-radius: var(--ui-radius-sm);
-  background: var(--ui-color-game-word-tiles-accent);
+  background: var(--ui-finish-piece) var(--ui-color-game-word-tiles-accent);
   color: var(--ui-color-board-card-ink);
   font-size: var(--ui-font-size-xl);
   font-weight: 700;

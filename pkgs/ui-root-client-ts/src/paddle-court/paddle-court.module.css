@@ -67,7 +67,8 @@
   border: var(--ui-space-hairline) solid var(--ui-color-outline);
   border-radius: var(--ui-radius-card);
   color: var(--ui-color-text);
-  background: var(--ui-color-background);
+  background: var(--ui-finish-slot) var(--ui-color-background);
+  box-shadow: var(--ui-depth-slot);
   touch-action: pan-y;
   user-select: none;
 }

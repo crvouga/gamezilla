@@ -38,6 +38,10 @@ test('tree storage identifies Fluent SVG artwork in a release bundle', async () 
       fs: wallNodeFs(),
       layout: 'tree',
     });
+    await writeFile(join(rootDir, 'video-game.webp'), new Uint8Array());
+    expect((await store.get('video-game.webp'))?.contentType).toBe(
+      'image/webp'
+    );
     const file = await store.get('video-game.svg');
     expect(file?.contentType).toBe('image/svg+xml');
   } finally {

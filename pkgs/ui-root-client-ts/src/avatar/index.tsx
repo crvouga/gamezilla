@@ -315,7 +315,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
   });
   return (
     <SdkAvatar
-      class={`box inline-flex shrink-0 rounded-full items-center justify-center ${ringClass({ kind: props.kind, seatColor: props.seatColor, ring: props.ring, accentRing: props.accentRing }, initialsRing())}`}
+      class={`box avatarMedallion inline-flex shrink-0 rounded-full items-center justify-center ${ringClass({ kind: props.kind, seatColor: props.seatColor, ring: props.ring, accentRing: props.accentRing }, initialsRing())}`}
       data-kind={kind()}
       data-you={props.you === true ? 'true' : undefined}
       data-seat-color={props.seatColor}

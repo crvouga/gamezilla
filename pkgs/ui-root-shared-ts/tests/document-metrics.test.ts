@@ -3,9 +3,9 @@ import { renderTokensCss } from '@pkgs/ui-root-shared-ts/css-vars';
 import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/document-palette';
 
 // regression: startup-metrics-shift
-test('opening typography and radius resolve before the application stylesheet arrives', () => {
+test('opening typography, radius and materials resolve before the application stylesheet arrives', () => {
   const css =
-    'h1{font-weight:var(--ui-text-display-weight);font-size:var(--ui-text-display-size,26px)}main{font-family:var(--ui-font-sans);line-height:var(--ui-text-body-leading,22px);border-radius:var(--ui-radius-control,12px)}';
+    'button{background:var(--ui-finish-action);box-shadow:var(--ui-depth-control)}aside{background:var(--ui-finish-slot);box-shadow:var(--ui-depth-slot)}h1{font-weight:var(--ui-text-display-weight);font-size:var(--ui-text-display-size,26px)}main{font-family:var(--ui-font-sans);line-height:var(--ui-text-body-leading,22px);border-radius:var(--ui-radius-control,12px)}';
   const opening = withDocumentPalette(css);
   const full = renderTokensCss();
   const definitions = (source: string) =>
@@ -31,6 +31,10 @@ test('opening typography and radius resolve before the application stylesheet ar
     '--ui-text-display-weight',
     '--ui-text-body-leading',
     '--ui-radius-control',
+    '--ui-finish-action',
+    '--ui-depth-control',
+    '--ui-finish-slot',
+    '--ui-depth-slot',
   ]) {
     expect(initial.has(name)).toBe(true);
     expect(initial.get(name)).toBe(resolve(final, name));

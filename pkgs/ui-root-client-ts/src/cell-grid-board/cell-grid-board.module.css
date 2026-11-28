@@ -52,7 +52,8 @@
   gap: 0.125rem;
   padding: 0.5rem;
   border-radius: var(--ui-radius-card);
-  background: var(--color-surface-muted);
+  background: var(--ui-finish-piece) var(--color-surface-muted);
+  box-shadow: var(--ui-depth-raised);
   color: var(--color-text);
 }
 /* A game's board fills its column, edge to edge with its seats. */
@@ -389,6 +390,7 @@
   background: var(--ui-color-game-sokoban-ink);
 }
 .board[data-board-theme="sokoban"] .cell[data-identity] .glyph {
+  box-shadow: var(--ui-depth-piece);
   display: grid;
   place-items: center;
   box-sizing: border-box;

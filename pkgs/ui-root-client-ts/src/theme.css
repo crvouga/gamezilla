@@ -141,6 +141,7 @@
   --color-tint-hover: var(--ui-color-tint-hover);
   --color-tint-active: var(--ui-color-tint-active);
   --color-tint-subtle: var(--ui-color-tint-subtle);
+  --color-material-glint: var(--ui-color-material-glint);
   --color-action-shade: var(--ui-color-action-shade);
   --color-reward: var(--ui-color-reward);
   --color-reward-surface: var(--ui-color-reward-surface);

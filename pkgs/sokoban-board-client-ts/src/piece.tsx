@@ -29,6 +29,7 @@ function Cargo(props: { readonly delivered: boolean }): JSX.Element {
   return (
     <>
       <path class={styles['wood']} d="M0 22h40v18H0z" />
+      <path class={styles['timberLip']} d="M2 37V2h35" />
       <path class={styles['grain']} d="M4 13h32M4 25h32" />
       <path class={styles['brace']} d="M0 32 32 0h8v8L8 40H0z" />
       <g class={styles['ink']}>

@@ -126,7 +126,7 @@ export function SegmentedControl<K extends string = string>(
   return (
     <SdkSegmentedControl<K>
       class={[
-        'box flex-row p-1 gap-1 border border-outline rounded-control bg-surface-muted relative',
+        'box wellTrack flex-row p-1 gap-1 border border-outline rounded-control bg-surface-muted relative',
         { 'opacity-disabled': props.disabled === true },
       ]}
       {...dataAttrs({ component: 'SegmentedControl', ...props.dataSet })}

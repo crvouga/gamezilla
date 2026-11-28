@@ -8,6 +8,11 @@ import {
   relativeLuminance,
 } from '@pkgs/ui-root-shared-ts/contrast';
 import { parseCssColor, rgbaToRgb8 } from '@pkgs/ui-root-shared-ts/css-color';
+import {
+  COLOR_TOKEN_NAMES,
+  colorVar,
+  materialVariables,
+} from '@pkgs/ui-root-shared-ts/document-palette';
 
 /**
  * WCAG AA: body text 4.5:1; large text, borders that carry meaning, focus
@@ -135,15 +140,58 @@ describe('player colors', () => {
   });
 });
 
+/** Include the unlit substrate and every tint actually used in this finish. */
+function faceColors(
+  finish: 'action' | 'slot' | 'piece',
+  substrate: ColorTokenName
+) {
+  const recipe = new Map<string, string>(materialVariables()).get(
+    `--ui-finish-${finish}`
+  );
+  const base = parseCssColor(COLOR_PALETTE[substrate]);
+  if (!recipe || !base)
+    throw new Error(`Invalid material: ${finish} on ${substrate}`);
+  return [
+    rgbaToRgb8(base),
+    ...COLOR_TOKEN_NAMES.filter((role) => recipe.includes(colorVar(role))).map(
+      (role) => {
+        const overlay = parseCssColor(COLOR_PALETTE[role]);
+        if (!overlay) throw new Error(`Invalid material color: ${role}`);
+        return rgbaToRgb8(compositeOver(overlay, base));
+      }
+    ),
+  ];
+}
+
 describe('palette contrast', () => {
-  test('the primary label holds AA at the shaded end of the action face', () => {
-    const ink = parseColor(COLOR_PALETTE.onPrimary);
-    const fill = parseCssColor(COLOR_PALETTE.tintActive);
-    const shade = parseCssColor(COLOR_PALETTE.actionShade);
-    if (!ink || !fill || !shade) throw new Error('Invalid action colors');
-    expect(
-      contrastRatio(ink, rgbaToRgb8(compositeOver(shade, fill)))
-    ).toBeGreaterThanOrEqual(TEXT);
+  test('every endpoint of a filled control holds AA', () => {
+    for (const [label, substrate] of [
+      ['onPrimary', 'tintActive'],
+      ['text', 'surfaceElevated'],
+      ['onDestructive', 'destructiveActive'],
+      ['onSuccess', 'success'],
+    ] as const) {
+      const ink = parseColor(COLOR_PALETTE[label]);
+      if (!ink) throw new Error(`Invalid label: ${label}`);
+      for (const face of faceColors('action', substrate)) {
+        expect(
+          contrastRatio(ink, face),
+          `${label} on ${substrate}`
+        ).toBeGreaterThanOrEqual(TEXT);
+      }
+    }
+  });
+
+  test('the switch thumb remains distinct from the well in either state', () => {
+    for (const thumb of faceColors('piece', 'onPrimary')) {
+      for (const track of ['tintActive', 'outline'] as const) {
+        for (const surface of faceColors('slot', track)) {
+          expect(contrastRatio(thumb, surface), track).toBeGreaterThanOrEqual(
+            GLYPH
+          );
+        }
+      }
+    }
   });
 
   test(`every text and glyph pair meets WCAG AA`, () => {

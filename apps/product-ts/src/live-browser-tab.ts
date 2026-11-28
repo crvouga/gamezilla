@@ -5,8 +5,11 @@ import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-web
 import { browserNetworkEvidence } from './browser-network-evidence';
 import type { LiveTarget } from './live-browser';
 
-/** Phone-sized: the layout most people use. */
-const VIEWPORT = { width: 390, height: 844 } as const;
+/** Health and ordinary journeys use the phone. A capture can request the desktop shell. */
+const VIEWPORT =
+  process.env['JOURNEY_CAPTURE_VIEWPORT'] === 'desktop'
+    ? { width: 1280, height: 800 }
+    : { width: 390, height: 844 };
 const CHROME_BACKEND = { type: 'chrome', url: false } as const;
 
 function formatConsoleArg(arg: unknown): string {

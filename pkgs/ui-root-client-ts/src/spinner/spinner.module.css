@@ -1,14 +1,14 @@
-/* The ring turns in twelve discrete 30° steps per revolution (one per petal,
-   `ACTIVITY_PETALS`), so the bright petal hops from slot to slot and the
-   opacity steps around the ring; it never rotates smoothly, which keeps the
-   petals crisp at small sizes. One second per revolution (`ACTIVITY_REVOLUTION_MS`).
-   Phase is shared across instances through a negative `animation-delay`
-   computed from the injected clock (see `SpinnerProvider`). */
+/* The socket stays still. Only the ticks turn, in whole steps for sharp edges
+   at small sizes. SpinnerProvider shares their phase across loading states. */
+.socket {
+  background-image: var(--ui-finish-slot);
+  box-shadow: var(--ui-depth-slot);
+}
 
 .petals {
   display: block;
   flex-shrink: 0;
-  animation: ui-activity-step 1000ms steps(12, end) infinite;
+  animation: ui-activity-step 1000ms steps(8, end) infinite;
 }
 
 @keyframes ui-activity-step {

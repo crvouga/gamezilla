@@ -64,6 +64,9 @@ export type LayoutHostProps = {
 
 function paintClass(paint: PaintProps): string {
   return spaced([
+    paint.radius !== undefined && paint.tone === 'muted'
+      ? 'wellTrack'
+      : undefined,
     surfaceClass(paint.tone ?? 'surface'),
     radiusClass(paint.radius),
     paint.border === true ? 'border border-border' : undefined,

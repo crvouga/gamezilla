@@ -58,6 +58,48 @@ describe('designVocabularyViolations', () => {
     );
   });
 
+  test('shared components cannot paint local lighting, even with token colors', () => {
+    const path = 'src/game-menu/menu.module.css';
+    const text = [
+      '/* Local CSS can read shared finishes and depths. */',
+      '.menu { background-image: var(--ui-finish-surface); box-shadow: var(--ui-depth-raised); }',
+      '.selected { background-image:',
+      '  linear-gradient(var(--ui-color-surface), var(--ui-color-background));',
+      '  box-shadow: var(--ui-depth-control),',
+      '    0 4px 8px var(--ui-color-shadow-color); }',
+      '.menu { --ui-finish-local: none; filter: drop-shadow(0 4px 3px currentColor); }',
+    ].join('\n');
+    for (const profile of ['design-system', 'component', 'product'] as const) {
+      expect(
+        designVocabularyViolations([{ path, text }], profile).map(
+          (message) => message.split(' — ')[0]
+        )
+      ).toEqual([
+        `${path}:3: local surface gradient`,
+        `${path}:5: local surface shadow`,
+        `${path}:7: local material definition`,
+        `${path}:7: local drop shadow`,
+      ]);
+    }
+  });
+
+  test('a drawn board mark exempts only its drawing rule', () => {
+    const mark =
+      'radial-gradient(circle, var(--chess-legal-dot) 25%, transparent 28%)';
+    const path = 'src/chess-board/chess-board.module.css';
+    expect(hits(`.hint { background-image: ${mark}; }`, path)).toEqual([]);
+    expect(hits(`.clock { background-image: ${mark}; }`, path)).toHaveLength(1);
+    expect(
+      hits(`.hint { background-image: ${mark}; }`, 'src/menu.css')
+    ).toHaveLength(1);
+    expect(
+      hits(
+        '.cell { box-shadow: inset 0 0 0 2px var(--ui-color-focus-ring), var(--ui-depth-slot); }',
+        path
+      )
+    ).toEqual([]);
+  });
+
   test('generated tokens and brand marks may name colors', () => {
     expect(
       designVocabularyViolations(

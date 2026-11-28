@@ -57,7 +57,7 @@ export function RangeControl(props: RangeControlProps) {
       class={
         props.orientation === 'vertical'
           ? `box accent-tint bg-transparent cursor-pointer ${styles['vertical']}`
-          : 'box w-full min-h-11 accent-tint bg-transparent cursor-pointer'
+          : `box w-full min-h-11 accent-tint bg-transparent cursor-pointer ${styles['horizontal']}`
       }
       aria-orientation={props.orientation}
       data-paddle={props.orientation === 'vertical' ? props.paddle : undefined}

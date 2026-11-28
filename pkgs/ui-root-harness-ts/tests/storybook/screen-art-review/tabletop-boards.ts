@@ -1,0 +1,21 @@
+/** Each entry opens a production board inside the game or puzzle screen. */
+export const tabletopBoards: Readonly<Record<string, string>> = {
+  'screens-games-chess-board--early-game': 'ChessBoard',
+  'screens-games-chess-puzzle--solving': 'ChessBoard',
+  'screens-games-connect-four-board--your-turn': 'DiscDropBoard',
+  'screens-games-battleship-setup--partial': 'CellGridBoard',
+  'screens-games-battleship-board--your-turn': 'CellGridBoard',
+  'screens-games-quoridor-classic--your-turn': 'CellGridBoard',
+  'screens-games-quoridor-hill--four-player-round': 'CellGridBoard',
+  'screens-games-word-tiles-board--two-player-match': 'WordTileBoard',
+  'screens-games-word-tiles-board--three-player-match': 'WordTileBoard',
+  'screens-games-word-tiles-board--four-player-match': 'WordTileBoard',
+  'screens-games-word-tiles-puzzle--after-a-move': 'WordTileBoard',
+  'screens-games-hearts-board--your-turn-to-play': 'CardTable',
+  'screens-games-pong-stage--rally': 'PaddleCourt',
+  'screens-games-light-cycles-stage-variants--duel-riding': 'TrailArena',
+  'screens-games-light-cycles-stage-motion--trio': 'TrailArena',
+  'screens-games-light-cycles-stage-variants--quad-riding': 'TrailArena',
+  'screens-games-numberlink-puzzle--in-progress': 'PathGridBoard',
+  'screens-games-sokoban-puzzle--fresh': 'TileBoard',
+};

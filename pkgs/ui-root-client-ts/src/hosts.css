@@ -33,7 +33,7 @@
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
     background-image: var(--ui-finish-surface);
-    box-shadow: 0 var(--ui-space-hairline) var(--ui-color-border);
+    box-shadow: var(--ui-depth-raised);
   }
 
   /* Rows share one continuous surface. The panel clips their focus and press states. */
@@ -391,6 +391,11 @@
     background: var(--ui-color-interactive-press);
   }
 
+  .panelItem
+    .clickableTint:not(:disabled, [aria-disabled="true"]):active::after {
+    box-shadow: var(--ui-depth-pressed);
+  }
+
   .clickableOpacity {
     transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
   }
@@ -448,8 +453,8 @@
     font: inherit;
     color: var(--ui-color-text);
     caret-color: var(--ui-color-text);
-    background: var(--ui-color-surface);
-    background-image: var(--ui-finish-surface);
+    background: var(--ui-finish-well) var(--ui-color-surface-muted);
+    box-shadow: var(--ui-depth-well);
     /* A field's edge is a control boundary, so it is the 3:1 `outline`
        (line-strong), not the hairline. */
     border: 1px solid var(--ui-color-outline);
@@ -484,6 +489,10 @@
 
   /* A borderless field set into an editor has no edge to thicken: it takes
      the full 2px ring, still without a gap. */
+  .inputEmbedded {
+    box-shadow: none;
+  }
+
   .inputEmbedded:focus-visible {
     outline-width: 2px;
   }
@@ -599,10 +608,6 @@
   .switchTrack {
     transition: background-color var(--ui-duration-normal)
       var(--ui-easing-standard);
-  }
-
-  .switchThumb {
-    transition: transform var(--ui-duration-normal) var(--ui-easing-standard);
   }
 
   /* Safe-area insets (notch / home indicator). Classes because happy-dom and

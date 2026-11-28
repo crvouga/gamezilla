@@ -2,6 +2,11 @@
    partial fill across the track; reduced motion holds it still at the start,
    which still reads as "working" without anything moving. */
 
+.fill,
+.sweep {
+  background-image: var(--ui-finish-piece);
+}
+
 .fill {
   transition: width var(--ui-duration-normal) var(--ui-easing-standard);
 }

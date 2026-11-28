@@ -28,6 +28,12 @@
   fill: var(--ui-color-game-sokoban-canvas);
   opacity: 0.2;
 }
+.timberLip {
+  fill: none;
+  stroke: var(--ui-color-game-sokoban-ink);
+  stroke-opacity: 0.55;
+  stroke-width: 2;
+}
 .grain,
 .line {
   fill: none;
