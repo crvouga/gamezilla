@@ -72,6 +72,11 @@ for metal, plastic and faces. A new board motif uses its playing colors and
 a recognizable arrangement of pieces. Review it beside its name at 40 px and
 in the cover grid. Use the hosted tabletop captures to compare both sizes.
 
+Use the [reviewed phone and desktop references](https://github.com/crvouga/gamezilla/pull/898#issuecomment-7236429151)
+to compare the scale of a new piece, the edge of a control, and the contrast
+between the board and its surroundings. Each image identifies its source
+revision. The hosted `tabletop-review` captures the current implementation.
+
 Functional controls use the [Fluent UI System Icons Regular collection](src/icons.ts).
 Its default glyph is 20 px. Give an icon-only button an accessible name and
 preserve its interactive target when changing the size of its glyph.
