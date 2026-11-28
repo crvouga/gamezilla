@@ -238,7 +238,6 @@
         "@pkgs/s3-server-ts#src",
         "@pkgs/sql-client-postgres-server-ts#src",
         "@pkgs/sql-client-root-shared-ts#src",
-        "@pkgs/sql-client-sqlite-web-server-ts#src",
         "@pkgs/sql-root-shared-ts#src",
         "@pkgs/tailwind-shared-ts#src",
         "@pkgs/ui-root-client-ts#src",
@@ -332,13 +331,9 @@
       "persistent": true,
       "cache": false
     },
-    "verify:offline-shell": {
+    "verify:worker-retirement": {
       "dependsOn": ["@apps/product-ts#build"],
-      "inputs": [
-        "scripts/verify-offline-shell.ts",
-        "scripts/dist-graph.ts",
-        "scripts/sw-policy.ts"
-      ],
+      "inputs": ["scripts/verify-worker-retirement.ts", "public/sw.js"],
       "outputs": [],
       "outputLogs": "errors-only"
     },
@@ -348,7 +343,7 @@
         "@apps/admin-api-ts#publish:permission-policy",
         "@libs/chess-puzzle-server-ts#initialize:catalog",
         "@apps/product-api-ts#verify:api",
-        "@apps/product-ts#verify:offline-shell",
+        "@apps/product-ts#verify:worker-retirement",
         "@apps/product-ts#verify:worker-bundle",
         "@apps/product-ts#verify:rendered-worker"
       ]

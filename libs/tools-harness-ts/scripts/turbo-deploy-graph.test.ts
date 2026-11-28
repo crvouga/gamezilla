@@ -165,7 +165,7 @@ const VERIFY_LEAVES = [
   ...SPEC_PART_TASKS,
   'test:unit:1',
   'test:unit:2',
-  '@apps/product-ts#verify:offline-shell',
+  '@apps/product-ts#verify:worker-retirement',
   ...RELEASE_JOURNEY_TASKS,
   '@apps/admin-api-ts#verify:worker-bundle',
   '@apps/auth-relay-ts#verify:worker-bundle',
@@ -562,7 +562,7 @@ describe('turbo verify/deploy graph invariants', () => {
       '@apps/admin-api-ts#publish:permission-policy',
       '@libs/chess-puzzle-server-ts#initialize:catalog',
       '@apps/product-api-ts#verify:api',
-      '@apps/product-ts#verify:offline-shell',
+      '@apps/product-ts#verify:worker-retirement',
       '@apps/product-ts#verify:worker-bundle',
       '@apps/product-ts#verify:rendered-worker',
     ]);

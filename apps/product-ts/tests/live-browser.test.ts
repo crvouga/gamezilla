@@ -1,21 +1,15 @@
 import { expect, test } from 'bun:test';
 import { join } from 'node:path';
-import { runInNewContext } from 'node:vm';
 import {
   browserNetworkEvidence,
   readSyncResponseEvidence,
 } from '@apps/product-ts/browser-network-evidence';
-import {
-  EVIDENCE_DIR,
-  emulateOffline,
-  waitForCachedShell,
-} from '@apps/product-ts/live-browser';
+import { EVIDENCE_DIR, emulateOffline } from '@apps/product-ts/live-browser';
 import { openBrowserTab } from '@apps/product-ts/live-browser-tab';
 import {
   createJourneyStepRecorder,
   type JourneyStepView,
 } from '@apps/product-ts/live-journey-step-evidence';
-import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import {
   readObjectBytes,
   readUtf8,
@@ -154,39 +148,6 @@ test('a fresh live device can cut its network through Chrome', async () => {
     await device.close();
   }
   expect(closed).toBe(true);
-});
-
-// regression: health-offline-before-precache-ready
-test('a cold install taking more than twenty seconds stays online until ready', async () => {
-  const { clock, timers } = createHarnessClock();
-  const ready = new Promise((resolve) => {
-    timers.setTimeout(() => resolve({ active: {} }), 25_000);
-  });
-  const view = {
-    evaluate: (script: string) =>
-      runInNewContext(script, {
-        navigator: { serviceWorker: { ready } },
-      }),
-  } as unknown as Bun.WebView;
-  let settled = false;
-  const waiting = waitForCachedShell(view).then(() => {
-    settled = true;
-  });
-  clock.advance(20_000);
-  await Promise.resolve();
-  expect(settled).toBe(false);
-  clock.advance(5_000);
-  await waiting;
-  expect(settled).toBe(true);
-});
-
-test('an unavailable offline shell fails the readiness check', async () => {
-  const view = {
-    evaluate: (script: string) => runInNewContext(script, { navigator: {} }),
-  } as unknown as Bun.WebView;
-  await expect(waitForCachedShell(view)).rejects.toThrow(
-    'no service worker support'
-  );
 });
 
 const SUCCESS_STEP = { keyword: 'When ', text: 'the person opens a space' };

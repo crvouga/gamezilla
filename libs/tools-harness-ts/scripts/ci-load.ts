@@ -30,7 +30,7 @@ const EXACT_TASKS = new Set([
   'verify:models',
   'verify:worker-bundle',
   'verify:rendered-worker',
-  'verify:offline-shell',
+  'verify:worker-retirement',
   'verify:schema-evolution',
   'verify:actionlint',
   'verify:brand-policy',

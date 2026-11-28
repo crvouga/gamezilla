@@ -232,7 +232,7 @@ release gates:
   - leaked secrets
   - settings the app needs
   - release artifact limits
-  - offline start
+  - retirement of old app versions
   - database evolution
   - infrastructure policy
   - workflow validity

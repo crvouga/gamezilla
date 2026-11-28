@@ -1,4 +1,3 @@
-import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
 /**
  * Browser local SQLite: multi-tab-safe OPFS broker from
  * `@pkgs/sql-client-sqlite-web`. Local sync schema migration runs after open.
@@ -130,6 +129,9 @@ export async function openDisposableSqlClient(
   reason: unknown
 ): Promise<SqlClient> {
   recordLocalDatabaseOpen(LOCAL_DATABASE.memory, reason);
+  const { SqlClientImplMockingbirdSqlite } = await import(
+    '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite'
+  );
   const client = SqlClientImplMockingbirdSqlite.open();
   await client.connect();
   disposableClients.add(client);

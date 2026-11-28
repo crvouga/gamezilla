@@ -182,7 +182,7 @@ export const MAIN_VERIFY_TASKS = [
   ),
   'test:unit:1',
   'test:unit:2',
-  '@apps/product-ts#verify:offline-shell',
+  '@apps/product-ts#verify:worker-retirement',
   ...RELEASE_JOURNEY_TASKS,
   '@apps/admin-api-ts#verify:worker-bundle',
   '@apps/auth-relay-ts#verify:worker-bundle',

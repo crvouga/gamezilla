@@ -1,0 +1,4 @@
+{
+  "summary": "A previously installed application worker kept serving an old release.",
+  "regressionTest": "apps/product-ts/scripts/worker-retirement.test.ts"
+}

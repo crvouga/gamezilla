@@ -82,8 +82,7 @@
     "@solidjs/router": "catalog:",
     "@solidjs/web": "catalog:",
     "solid-js": "catalog:",
-    "web-vitals": "catalog:",
-    "workbox-window": "catalog:"
+    "web-vitals": "catalog:"
   },
   "devDependencies": {
     "@dicebear/collection": "catalog:",

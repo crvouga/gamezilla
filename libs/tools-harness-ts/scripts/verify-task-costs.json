@@ -19,7 +19,7 @@
   "@apps/product-ts#test:spec:0": 32,
   "@apps/product-ts#test:unit:1": 2,
   "@apps/product-ts#test:unit:2": 62,
-  "@apps/product-ts#verify:offline-shell": 1,
+  "@apps/product-ts#verify:worker-retirement": 1,
   "@apps/product-ts#verify:rendered-worker": 13,
   "@apps/product-ts#verify:worker-bundle": 5,
   "@apps/product-api-ts#build": 1,

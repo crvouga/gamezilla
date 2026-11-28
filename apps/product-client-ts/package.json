@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "vite build && bun run scripts/build-sw.ts",
+    "build": "vite build",
     "dev": "bun run scripts/dev.ts",
     "kill": "bun run scripts/kill-dev.ts",
     "kill-dev": "bun run scripts/kill-dev.ts",
@@ -57,8 +57,7 @@
     "@typescript/native": "catalog:",
     "rollup-plugin-visualizer": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "workbox-build": "catalog:"
+    "vite": "catalog:"
   },
   "category": "client",
   "gameRegistry": true,

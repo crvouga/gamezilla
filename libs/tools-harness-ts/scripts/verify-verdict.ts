@@ -85,7 +85,7 @@ const SUITES: readonly (readonly [string, RegExp])[] = [
   ['Security', /^(verify:secrets|ci:audit)$/],
   [
     'Build',
-    /^(build|src|verify:worker-bundle|verify:rendered-worker|verify:offline-shell)$/,
+    /^(build|src|verify:worker-bundle|verify:rendered-worker|verify:worker-retirement)$/,
   ],
   ['Repository gates', /./],
 ];

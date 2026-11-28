@@ -1,0 +1,4 @@
+{
+  "summary": "The initial Spaces document displayed navigation without a New space action.",
+  "regressionTest": "libs/app-root-client-ts/tests/boot-loading-shell.test.tsx"
+}

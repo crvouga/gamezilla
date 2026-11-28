@@ -120,7 +120,6 @@
     "libs/app-root-client-ts/src/perf-sampler-context.tsx",
     "libs/app-root-client-ts/src/performance-screen.tsx",
     "libs/app-root-client-ts/src/product-app.tsx",
-    "libs/app-root-client-ts/src/register-service-worker.ts",
     "libs/app-root-client-ts/src/resolve-connectivity-status.ts",
     "libs/app-root-client-ts/src/root-error-boundary.tsx",
     "libs/app-root-client-ts/src/route-stub.tsx",

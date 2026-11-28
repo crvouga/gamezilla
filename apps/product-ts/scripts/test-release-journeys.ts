@@ -77,8 +77,6 @@ async function buildRelease(apiOrigin: string): Promise<void> {
     cacheDir: artifacts.viteCacheDir,
     build: { outDir: artifacts.distDir, emptyOutDir: true },
   });
-  const { buildServiceWorker } = await import('./build-sw');
-  await buildServiceWorker(artifacts.distDir);
 }
 
 function serveRelease(origin: string): ReturnType<typeof Bun.serve> {
