@@ -8,7 +8,7 @@ const read = (path: string) => readFileSync(join(repo, path), 'utf8');
 type Color = { readonly $value: { readonly hex: string } };
 const tokens = JSON.parse(
   read('pkgs/ui-root-shared-ts/src/design-tokens.json')
-) as { color: Record<'light' | 'dark', Record<string, Color>> };
+) as { color: Record<string, Color> };
 
 function luminance(hex: string): number {
   const [r, g, b] = [1, 3, 5].map((at) => {
@@ -24,7 +24,7 @@ function contrast(a: string, b: string): number {
 }
 
 // regression: direction-pad-edges-vanish-on-page
-test('each direction button edge reads against the page in both themes', () => {
+test('each direction button edge reads against the page', () => {
   const sheet = read(
     'pkgs/ui-root-client-ts/src/direction-pad/direction-pad.module.css'
   );
@@ -33,10 +33,8 @@ test('each direction button edge reads against the page in both themes', () => {
       sheet
     )?.[1];
   expect(border).toBe('outline');
-  for (const theme of ['light', 'dark'] as const) {
-    const color = tokens.color[theme];
-    const hex = (name: string) => color[name]?.$value.hex ?? '';
-    for (const page of ['background', 'surface'])
-      expect(contrast(hex('outline'), hex(page))).toBeGreaterThanOrEqual(3);
-  }
+  const color = tokens.color;
+  const hex = (name: string) => color[name]?.$value.hex ?? '';
+  for (const page of ['background', 'surface'])
+    expect(contrast(hex('outline'), hex(page))).toBeGreaterThanOrEqual(3);
 });

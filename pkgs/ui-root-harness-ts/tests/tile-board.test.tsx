@@ -24,10 +24,7 @@ function mount(disabled = false) {
     { id: 'walker', column: 0, row: 0, glyph: '☻', tone: 'actor' },
   ]);
   const view = render(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <TileBoard
         label="Board"
         testId="board"
@@ -46,10 +43,7 @@ function mount(disabled = false) {
 
 test('a board is compact unless it is the screen hero', () => {
   const view = render(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <TileBoard
         label="Compact"
         testId="compact"
@@ -113,10 +107,7 @@ test('a moved piece keeps its element, and tiles name what they hold', () => {
 
 test('the example passes the accessibility audit', () => {
   const view = render(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <TileBoardExample />
     </ThemeProvider>
   ));

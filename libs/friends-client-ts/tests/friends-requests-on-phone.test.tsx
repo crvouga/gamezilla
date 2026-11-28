@@ -35,7 +35,7 @@ function renderFriends(size: { width: number; height: number }): HTMLElement {
   const harness = createHarnessClock();
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
-      <ThemeProvider colorScheme="light" fixedLayout={size}>
+      <ThemeProvider fixedLayout={size}>
         <StaticAppRouterProvider router={router}>
           <ModerationProvider rules={shippedModerationRules()}>
             <TestViewportProvider value={size}>

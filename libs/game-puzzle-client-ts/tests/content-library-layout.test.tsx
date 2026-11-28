@@ -401,10 +401,7 @@ test("every library card leads with its picture, a pack's stacked", () => {
 
 function renderLibrary(view: PuzzlePacksHomeScreenViewProps): void {
   renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <PuzzlePacksHomeScreenView {...view} />
     </ThemeProvider>
   ));
@@ -579,10 +576,7 @@ test('attempts are compact rows at every width, published content is cards', () 
 
 function renderWide(place: Screen): void {
   renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="dark"
-      fixedLayout={{ width: 1440, height: 900 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 1440, height: 900 }}>
       <PuzzlePacksHomeScreenView {...VIEW} place={{ screen: place }} />
     </ThemeProvider>
   ));

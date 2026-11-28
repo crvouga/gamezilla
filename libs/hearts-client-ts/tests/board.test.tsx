@@ -141,7 +141,7 @@ test('the game automation passes three dealt cards once the hand becomes interac
       createRoot: () => () => (
         <I18nProvider i18n={i18n}>
           <ClockProvider clock={time.clock} timers={time.timers}>
-            <ThemeProvider colorScheme="light">
+            <ThemeProvider>
               <Board
                 position={heartsRules.initial()}
                 orientation="white"

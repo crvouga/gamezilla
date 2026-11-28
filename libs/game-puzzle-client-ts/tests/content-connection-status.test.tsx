@@ -31,7 +31,7 @@ test('a late failed request does not insert another panel above offline authorin
     },
   } as unknown as SyncEngine;
   const view = renderWithI18n(() => (
-    <ThemeProvider colorScheme="light">
+    <ThemeProvider>
       <SyncEngineProvider value={engine}>
         <ContentConnectionStatus loading={false}>
           {null}
@@ -66,10 +66,7 @@ test('reconnecting after the first Sokoban puzzle keeps Pack overview ahead of c
   const [online, setOnline] = createSignal(false);
   const [loading, setLoading] = createSignal(false);
   const view = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 757 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 757 }}>
       <ContentConnectionStatusView
         loading={loading()}
         online={online()}

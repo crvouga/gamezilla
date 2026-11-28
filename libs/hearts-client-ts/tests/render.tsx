@@ -13,9 +13,7 @@ export function renderBoard(
   const { clock, timers } = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light" fixedLayout={layout}>
-        {ui()}
-      </ThemeProvider>
+      <ThemeProvider fixedLayout={layout}>{ui()}</ThemeProvider>
     </ClockProvider>
   ));
 }

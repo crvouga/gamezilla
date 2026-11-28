@@ -54,8 +54,7 @@ describe('design-tokens.json', () => {
   test('holds every group the design system reads', async () => {
     const paths = designTokenPaths(await readTokens());
     for (const path of [
-      'color.light.background',
-      'color.dark.background',
+      'color.background',
       'tone.text.secondary',
       'tone.surface.muted',
       'space.scale.4',
@@ -213,10 +212,10 @@ describe('values derived from the tokens', () => {
   });
 
   test('colors, fonts and motion render as the CSS of the design', () => {
-    expect(COLOR_PALETTE.dark.background).toBe('#141b1c');
-    expect(COLOR_PALETTE.dark.tintActive).toBe('#087574');
-    expect(COLOR_PALETTE.light.tintSubtle).toBe('#dfefed');
-    expect(COLOR_PALETTE.dark.scrim).toBe('#00000099');
+    expect(COLOR_PALETTE.background).toBe('#171823');
+    expect(COLOR_PALETTE.tintActive).toBe('#9274f5');
+    expect(COLOR_PALETTE.tintSubtle).toBe('#342b4e');
+    expect(COLOR_PALETTE.scrim).toBe('#00000099');
     expect(fonts.sans.startsWith('Manrope,')).toBe(true);
     expect(fonts.display.startsWith('Manrope,')).toBe(true);
     expect(duration.fast).toBe(150);
@@ -224,7 +223,7 @@ describe('values derived from the tokens', () => {
   });
 
   test('every tone names a palette role', () => {
-    const palette = Object.keys(COLOR_PALETTE.light);
+    const palette = Object.keys(COLOR_PALETTE);
     for (const role of [
       ...Object.values(textToneColor),
       ...Object.values(surfaceToneColor),

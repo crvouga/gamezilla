@@ -82,10 +82,7 @@ function renderWide(ui: () => JSX.Element): HTMLElement {
   const harness = createHarnessClock();
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 1440, height: 900 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 1440, height: 900 }}>
         <StaticAppRouterProvider router={router}>
           <TestViewportProvider value={{ width: 1440, height: 900 }}>
             <ModerationProvider rules={shippedModerationRules()}>

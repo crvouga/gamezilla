@@ -15,39 +15,35 @@ const GAMES = [
   'LightCycles',
 ] as const;
 
-for (const scheme of ['light', 'dark'] as const) {
-  test(`${scheme}: game canvases are distinct and their labels remain readable`, () => {
-    const palette = COLOR_PALETTE[scheme];
-    const canvases = new Set<string>();
-    for (const game of GAMES) {
-      const canvas = palette[`game${game}Canvas`];
-      canvases.add(canvas);
-      for (const [role, minimum] of [
-        ['Ink', 4.5],
-        ['Muted', 4.5],
-        ['Accent', 3],
-      ] as const) {
-        const name = `game${game}${role}` as ColorTokenName;
-        const foreground = parseColor(palette[name]);
-        const background = parseColor(canvas);
-        if (!foreground || !background)
-          throw new Error(`Invalid palette: ${game}`);
-        expect(
-          contrastRatio(foreground, background),
-          `${game}: ${role}`
-        ).toBeGreaterThanOrEqual(minimum);
-      }
+test(`game canvases are distinct and their labels remain readable`, () => {
+  const palette = COLOR_PALETTE;
+  const canvases = new Set<string>();
+  for (const game of GAMES) {
+    const canvas = palette[`game${game}Canvas`];
+    canvases.add(canvas);
+    for (const [role, minimum] of [
+      ['Ink', 4.5],
+      ['Muted', 4.5],
+      ['Accent', 3],
+    ] as const) {
+      const name = `game${game}${role}` as ColorTokenName;
+      const foreground = parseColor(palette[name]);
+      const background = parseColor(canvas);
+      if (!foreground || !background)
+        throw new Error(`Invalid palette: ${game}`);
+      expect(
+        contrastRatio(foreground, background),
+        `${game}: ${role}`
+      ).toBeGreaterThanOrEqual(minimum);
     }
-    expect(canvases.size).toBe(GAMES.length);
-  });
-}
+  }
+  expect(canvases.size).toBe(GAMES.length);
+});
 
 test('the Hearts focus ring contrasts with the card face it is drawn inside', () => {
-  for (const scheme of ['light', 'dark'] as const) {
-    const palette = COLOR_PALETTE[scheme];
-    const ring = parseColor(palette.gameHeartsCanvas);
-    const face = parseColor(palette.boardCardFace);
-    if (!ring || !face) throw new Error('Invalid card palette');
-    expect(contrastRatio(ring, face)).toBeGreaterThanOrEqual(3);
-  }
+  const palette = COLOR_PALETTE;
+  const ring = parseColor(palette.gameHeartsCanvas);
+  const face = parseColor(palette.boardCardFace);
+  if (!ring || !face) throw new Error('Invalid card palette');
+  expect(contrastRatio(ring, face)).toBeGreaterThanOrEqual(3);
 });

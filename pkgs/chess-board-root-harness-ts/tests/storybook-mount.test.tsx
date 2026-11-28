@@ -12,9 +12,7 @@ test('the initial chess story mounts once inside its real injected providers', (
   const { clock, timers } = createHarnessClock({ startMs: 1_700_000_000_000 });
   const view = renderWithI18n(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
-        {meta.render(meta.args)}
-      </ThemeProvider>
+      <ThemeProvider>{meta.render(meta.args)}</ThemeProvider>
     </ClockProvider>
   ));
   expect(
@@ -27,7 +25,7 @@ test('the space screen renders the chess example supplied by its preview', () =>
   const { clock, timers } = createHarnessClock({ startMs: 0 });
   const view = renderWithI18n(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         {space.render(space.args, {
           globals: { spaceGame: 'chess' },
           parameters,

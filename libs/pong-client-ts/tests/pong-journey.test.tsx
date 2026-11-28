@@ -10,7 +10,7 @@ afterEach(cleanup);
 
 test('Pong returns the ball, preserves the court offline, restores input and scores', () => {
   const view = renderWithI18n(() => (
-    <ThemeProvider colorScheme="dark" fixedLayout={{ width: 390, height: 844 }}>
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <PongJourney>
         {(position, simulation) => (
           <PongBoardView

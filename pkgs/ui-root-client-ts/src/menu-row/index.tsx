@@ -327,9 +327,8 @@ function MenuRowSplit(
  * @example
  * ```tsx
  * <MenuRow
- *   title="Appearance"
- *   caption="Light, dark, or system theme"
- *   onClick={() => router.push('/more/theme')}
+ *   title="Sound"
+ *   onClick={() => router.push('/more/sound')}
  * />
  * ```
  */

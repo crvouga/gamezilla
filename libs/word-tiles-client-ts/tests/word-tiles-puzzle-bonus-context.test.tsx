@@ -21,7 +21,7 @@ test('AEST?RN at j8 explains the covered triple-letter square beside the rack', 
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
       <IdProvider createId={() => 'puzzle'} random={() => 0.5}>
-        <ThemeProvider colorScheme="light">
+        <ThemeProvider>
           <SurfaceStackProvider>
             <WordTilesPuzzlePlayerView
               definition={encodePuzzle({

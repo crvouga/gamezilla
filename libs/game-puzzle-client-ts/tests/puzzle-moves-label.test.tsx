@@ -25,10 +25,7 @@ test('the move list is named on its own row, over moves that wrap rather than cl
   const time = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <PuzzleMoveHistory
           plies={PLIES}
           selectedSolveIdx={3}
@@ -79,10 +76,7 @@ test("the puzzle's steps are quiet at the latest move and plated while reviewing
     const time = createHarnessClock();
     renderWithI18n(() => (
       <ClockProvider clock={time.clock} timers={time.timers}>
-        <ThemeProvider
-          colorScheme="dark"
-          fixedLayout={{ width: 390, height: 844 }}
-        >
+        <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
           <PuzzleMoveHistory
             plies={PLIES}
             selectedSolveIdx={canGoForward ? 2 : 3}
@@ -112,10 +106,7 @@ function mountLine(awaiting: boolean): void {
   const time = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 1440, height: 900 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 1440, height: 900 }}>
         <PuzzleMoveHistory
           plies={PLIES.slice(0, 1)}
           selectedSolveIdx={2}

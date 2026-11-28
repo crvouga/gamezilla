@@ -25,7 +25,7 @@ function mount(
   sides: readonly GameSide[] = ['white']
 ): void {
   renderWithI18n(() => (
-    <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
+    <ThemeProvider fixedLayout={{ width, height: 900 }}>
       <LightCyclesBoardView
         position={position}
         orientation="white"

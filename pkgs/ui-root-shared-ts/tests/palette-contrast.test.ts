@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
-import type {
-  ColorScheme,
-  ColorTokenName,
-} from '@pkgs/ui-root-shared-ts/colors-types';
+import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
 import {
   compositeOver,
   contrastRatio,
@@ -81,6 +78,8 @@ const PAIRS: readonly Pair[] = [
     ['primaryStrong', bg, GLYPH],
   ]),
   ['onLive', 'live', TEXT],
+  ['reward', 'rewardSurface', TEXT],
+  ['reward', 'surfaceElevated', TEXT],
   ['onPrimarySoft', 'tintSubtle', TEXT],
   ['text', 'tintSubtle', TEXT],
   ['boardCardInk', 'boardCardFace', TEXT],
@@ -100,13 +99,13 @@ const PAIRS: readonly Pair[] = [
   ['textSecondary', 'disabled', GLYPH],
 ];
 
-function ratio(scheme: ColorScheme, fg: ColorTokenName, bg: ColorTokenName) {
-  const colors = COLOR_PALETTE[scheme];
+function ratio(fg: ColorTokenName, bg: ColorTokenName) {
+  const colors = COLOR_PALETTE;
   const canvas = parseCssColor(colors.background);
   const back = parseCssColor(colors[bg]);
   const front = parseColor(colors[fg]);
   if (canvas === null || back === null || front === null) {
-    throw new Error(`unparseable ${scheme} ${fg} on ${bg}`);
+    throw new Error(`unparseable ${fg} on ${bg}`);
   }
   return contrastRatio(front, rgbaToRgb8(compositeOver(back, canvas)));
 }
@@ -121,37 +120,33 @@ function lightness(color: string): number {
 }
 
 describe('player colors', () => {
-  for (const scheme of ['light', 'dark'] as const) {
-    test(`${scheme}: every two seats differ in lightness`, () => {
-      const colors = COLOR_PALETTE[scheme];
-      const close = PLAYERS.flatMap((a, i) =>
-        PLAYERS.slice(i + 1).flatMap((b) => {
-          const step = Math.abs(lightness(colors[a]) - lightness(colors[b]));
-          return step >= PLAYER_LIGHTNESS_STEP
-            ? []
-            : [`${a} and ${b}: L* ${step.toFixed(1)} apart`];
-        })
-      );
-      expect(close).toEqual([]);
-    });
-  }
+  test(`every two seats differ in lightness`, () => {
+    const colors = COLOR_PALETTE;
+    const close = PLAYERS.flatMap((a, i) =>
+      PLAYERS.slice(i + 1).flatMap((b) => {
+        const step = Math.abs(lightness(colors[a]) - lightness(colors[b]));
+        return step >= PLAYER_LIGHTNESS_STEP
+          ? []
+          : [`${a} and ${b}: L* ${step.toFixed(1)} apart`];
+      })
+    );
+    expect(close).toEqual([]);
+  });
 });
 
 describe('palette contrast', () => {
-  for (const scheme of ['light', 'dark'] as const) {
-    test(`${scheme}: every text and glyph pair meets WCAG AA`, () => {
-      const failures = PAIRS.flatMap(([fg, bg, minimum]) => {
-        const value = ratio(scheme, fg, bg);
-        return value >= minimum
-          ? []
-          : [`${fg} on ${bg}: ${value.toFixed(2)} < ${minimum}`];
-      });
-      expect(failures).toEqual([]);
+  test(`every text and glyph pair meets WCAG AA`, () => {
+    const failures = PAIRS.flatMap(([fg, bg, minimum]) => {
+      const value = ratio(fg, bg);
+      return value >= minimum
+        ? []
+        : [`${fg} on ${bg}: ${value.toFixed(2)} < ${minimum}`];
     });
-  }
+    expect(failures).toEqual([]);
+  });
 });
 
-/** Chrome roles: quiet ivory and charcoal neutrals that carry no hue of their own. */
+/** Chrome roles: blue-violet neutrals. */
 const NEUTRALS = [
   'background',
   'surface',
@@ -177,7 +172,7 @@ const ACCENT = [
   'focusRing',
 ] as const satisfies readonly ColorTokenName[];
 
-/** Neutrals may lean warm, never colorful: max channel spread out of 255. */
+/** Neutrals may carry a subtle tint: max channel spread out of 255. */
 const NEUTRAL_SPREAD = 32;
 /** Accent roles stay within this many degrees of one hue. */
 const ACCENT_HUE_SPAN = 12;
@@ -199,29 +194,27 @@ function hue(color: string): number {
 }
 
 describe('application palette', () => {
-  for (const scheme of ['light', 'dark'] as const) {
-    test(`${scheme}: chrome neutrals stay quiet`, () => {
-      const loud = NEUTRALS.flatMap((name) => {
-        const rgb = parseColor(COLOR_PALETTE[scheme][name]);
-        if (rgb === null) return [`${name}: unparseable`];
-        const spread =
-          Math.max(rgb.r, rgb.g, rgb.b) - Math.min(rgb.r, rgb.g, rgb.b);
-        return spread <= NEUTRAL_SPREAD ? [] : [`${name}: spread ${spread}`];
-      });
-      expect(loud).toEqual([]);
+  test(`chrome neutrals stay quiet`, () => {
+    const loud = NEUTRALS.flatMap((name) => {
+      const rgb = parseColor(COLOR_PALETTE[name]);
+      if (rgb === null) return [`${name}: unparseable`];
+      const spread =
+        Math.max(rgb.r, rgb.g, rgb.b) - Math.min(rgb.r, rgb.g, rgb.b);
+      return spread <= NEUTRAL_SPREAD ? [] : [`${name}: spread ${spread}`];
     });
+    expect(loud).toEqual([]);
+  });
 
-    test(`${scheme}: chrome has exactly one accent hue`, () => {
-      const hues = ACCENT.map((name) => hue(COLOR_PALETTE[scheme][name]));
-      expect(hues.every(Number.isFinite)).toBe(true);
-      expect(Math.max(...hues) - Math.min(...hues)).toBeLessThanOrEqual(
-        ACCENT_HUE_SPAN
-      );
-    });
-  }
+  test(`chrome has exactly one accent hue`, () => {
+    const hues = ACCENT.map((name) => hue(COLOR_PALETTE[name]));
+    expect(hues.every(Number.isFinite)).toBe(true);
+    expect(Math.max(...hues) - Math.min(...hues)).toBeLessThanOrEqual(
+      ACCENT_HUE_SPAN
+    );
+  });
 });
 
-/** How far apart in L* the yellow and orange paths sit, in each scheme. */
+/** How far apart in L* the yellow and orange paths sit. */
 const YELLOW_ORANGE_STEP = 8;
 
 describe('path colors', () => {
@@ -230,14 +223,10 @@ describe('path colors', () => {
   // so a "3" pair read as a muddy olive beside the orange "2". Yellow now
   // stays the lighter of the two by a clear step while it keeps 3:1 on the
   // canvas, as every path colour must.
-  for (const scheme of ['light', 'dark'] as const) {
-    test(`${scheme}: yellow reads lighter than orange, not as olive`, () => {
-      const colors = COLOR_PALETTE[scheme];
-      const step = lightness(colors.pathYellow) - lightness(colors.pathOrange);
-      expect(step).toBeGreaterThanOrEqual(YELLOW_ORANGE_STEP);
-      expect(ratio(scheme, 'pathYellow', 'background')).toBeGreaterThanOrEqual(
-        GLYPH
-      );
-    });
-  }
+  test(`yellow reads lighter than orange, not as olive`, () => {
+    const colors = COLOR_PALETTE;
+    const step = lightness(colors.pathYellow) - lightness(colors.pathOrange);
+    expect(step).toBeGreaterThanOrEqual(YELLOW_ORANGE_STEP);
+    expect(ratio('pathYellow', 'background')).toBeGreaterThanOrEqual(GLYPH);
+  });
 });

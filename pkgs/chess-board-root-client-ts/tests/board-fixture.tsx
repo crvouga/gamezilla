@@ -104,7 +104,7 @@ export function mountBoard(props: Partial<ChessBoardProps> = {}) {
   const moves: string[] = [];
   const result = renderWithI18n(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <AudioPlaybackProvider value={noopAudio()}>
           <BoardMotionProvider value={staticMotion()}>
             <ChessBoard

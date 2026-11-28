@@ -1,6 +1,6 @@
 /* A game's picture: its playing surface in miniature. Each motif maps the
    tile's few paints onto the game-prefixed tokens of the board it shows, so
-   the tile changes with the board in both schemes. */
+   the tile changes with the board. */
 .tile {
   display: inline-flex;
   flex-shrink: 0;

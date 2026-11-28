@@ -24,7 +24,7 @@ function board(hand: string | null, interactive = true, position = START) {
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
       <IdProvider createId={() => 'id'} random={() => 0.5}>
-        <ThemeProvider colorScheme="light">
+        <ThemeProvider>
           <SurfaceStackProvider>
             <WordTilesBoard
               position={position}
@@ -102,7 +102,7 @@ test('the board, its actions and its controls share one draft', () => {
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
       <IdProvider createId={() => 'id'} random={() => 0.5}>
-        <ThemeProvider colorScheme="light">
+        <ThemeProvider>
           {(() => {
             const session = createWordTilesBoard({
               position: START,

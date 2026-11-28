@@ -41,7 +41,7 @@ describe('board sounds', () => {
     const [third, setThird] = createSignal(true);
     const result = renderWithI18n(() => (
       <ClockProvider clock={clock} timers={timers}>
-        <ThemeProvider colorScheme="light">
+        <ThemeProvider>
           <AudioPlaybackProvider value={audio.port}>
             <Show when={first()}>
               <ChessBoard size={160} dataSet={{ testid: 'a' }} />

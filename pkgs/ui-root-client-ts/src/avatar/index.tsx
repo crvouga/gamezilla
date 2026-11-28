@@ -251,7 +251,7 @@ function GuestMark(props: { size: number }): JSX.Element {
  * as one repeated face. Pair it with `avatarInitials(name)`. An initials face
  * wears its tone's ring (the `outline` ring untinted, the accent ring for
  * `you`) instead of the hairline: a soft plate alone nearly vanishes into a
- * dark card, and the ring holds 3:1 against it in both schemes.
+ * dark card, and the ring holds 3:1 against it.
  *
  * `you` marks the person's own face: the `tintSubtle` plate with initials
  * (or the placeholder) in `onPrimarySoft`. `seatColor` draws the seat's
@@ -310,7 +310,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
     if (chosen !== undefined) {
       return resolveColor(chosen, tokens.colors) ?? chosen;
     }
-    const raw = resolveColor(background(), tokens.palette()) ?? background();
+    const raw = resolveColor(background(), tokens.palette) ?? background();
     return bestOnColor(raw).fg;
   });
   return (

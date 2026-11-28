@@ -21,7 +21,7 @@ function playUntilPoint(layout: { width: number; height: number }): void {
     flush();
   };
   const view = renderWithI18n(() => (
-    <ThemeProvider colorScheme="light" fixedLayout={layout}>
+    <ThemeProvider fixedLayout={layout}>
       {LiveRally.render(meta.args, { parameters: meta.parameters })}
     </ThemeProvider>
   ));

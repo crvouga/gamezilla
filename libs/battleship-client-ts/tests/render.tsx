@@ -10,9 +10,7 @@ export function renderBoard(ui: () => JSX.Element, width = 390) {
   const { clock, timers } = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 844 }}>
-        {ui()}
-      </ThemeProvider>
+      <ThemeProvider fixedLayout={{ width, height: 844 }}>{ui()}</ThemeProvider>
     </ClockProvider>
   ));
 }

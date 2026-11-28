@@ -29,10 +29,7 @@ function resultCard(onDismiss: () => void, onRematch: () => void) {
   const { clock, timers } = createHarnessClock();
   return render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <GameResultOverlay
           live
           tone="won"

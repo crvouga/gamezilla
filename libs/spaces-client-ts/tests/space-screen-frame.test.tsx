@@ -57,10 +57,7 @@ function renderFrame(status: SpaceDetailStatus, screen: () => JSX.Element) {
   const time = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 800 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 800 }}>
         <SpaceScreenChromeValueProvider value={chrome(status)}>
           <SpaceScreenFrame>{screen()}</SpaceScreenFrame>
         </SpaceScreenChromeValueProvider>

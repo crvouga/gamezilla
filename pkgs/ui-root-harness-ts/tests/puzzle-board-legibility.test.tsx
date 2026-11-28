@@ -31,15 +31,14 @@ function declared(body: string, property: string): string {
   return match[1].trim();
 }
 
-/** A Sokoban board colour, by its token name (the same in both schemes). */
+/** A Sokoban board colour, by its token name. */
 function sokoban(name: string): string {
   const tokens = JSON.parse(readFileSync(TOKENS, 'utf8')) as {
-    color: Record<string, Record<string, { $value: { hex: string } }>>;
+    color: Record<string, { $value: { hex: string } }>;
   };
-  const light = tokens.color['light']?.[name]?.$value.hex;
-  const dark = tokens.color['dark']?.[name]?.$value.hex;
-  if (light === undefined || light !== dark) throw new Error(name);
-  return light;
+  const value = tokens.color[name]?.$value.hex;
+  if (value === undefined) throw new Error(name);
+  return value;
 }
 
 function contrast(a: string, b: string): number {
@@ -214,11 +213,14 @@ describe('path board', () => {
     ).toBe('round');
   });
 
-  // regression: numberlink-light-board-cream — in the light theme the
-  // board turned a cream sheet with a mustard "3", unlike every other
-  // game's board. Like Sokoban's, it keeps one palette in both themes.
-  test('the board keeps its night palette in the light theme', () => {
-    expect(begun().getAttribute('data-theme')).toBe('dark');
+  // regression: numberlink-light-board-cream
+  test('paths use the Numberlink board canvas', () => {
+    expect(
+      declared(
+        rule('path-grid-board/path-grid-board.module.css', '.board'),
+        '--ui-color-background'
+      )
+    ).toBe('var(--ui-color-game-numberlink-canvas)');
   });
 });
 

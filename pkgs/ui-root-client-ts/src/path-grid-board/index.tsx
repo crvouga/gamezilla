@@ -226,9 +226,7 @@ function boardControls(
 
 /**
  * A fitted rectangular path surface. Rules and every interaction decision
- * belong to its consumer. Like the other game boards it keeps one palette
- * in both themes: its night canvas and bright paths, a board on the page
- * rather than a cream sheet in the light theme.
+ * belong to its consumer. Its game palette supplies the night canvas and bright paths.
  */
 export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
   const [focus, setFocus] = createSignal(0);
@@ -272,7 +270,6 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
       board={props}
       ref={controls.attach}
       class={styles['board']}
-      data-theme="dark"
       role="group"
       aria-label={props.label}
       aria-describedby={props.describedBy}

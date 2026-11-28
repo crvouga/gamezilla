@@ -26,10 +26,7 @@ function board(
   );
   const inputs: unknown[] = [];
   const court = () => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <PongBoard
         position={position()}
         orientation="white"

@@ -46,7 +46,6 @@ export async function mountContentExample(
           <SyncEngineProvider value={engine ?? client.engine}>
             <MutationClientContext value={mutations}>
               <ThemeProvider
-                colorScheme="light"
                 fixedLayout={{ width: 390, height: 844 }}
               >
                 <SurfaceStackProvider>

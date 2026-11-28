@@ -9,7 +9,7 @@ const read = (path: string) => readFileSync(join(repo, path), 'utf8');
 type Color = { readonly $value: { readonly hex: string } };
 const tokens = JSON.parse(
   read('pkgs/ui-root-shared-ts/src/design-tokens.json')
-) as { color: Record<'light' | 'dark', Record<string, Color>> };
+) as { color: Record<string, Color> };
 
 function luminance(hex: string): number {
   const [r, g, b] = [1, 3, 5].map((at) => {
@@ -32,19 +32,16 @@ function token(utility: string): string {
 }
 
 // regression: seat-chip-ink-differs-from-pawn
-test('a pawn seat chip draws its mark in the pawn ink on the board square, readable in both themes', () => {
+test('a pawn seat chip draws its mark in the pawn ink on the board square, readable', () => {
   const swatch = read('pkgs/ui-root-client-ts/src/game-seat-swatch/index.tsx');
   for (const [paint, ink] of Object.entries(GAME_SEAT_PAWN_INKS)) {
     const ground = new RegExp(`'${paint}': '(bg-[a-z-]+)'`).exec(swatch)?.[1];
     expect(ground).toBe('bg-game-quoridor-surface');
-    for (const theme of ['light', 'dark'] as const) {
-      const hex = (utility: string) =>
-        tokens.color[theme][token(utility)]?.$value.hex ?? '';
-      expect(hex(ink)).toMatch(/^#[0-9a-f]{6}$/);
-      expect(
-        contrast(hex(ink), hex(ground ?? '')),
-        `${paint} in ${theme}`
-      ).toBeGreaterThanOrEqual(3);
-    }
+    const hex = (utility: string) =>
+      tokens.color[token(utility)]?.$value.hex ?? '';
+    expect(hex(ink)).toMatch(/^#[0-9a-f]{6}$/);
+    expect(contrast(hex(ink), hex(ground ?? '')), paint).toBeGreaterThanOrEqual(
+      3
+    );
   }
 });

@@ -28,10 +28,7 @@ function mount(ui: () => JSX.Element) {
   const time = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <OverlayPortalProvider>
           <SurfaceStackProvider>{ui()}</SurfaceStackProvider>
         </OverlayPortalProvider>

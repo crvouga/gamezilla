@@ -13,7 +13,6 @@ import { For } from 'solid-js';
 import { sampleAvatarSvg } from '../../storybook/fixtures/avatar-sample-svg';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 function Row(props: { title: string; children: JSX.Element }): JSX.Element {
   return (
@@ -37,7 +36,7 @@ const TINTED_PEOPLE = [
 
 function Kinds(): JSX.Element {
   const tokens = useThemeTokens();
-  const svg = (): string => sampleAvatarSvg(tokens.palette());
+  const svg = (): string => sampleAvatarSvg(tokens.palette);
   return (
     <>
       <Row title="person: picture, initials, placeholder">
@@ -121,7 +120,7 @@ function Plates(): JSX.Element {
         <Avatar icon={Gamepad2Icon} size="lg" />
       </Row>
       <Row title="Placeholder on a vivid backdrop">
-        <Avatar size="lg" background="onTintScrim" foreground="onPrimary" />
+        <Avatar size="lg" background="onTintScrim" foreground="text" />
       </Row>
     </>
   );
@@ -130,13 +129,11 @@ function Plates(): JSX.Element {
 export default function AvatarExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <StackVertical gap="lg">
-          <Kinds />
-          <SeatColors />
-          <Plates />
-        </StackVertical>
-      </SchemePreview>
+      <StackVertical gap="lg">
+        <Kinds />
+        <SeatColors />
+        <Plates />
+      </StackVertical>
     </ExampleRoot>
   );
 }

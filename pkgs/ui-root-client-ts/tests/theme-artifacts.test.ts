@@ -23,7 +23,7 @@ async function read(name: string): Promise<string> {
 describe('theme.css', () => {
   test('every palette role has a var-backed @theme color', async () => {
     const css = await read('theme.css');
-    for (const token of Object.keys(COLOR_PALETTE.light)) {
+    for (const token of Object.keys(COLOR_PALETTE)) {
       const name = kebab(token);
       expect(css).toContain(`--color-${name}: var(--ui-color-${name});`);
     }

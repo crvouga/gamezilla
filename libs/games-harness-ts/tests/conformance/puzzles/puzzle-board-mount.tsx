@@ -60,10 +60,7 @@ export function puzzleBoardDriver(
       createRoot: () => () => (
         <I18nProvider i18n={i18n}>
           <ClockProvider clock={time.clock} timers={time.timers}>
-            <ThemeProvider
-              colorScheme="light"
-              {...(layout && { fixedLayout: layout })}
-            >
+            <ThemeProvider {...(layout && { fixedLayout: layout })}>
               <AudioPlaybackProvider value={createInMemoryAudioPlaybackPort()}>
                 <SoundsPreferenceProvider>
                   <part.Board

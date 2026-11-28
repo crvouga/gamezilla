@@ -26,10 +26,7 @@ function fixture(definition = CORNER) {
   const time = createHarnessClock();
   const view = renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <SokobanPlayer
           onReturnToLibrary={() => destinations.push('library')}
           definition={definition}

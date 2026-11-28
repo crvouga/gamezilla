@@ -77,48 +77,17 @@ export type BorderRadiusKey = keyof typeof borderRadius;
 export type ElevationLevel = 0 | 1 | 2 | 3 | 4 | 5;
 
 export type ElevationStyle = {
-  boxShadow?: string;
-  /** Android elevation analogue. */
-  elevation?: number;
-  /**
-   * Optional surface lift recommended for dark mode -- caller may layer
-   * underneath. Light mode returns `undefined` so callers keep their
-   * existing background.
-   */
   backgroundColor?: string;
 };
 
-/**
- * Dark mode lifts via lighter surfaces (Material 3): higher elevation
- * levels pick up the matching surface tier so cards don't disappear into
- * the background. Nuclear overhaul: no `boxShadow` / Android elevation —
- * paint cost of multi-layer CSS shadows kills 60fps on low-end mobile web.
- */
-function darkSurfaceFor(
-  level: ElevationLevel,
-  colors: Pick<ColorTokens, 'surface' | 'surfaceElevated' | 'surfaceOverlay'>
-): string | undefined {
-  if (level === 0) return undefined;
-  if (level <= 2) return colors.surface;
-  if (level <= 4) return colors.surfaceElevated;
-  return colors.surfaceOverlay;
-}
-
-/**
- * Scheme-aware elevation. Light mode returns `{}` (no shadows). Dark mode
- * returns a recommended `backgroundColor` lift only — never `boxShadow`.
- */
+/** Higher layers step from a panel to an elevated or floating surface. */
 export function makeElevation(
-  colors: Pick<
-    ColorTokens,
-    'shadowColor' | 'surface' | 'surfaceElevated' | 'surfaceOverlay'
-  >,
-  scheme: 'light' | 'dark'
+  colors: Pick<ColorTokens, 'surface' | 'surfaceElevated' | 'surfaceOverlay'>
 ): (level: ElevationLevel) => ElevationStyle {
   return (level) => {
     if (level === 0) return {};
-    if (scheme !== 'dark') return {};
-    const bg = darkSurfaceFor(level, colors);
-    return bg !== undefined ? { backgroundColor: bg } : {};
+    if (level <= 2) return { backgroundColor: colors.surface };
+    if (level <= 4) return { backgroundColor: colors.surfaceElevated };
+    return { backgroundColor: colors.surfaceOverlay };
   };
 }

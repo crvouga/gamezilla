@@ -24,7 +24,7 @@ function mount(mode: Quoridor['mode']) {
   };
   const view = renderWithI18n(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <QuoridorBoard
           position={encodeQuoridor(game())}
           interactive={interactive()}

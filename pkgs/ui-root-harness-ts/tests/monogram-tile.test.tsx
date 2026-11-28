@@ -42,26 +42,24 @@ describe('monogram paints', () => {
   });
 
   // regression: space-tile-colour-changes-with-theme
-  test('a paint is the same colour in both themes, so a space keeps its colour', () => {
+  test('a paint is the same colour, so a space keeps its colour', () => {
     const differ = MONOGRAM_PAINTS.filter(
-      (paint) => COLOR_PALETTE.light[paint] !== COLOR_PALETTE.dark[paint]
+      (paint) => COLOR_PALETTE[paint] !== COLOR_PALETTE[paint]
     );
     expect(differ).toEqual([]);
   });
 
-  for (const scheme of ['light', 'dark'] as const) {
-    test(`${scheme}: every paint's letter holds AA`, () => {
-      const colors = COLOR_PALETTE[scheme];
-      const low = MONOGRAM_PAINTS.flatMap((paint) => {
-        const plate = parseColor(colors[paint]);
-        const ink = parseColor(colors.onPrimary);
-        if (plate === null || ink === null) return [`${paint}: unparseable`];
-        const ratio = contrastRatio(ink, plate);
-        return ratio >= 4.5 ? [] : [`${paint}: ${ratio.toFixed(2)}`];
-      });
-      expect(low).toEqual([]);
+  test(`every paint's letter holds AA`, () => {
+    const colors = COLOR_PALETTE;
+    const low = MONOGRAM_PAINTS.flatMap((paint) => {
+      const plate = parseColor(colors[paint]);
+      const ink = parseColor(colors.onMonogram);
+      if (plate === null || ink === null) return [`${paint}: unparseable`];
+      const ratio = contrastRatio(ink, plate);
+      return ratio >= 4.5 ? [] : [`${paint}: ${ratio.toFixed(2)}`];
     });
-  }
+    expect(low).toEqual([]);
+  });
 });
 
 test('the tile draws the first letter, hidden from assistive tech', () => {

@@ -1,6 +1,6 @@
 /**
  * Source of the generated `tokens.json`: every token of
- * `design-tokens.json` resolved to its final value, flat and per scheme, so
+ * `design-tokens.json` resolved to its final value, in one palette, so
  * another client or a design tool can derive from the same values without
  * following aliases. Pure; the generator script writes it.
  */
@@ -37,7 +37,7 @@ export function renderTokensJson(): string {
   const tokens = {
     $description:
       'GENERATED from pkgs/ui-root-shared-ts/src/design-tokens.json — do not edit. Every value resolved; px for dimensions, ms for durations.',
-    color: { dark: COLOR_PALETTE.dark, light: COLOR_PALETTE.light },
+    color: COLOR_PALETTE,
     textStyle: resolvedTextStyles(),
     font: fonts,
     space: spaceSize,

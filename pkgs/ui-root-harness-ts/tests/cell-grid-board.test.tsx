@@ -17,10 +17,7 @@ function example() {
   const { clock, timers } = createHarnessClock();
   return render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <CellGridBoardExample />
       </ThemeProvider>
     </ClockProvider>

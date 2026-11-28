@@ -31,10 +31,7 @@ function rule(css: string, selector: string): string {
 
 function renderProfile(withRail: boolean): HTMLElement {
   const { container } = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 1440, height: 900 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 1440, height: 900 }}>
       <ProfileScreenLayout
         screenId="profile-rail"
         breadcrumbs={[{ name: 'Profile' }]}

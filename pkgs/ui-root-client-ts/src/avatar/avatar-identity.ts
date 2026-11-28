@@ -9,15 +9,14 @@ export type AvatarTone = {
   readonly ink: ColorTokenName;
   /**
    * The ring that outlines the face. A soft plate barely differs from the
-   * card under it (in dark mode least of all), so the ring holds 3:1 against
-   * the canvas and the surface and the circle reads in both schemes.
+   * card under it, so the ring holds 3:1 against the canvas and the surface.
    */
   readonly ring: ColorTokenName;
 };
 
 /**
  * The plates a face without a picture may wear, chosen by who it is. Each is
- * a soft surface with its own ink, so initials hold 4.5:1 in both schemes,
+ * a soft surface with its own ink, so initials hold 4.5:1,
  * and its own ring, so the face holds 3:1 against the card it sits on.
  * The `tintSubtle` plate is left out: it marks your own face.
  */

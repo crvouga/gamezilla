@@ -17,10 +17,7 @@ function example() {
   const { clock, timers } = createHarnessClock();
   return render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <SurfaceStackProvider>
           <WordTileBoardExample />
         </SurfaceStackProvider>
@@ -234,10 +231,7 @@ test('square details show the center value, inspect committed tiles, and preserv
   const time = createHarnessClock();
   const view = render(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <WordTileBoard
           label="Inspected board"
           testId="inspected-board"
@@ -298,10 +292,7 @@ test('a placement updates the changed square in place instead of rebuilding the 
   const time = createHarnessClock();
   const view = render(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <WordTileBoard
           label="Stable board"
           testId="stable"

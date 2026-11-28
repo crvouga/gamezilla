@@ -16,7 +16,7 @@ import { fireEvent } from '@solidjs/testing-library';
 /** Connect Four's menu: two ways to play and one look back. */
 function threeChoices(width: number) {
   return render(() => (
-    <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
+    <ThemeProvider fixedLayout={{ width, height: 900 }}>
       <GameMenuScreen
         screenId="game-home"
         title="Connect Four"
@@ -61,7 +61,7 @@ function openMore(view: ReturnType<typeof menu>): void {
 
 function menu(width: number, onPlay: () => void) {
   return render(() => (
-    <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
+    <ThemeProvider fixedLayout={{ width, height: 900 }}>
       <GameMenuScreen
         screenId="game-home"
         title="Connect Four"
@@ -304,10 +304,7 @@ describe('GameMenuScreen', () => {
 
   test('a game with no quiet choice shows no More', () => {
     const view = render(() => (
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 900 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 900 }}>
         <GameMenuScreen
           screenId="game-home"
           title="Numberlink"

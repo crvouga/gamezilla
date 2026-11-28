@@ -19,7 +19,7 @@ test('the move hint and the attempt-ending solution have distinct labels', () =>
     onNext: noop,
   };
   const hint = renderWithI18n(() => (
-    <ThemeProvider colorScheme="light">
+    <ThemeProvider>
       <PuzzleActionButton
         slot={{
           id: 'hint',
@@ -34,7 +34,7 @@ test('the move hint and the attempt-ending solution have distinct labels', () =>
   expect(screen.getByRole('button', { name: 'Reveal move' })).toBeTruthy();
   hint.unmount();
   renderWithI18n(() => (
-    <ThemeProvider colorScheme="light">
+    <ThemeProvider>
       <PuzzleActionButton
         slot={{ id: 'solution', type: 'action', disabled: false }}
         model={model}

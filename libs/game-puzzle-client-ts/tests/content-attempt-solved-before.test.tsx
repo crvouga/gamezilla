@@ -9,10 +9,7 @@ afterEach(cleanup);
 
 function mount(complete: boolean, solvedBefore: boolean): void {
   renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <PuzzlePackStageScreenView
         status="ready"
         place={{ screen: 'progress' }}

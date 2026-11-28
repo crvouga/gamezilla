@@ -21,10 +21,7 @@ test('the pending notice sits after the edition actions, so its removal moves no
   const time = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <ContentPublicationControlsView
           copyState={{ kind: 'pending', connection: 'online' }}
           kind="puzzle"

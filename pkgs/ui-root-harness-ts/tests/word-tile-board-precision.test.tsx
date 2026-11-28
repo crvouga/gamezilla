@@ -19,10 +19,7 @@ test('390px phone starts precise and a1–e5 navigation focuses c3 without activ
     const { clock, timers } = createHarnessClock();
     const view = render(() => (
       <ClockProvider clock={clock} timers={timers}>
-        <ThemeProvider
-          colorScheme="light"
-          fixedLayout={{ width: 390, height: 844 }}
-        >
+        <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
           <SurfaceStackProvider>
             <WordTileBoard
               label="Phone board"

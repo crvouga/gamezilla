@@ -1,10 +1,4 @@
-/**
- * The one soft shadow, read from `design-tokens.json`. Everything else is
- * flat with hairline borders; `float` is for surfaces that hover above the
- * content (menus, popovers, tooltips). Emitted per scheme as
- * `--ui-shadow-<name>`, with the color as `var(--ui-color-<color>)` so a
- * nested theme recomputes it.
- */
+/** The soft shadow on floating menus, popovers and tooltips. */
 
 import { aliasPath, isTokenTree, readGroup } from './design-tokens';
 import { color, shadow } from './design-tokens.json';

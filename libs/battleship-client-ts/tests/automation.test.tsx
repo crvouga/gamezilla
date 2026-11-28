@@ -34,7 +34,7 @@ function boardDriver(played: string[]): SolidDomDriver {
       createRoot: () => () => (
         <I18nProvider i18n={i18n}>
           <ClockProvider clock={time.clock} timers={time.timers}>
-            <ThemeProvider colorScheme="light">
+            <ThemeProvider>
               <Board
                 position={encodeBattleshipPosition(['a1:miss', 'b2:miss'])}
                 orientation="white"

@@ -10,24 +10,17 @@ import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import { BrandIcon } from '../brand-icon/index';
 import type {
+  SocialButtonPalette,
   SocialProviderSpec,
   SocialSignInButtonAction,
-  SocialSignInButtonTheme,
   SocialSignInProvider,
-  SocialThemePalette,
 } from '../social-provider-config/index';
 import { SOCIAL_PROVIDER_SPECS } from '../social-provider-config/index';
 import { Spinner } from '../spinner/index';
 
-export type SocialSignInButtonShape = 'rectangular' | 'pill';
-
 export type SocialSignInButtonProps = {
   provider: SocialSignInProvider;
   onClick: () => void;
-  /** Visual theme. Defaults to `"light"`. */
-  theme?: SocialSignInButtonTheme | undefined;
-  /** Button shape. Defaults to `"rectangular"`. */
-  shape?: SocialSignInButtonShape | undefined;
   /** Call-to-action variant. Drives the default label. Defaults to `"continue"`. */
   action?: SocialSignInButtonAction | undefined;
   /** Override the rendered label (for localization). */
@@ -64,25 +57,15 @@ export const SOCIAL_BUTTON_HEIGHT = 40;
 const ICON_SIZE = 20;
 const STROKE_WIDTH = 1;
 
-const PILL_RADIUS = SOCIAL_BUTTON_HEIGHT / 2;
 const RECTANGULAR_RADIUS = 4;
 
-export function socialShapeRadius(shape: SocialSignInButtonShape): number {
-  return shape === 'pill' ? PILL_RADIUS : RECTANGULAR_RADIUS;
-}
-
-function buttonClass(): string {
-  return 'flex-row items-center justify-center';
-}
-
 function buttonStyle(args: {
-  palette: SocialThemePalette;
-  shape: SocialSignInButtonShape;
+  palette: SocialButtonPalette;
   isDisabled: boolean;
 }): JSX.CSSProperties {
   return {
     height: `${SOCIAL_BUTTON_HEIGHT}px`,
-    'border-radius': `${socialShapeRadius(args.shape)}px`,
+    'border-radius': `${RECTANGULAR_RADIUS}px`,
     'padding-left': `${PADDING_LEFT}px`,
     'padding-right': `${PADDING_RIGHT}px`,
     'background-color': args.palette.fill,
@@ -95,7 +78,7 @@ function buttonStyle(args: {
 
 function LeadingSlot(props: {
   spec: SocialProviderSpec;
-  palette: SocialThemePalette;
+  palette: SocialButtonPalette;
   loading: boolean;
 }): JSX.Element {
   return (
@@ -122,21 +105,12 @@ function LeadingSlot(props: {
 /**
  * `SocialSignInButton` -- branded sign-in button for third-party identity providers.
  *
- * Visual treatment for each provider follows the vendor's published branding
- * guidelines. Layout, palette, padding, label, font, and logo size are all
- * dictated by spec — the only consumer-facing controls are the theme,
- * shape, action (sign in / sign up / continue), and an optional label
- * override for localization.
- *
- * Currently supports:
- * - `provider="google"` — Sign in with Google (Light / Dark / Neutral, Rectangular / Pill).
- *   Per https://developers.google.com/identity/branding-guidelines.
- * - `provider="dev"` — in-repo Dev IdP (non-production builds only).
+ * Google and Apple use their official marks, colors and button metrics.
+ * The development provider uses Gamezilla's surface and text roles.
  *
  * @example
  * ```tsx
  * <SocialSignInButton provider="google" onClick={signIn} />
- * <SocialSignInButton provider="google" theme="dark" shape="pill" action="signIn" onClick={signIn} />
  * ```
  */
 export function SocialSignInButton(
@@ -144,8 +118,6 @@ export function SocialSignInButton(
 ): JSX.Element {
   const { i18n } = useLingui();
   const spec = (): SocialProviderSpec => SOCIAL_PROVIDER_SPECS[props.provider];
-  const palette = (): SocialThemePalette =>
-    spec().themes[props.theme ?? 'light'];
   const loading = (): boolean => props.loading === true;
   const isDisabled = (): boolean => loading() || props.disabled === true;
   const defaultLabel = (): string =>
@@ -157,7 +129,7 @@ export function SocialSignInButton(
 
   return (
     <SdkButton
-      class={`clickable clickableOpacity ${buttonClass()}`}
+      class="clickable clickableOpacity flex-row items-center justify-center"
       {...dataAttrs({
         component: 'SocialSignInButton',
         provider: props.provider,
@@ -170,19 +142,18 @@ export function SocialSignInButton(
       aria-busy={loading() ? 'true' : undefined}
       aria-describedby={props['aria-describedby']}
       style={buttonStyle({
-        palette: palette(),
-        shape: props.shape ?? 'rectangular',
+        palette: spec().palette,
         isDisabled: isDisabled(),
       })}
     >
-      <LeadingSlot spec={spec()} palette={palette()} loading={loading()} />
+      <LeadingSlot spec={spec()} palette={spec().palette} loading={loading()} />
       <p
         class="text whitespace-nowrap"
         style={{
           'font-size': `${FONT_SIZE}px`,
           'line-height': `${LINE_HEIGHT}px`,
           'font-weight': FONT_WEIGHT,
-          color: palette().font,
+          color: spec().palette.font,
           'font-family':
             props.provider === 'google' ? FONT_FAMILY : 'var(--ui-font-sans)',
         }}

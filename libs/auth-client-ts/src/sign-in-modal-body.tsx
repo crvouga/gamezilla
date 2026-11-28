@@ -53,7 +53,6 @@ export function SignInModalBody(props: {
               <SocialSignInButton
                 provider={provider}
                 action="signIn"
-                theme={provider === 'apple' ? 'dark' : 'light'}
                 onClick={() => props.onPress(provider)}
                 dataSet={{ testid: signInMethodTestId(provider) }}
               />

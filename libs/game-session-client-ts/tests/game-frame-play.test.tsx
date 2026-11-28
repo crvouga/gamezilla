@@ -41,9 +41,7 @@ const NAMES: Readonly<Record<GameSide, string>> = {
 const nameOf = (side: GameSide): string => NAMES[side];
 
 function themed(ui: () => JSX.Element) {
-  return renderWithI18n(() => (
-    <ThemeProvider colorScheme="light">{ui()}</ThemeProvider>
-  ));
+  return renderWithI18n(() => <ThemeProvider>{ui()}</ThemeProvider>);
 }
 
 describe('the table around the board', () => {

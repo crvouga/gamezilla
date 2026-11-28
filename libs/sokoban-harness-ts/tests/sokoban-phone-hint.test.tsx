@@ -20,10 +20,7 @@ test("on a phone the board's hint is one short sentence", () => {
   const time = createHarnessClock();
   const view = renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <SokobanPlayer
           onReturnToLibrary={() => {
             throw new Error('Unexpected navigation');

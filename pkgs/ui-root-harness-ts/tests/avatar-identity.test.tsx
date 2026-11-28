@@ -22,33 +22,28 @@ const TEXT = 4.5;
 const NON_TEXT = 3;
 
 /** An opaque ring against the surface under it. */
-function ringContrast(
-  scheme: 'light' | 'dark',
-  ring: ColorTokenName,
-  under: ColorTokenName
-): number {
-  const colors = COLOR_PALETTE[scheme];
+function ringContrast(ring: ColorTokenName, under: ColorTokenName): number {
+  const colors = COLOR_PALETTE;
   const front = parseColor(colors[ring]);
   const back = parseColor(colors[under]);
   if (front === null || back === null) {
-    throw new Error(`unparseable ${scheme} ${ring} on ${under}`);
+    throw new Error(`unparseable ${ring} on ${under}`);
   }
   return contrastRatio(front, back);
 }
 
 /** Ink on a (possibly translucent) plate laid on the surface under it. */
 function inkContrast(
-  scheme: 'light' | 'dark',
   ink: ColorTokenName,
   plate: ColorTokenName,
   under: ColorTokenName
 ): number {
-  const colors = COLOR_PALETTE[scheme];
+  const colors = COLOR_PALETTE;
   const base = parseCssColor(colors[under]);
   const back = parseCssColor(colors[plate]);
   const front = parseColor(colors[ink]);
   if (base === null || back === null || front === null) {
-    throw new Error(`unparseable ${scheme} ${ink} on ${plate}`);
+    throw new Error(`unparseable ${ink} on ${plate}`);
   }
   return contrastRatio(front, rgbaToRgb8(compositeOver(back, base)));
 }
@@ -86,41 +81,32 @@ describe('avatar tones', () => {
     expect(AVATAR_TONES.map((tone) => tone.plate)).not.toContain('tintSubtle');
   });
 
-  for (const scheme of ['light', 'dark'] as const) {
-    for (const under of ['background', 'surface'] as const) {
-      test(`${scheme}: every tone's initials hold AA on ${under}`, () => {
-        const low = AVATAR_TONES.flatMap((tone) => {
-          const ratio = inkContrast(scheme, tone.ink, tone.plate, under);
-          return ratio >= TEXT
-            ? []
-            : [`${tone.ink} on ${tone.plate}: ${ratio.toFixed(2)}`];
-        });
-        expect(low).toEqual([]);
+  for (const under of ['background', 'surface'] as const) {
+    test(`every tone's initials hold AA on ${under}`, () => {
+      const low = AVATAR_TONES.flatMap((tone) => {
+        const ratio = inkContrast(tone.ink, tone.plate, under);
+        return ratio >= TEXT
+          ? []
+          : [`${tone.ink} on ${tone.plate}: ${ratio.toFixed(2)}`];
       });
+      expect(low).toEqual([]);
+    });
 
-      test(`${scheme}: every initials ring holds 3:1 on ${under}`, () => {
-        const low = [...AVATAR_TONES, YOUR_AVATAR_TONE].flatMap((tone) => {
-          const ratio = ringContrast(scheme, tone.ring, under);
-          return ratio >= NON_TEXT
-            ? []
-            : [`${tone.ring} ring on ${under}: ${ratio.toFixed(2)}`];
-        });
-        expect(low).toEqual([]);
+    test(`every initials ring holds 3:1 on ${under}`, () => {
+      const low = [...AVATAR_TONES, YOUR_AVATAR_TONE].flatMap((tone) => {
+        const ratio = ringContrast(tone.ring, under);
+        return ratio >= NON_TEXT
+          ? []
+          : [`${tone.ring} ring on ${under}: ${ratio.toFixed(2)}`];
       });
-    }
+      expect(low).toEqual([]);
+    });
   }
 
   test('your own initials keep their AA ink', () => {
-    for (const scheme of ['light', 'dark'] as const) {
-      expect(
-        inkContrast(
-          scheme,
-          YOUR_AVATAR_TONE.ink,
-          YOUR_AVATAR_TONE.plate,
-          'surface'
-        )
-      ).toBeGreaterThanOrEqual(TEXT);
-    }
+    expect(
+      inkContrast(YOUR_AVATAR_TONE.ink, YOUR_AVATAR_TONE.plate, 'surface')
+    ).toBeGreaterThanOrEqual(TEXT);
   });
 });
 

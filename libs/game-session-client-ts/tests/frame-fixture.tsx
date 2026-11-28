@@ -218,10 +218,7 @@ export function mountFrame(
   const time = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width, height: width === 390 ? 844 : 900 }}
-      >
+      <ThemeProvider fixedLayout={{ width, height: width === 390 ? 844 : 900 }}>
         <SurfaceStackProvider>
           <PlayFriendScreenView {...props()} />
         </SurfaceStackProvider>

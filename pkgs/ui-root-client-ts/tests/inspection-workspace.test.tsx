@@ -8,7 +8,7 @@ function workspace(width: number) {
   return render(() => {
     const [selected, setSelected] = createSignal('primary');
     return (
-      <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 480 }}>
+      <ThemeProvider fixedLayout={{ width, height: 480 }}>
         <InspectionWorkspace
           primaryLabel="Replay"
           toolsLabel="Inspect test"

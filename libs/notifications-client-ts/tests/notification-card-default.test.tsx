@@ -56,7 +56,7 @@ function mountCard(interaction: Notification) {
   };
   renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <SurfaceStackProvider>
           <ModerationProvider rules={shippedModerationRules()}>
             <NotificationCardDefault
@@ -136,7 +136,7 @@ test('a card that waits on you without answers says its next step', () => {
   const opened = mock(() => undefined);
   renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <SurfaceStackProvider>
           <ModerationProvider rules={shippedModerationRules()}>
             <NotificationCardDefault

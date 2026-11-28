@@ -10,10 +10,7 @@ afterEach(cleanup);
 test('a device meta pair caps its value without an invalid inline max-width', () => {
   // regression: account-device-meta-max-width-unit
   const { container } = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <AccountDeviceMetaPair
         label="Last seen"
         valueAtom={<span data-testid="meta-value">{'2026-10-21 09:41'}</span>}

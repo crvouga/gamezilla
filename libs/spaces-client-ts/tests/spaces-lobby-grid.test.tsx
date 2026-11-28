@@ -19,10 +19,7 @@ afterEach(cleanup);
 
 function mountWide(spaces: readonly SpaceCardData[], hosted: number) {
   return renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="dark"
-      fixedLayout={{ width: 1280, height: 800 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 1280, height: 800 }}>
       <SpacesLobbyView
         status="ready"
         hostedCount={hosted}

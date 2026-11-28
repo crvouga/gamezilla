@@ -35,7 +35,7 @@ function mountParent() {
     });
     return (
       <ClockProvider clock={clock} timers={timers}>
-        <ThemeProvider colorScheme="light">
+        <ThemeProvider>
           <AudioPlaybackProvider value={noopAudio()}>
             <BoardMotionProvider
               value={{

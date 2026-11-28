@@ -50,7 +50,7 @@ function mount(container: HTMLElement, benchmark = false) {
     () => (
       <I18nProvider i18n={i18n}>
         <ClockProvider clock={clock} timers={timers}>
-          <ThemeProvider colorScheme="light">
+          <ThemeProvider>
             <AudioPlaybackProvider value={audio.port}>
               <BoardMotionProvider value={exampleMotion()}>
                 <Show

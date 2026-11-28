@@ -11,7 +11,7 @@ const tokens = JSON.parse(
     new URL('../../ui-root-shared-ts/src/design-tokens.json', import.meta.url),
     'utf8'
   )
-) as { color: Record<'light' | 'dark', Record<string, Hex>> };
+) as { color: Record<string, Hex> };
 
 /** `text-game-connect-four-ink` / `bg-game-connect-four-one` → token name. */
 function tokenOf(utility: string, prefix: 'text-' | 'bg-'): string {
@@ -38,7 +38,7 @@ function ratio(a: string, b: string): number {
 }
 
 // regression: connect-four-seat-chip-mark-low-contrast
-test('disc seat chips draw their mark at 3:1 or more on the chip in both themes', () => {
+test('disc seat chips draw their mark at 3:1 or more on the chip', () => {
   for (const [color, mark] of [
     ['disc-one', '●'],
     ['disc-two', '◆'],
@@ -54,12 +54,10 @@ test('disc seat chips draw their mark at 3:1 or more on the chip in both themes'
     );
     expect(paint).toBeDefined();
     expect(inks).toHaveLength(1);
-    for (const theme of ['light', 'dark'] as const) {
-      const palette = tokens.color[theme];
-      const chipHex = palette[tokenOf(paint ?? '', 'bg-')]?.$value.hex ?? '';
-      const inkHex = palette[tokenOf(inks[0] ?? '', 'text-')]?.$value.hex ?? '';
-      expect(ratio(inkHex, chipHex)).toBeGreaterThanOrEqual(3);
-    }
+    const palette = tokens.color;
+    const chipHex = palette[tokenOf(paint ?? '', 'bg-')]?.$value.hex ?? '';
+    const inkHex = palette[tokenOf(inks[0] ?? '', 'text-')]?.$value.hex ?? '';
+    expect(ratio(inkHex, chipHex)).toBeGreaterThanOrEqual(3);
     cleanup();
   }
 });

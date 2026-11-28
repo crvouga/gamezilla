@@ -1,24 +1,8 @@
-import { observeElementResize } from '../observe-element-resize';
 /** @jsxImportSource @solidjs/web */
-/**
- * Theme context and provider.
- *
- * Colors are CSS variables (`tokens.css`), so `ThemeTokens.colors` is a
- * stable palette of `var(--ui-color-*)` references and scheme changes are a
- * single `data-theme` attribute flip on the host element. `palette` exposes
- * the raw resolved scheme for the few components that must compute with real
- * color values (contrast, canvas, SVG fills). Layout (width / height /
- * breakpoint) lives in a second context so a resize never touches token
- * readers.
- */
-
 import type { BreakpointName } from '@pkgs/ui-root-shared-ts/breakpoints';
 import { getBreakpoint } from '@pkgs/ui-root-shared-ts/breakpoints';
 import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
-import type {
-  ColorScheme,
-  ColorTokens,
-} from '@pkgs/ui-root-shared-ts/colors-types';
+import type { ColorTokens } from '@pkgs/ui-root-shared-ts/colors-types';
 import {
   CSS_VAR_COLORS,
   cssVarElevation,
@@ -43,26 +27,24 @@ import {
   untrack,
   useContext,
 } from 'solid-js';
-import { createMediaQuery } from '../media-query';
+import { observeElementResize } from '../observe-element-resize';
 
 export type ThemeLayout = {
   width: number;
   height: number;
 };
 
-/** Stable design tokens — never change on resize; only `palette` / `colorScheme` track the scheme. */
+/** Stable design tokens independent of container size. */
 export type ThemeTokens = {
   /** Palette-shaped map of `var(--ui-color-*)` references. */
   colors: ColorTokens;
-  /** Raw resolved scheme colors (for contrast math / canvas / SVG). Reactive. */
-  palette: Accessor<ColorTokens>;
-  /** Resolved scheme. Reactive. */
-  colorScheme: Accessor<ColorScheme>;
+  /** Resolved colors for contrast calculations, canvas and SVG. */
+  palette: ColorTokens;
   fonts: FontStacks;
   /** Global casing for UI-chrome `Text` variants. */
   textCasing: TextCasing;
   motion: MotionTokens;
-  /** Scheme-agnostic elevation: dark mode lifts onto `var(--ui-elevation-N)`. */
+  /** Elevation uses `var(--ui-elevation-N)`. */
   elevation: (level: ElevationLevel) => ElevationStyle;
 };
 
@@ -75,7 +57,6 @@ export type ThemeLayoutValue = {
 
 export type Theme = ThemeTokens & ThemeLayoutValue;
 
-// `null` outside any provider: the outermost provider reads it to know it is the root.
 const ThemeTokensContext = createContext<ThemeTokens | null>(null);
 const ThemeLayoutContext = createContext<ThemeLayoutValue>();
 const ThemeHostContext = createContext<Accessor<HTMLElement | undefined>>(
@@ -85,13 +66,6 @@ const ThemeHostContext = createContext<Accessor<HTMLElement | undefined>>(
 export type ThemeProviderProps = {
   /** An injected device preference; browser CSS also follows the system preference. */
   reducedMotion?: boolean;
-  /**
-   * `'system'` follows `prefers-color-scheme`; `'light'` / `'dark'` pin the
-   * scheme. Reactive.
-   */
-  colorScheme: ColorScheme | 'system';
-  /** Independent overlay roots may follow the document without owning it. */
-  manageDocumentTheme?: boolean;
   /** Keep overlay roots transparent while retaining theme tokens. */
   transparent?: boolean;
   /** Optional font stack overrides (merged onto defaults). Read once. */
@@ -105,8 +79,6 @@ export type ThemeProviderProps = {
   fixedLayout?: ThemeLayout;
   children: JSX.Element;
 };
-
-const DARK_QUERY = '(prefers-color-scheme: dark)';
 
 /** Host overrides for `--ui-font-*`. Omitted when the caller keeps defaults. */
 function themeFontStyle(
@@ -146,44 +118,11 @@ function createHostLayout(
   return layout;
 }
 
-function mirrorDocumentTheme(scheme: ColorScheme): () => void {
-  const root = document.documentElement;
-  const previous = root.getAttribute('data-theme');
-  root.setAttribute('data-theme', scheme);
-  return () => {
-    if (previous === null) root.removeAttribute('data-theme');
-    else root.setAttribute('data-theme', previous);
-  };
-}
-
 /**
- * Supply production design tokens and responsive layout context to a component
- * tree. Nested providers can pin a scheme without changing the document theme.
+ * Supply production design tokens and responsive layout context to a component tree.
  * @summary Provide theme tokens and responsive layout context
  */
 export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
-  // Nested providers compose via host `data-theme` + Solid context only —
-  // never fight over `<html>`. In-repo portals mount inside the host.
-  const isRoot = useContext(ThemeTokensContext) === null;
-  const prefersDark = createMediaQuery(DARK_QUERY);
-  const colorScheme = createMemo((): ColorScheme => {
-    const wanted = props.colorScheme;
-    if (wanted !== 'system') return wanted;
-    return prefersDark() ? 'dark' : 'light';
-  });
-  const palette = createMemo(() => COLOR_PALETTE[colorScheme()]);
-
-  if (isRoot) {
-    createEffect(
-      () =>
-        typeof document === 'undefined' || props.manageDocumentTheme === false
-          ? undefined
-          : colorScheme(),
-      (scheme) =>
-        scheme === undefined ? undefined : mirrorDocumentTheme(scheme)
-    );
-  }
-
   // Static options: `fonts`, `textCasing` and `fixedLayout` are read once by
   // design, so a later change to them is ignored.
   const fixed = untrack(() => ({
@@ -197,8 +136,7 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
 
   const tokens: ThemeTokens = {
     colors: CSS_VAR_COLORS,
-    palette,
-    colorScheme,
+    palette: COLOR_PALETTE,
     fonts: mergedFonts,
     textCasing,
     motion,
@@ -223,7 +161,6 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
                 'bg-none': props.transparent === true,
               },
             ]}
-            data-theme={colorScheme()}
             data-reduced-motion={
               props.reducedMotion === true ? 'true' : undefined
             }

@@ -47,10 +47,7 @@ function renderList(): HTMLElement {
   const harness = createHarnessClock();
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <StaticAppRouterProvider router={router}>
           <TestViewportProvider value={{ width: 390, height: 844 }}>
             <ModerationProvider rules={shippedModerationRules()}>

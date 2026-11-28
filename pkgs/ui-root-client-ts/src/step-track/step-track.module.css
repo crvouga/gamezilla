@@ -40,7 +40,7 @@
   margin-top: calc((var(--ui-leading-base) - var(--ui-space-6)) / 2);
 }
 /* The next step's marker takes the filled button's own fill and ink, so
-   its number reads in both themes. */
+   its number reads. */
 .step[data-state="current"] .marker {
   border-color: var(--ui-color-tint-active);
   background: var(--ui-color-tint-active);

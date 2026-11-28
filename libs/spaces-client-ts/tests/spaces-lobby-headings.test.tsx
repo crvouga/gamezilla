@@ -30,7 +30,7 @@ function mount(size: { width: number; height: number }): HTMLElement {
   const time = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider colorScheme="dark" fixedLayout={size}>
+      <ThemeProvider fixedLayout={size}>
         <StaticAppRouterProvider router={router}>
           <TestViewportProvider value={size}>
             <SpacesScreenView

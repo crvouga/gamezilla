@@ -1,4 +1,4 @@
-import type { ColorPalette } from './colors-types';
+import type { ColorTokens } from './colors-types';
 import designTokens from './design-tokens.json' with { type: 'json' };
 import { readColor, readGroup } from './design-tokens.ts';
 
@@ -7,7 +7,8 @@ import { readColor, readGroup } from './design-tokens.ts';
  * design-tokens.json. Retune that source, then run `bun tokens:generate`.
  * Palette contrast tests hold text/fill pairs to WCAG AA.
  */
-export const COLOR_PALETTE: ColorPalette = {
-  light: readGroup({}, designTokens.color.light, readColor),
-  dark: readGroup({}, designTokens.color.dark, readColor),
-};
+export const COLOR_PALETTE: ColorTokens = readGroup(
+  {},
+  designTokens.color,
+  readColor
+);

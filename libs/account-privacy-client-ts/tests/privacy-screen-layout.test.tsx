@@ -31,10 +31,7 @@ describe('account privacy breadcrumb', () => {
     render(() => (
       <I18nProvider i18n={i18n}>
         <ClockProvider clock={harness.clock} timers={harness.timers}>
-          <ThemeProvider
-            colorScheme="light"
-            fixedLayout={{ width: 1024, height: 768 }}
-          >
+          <ThemeProvider fixedLayout={{ width: 1024, height: 768 }}>
             <StaticAppRouterProvider router={router}>
               <PrivacyScreenLayout>{null}</PrivacyScreenLayout>
             </StaticAppRouterProvider>

@@ -7,10 +7,6 @@
  * entries: Vite would inject raw `@theme` into the browser and skip
  * generation.
  *
- * Nested ThemeProviders: `:root` aliases alone compute against the document
- * scheme. `tokens.css` re-binds every `--color-*` inside each `[data-theme]`
- * block so utilities follow the nearest theme host. Light and dark are that
- * variable swap; no utility is ever written twice for a scheme.
  */
 
 @theme {
@@ -47,7 +43,7 @@
   --default-font-family: var(--ui-font-sans);
   --default-mono-font-family: var(--ui-font-mono);
 
-  /* The fixed scale: label 12, caption 13, body 15, title 18, stat 20,
+  /* The fixed scale: label 12, caption 14, body 15, title 18, stat 20,
      display 26, display-xl 40, each with its leading. */
   --text-xs: var(--ui-font-size-xs);
   --text-xs--line-height: var(--ui-leading-xs);
@@ -81,7 +77,7 @@
   --radius-card: var(--ui-radius-card);
   --radius-sheet: var(--ui-radius-sheet);
 
-  /* Flat, with one soft shadow for what floats above content. */
+  /* One shadow for floating content; surface finishes are supplied by the theme. */
   --shadow-float: var(--ui-shadow-float);
 
   /* Motion: 150–250ms, one ease-out curve. */
@@ -145,6 +141,10 @@
   --color-tint-hover: var(--ui-color-tint-hover);
   --color-tint-active: var(--ui-color-tint-active);
   --color-tint-subtle: var(--ui-color-tint-subtle);
+  --color-action-shade: var(--ui-color-action-shade);
+  --color-reward: var(--ui-color-reward);
+  --color-reward-surface: var(--ui-color-reward-surface);
+  --color-on-monogram: var(--ui-color-on-monogram);
   --color-on-primary: var(--ui-color-on-primary);
   --color-on-destructive: var(--ui-color-on-destructive);
   --color-on-success: var(--ui-color-on-success);

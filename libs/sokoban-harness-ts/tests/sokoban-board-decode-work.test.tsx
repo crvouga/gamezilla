@@ -32,10 +32,7 @@ test('the first left move on the solved maximum board does not parse its terrain
   try {
     const view = renderWithI18n(() => (
       <ClockProvider clock={time.clock} timers={time.timers}>
-        <ThemeProvider
-          colorScheme="dark"
-          fixedLayout={{ width: 390, height: 844 }}
-        >
+        <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
           <SokobanPlayerView
             definition={definition()}
             state={state()}

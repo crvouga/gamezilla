@@ -20,7 +20,7 @@ test('an empty arena status preserves its announcement without painting a pill',
     increment: 0,
   });
   renderWithI18n(() => (
-    <ThemeProvider colorScheme="light">
+    <ThemeProvider>
       <FrameStatusView status={status()} arena />
     </ThemeProvider>
   ));

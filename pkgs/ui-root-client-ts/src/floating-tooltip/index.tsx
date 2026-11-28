@@ -1,12 +1,11 @@
 /** @jsxImportSource @solidjs/web */
 import { type JSX, Portal } from '@solidjs/web';
 import { createEffect, createSignal } from 'solid-js';
-import { useThemeTokens } from '../theme-context/index';
 import type { TooltipPlacement } from '../tooltip/index';
 import styles from '../tooltip/tooltip.module.css';
 
 /**
- * Theme-aware portal bubble anchored to a host element. Tooltip owns visibility and accessible association; position follows scrolling and resizing and listeners are cleaned up on disposal.
+ * Portal bubble anchored to a host element. Tooltip owns visibility and accessible association; position follows scrolling and resizing and listeners are cleaned up on disposal.
  */
 export function FloatingTooltip(props: {
   anchor: () => HTMLElement | undefined;
@@ -14,7 +13,6 @@ export function FloatingTooltip(props: {
   placement: () => TooltipPlacement;
   children: JSX.Element;
 }) {
-  const theme = useThemeTokens();
   const [position, setPosition] = createSignal<JSX.CSSProperties>({});
   let bubble: HTMLDivElement | undefined;
   const shown = () =>
@@ -60,7 +58,6 @@ export function FloatingTooltip(props: {
         ]}
         style={position()}
         data-component="FloatingTooltip"
-        data-theme={theme.colorScheme()}
       >
         {props.children}
       </div>

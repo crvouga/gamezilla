@@ -17,8 +17,7 @@ export type ModalBackdropProps = {
 /**
  * `ModalBackdrop` -- semi-transparent scrim that dismisses on click outside.
  *
- * Uses the active `scrim` token so light and dark schemes both get a
- * scene-appropriate backdrop. The centering layer is pointer-transparent
+ * The centering layer is pointer-transparent
  * (`.boxNone`) so clicks beside the content reach the scrim; the scrim itself
  * is a non-focusable, `aria-hidden` layer -- keyboard users dismiss with
  * Escape through the surrounding {@link FocusTrap}.

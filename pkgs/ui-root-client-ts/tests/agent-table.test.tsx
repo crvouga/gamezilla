@@ -7,10 +7,7 @@ import { createAgent } from '@ui-sdk/solid/agent';
 test('an agent opens the named table row', async () => {
   const opened: string[] = [];
   renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 960, height: 640 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 960, height: 640 }}>
       <Table
         rows={['Ada', 'Grace']}
         columns={[{ key: 'player', header: 'Player', render: (name) => name }]}

@@ -20,7 +20,7 @@ function mountBoard() {
   const actions: string[] = [];
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <SurfaceStackProvider>
           {createQuoridorBoard({
             get position() {

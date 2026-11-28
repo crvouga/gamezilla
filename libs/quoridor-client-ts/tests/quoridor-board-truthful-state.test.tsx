@@ -35,7 +35,7 @@ function mount(start: Quoridor, interactive: boolean) {
   const [game, setGame] = createSignal(start);
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         {createQuoridorBoard({
           get position() {
             return encodeQuoridor(game());

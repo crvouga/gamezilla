@@ -90,10 +90,7 @@ function mount(input: {
   const time = createHarnessClock();
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: input.width ?? 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: input.width ?? 390, height: 844 }}>
         <SurfaceStackProvider>
           <SpaceScreenChromeValueProvider value={chrome(input)}>
             <SpaceScreenFrame>

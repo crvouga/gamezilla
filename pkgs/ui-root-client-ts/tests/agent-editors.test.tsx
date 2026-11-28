@@ -21,10 +21,7 @@ test('an agent edits highlighted source and rich text through the document model
   const view = render(() => (
     <I18nProvider i18n={i18n}>
       <ClockProvider clock={time.clock} timers={time.timers}>
-        <ThemeProvider
-          colorScheme="light"
-          fixedLayout={{ width: 800, height: 600 }}
-        >
+        <ThemeProvider fixedLayout={{ width: 800, height: 600 }}>
           <CodeEditor
             aria-label={asLocalized('Rules')}
             value={source()}

@@ -28,10 +28,7 @@ function board(sides: readonly GameSide[], initial: LightCyclesState) {
   const [stale, setStale] = createSignal(false);
   const inputs: unknown[] = [];
   const view = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <LightCyclesBoard
         position={position()}
         orientation="white"
@@ -219,10 +216,7 @@ test('a finished game tells its riders it is finished, not that they watch', () 
     (state) => state.phase === 'completed'
   );
   const view = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <LightCyclesBoard
         position={trio.encode(finished)}
         orientation="white"
@@ -258,10 +252,7 @@ test("a person's other device says it does not steer their rider and offers to r
   };
   const position = trio.encode(running(lightCyclesStart(3, 3)));
   const view = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <LightCyclesBoard
         position={position}
         orientation="white"

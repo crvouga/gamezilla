@@ -25,16 +25,12 @@ async function read(file: string): Promise<string> {
   return (await handle.exists()) ? await handle.text() : '';
 }
 
-// Xcode resolves the luminosity variant when the device appearance changes.
-function appleColorSet(role: 'background' | 'text') {
-  const colors = (['light', 'dark'] as const).map((scheme) => {
-    const value = parseCssColor(COLOR_PALETTE[scheme][role]);
-    if (!value) throw new Error(`Invalid ${scheme} color for ${role}`);
-    return {
+function appleColorSet(role: 'background' | 'surface' | 'text') {
+  const value = parseCssColor(COLOR_PALETTE[role]);
+  if (!value) throw new Error(`Invalid color for ${role}`);
+  const colors = [
+    {
       idiom: 'universal',
-      ...(scheme === 'dark' && {
-        appearances: [{ appearance: 'luminosity', value: 'dark' }],
-      }),
       color: {
         'color-space': 'srgb',
         components: {
@@ -44,8 +40,8 @@ function appleColorSet(role: 'background' | 'text') {
           alpha: String(value.a),
         },
       },
-    };
-  });
+    },
+  ];
   return {
     file: path.join(
       REPO,
@@ -59,6 +55,7 @@ function appleColorSet(role: 'background' | 'text') {
 
 const OUTPUTS: readonly { readonly file: string; readonly text: string }[] = [
   appleColorSet('background'),
+  appleColorSet('surface'),
   appleColorSet('text'),
   { file: path.join(PKG, 'src', 'tokens.css'), text: renderTokensCss() },
   { file: path.join(PKG, 'src', 'tokens.json'), text: renderTokensJson() },

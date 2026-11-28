@@ -15,7 +15,7 @@ afterEach(cleanup);
 
 function mount(width: number): void {
   renderWithI18n(() => (
-    <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
+    <ThemeProvider fixedLayout={{ width, height: 900 }}>
       <PongBoardView
         seats={[
           { side: 'white', look: { color: 1 }, name: 'avery' },

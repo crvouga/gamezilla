@@ -10,7 +10,7 @@ test('the unavailable puzzle offers recovery and reports loading after retry', (
   render(() => {
     const [loading, setLoading] = createSignal(false);
     return (
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <WordTilesPuzzleStatus
           target={20}
           score={null}

@@ -35,7 +35,7 @@ function renderSearch(
   const harness = createHarnessClock();
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
-      <ThemeProvider colorScheme="light" fixedLayout={size}>
+      <ThemeProvider fixedLayout={size}>
         <StaticAppRouterProvider router={router}>
           <TestViewportProvider value={size}>
             <SearchScreenView

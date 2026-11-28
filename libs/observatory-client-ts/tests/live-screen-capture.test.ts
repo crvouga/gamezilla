@@ -4,12 +4,12 @@ import { createLiveReport } from '@libs/observatory-client-ts/live-report-client
 function screenOf(document: Document) {
   document.body.innerHTML = `
     <div data-actor="alice"><p>Alice's own screen</p></div>
-    <div class="themeHost" data-theme="dark" id="bob-app">
+    <div class="themeHost" data-component="ThemeProvider" id="bob-app">
       <h1 class="text-heading">Settings</h1>
       <p>Signed in as bob@example.test</p>
       <input value="carol" data-testid="search-input" />
       <div data-sensitive="true"><p>carol_the_friend</p></div>
-      <button onclick="steal()" data-testid="theme">Theme</button>
+      <button onclick="steal()" data-testid="sound">Sound</button>
       <a href="https://elsewhere.example/">Help</a>
       <img src="https://tracker.example/pixel.png" alt="tracker" />
       <script>steal()</script>
@@ -39,7 +39,7 @@ test('a watched screen is only the app’s own, drawn as it looks', async () => 
   expect(frame.capturedAtMs).toBe(1_000);
   expect(frame.html.startsWith('<body>')).toBe(true);
   expect(frame.html).toContain('class="themeHost"');
-  expect(frame.html).toContain('data-theme="dark"');
+  expect(frame.html).toContain('data-component="ThemeProvider"');
   expect(frame.html).toContain('class="text-heading"');
   expect(frame.html).toContain('data-game-id="g-1"');
   expect(frame.html).toContain('style="width: 120px"');

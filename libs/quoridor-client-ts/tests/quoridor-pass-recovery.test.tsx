@@ -55,7 +55,7 @@ test('an exhausted blocked player is directed straight to the sole pass action',
   let session: GameFrameBoardSession<JSX.Element> | undefined;
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         {(() => {
           session = createQuoridorBoard({
             position: encodeQuoridor(game),

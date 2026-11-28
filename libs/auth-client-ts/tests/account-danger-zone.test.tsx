@@ -28,10 +28,7 @@ function mountAccount(): void {
   const harness = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 1440, height: 900 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 1440, height: 900 }}>
         <SurfaceStackProvider>
           <StaticAppRouterProvider router={router}>
             <AccountScreenView
