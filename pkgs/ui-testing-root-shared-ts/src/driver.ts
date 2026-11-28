@@ -10,7 +10,7 @@ export type WaitState = 'visible' | 'hidden' | 'enabled';
  * Passed as the argument to {@link DriverNode.wait}.
  */
 export type WaitTextCondition = {
-  readonly text: string;
+  readonly text: string | readonly [string, ...string[]];
   readonly exact?: boolean;
 };
 
@@ -60,6 +60,18 @@ export function isWaitTextCondition(
   state: WaitState | WaitTextCondition
 ): state is WaitTextCondition {
   return typeof state === 'object' && state !== null && 'text' in state;
+}
+
+/** Match one sampled announcement against the accepted text for this wait. */
+export function waitTextMatches(
+  actual: string | null,
+  state: WaitTextCondition
+): boolean {
+  if (actual === null) return false;
+  const choices = typeof state.text === 'string' ? [state.text] : state.text;
+  return choices.some((expected) =>
+    state.exact === false ? actual.includes(expected) : actual === expected
+  );
 }
 
 /**

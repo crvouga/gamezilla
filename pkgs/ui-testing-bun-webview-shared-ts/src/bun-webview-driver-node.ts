@@ -16,7 +16,10 @@ import type {
   WaitState,
   WaitTextCondition,
 } from '@pkgs/ui-testing-root-shared-ts/driver';
-import { isWaitTextCondition } from '@pkgs/ui-testing-root-shared-ts/driver';
+import {
+  isWaitTextCondition,
+  waitTextMatches,
+} from '@pkgs/ui-testing-root-shared-ts/driver';
 import {
   runExpectHidden,
   runExpectText,
@@ -282,10 +285,10 @@ export class BunWebviewDriverNode implements DriverNode {
           }
           if (isWaitTextCondition(state)) {
             const text = await this.text().catch(() => null);
-            if (text === null) return false;
-            return state.exact === false
-              ? text.includes(state.text)
-              : text.trim() === state.text;
+            return waitTextMatches(
+              state.exact === false ? text : (text?.trim() ?? null),
+              state
+            );
           }
           const visible = await this.isVisible();
           if (state !== 'enabled')
