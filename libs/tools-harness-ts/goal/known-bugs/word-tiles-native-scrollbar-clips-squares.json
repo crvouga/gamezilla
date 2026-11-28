@@ -1,0 +1,4 @@
+{
+  "summary": "In the 390 by 844 production browser the classic horizontal and vertical scrollbars consumed part of the last visible Word Tiles row and column.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx"
+}
