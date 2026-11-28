@@ -4,16 +4,6 @@
 @import "./text-entry.css";
 
 @layer components {
-  .stateBlockIcon:not(:has(> [data-icon-family="artwork"])) {
-    border-radius: var(--ui-radius-full);
-    border: 1px solid var(--ui-color-border);
-  }
-
-  .stateBlockIcon > [data-icon-family="artwork"] {
-    width: 100%;
-    height: 100%;
-  }
-
   .card {
     display: flex;
     flex-direction: column;

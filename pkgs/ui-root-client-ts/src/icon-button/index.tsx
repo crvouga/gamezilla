@@ -94,10 +94,6 @@ function hitBoxStyle(size: number): JSX.CSSProperties {
   return { 'min-width': `${hit}px`, 'min-height': `${hit}px` };
 }
 
-function discClass(): string {
-  return 'items-center justify-center rounded-full';
-}
-
 function discStyle(args: {
   size: number;
   bg: string;
@@ -137,8 +133,9 @@ function IconButtonFace(
   const size = (): number => props.size ?? 40;
   const isAvatar = (): boolean => props.variant === 'avatar';
   const isFaces = (): boolean => props.variant === 'faces';
-  const hasBackground = (): boolean => props.background !== undefined;
-  /** CSS var for the painted disc (tracks live scheme flips). */
+  const paintedIcon = (): boolean =>
+    props.background !== undefined && !isAvatar() && !isFaces();
+  /** CSS variable for the disc's fill. */
   const bgCss = (): string =>
     props.background === undefined
       ? 'transparent'
@@ -196,7 +193,10 @@ function IconButtonFace(
       style={hitBoxStyle(size())}
     >
       <div
-        class={`box ${discClass()}`}
+        class={[
+          'box items-center justify-center rounded-full',
+          { artMount: paintedIcon() },
+        ]}
         data-component="IconButtonDisc"
         style={discStyle({
           size: size(),
@@ -206,10 +206,7 @@ function IconButtonFace(
           borderColor: tokens.colors.border,
         })}
       >
-        <Show
-          when={hasBackground() && !isAvatar() && !isFaces()}
-          fallback={props.children}
-        >
+        <Show when={paintedIcon()} fallback={props.children}>
           <OnColorProvider
             background={bgContrast()}
             backdrop={tokens.palette.background}

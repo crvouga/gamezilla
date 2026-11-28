@@ -191,9 +191,8 @@ describe('AvatarHero', () => {
       </AvatarHero>
     ));
     const button = screen.getByRole('button', { name: 'Edit avatar' });
-    expect(button.className).toMatch(/\bsize-11\b/);
-    expect(button.className).toMatch(/\bmin-w-11\b/);
-    expect(button.className).toMatch(/\bmin-h-11\b/);
+    expect(button.style.minWidth).toBe('44px');
+    expect(button.style.minHeight).toBe('44px');
     fireEvent.click(button);
     expect(onClick).toHaveBeenCalledTimes(1);
   });

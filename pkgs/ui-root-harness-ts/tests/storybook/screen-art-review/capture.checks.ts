@@ -140,7 +140,7 @@ for (const entry of Object.values(index.entries)) {
           globals: selection ? { spaceRole: 'host' } : {},
         });
         const art = page.locator(
-          '.stateBlockIcon > img[data-icon-family="artwork"]'
+          '[data-component="StateBlockIcon"] > img[data-icon-family="artwork"]'
         );
         if (
           review === 'empty-art-review' &&
