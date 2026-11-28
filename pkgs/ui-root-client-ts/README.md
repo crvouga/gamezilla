@@ -68,17 +68,18 @@ To add artwork, use the 3D PNG of the matching subject from the immutable
 [Microsoft source revision](https://github.com/microsoft/fluentui-emoji/tree/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets).
 Keep its lighting, transparent padding and original colors. Convert to RGBA,
 resize inside 96 × 96 with Lanczos and export transparent WebP at quality 85,
-method 6. Register the asset once in `src/illustration/index.tsx`. Specify both
+method 6. Register the asset with a static `?inline` import in
+`src/illustration/index.tsx` so its first render includes the image. Specify both
 dimensions on the host. Startup and mounted navigation reference the same file.
 The Trophy, Video Game and Robot in the Illustration catalog are the references
 for metal, plastic and faces. A new board motif uses its playing colors and
-a recognizable arrangement of pieces. Review it beside its name at 40 px and
-in the cover grid. Use the hosted tabletop captures to compare both sizes.
+a recognizable arrangement of pieces. Review it at 40 px, in the cover grid,
+and centered above the game menu title at 112 px on phones and 128 px on desktop.
 
 Compare a new layout with the reviewed release-build captures for
-[phone](https://github.com/user-attachments/assets/e7d62665-d617-40bc-88f4-91ed22d543ee)
-and [desktop](https://github.com/user-attachments/assets/995aa56d-fa80-4109-a1c4-996f07411361)
-at revision `7934f0f18d`. Look at the size of the pieces, the edges of the
+[phone](https://github.com/user-attachments/assets/d0d5aa95-d69a-4c91-a14f-751834244598)
+and [desktop](https://github.com/user-attachments/assets/2fb011c3-9507-4733-a475-7334ff94e2d2)
+at revision `8a4e21462d`. Look at the size of the pieces, the edges of the
 controls and the contrast between the board and its surroundings. The hosted
 `tabletop-review` captures the current implementation.
 
