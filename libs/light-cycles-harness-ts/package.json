@@ -20,7 +20,6 @@
   "dependencies": {
     "@libs/game-matchmaking-harness-ts": "workspace:*",
     "@libs/game-session-harness-ts": "workspace:*",
-    "@libs/game-session-shared-ts": "workspace:*",
     "@libs/harness-ts": "workspace:*",
     "@libs/light-cycles-client-ts": "workspace:*",
     "@libs/light-cycles-shared-ts": "workspace:*",

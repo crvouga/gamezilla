@@ -616,6 +616,12 @@
     "test:spec:160": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
+    "test:spec:161": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:162": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
     "test:contract": {
       "dependsOn": ["^src"],
       "inputs": [
