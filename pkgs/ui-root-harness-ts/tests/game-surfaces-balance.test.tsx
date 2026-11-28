@@ -325,7 +325,7 @@ describe('game surfaces', () => {
   // regression: rating-progress-stops-short — a provisional rating's bar
   // stopped at 240px, short of the card it sat in.
   test("a stat's progress bar spans the stat", () => {
-    const bar = rule('game-stat/game-stat.module.css', '.statProgress');
+    const bar = rule('game-ui.module.css', '.statProgress');
     expect(bar).not.toMatch(/max-width/);
     expect(bar).toMatch(/width:\s*100%;/);
   });
