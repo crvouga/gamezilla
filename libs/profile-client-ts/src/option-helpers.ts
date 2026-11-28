@@ -38,58 +38,15 @@ export function humanizeOptionKey(key: string): string {
     .join(' ');
 }
 
-export function arraysEqualAsSets(a: string[], b: string[]): boolean {
-  if (a.length !== b.length) return false;
-  const sa = [...a].sort();
-  const sb = [...b].sort();
-  return sa.every((v, i) => v === sb[i]);
-}
-
-export function getEnumSelectionMode(
-  field: Extract<SchemaField, { kind: 'enum' }>,
-  value: unknown
-): 'random' | string {
-  if (value === undefined) return 'random';
-  if (!Array.isArray(value)) return 'random';
-  if (value.length !== 1 || typeof value[0] !== 'string') {
-    if (arraysEqualAsSets(value as string[], field.default)) return 'random';
-    return 'random';
-  }
-  return value[0];
-}
-
-/** True if value matches schema default (full random pool). */
-export function isEnumRandom(
-  field: Extract<SchemaField, { kind: 'enum' }>,
-  value: unknown
-): boolean {
-  if (value === undefined) return true;
-  if (!Array.isArray(value)) return true;
-  return arraysEqualAsSets(value as string[], field.default);
-}
-
-/** Derive selectedVariant for a field from draft options. */
+/** A single explicit choice, unless it is the style's entire default pool. */
 export function selectedVariantForField(
   field: Extract<SchemaField, { kind: 'enum' }>,
   current: unknown
 ): string | null {
-  if (isEnumRandom(field, current)) return null;
-  if (
-    Array.isArray(current) &&
-    current.length === 1 &&
-    typeof current[0] === 'string'
-  ) {
-    return current[0];
-  }
-  return null;
-}
-
-export function getProbabilityMode(
-  value: unknown
-): 'off' | 'random' | 'always' {
-  if (value === undefined) return 'random';
-  if (typeof value !== 'number') return 'random';
-  if (value === 0) return 'off';
-  if (value === 100) return 'always';
-  return 'random';
+  if (!Array.isArray(current) || current.length !== 1) return null;
+  const variant: unknown = current[0];
+  if (typeof variant !== 'string') return null;
+  return field.default.length === 1 && field.default[0] === variant
+    ? null
+    : variant;
 }

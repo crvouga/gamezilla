@@ -1,0 +1,9 @@
+{
+  "pattern": "{apps,libs,pkgs}/**/*.{ts,tsx}",
+  "format": ["typescript", "tsx"],
+  "minLines": 12,
+  "minTokens": 100,
+  "reporters": ["json"],
+  "output": ".cache/architecture",
+  "silent": true
+}

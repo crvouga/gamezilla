@@ -1,0 +1,14 @@
+{
+  "ignoreIssues": {
+    "**/*.stories.{ts,tsx}": ["exports"]
+  },
+  "workspaces": {
+    "pkgs/ui-root-harness-ts": {
+      "playwright": false,
+      "entry": [
+        "storybook/playwright.config.ts",
+        "tests/storybook/**/*.checks.ts"
+      ]
+    }
+  }
+}

@@ -1,8 +1,7 @@
 import { Show } from 'solid-js';
 import { expect, fn, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-// Chess draws its own board, so its moment of this screen is its package's.
-import SpaceInGameChessExample from '../../../chess-board-root-client-ts/src/chess-board/space-chess.example';
+import SpaceInGameChessExample from './space-chess.example';
 import {
   expectSpaceBarActions,
   SPACE_STORY_GAMES,
@@ -11,11 +10,11 @@ import {
   type SpaceMatrix,
   spaceStoryGame,
   spaceStoryRole,
-} from '../../storybook/fixtures/space-story-globals';
-import { SpaceInGameTemplate } from './index';
+} from '../../../ui-root-client-ts/storybook/fixtures/space-story-globals';
+import { SpaceInGameTemplate } from '@pkgs/ui-root-client-ts/space-in-game-template';
 import SpaceInGameTemplateExample, {
   type SpaceInGameTemplateExampleProps,
-} from './space-in-game-template.example';
+} from '@pkgs/ui-root-client-ts/space-in-game-template/space-in-game-template.example';
 
 type Args = Omit<SpaceInGameTemplateExampleProps, 'game' | 'role'>;
 

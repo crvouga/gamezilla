@@ -183,7 +183,7 @@ test('a globals-matrix story owns one scenario per combination, theme and width'
   const story = {
     id: 'space-in-game--screen',
     importPath:
-      '../ui-root-client-ts/src/space-in-game-template/space-in-game-template.stories.tsx',
+      '../chess-board-root-client-ts/src/chess-board/space-in-game-template.stories.tsx',
     tags: ['viewport-responsive'],
   };
   const scenarios = visualScenarios(story);
