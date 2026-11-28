@@ -3,8 +3,11 @@ import type { Inspection } from '@libs/synthetic-population-shared-ts/inspection
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { CodeIcon, RotateCcwIcon } from '@pkgs/ui-root-client-ts/icons';
-import { HistoryArt } from '@pkgs/ui-root-client-ts/illustration';
+import {
+  CodeIcon,
+  HistoryIcon,
+  RotateCcwIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -84,7 +87,7 @@ function SyntheticUserRecords(
   return (
     <MenuSection title={<Trans>Records</Trans>}>
       <MenuRow
-        leading={<HistoryArt />}
+        leading={<HistoryIcon />}
         title={t`Event timeline`}
         caption={t`What this Synthetic User recorded, newest first`}
         onClick={() => props.onOpen('events')}

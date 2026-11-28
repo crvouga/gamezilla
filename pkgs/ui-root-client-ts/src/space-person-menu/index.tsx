@@ -22,10 +22,10 @@ import {
   SlidersHorizontalIcon,
   Trash2Icon,
   UserIcon,
-  UserPlusIcon,
   VolumeXIcon,
   XIcon,
 } from '../icons';
+import { FriendsArt, GamesArt, RemoveArt } from '../illustration/index';
 import { spaceDataSet } from '../space-data-set';
 import { useSpacePersonWords } from '../space-people-row/space-person-words';
 import {
@@ -82,7 +82,7 @@ const ACTION_ICON: Readonly<Record<SpacePersonActionId, IconComponent>> = {
   swapForPerson: ArrowLeftRightIcon,
   removeBot: Trash2Icon,
   removeSeat: Trash2Icon,
-  inviteFriend: UserPlusIcon,
+  inviteFriend: FriendsArt,
   addBot: MascotPortrait,
 };
 
@@ -140,7 +140,7 @@ export function SpacePersonMenu(props: SpacePersonMenuProps): JSX.Element {
         type: 'item',
         id: `game:${entry.action.id}`,
         label: entry.action.label,
-        icon: Gamepad2Icon,
+        icon: person.kind === 'openSeat' ? GamesArt : Gamepad2Icon,
         tone,
         disabled: entry.action.disabled === true,
         onClick: () => entry.action.onPress(),
@@ -151,7 +151,10 @@ export function SpacePersonMenu(props: SpacePersonMenuProps): JSX.Element {
       id: entry.id,
       label: label(entry.id, person),
       subtitle: entry.on === undefined ? undefined : entry.on ? t`On` : t`Off`,
-      icon: ACTION_ICON[entry.id],
+      icon:
+        person.kind === 'openSeat' && entry.id === 'removeSeat'
+          ? RemoveArt
+          : ACTION_ICON[entry.id],
       tone,
       onClick: () => props.onAction(person.id, entry.id),
       dataSet: { action: entry.id },

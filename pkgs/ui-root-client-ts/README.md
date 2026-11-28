@@ -334,3 +334,5 @@ The rules are enforced, so the easy path is the right one:
 something none of them express, add it here as a component, not as classes in
 the screen. Editors choose `FormScreen` and supply `submit` / `cancel` actions;
 the template places their feedback in the footer.
+
+Within a menu or list, use one family for the leading pictures on sibling rows. Use regular system icons for settings and commands, or Flat illustrations for illustrated choices. Trailing controls and status indicators keep their functional meanings.

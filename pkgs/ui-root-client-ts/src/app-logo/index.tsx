@@ -97,6 +97,7 @@ export function MascotPortrait(
   return (
     <img
       {...componentDataAttrs('MascotPortrait', props.dataSet)}
+      data-icon-family="artwork"
       src={src}
       alt=""
       aria-hidden="true"

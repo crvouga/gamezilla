@@ -4,10 +4,10 @@ import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import {
   CheckCheckIcon,
   CircleStopIcon,
+  HistoryIcon,
   ListIcon,
   XIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { HistoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
@@ -70,7 +70,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
             </Show>
             <Show when={props.record?.history}>
               <MenuRow
-                leading={<HistoryArt />}
+                leading={<HistoryIcon />}
                 title={<Trans>History and stats</Trans>}
                 onClick={() => props.onOpenHistory()}
                 dataSet={{ testid: 'game-session-history-stats' }}

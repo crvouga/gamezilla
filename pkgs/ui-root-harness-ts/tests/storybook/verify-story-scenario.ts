@@ -42,6 +42,28 @@ export async function verifyStoryScenario(
     .toBe('success');
   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
   await page.evaluate(() => document.fonts.ready);
+  const mixedLists = await page
+    .locator('.panel[role="group"], [role="menu"]')
+    .evaluateAll((lists) =>
+      lists.flatMap((list) => {
+        const slots = list.querySelectorAll(
+          '[data-slot="row-leading"] > [data-icon-family], [role="menuitem"] > [data-icon-family], [role="menuitem"] > :first-child > [data-icon-family]'
+        );
+        const families = new Set(
+          Array.from(slots)
+            .filter(
+              (slot) =>
+                slot.closest('.panel[role="group"], [role="menu"]') === list
+            )
+            .map((slot) => slot.getAttribute('data-icon-family'))
+        );
+        return families.size > 1 ? [list.textContent] : [];
+      })
+    );
+  expect(
+    mixedLists,
+    'Leading pictures in each list share one icon family'
+  ).toEqual([]);
   await page.addScriptTag({ content: axe.source });
   const violations = await page.evaluate(async () => {
     const root = document.querySelector<HTMLElement>('#storybook-root');
