@@ -2,7 +2,7 @@
 export type OpeningControls = {
   readonly settings: string;
   readonly menu: string;
-  readonly appearance: string;
+  readonly sound: string;
   readonly spinner: string;
 };
 
@@ -79,7 +79,7 @@ function observeOpening(
       result.spinnerFrames++;
       result.spinnerAtMs ??= now;
     }
-    const settings = exposed(selector(controls.appearance));
+    const settings = exposed(selector(controls.sound));
     const arrived =
       activated && location.pathname === '/more' && settings !== null;
     if (arrived && settingsOnPreviousFrame) result.settingsAtMs ??= now;

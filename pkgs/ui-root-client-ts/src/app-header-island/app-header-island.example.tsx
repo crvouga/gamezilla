@@ -14,7 +14,6 @@ import type { JSX } from '@solidjs/web';
 import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const DESTINATIONS = [
   { id: 'spaces', label: 'Spaces', icon: GamesArt },
@@ -46,9 +45,7 @@ export default function AppHeaderIslandExample(): JSX.Element {
   return (
     <ExampleRoot>
       <ExampleSection title="Navigation with Spaces selected">
-        <SchemePreview>
-          <InteractiveHeader />
-        </SchemePreview>
+        <InteractiveHeader />
       </ExampleSection>
       <ExampleSection title="Leading and trailing only (a space's own chrome)">
         <AppHeaderIsland

@@ -30,7 +30,7 @@ test.describe('desktop', () => {
   test('storybook integration: word-tiles gesture desktop zoom pan drag cancel and fit', async ({
     page,
   }, info) => {
-    await openStory(page, 'four-player-match', 'light');
+    await openStory(page, 'four-player-match');
     await measureGestures(page);
     await retainEvidence(info, 'opening-board.png', {
       body: await viewport(page).screenshot(),
@@ -88,7 +88,7 @@ test('storybook integration: word-tiles gesture assigned blank remains marked af
   page,
 }, info) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await openStory(page, 'three-player-match', 'light');
+  await openStory(page, 'three-player-match');
   const board = page.getByTestId('game-session-board');
   const blank = centerCell(page);
   for (const [tile, square] of [

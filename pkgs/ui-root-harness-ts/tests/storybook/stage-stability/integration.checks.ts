@@ -108,7 +108,7 @@ test('storybook integration: stage stability 390 keeps the board in place when a
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(
-    '/iframe.html?id=screens-game-sessions-stage--your-turn&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-game-sessions-stage--your-turn&viewMode=story'
   );
   await ready(page);
   await expect(page.getByTestId('game-session-connection-needed')).toHaveCount(
@@ -137,7 +137,7 @@ test('storybook integration: stage stability 390 keeps the board in place when t
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(
-    '/iframe.html?id=screens-game-sessions-stage--your-turn&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-game-sessions-stage--your-turn&viewMode=story'
   );
   await ready(page);
   await expect(page.getByRole('dialog', { name: 'Game over' })).toHaveCount(0);
@@ -156,9 +156,7 @@ for (const viewport of VIEWPORTS)
     }) => {
       await page.setViewportSize(viewport);
       const [first, ...rest] = stories;
-      await page.goto(
-        `/iframe.html?id=${first}&viewMode=story&globals=theme:light`
-      );
+      await page.goto(`/iframe.html?id=${first}&viewMode=story`);
       await ready(page);
       const start = await boardRect(page);
       // A phone's board takes the screen's whole width.

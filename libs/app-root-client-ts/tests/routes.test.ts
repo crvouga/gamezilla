@@ -11,7 +11,6 @@ import type { SubRoute } from '@libs/sub-client-ts/client';
 /** Paths the shell owns regardless of which subs are composed in. */
 const SHELL_PATHS: readonly string[] = [
   '/more',
-  '/more/theme',
   '/more/performance',
   '/more/sound',
   '/more/about',

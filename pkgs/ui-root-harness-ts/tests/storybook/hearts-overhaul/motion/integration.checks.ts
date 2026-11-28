@@ -20,11 +20,11 @@ test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
 test('storybook integration: Hearts card lift animates, and stops for reduced motion', async ({
   page,
 }) => {
-  await openHearts(page, STORY, 'light', 'no-preference');
+  await openHearts(page, STORY, 'no-preference');
   expect((await liftDuration(page)).split(',').some((d) => d !== '0s')).toBe(
     true
   );
-  await openHearts(page, STORY, 'light', 'reduce');
+  await openHearts(page, STORY, 'reduce');
   expect(
     (await liftDuration(page)).split(/,\s*/).every((d) => d === '0s')
   ).toBe(true);

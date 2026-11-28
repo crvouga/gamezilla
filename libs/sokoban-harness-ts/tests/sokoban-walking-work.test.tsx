@@ -43,7 +43,7 @@ test.each([
     }),
   };
   const view = renderWithI18n(() => (
-    <ThemeProvider colorScheme="light" fixedLayout={fixture}>
+    <ThemeProvider fixedLayout={fixture}>
       <SokobanPlayBoard
         board={board}
         position={position()}

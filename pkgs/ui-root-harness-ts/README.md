@@ -97,7 +97,7 @@ Every routed screen and distinct full-screen state is split in two, and the
 `bun storybook:coverage` requires a story and source JSDoc for every exported
 `*ScreenView`; other `libs/` exports are inventoried for discovery only.
 Screen stories are opened at phone and desktop width, like templates. Other component
-stories opt into that same two-theme responsive matrix with the story-level
+stories opt into that same responsive matrix with the story-level
 `tags: ['viewport-responsive']`; use it when a component's layout or interaction
 needs both phone and desktop evidence. The shared `visualScenarios` function
 owns the browser cases and coverage inventory, so explicit regression checks
@@ -123,7 +123,7 @@ assertions in the owning DOM contract tests; a screenshot cannot prove them.
 Assess hierarchy, spacing, typography, token use, responsive layout, readable
 copy, focus visibility and recoverable error states against the design-system
 contract. Use the [Essentials review tools](#essentials-review-and-usage) for each
-applicable concern. Use both themes and relevant phone, tablet and desktop sizes. Preview
+applicable concern. Use the relevant phone, tablet and desktop sizes. Preview
 inspection informs design; it is never a manual test or release evidence. If a
 required interaction or layout is not reached by existing verification, extend
 that verification rather than treating a preview as proof.
@@ -181,9 +181,9 @@ when it affects a person-facing flow.
 
 Stories live beside production implementations in `pkgs/*-client-ts/src/<component>/`. Each vertical slice keeps the implementation, source JSDoc, local styles, CSF stories and deterministic examples together. Public module imports remain stable. The harness owns the Storybook runtime and browser suite; production entrypoints never import stories or fixtures. Storybook discovers the slices together, including game-specific components. Keep static state matrices for side-by-side comparison; use args-based stories
 for prop exploration in the Controls panel. Do not add demo-only selectors for
-props, themes or viewport sizes. Component APIs come from production JSDoc
+props or viewport sizes. Component APIs come from production JSDoc
 and TypeScript in both cases. Each state matrix lives beside its component as `<name>.example.tsx`; only shared preview scaffolding lives in `ui-root-client-ts/storybook/fixtures/`. Production must never import either. Global decorators use
-`createJSXDecorator` to keep Solid owners stable across controls and theme changes.
+`createJSXDecorator` to keep Solid owners stable across control changes.
 Each mount gets a fresh English localization instance and virtual clock seeded
 at a fixed instant, plus production theme and surface-stack providers. Timed
 interactions must explicitly advance virtual time; wall timers are forbidden. Use the virtual-time toolbar to advance timed demos
@@ -271,7 +271,7 @@ cache inputs; the current discovery includes only the Start here guide.
 `bun storybook:test` starts a test-owned static server on 6007 and stops it at the
 end. Concurrent checkouts set `STORYBOOK_TEST_PORT` to distinct ports; the server
 and browser use that port together, independently of the development server's
-`STORYBOOK_PORT`. Playwright visits real stories in both themes with local fonts, fixed locale,
+`STORYBOOK_PORT`. Playwright visits real stories with local fonts, fixed locale,
 time zone, scale factor and viewport. External requests are blocked. Rendering
 errors and serious/critical axe violations fail. Install the existing pinned renderer with `mise install http:chrome-for-testing`.
 Playwright drives that browser; a second downloaded browser is unnecessary.
@@ -318,7 +318,7 @@ representative browser suite through `ci:storybook:0`–`ci:storybook:13`
 (twelve Playwright shards of one selection and two of the throttled Quoridor
 journeys alone, so each fits its task budget;
 coverage gates with the first). The visual nightly group
-also runs every story in both themes, with desktop screen/layout variants and a
+also runs every story, with desktop screen/layout variants and a
 tablet shell. These use the same tests, not a second visual catalog. Serious and
 critical axe failures block the corresponding gate. Interactive addon inspection stays available in Storybook; the browser suite
 owns automated axe runs so two analyzers cannot race on the same document.
@@ -422,12 +422,12 @@ Essentials. The following table records the gaps addressed and the intended use.
 | Feature | Implementation and review practice |
 | --- | --- |
 | [Actions](https://storybook.js.org/docs/essentials/actions) | Callback spies were missing from several Button states. Button now shares explicit `fn()` args and its renderer through typed meta; controlled inputs and the banner retain their spies. Inspect payloads in Actions and assert them in play. Call the spy before updating args. Prefer explicit spies to `argTypesRegex`, which cannot supply play assertions. For non-arg functions use `fn().mockName('name')`; use native `actions.handles` only when delegated DOM event logging is actually needed. Never build an event-log panel into a demo. |
-| [Backgrounds](https://storybook.js.org/docs/essentials/backgrounds) | Generic light/dark swatches were unrelated to production tokens and the opaque preview provider concealed the selected backdrop. `preview-options.ts` now supplies Canvas, Surface and Muted surface using production CSS variables; the preview provider is transparent. The native Backgrounds toolbar and its grid work behind components. The default Canvas preserves the production background in both themes. Backgrounds changes the backdrop, while the theme global still selects all production tokens and JavaScript palette values. Components that paint their own surface deliberately obscure the backdrop. |
+| [Backgrounds](https://storybook.js.org/docs/essentials/backgrounds) | Generic light/dark swatches were unrelated to production tokens and the opaque preview provider concealed the selected backdrop. `preview-options.ts` now supplies Canvas, Surface and Muted surface using production CSS variables; the preview provider is transparent. The native Backgrounds toolbar and its grid work behind components. Components that paint their own surface deliberately obscure the backdrop. |
 | [Controls](https://storybook.js.org/docs/essentials/controls) | Keep defaults in serializable `args` (not `argTypes.defaultValue`), render reactive args, and use explicit controls for JSX/string unions, closed options for tokens, and `useArgs` for two-way editing. Button control metadata now applies to every state; conditional success/error labels appear only for the corresponding feedback. Use `mapping` or primitive custom args for JSX, `control: false` for callbacks and injected objects, and `parameters.controls.include`/`exclude` to focus large APIs. Keep `expanded` documentation and required-first sorting. Do not add generic color/date matchers for token names or injected timestamps. The composed GameArena now exposes its nested board interaction flag as a primitive custom arg instead of a demo toggle/signal. Disable Controls only on galleries whose renderer does not consume args. Reset args with the native reset control; never add a duplicate reset button. |
 | [Highlight](https://storybook.js.org/docs/essentials/highlight) | Already enabled in core and used by the accessibility addon; no parallel overlay is needed. For targeted design debugging, a story decorator can use `useChannel` from `storybook/preview-api` to emit `HIGHLIGHT` from `storybook/highlight` with an `id` and `selectors`. Scope selectors to `#storybook-root [data-component="Name"]` (or a stable test id). Use `REMOVE_HIGHLIGHT` for that id when finished; story navigation also clears highlights. Avoid `RESET_HIGHLIGHT` in reusable decorators because it clears other addons' highlights. Use native `SCROLL_INTO_VIEW` for an offscreen debugging target. Keep diagnostic highlights out of normal baselines. |
 | [Measure](https://storybook.js.org/docs/essentials/measure-and-outline) | Already enabled, previously undocumented. Use the Measure toolbar (or `m`) and hover a region to inspect its box, padding, margin and border before changing token spacing. This replaces ad hoc measurement labels added solely for debugging. The existing `createMeasure` example stays: it demonstrates a production measurement API, rather than implementing an inspector. |
 | [Outline](https://storybook.js.org/docs/essentials/measure-and-outline) | Already enabled, previously undocumented. Use the Outline toolbar to inspect the layout boxes of composed screens, clipping and unexpected gaps. Avoid adding temporary borders or custom debug CSS to components. Use `parameters.measure.disable` or `parameters.outline.disable` only when a specific story cannot sensibly be inspected. Both tools start off, keeping ordinary stories and baselines clean. |
-| [Toolbars & globals](https://storybook.js.org/docs/essentials/toolbars-and-globals) | The theme toolbar and `createJSXDecorator` already match the documented global/provider pattern. Keep theme selection here; Backgrounds is not a theme provider. Use `initialGlobals` for project defaults and a story/meta `globals` override only for a state that must be fixed: it locks the corresponding toolbar. Keep the virtual-time toolbar/event adapter because Essentials has no injected clock replacement. It advances deterministic product ports rather than wall time. No new demo-local theme, viewport or time controls. |
+| [Toolbars & globals](https://storybook.js.org/docs/essentials/toolbars-and-globals) | Use `initialGlobals` for project defaults and a story/meta `globals` override only for a state that must be fixed: it locks the corresponding toolbar. Keep the virtual-time toolbar/event adapter because Essentials has no injected clock replacement. It advances deterministic product ports rather than wall time. No new demo-local theme, viewport or time controls. |
 | [Viewport](https://storybook.js.org/docs/essentials/viewport) | Phone, Tablet and Desktop remain native options, now shared with the automated responsive matrix through `preview-options.ts` instead of repeated dimensions. Use rotation for landscape and native reset for the unconstrained canvas. Use story `globals.viewport` for a deliberately locked viewport, not `parameters.viewport.defaultViewport` from older versions. Do not lock ordinary stories: agents need to explore widths. A browser driver opening `iframe.html` directly still sets its own browser viewport; the manager's resizing UI cannot resize that outer browser. The screenshot matrix retains its established height and filenames. |
 
 ### Apply the tools to a task
@@ -436,16 +436,11 @@ For a component, start with the smallest args-based story. Vary content, flags
 and token options through Controls; exercise callbacks through Actions; use a
 separate play story for a deterministic interaction. For a screen composition,
 use the existing template stories and real components, explore phone/desktop and
-landscape, then inspect layout with Measure and Outline. Switch both production
-theme and token backdrop when checking transparent edges and surface boundaries.
+landscape, then inspect layout with Measure and Outline. Switch the token backdrop when checking transparent edges and surface boundaries.
 Use Highlight to identify a specific region while debugging. Restore inspection
 tools and grids to off before capturing evidence for a review.
 
-Keep the existing `SchemePreview` galleries: simultaneous light/dark comparison
-is useful and each pane uses a production provider so CSS and JavaScript agree.
-They do not replace args-based stories with the global toolbar. Scope gallery
-play queries to each theme pane before querying roles or test ids; both panes
-intentionally contain the same component identifiers. Keep bounded
+Keep bounded
 screen fixtures when they demonstrate an embedded scroll container; use Viewport
 for the outer canvas instead of adding more fixed-width preview wrappers.
 Keep product focus/scroll/measure examples and injected virtual-time behavior;

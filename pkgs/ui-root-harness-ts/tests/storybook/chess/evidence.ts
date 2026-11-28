@@ -6,7 +6,6 @@ import axe from 'axe-core';
 export async function openChessStory(
   page: Page,
   id: string,
-  theme: string,
   motion: 'reduced' | 'system' = 'reduced'
 ) {
   await page.route('**/*', (route) =>
@@ -22,7 +21,7 @@ export async function openChessStory(
     ).__STORYBOOK_HIGHLIGHT_INITIALIZED = true;
   });
   await page.goto(
-    `/iframe.html?id=${id}&viewMode=story&globals=theme:${theme};motion:${motion}`
+    `/iframe.html?id=${id}&viewMode=story&globals=motion:${motion}`
   );
   try {
     await expect(page.locator('#storybook-root')).toHaveAttribute(

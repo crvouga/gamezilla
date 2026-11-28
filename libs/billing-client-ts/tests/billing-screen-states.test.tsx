@@ -42,10 +42,7 @@ function renderView(view: BillingView, actions: BillingActions = NO_ACTIONS) {
   return render(() => (
     <I18nProvider i18n={i18n}>
       <ClockProvider clock={harness.clock} timers={harness.timers}>
-        <ThemeProvider
-          colorScheme="light"
-          fixedLayout={{ width: 1024, height: 768 }}
-        >
+        <ThemeProvider fixedLayout={{ width: 1024, height: 768 }}>
           <BillingScreenBody
             view={view}
             offer={PLUS_MEMBERSHIP_OFFER}

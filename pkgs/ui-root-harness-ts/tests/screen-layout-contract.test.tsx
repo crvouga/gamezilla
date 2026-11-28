@@ -35,21 +35,14 @@ const SCREEN_ENTRIES = [
   { id: 'embedded-screen', Example: Example12 },
 ];
 
-function mountExample(
-  id: string,
-  width = 390,
-  colorScheme: 'light' | 'dark' = 'light'
-) {
+function mountExample(id: string, width = 390) {
   const entry = SCREEN_ENTRIES.find((candidate) => candidate.id === id);
   if (!entry) throw new Error(`Missing screen example: ${id}`);
   const Example = entry.Example;
   const { clock, timers } = createHarnessClock({ startMs: 0 });
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider
-        colorScheme={colorScheme}
-        fixedLayout={{ width, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width, height: 844 }}>
         <Example />
       </ThemeProvider>
     </ClockProvider>
@@ -58,21 +51,19 @@ function mountExample(
 }
 
 describe('screen layout composition contracts', () => {
-  test('every screen example renders in compact and wide themes with one screen identity', () => {
+  test('every screen example renders in compact and wide layouts with one screen identity', () => {
     for (const entry of SCREEN_ENTRIES) {
-      for (const colorScheme of ['light', 'dark'] as const) {
-        for (const width of [390, 1280]) {
-          const view = mountExample(entry.id, width, colorScheme);
-          const count = entry.id === 'game-setup-panel' ? 0 : 1;
-          expect(view.container.querySelectorAll('[data-screen]').length).toBe(
-            count
-          );
-          expect(
-            view.queryAllByRole('heading', { level: 1 }).length
-          ).toBeLessThanOrEqual(1);
-          expect(view.queryByRole('dialog')).toBeNull();
-          view.unmount();
-        }
+      for (const width of [390, 1280]) {
+        const view = mountExample(entry.id, width);
+        const count = entry.id === 'game-setup-panel' ? 0 : 1;
+        expect(view.container.querySelectorAll('[data-screen]').length).toBe(
+          count
+        );
+        expect(
+          view.queryAllByRole('heading', { level: 1 }).length
+        ).toBeLessThanOrEqual(1);
+        expect(view.queryByRole('dialog')).toBeNull();
+        view.unmount();
       }
     }
   });

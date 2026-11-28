@@ -44,10 +44,7 @@ function mount(options: {
     options.position ?? pongPositionCodec.encode(options.state ?? start)
   );
   const view = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: options.width ?? 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: options.width ?? 390, height: 844 }}>
       <PongBoardView
         seats={[
           { side: 'white', look: { color: 1 }, name: 'avery' },

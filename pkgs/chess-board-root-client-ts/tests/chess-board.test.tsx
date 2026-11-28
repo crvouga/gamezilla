@@ -21,7 +21,7 @@ describe('ChessBoard', () => {
     const { clock, timers } = createHarnessClock();
     renderWithI18n(() => (
       <ClockProvider clock={clock} timers={timers}>
-        <ThemeProvider colorScheme="light">
+        <ThemeProvider>
           <AudioPlaybackProvider value={noopAudio()}>
             <ChessBoard size={320} animations={false} />
           </AudioPlaybackProvider>

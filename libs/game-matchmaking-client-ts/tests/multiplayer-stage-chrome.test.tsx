@@ -85,6 +85,7 @@ test('a search is a state on the board place, over the person and their clock, w
         search: {
           players: 2,
           gameName: 'Chess',
+          motif: 'checkered',
           timeControl: '5+3',
           seconds: 9,
         },
@@ -122,7 +123,13 @@ test('an untimed search says untimed once and shows no clock on the seat', () =>
     stage: 'searching',
     props: {
       you: YOU,
-      search: { players: 2, gameName: 'Chess', timeControl: null, seconds: 1 },
+      search: {
+        players: 2,
+        gameName: 'Chess',
+        motif: 'checkered',
+        timeControl: null,
+        seconds: 1,
+      },
     },
   });
   expect(screen.queryByTestId('multiplayer-waiting-clock')).toBeNull();

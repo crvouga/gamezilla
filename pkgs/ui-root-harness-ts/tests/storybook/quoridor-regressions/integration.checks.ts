@@ -9,11 +9,7 @@ test('storybook integration: quoridor overhaul regression, every Hill pawn is re
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   // The story's play asserts each pawn's ink is at least 4.5:1 on its square.
-  await expectQuoridorStoryPasses(
-    page,
-    'screens-games-quoridor-hill--opening',
-    'dark'
-  );
+  await expectQuoridorStoryPasses(page, 'screens-games-quoridor-hill--opening');
 });
 
 // regression: quoridor-tablet-board-undersized
@@ -24,8 +20,7 @@ test('storybook integration: quoridor overhaul regression, the tablet board is c
   // The story's play asserts a centred board at least 440px wide.
   await expectQuoridorStoryPasses(
     page,
-    'screens-games-quoridor-classic--opening',
-    'light'
+    'screens-games-quoridor-classic--opening'
   );
 });
 
@@ -38,8 +33,7 @@ test('storybook integration: quoridor overhaul regression, a proposed wall can b
   // game view had clipped Place under its command bar.
   await expectQuoridorStoryPasses(
     page,
-    'screens-games-quoridor-classic--precise-coordinates',
-    'light'
+    'screens-games-quoridor-classic--precise-coordinates'
   );
 });
 
@@ -66,7 +60,6 @@ async function placeByCoordinate(
   await expectQuoridorStoryPasses(
     page,
     `screens-games-quoridor-${mode}--direct-manipulation`,
-    'light',
     'system'
   );
   const board = page.getByTestId('game-session-board');

@@ -44,6 +44,7 @@ const TONE: Readonly<Record<ColorTone, string>> = {
   tint: 'text-tint',
   destructive: 'text-destructive',
   success: 'text-success',
+  reward: 'text-reward',
   warning: 'text-warning',
   info: 'text-info',
   'on-primary': 'text-on-primary',

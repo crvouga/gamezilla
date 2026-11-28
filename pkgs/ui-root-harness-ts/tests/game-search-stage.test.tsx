@@ -10,6 +10,7 @@ describe('GameSearchStage', () => {
   test('the wait is one state on a board-sized area, over the seat strip', () => {
     renderUi(() => (
       <GameSearchStage
+        motif="discs"
         title="Searching…"
         description="Looking for an opponent."
         elapsed="3 seconds"
@@ -19,6 +20,7 @@ describe('GameSearchStage', () => {
     const stage = mustQuery('[data-component="GameSearchStage"]');
     const board = mustQuery('[data-game-slot="search-board"]');
     expect(stage.children[0]).toBe(board);
+    expect(board.querySelector('[data-motif="discs"]')).toBeTruthy();
     expect(stage.children[1]?.contains(screen.getByTestId('seat'))).toBe(true);
     expect(
       board.contains(screen.getByRole('heading', { name: 'Searching…' }))
@@ -34,6 +36,7 @@ describe('GameSearchStage', () => {
   test('a stage without a seat is the board area alone', () => {
     renderUi(() => (
       <GameSearchStage
+        motif="discs"
         title="Searching…"
         description="Looking."
         elapsed="1 second"
@@ -45,6 +48,7 @@ describe('GameSearchStage', () => {
   test('a mark replaces the spinner', () => {
     renderUi(() => (
       <GameSearchStage
+        motif="discs"
         title="You're offline"
         description="Reconnect."
         elapsed="Searched 3 seconds"

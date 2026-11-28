@@ -14,7 +14,7 @@ function group(
   onOpen: (place: GameSettingsPlace) => void = () => undefined
 ) {
   return renderWithI18n(() => (
-    <ThemeProvider colorScheme="dark" fixedLayout={{ width: 390, height: 844 }}>
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <GameSettingsScreenView
         place={ROOT}
         title="Settings"

@@ -19,10 +19,7 @@ function renderPickers(content: () => JSX.Element) {
   return render(() => (
     <I18nProvider i18n={setupI18n({ locale: 'en', messages: { en: {} } })}>
       <ClockProvider clock={clock.clock} timers={clock.timers}>
-        <ThemeProvider
-          colorScheme="light"
-          fixedLayout={{ width: 1024, height: 768 }}
-        >
+        <ThemeProvider fixedLayout={{ width: 1024, height: 768 }}>
           <SurfaceStackProvider>{content()}</SurfaceStackProvider>
         </ThemeProvider>
       </ClockProvider>

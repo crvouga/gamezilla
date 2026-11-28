@@ -103,7 +103,6 @@
         "@libs/auth-client-ts#src",
         "@libs/auth-shared-ts#src",
         "@libs/chess-puzzle-shared-ts#src",
-        "@libs/chess-root-shared-ts#src",
         "@libs/game-puzzle-client-ts#src",
         "@libs/game-puzzle-shared-ts#src",
         "@libs/permissions-client-ts#src",

@@ -21,10 +21,7 @@ test('a refused saved answer remains editable with retry and no success claim', 
   render(() => (
     <I18nProvider i18n={i18n}>
       <ClockProvider clock={clock.clock} timers={clock.timers}>
-        <ThemeProvider
-          colorScheme="light"
-          fixedLayout={{ width: 390, height: 844 }}
-        >
+        <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
           <CancellationFeedbackForm
             saved={{ reason: 'price', comment: 'Too expensive this month.' }}
             online

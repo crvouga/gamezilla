@@ -12,7 +12,7 @@ test('storybook integration: Sokoban 20x20 board leaves the whole pad on a 1440x
     'puzzle--maximum-board',
     'puzzle--dense-maximum-board',
   ]) {
-    await openSokoban(page, story, 'light');
+    await openSokoban(page, story);
     const board = page.getByTestId('sokoban-board');
     await expect(board.getByRole('img')).toHaveCount(400);
     await expect(board).toBeInViewport({ ratio: 1 });

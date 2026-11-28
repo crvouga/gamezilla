@@ -12,8 +12,7 @@ import { exerciseHeartsTrick } from './inputs';
 export async function measureHeartsTrials(
   page: Page,
   info: TestInfo,
-  width: number,
-  theme: 'light' | 'dark'
+  width: number
 ) {
   const trialCount = 5;
   const trialTimeout = info.timeout;
@@ -28,8 +27,7 @@ export async function measureHeartsTrials(
       async () => {
         await openHearts(
           page,
-          'screens-games-hearts-interaction--pass-and-play',
-          theme
+          'screens-games-hearts-interaction--pass-and-play'
         );
         await startHeartsMetrics(page);
         await exerciseHeartsTrick(page, width < 1024);
@@ -50,7 +48,6 @@ export async function measureHeartsTrials(
       {
         measurement: 'Trusted input to second frame; not INP',
         viewport: page.viewportSize(),
-        theme,
         cpuThrottle: rate,
         conditions: HEARTS_TIMING_CONDITIONS,
         browser: page.context().browser()?.version(),

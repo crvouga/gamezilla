@@ -13,7 +13,7 @@ test('all 26 blank letters use full medium controls and native keyboard-focusabl
   const { clock, timers } = createHarnessClock();
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <SurfaceStackProvider>
           <WordTilesBlankChooser
             testId="blank"
@@ -53,7 +53,7 @@ test('typing lowercase s at the first blank choice immediately assigns S', () =>
   const { clock, timers } = createHarnessClock();
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <SurfaceStackProvider>
           <WordTilesBlankChooser
             testId="direct"

@@ -12,6 +12,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { BRAND_ARTIFACTS } from '@libs/product-brand-shared-ts/brand-artifacts';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 import { renderBrandImage } from './brand-image-artifacts';
 import { BRAND_IMAGE_ARTIFACTS } from './brand-image-catalog';
 
@@ -20,7 +21,7 @@ const ROOT = join(import.meta.dirname, '../../..');
 for (const artifact of BRAND_ARTIFACTS) {
   const path = join(ROOT, artifact.path);
   mkdirSync(dirname(path), { recursive: true });
-  writeFileSync(path, artifact.render(PRODUCT));
+  writeFileSync(path, artifact.render(PRODUCT, COLOR_PALETTE.background));
   console.log(`wrote ${artifact.path}`);
 }
 

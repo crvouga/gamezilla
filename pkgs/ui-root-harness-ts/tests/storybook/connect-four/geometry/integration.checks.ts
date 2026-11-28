@@ -9,7 +9,7 @@ test.use(boardContext(320));
 test('storybook integration: connect-four 320px has seven 44px native column targets', async ({
   page,
 }, info) => {
-  await captureTouchEdges(page, info, 'light');
+  await captureTouchEdges(page, info);
   const targets = await page.locator('[data-column]').evaluateAll((columns) =>
     columns.map((column) => {
       const rect = column.getBoundingClientRect();

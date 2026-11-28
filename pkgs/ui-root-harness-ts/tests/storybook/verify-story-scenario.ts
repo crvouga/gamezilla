@@ -13,8 +13,8 @@ export async function verifyStoryScenario(
   storyId: string,
   scenario: ReturnType<typeof visualScenarios>[number]
 ): Promise<void> {
-  const { width, height, theme, globals } = scenario;
-  const globalsParam = Object.entries({ theme, ...globals })
+  const { width, height, globals } = scenario;
+  const globalsParam = Object.entries(globals)
     .map(([name, value]) => `${name}:${value}`)
     .join(';');
   await page.setViewportSize({ width, height });
@@ -41,6 +41,7 @@ export async function verifyStoryScenario(
     )
     .toBe('success');
   await expect(page.locator('.sb-errordisplay')).not.toBeVisible();
+  await expect(page.locator('html')).toHaveCSS('color-scheme', 'dark');
   await page.evaluate(() => document.fonts.ready);
   const mixedLists = await page
     .locator('.panel[role="group"], [role="menu"]')

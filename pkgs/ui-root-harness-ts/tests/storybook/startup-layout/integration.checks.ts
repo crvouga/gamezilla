@@ -37,9 +37,7 @@ async function verifyOpeningLayout(
   info: TestInfo
 ): Promise<void> {
   await page.setViewportSize({ width, height: 844 });
-  await page.goto(
-    '/iframe.html?id=screens-spaces-home--empty&viewMode=story&globals=theme:dark'
-  );
+  await page.goto('/iframe.html?id=screens-spaces-home--empty&viewMode=story');
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
     'true'

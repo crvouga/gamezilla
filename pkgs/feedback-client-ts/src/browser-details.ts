@@ -31,7 +31,6 @@ export function browserDetails(
         // Which deployment, and only the path: a ? or # can carry sign-in secrets.
         origin: window.location.origin,
         path: window.location.pathname,
-        theme: window.document.documentElement.dataset['theme'] ?? null,
       }),
     },
   ];

@@ -48,11 +48,7 @@ test('storybook integration: Hearts trick CPU profile at 4x for diagnosis', asyn
 }, info) => {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
-  await openHearts(
-    page,
-    'screens-games-hearts-interaction--pass-and-play',
-    'light'
-  );
+  await openHearts(page, 'screens-games-hearts-interaction--pass-and-play');
   await cdp.send('Profiler.enable');
   await cdp.send('Profiler.setSamplingInterval', { interval: 200 });
   await cdp.send('Profiler.start');

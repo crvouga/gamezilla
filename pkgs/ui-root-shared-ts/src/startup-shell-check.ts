@@ -28,10 +28,7 @@ export function startupShellIssues(
       );
     }
   }
-  const allowed = new Set([
-    ...Object.values(COLOR_PALETTE.light),
-    ...Object.values(COLOR_PALETTE.dark),
-  ]);
+  const allowed = new Set(Object.values(COLOR_PALETTE));
   for (const match of html.matchAll(COLOR)) {
     if (!allowed.has(match[0])) {
       issues.push(`${match[0]} is not a design-token color`);

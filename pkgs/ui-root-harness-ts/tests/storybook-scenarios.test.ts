@@ -18,12 +18,9 @@ const SIDEBAR = {
 };
 
 // regression: storybook-sidebar-compact-viewport
-test('storybook sidebar viewport matrix captures both themes where the rail exists', () => {
-  expect(
-    visualScenarios(SIDEBAR).map(({ width, theme }) => ({ width, theme }))
-  ).toEqual([
-    { width: 1440, theme: 'light' },
-    { width: 1440, theme: 'dark' },
+test('storybook sidebar viewport matrix captures where the rail exists', () => {
+  expect(visualScenarios(SIDEBAR).map(({ width }) => ({ width }))).toEqual([
+    { width: 1440 },
   ]);
 });
 
@@ -47,17 +44,14 @@ test('storybook untagged chrome retains its existing responsive coverage', () =>
 });
 
 // regression: storybook-header-compact-viewport
-test('storybook literal Search and Notifications headers retain both desktop themes without unsupported phone captures', () => {
+test('storybook literal Search and Notifications headers retain desktop coverage without unsupported phone captures', () => {
   for (const name of ['search-current', 'notifications-current']) {
     expect(
       visualScenarios({
         ...SIDEBAR,
         id: `screens-shell-header-island--${name}`,
-      }).map(({ width, height, theme }) => ({ width, height, theme }))
-    ).toEqual([
-      { width: 1440, height: 844, theme: 'light' },
-      { width: 1440, height: 844, theme: 'dark' },
-    ]);
+      }).map(({ width, height }) => ({ width, height }))
+    ).toEqual([{ width: 1440, height: 844 }]);
   }
 });
 
@@ -98,20 +92,18 @@ test('storybook responsive tags own phone and desktop evidence for game componen
       tags: ['viewport-responsive'],
     };
     const scenarios = visualScenarios(story);
-    expect(scenarios.map(({ width, theme }) => ({ width, theme }))).toEqual([
-      { width: 390, theme: 'light' },
-      { width: 390, theme: 'dark' },
-      { width: 1440, theme: 'light' },
-      { width: 1440, theme: 'dark' },
+    expect(scenarios.map(({ width }) => ({ width }))).toEqual([
+      { width: 390 },
+      { width: 1440 },
     ]);
     expect(
       scenarios
         .filter(({ width }) => width === 1440)
         .map(({ suffix }) => suffix)
-    ).toEqual(['-1440', '-1440']);
+    ).toEqual(['-1440']);
     expect(
       visualScenarios({ ...story, tags: [] }).map(({ width }) => width)
-    ).toEqual([390, 390]);
+    ).toEqual([390]);
   }
 });
 
@@ -121,12 +113,12 @@ test('storybook responsive tags compose with desktop-only eligibility without du
       ...SIDEBAR,
       tags: ['viewport-responsive', 'viewport-desktop'],
     }).map(({ width }) => width)
-  ).toEqual([1440, 1440]);
+  ).toEqual([1440]);
   expect(
     visualScenarios({ ...SIDEBAR, tags: ['viewport-responsive'] }).map(
       ({ width }) => width
     )
-  ).toEqual([390, 390, 1440, 1440]);
+  ).toEqual([390, 1440]);
 });
 
 // regression: storybook-desktop-captured-at-phone-height — a desktop (1440)
@@ -142,8 +134,6 @@ test('a story asking for native heights captures each width at its own viewport 
     visualScenarios(frame).map(({ width, height }) => ({ width, height }))
   ).toEqual([
     { width: 390, height: 844 },
-    { width: 390, height: 844 },
-    { width: 1440, height: 900 },
     { width: 1440, height: 900 },
   ]);
   expect(
@@ -151,20 +141,18 @@ test('a story asking for native heights captures each width at its own viewport 
   ).toEqual(new Set([844]));
 });
 
-test('stories without a globals matrix keep their scenario names and open with the theme alone', () => {
+test('stories without a globals matrix keep their scenario names', () => {
   const scenarios = visualScenarios({
     ...SIDEBAR,
     id: 'screens-shell-tab-bar--spaces-current',
     tags: [],
   });
-  expect(
-    scenarios.map(({ suffix, globals, theme }) => ({ suffix, globals, theme }))
-  ).toEqual([
-    { suffix: '', globals: {}, theme: 'light' },
-    { suffix: '', globals: {}, theme: 'dark' },
-    { suffix: '-1440', globals: {}, theme: 'light' },
-    { suffix: '-1440', globals: {}, theme: 'dark' },
-  ]);
+  expect(scenarios.map(({ suffix, globals }) => ({ suffix, globals }))).toEqual(
+    [
+      { suffix: '', globals: {} },
+      { suffix: '-1440', globals: {} },
+    ]
+  );
 });
 
 test('globals combinations cross every value in declaration order', () => {
@@ -179,7 +167,7 @@ test('globals combinations cross every value in declaration order', () => {
   ]);
 });
 
-test('a globals-matrix story owns one scenario per combination, theme and width', () => {
+test('a globals-matrix story owns one scenario per combination and width', () => {
   const story = {
     id: 'space-in-game--screen',
     importPath:
@@ -187,24 +175,18 @@ test('a globals-matrix story owns one scenario per combination, theme and width'
     tags: ['viewport-responsive'],
   };
   const scenarios = visualScenarios(story);
-  // 2 widths x 5 games x 2 roles x 2 themes. Chess is one of the games,
+  // 2 widths x 5 games x 2 roles. Chess is one of the games,
   // though its board comes from its own package.
-  expect(scenarios).toHaveLength(40);
-  expect(
-    new Set(scenarios.map(({ theme, suffix }) => `${theme}${suffix}`)).size
-  ).toBe(40);
+  expect(scenarios).toHaveLength(20);
+  expect(new Set(scenarios.map(({ suffix }) => suffix)).size).toBe(20);
   expect(
     scenarios
       .filter(({ globals }) => globals['spaceGame'] === 'chess')
       .map(({ suffix }) => suffix)
   ).toEqual([
     '-chess-host',
-    '-chess-host',
-    '-chess-guest',
     '-chess-guest',
     '-1440-chess-host',
-    '-1440-chess-host',
-    '-1440-chess-guest',
     '-1440-chess-guest',
   ]);
   const hearts = scenarios.filter(
@@ -212,21 +194,17 @@ test('a globals-matrix story owns one scenario per combination, theme and width'
       globals['spaceGame'] === 'hearts' && globals['spaceRole'] === 'host'
   );
   expect(
-    hearts.map(({ width, theme, suffix, globals }) => ({
+    hearts.map(({ width, suffix, globals }) => ({
       width,
-      theme,
       suffix,
       globals,
     }))
   ).toEqual(
     [
-      [390, 'light', ''],
-      [390, 'dark', ''],
-      [1440, 'light', '-1440'],
-      [1440, 'dark', '-1440'],
-    ].map(([width, theme, size]) => ({
+      [390, ''],
+      [1440, '-1440'],
+    ].map(([width, size]) => ({
       width: width as number,
-      theme: theme as string,
       suffix: `${size}-hearts-host`,
       globals: { spaceGame: 'hearts', spaceRole: 'host' },
     }))
@@ -237,12 +215,8 @@ test('a globals-matrix story owns one scenario per combination, theme and width'
     )
   ).toEqual([
     '-light-cycles-host',
-    '-light-cycles-host',
-    '-light-cycles-guest',
     '-light-cycles-guest',
     '-1440-light-cycles-host',
-    '-1440-light-cycles-host',
-    '-1440-light-cycles-guest',
     '-1440-light-cycles-guest',
   ]);
 });

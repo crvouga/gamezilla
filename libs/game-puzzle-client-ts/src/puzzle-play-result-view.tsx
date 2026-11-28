@@ -41,7 +41,7 @@ function ResultTitle(props: PuzzleStageScreenViewProps): JSX.Element {
         <Trans>Attempt recorded as failed</Trans>
       </Match>
       <Match when={props.status === 'solved'}>
-        <Text variant="inherit" tone="success">
+        <Text variant="inherit" tone="reward">
           <Trans>Puzzle solved!</Trans>
         </Text>
       </Match>

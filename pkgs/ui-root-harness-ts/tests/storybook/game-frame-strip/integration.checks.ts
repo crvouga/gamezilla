@@ -6,7 +6,7 @@ test.use({ trace: 'on', hasTouch: true });
 async function openNarrowPlay(page: Page) {
   await page.setViewportSize({ width: 320, height: 640 });
   await page.goto(
-    '/iframe.html?id=screens-game-sessions-stage--move-waiting&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-game-sessions-stage--move-waiting&viewMode=story'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

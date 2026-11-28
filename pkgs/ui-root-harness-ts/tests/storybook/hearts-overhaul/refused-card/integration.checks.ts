@@ -14,11 +14,7 @@ test.use({
 test('storybook integration: Hearts refused five of clubs accepts a trusted explanatory tap', async ({
   page,
 }, info) => {
-  await openHearts(
-    page,
-    'screens-games-hearts-interaction--pass-and-play',
-    'light'
-  );
+  await openHearts(page, 'screens-games-hearts-interaction--pass-and-play');
   const cards = page
     .getByRole('toolbar', { name: 'Your hand' })
     .getByRole('button');

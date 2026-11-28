@@ -30,7 +30,6 @@ const meta = {
   args: {
     identity: STORY_SIGNED_IN_IDENTITY,
     connectivity: 'online',
-    theme: 'system',
     muted: false,
     onNavigate: fn(),
   },
@@ -62,7 +61,6 @@ export const OpenWithoutIdentity: Story = {
   args: {
     identity: BOOT_GLOBAL_MENU_IDENTITY,
     connectivity: 'warning',
-    theme: 'dark',
     muted: true,
   },
   play: ({ canvasElement }) => openMenu(canvasElement, 'Sync issue'),

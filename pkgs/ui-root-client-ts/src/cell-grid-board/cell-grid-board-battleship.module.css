@@ -27,7 +27,7 @@
 .board[data-board-theme="battleship"] .cell[data-tone="open"] {
   border-color: var(--ui-color-game-battleship-muted);
 }
-/* A hit is a solid mark in both themes, never a pale wash: the hit fill
+/* A hit is a solid mark, never a pale wash: the hit fill
    with its cross in the fill's own ink. */
 .board[data-board-theme="battleship"] .cell[data-tone="alert"],
 .legendMark[data-tone="alert"] {
@@ -36,7 +36,7 @@
   border-color: var(--color-destructive);
 }
 /* A sunk ship is a wreck: the board's ink fill with its cross in the
-   water's colour, a different fill from a hit in both themes rather than
+   water's colour, a different fill from a hit rather than
    a heavier border. */
 .board[data-board-theme="battleship"] .cell[data-tone="critical"],
 .legendMark[data-tone="critical"] {

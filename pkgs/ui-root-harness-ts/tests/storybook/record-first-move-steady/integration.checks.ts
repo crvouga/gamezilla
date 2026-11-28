@@ -11,7 +11,7 @@ test('storybook integration: the phone record keeps the board still on the first
     for (const story of ['opening', 'drop-a-disc']) {
       await page.setViewportSize({ width, height: 844 });
       await page.goto(
-        `/iframe.html?id=screens-games-connect-four-board--${story}&viewMode=story&globals=theme:light`
+        `/iframe.html?id=screens-games-connect-four-board--${story}&viewMode=story`
       );
       await expect(page.locator('#storybook-root')).toHaveAttribute(
         'data-story-ready',

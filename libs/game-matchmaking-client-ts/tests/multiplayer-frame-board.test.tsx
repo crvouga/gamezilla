@@ -64,7 +64,7 @@ test('matched Quoridor keeps its board and wall tools in the same live session',
     commitment: null,
   } satisfies GameFrameBoardProps;
   const view = renderWithI18n(() => (
-    <ThemeProvider colorScheme="light">
+    <ThemeProvider>
       <MultiplayerFrameBoard presentation={presentation} board={board} />
     </ThemeProvider>
   ));
@@ -111,7 +111,7 @@ test("a matched board's live line goes to the status line, never under the board
           },
         } as unknown as GamePresentation<JSX.Element>;
         const view = renderWithI18n(() => (
-          <ThemeProvider colorScheme="light">
+          <ThemeProvider>
             <MultiplayerFrameBoard
               presentation={presentation}
               board={{

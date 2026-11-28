@@ -10,10 +10,7 @@ type PlayContext = Parameters<typeof SokobanPlayerView>[0]['context'];
 
 function unreadable(context?: PlayContext): HTMLElement {
   renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <SokobanPlayerView
         onReturnToLibrary={() => undefined}
         context={context}

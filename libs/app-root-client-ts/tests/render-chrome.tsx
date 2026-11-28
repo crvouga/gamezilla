@@ -24,7 +24,7 @@ export function renderChrome(
   render(() => (
     <I18nProvider i18n={i18n}>
       <ClockProvider clock={harness.clock} timers={harness.timers}>
-        <ThemeProvider colorScheme="light" fixedLayout={layout}>
+        <ThemeProvider fixedLayout={layout}>
           <SurfaceStackProvider>{ui()}</SurfaceStackProvider>
         </ThemeProvider>
       </ClockProvider>

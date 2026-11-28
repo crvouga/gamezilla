@@ -75,7 +75,7 @@ function mountLobby() {
   });
   const view = render(() => (
     <I18nProvider i18n={i18n}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <IdProvider
           createId={() => '22222222-2222-4222-8222-222222222222'}
           random={() => 0.5}

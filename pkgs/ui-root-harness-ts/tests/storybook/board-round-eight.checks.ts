@@ -15,9 +15,7 @@ const index = JSON.parse(
 async function verify(page: Page, id: string, width: number) {
   const story = index.entries[id];
   if (!story) throw new Error(`Missing story: ${id}`);
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === width && item.theme === 'light'
-  );
+  const scenario = visualScenarios(story).find((item) => item.width === width);
   if (!scenario) throw new Error(`Missing viewport: ${width}`);
   await verifyStoryScenario(page, id, scenario);
 }

@@ -18,87 +18,77 @@ async function aimSurface(page: Page) {
 }
 
 export function defineInputChecks() {
-  for (const theme of ['light', 'dark']) {
-    test(`storybook integration: battleship pending confirmation ${theme}`, async ({
+  test(`storybook integration: battleship pending confirmation dark`, async ({
+    page,
+  }, info) => {
+    const errors = await openBattleStory(
       page,
-    }, info) => {
-      const errors = await openBattleStory(
-        page,
-        'screens-games-battleship-board--opening',
-        theme
+      'screens-games-battleship-board--opening'
+    );
+    let aim = (cell: string) => page.getByTestId(cell);
+    await test.step('Aim with touch and correct J9 to J10', async () => {
+      aim = await aimSurface(page);
+      await aim('j9').tap();
+      await aim('j10').tap();
+      await expect(page.getByTestId('game-session-board-fire')).toHaveText(
+        'Fire at J10'
       );
-      let aim = (cell: string) => page.getByTestId(cell);
-      await test.step('Aim with touch and correct J9 to J10', async () => {
-        aim = await aimSurface(page);
-        await aim('j9').tap();
-        await aim('j10').tap();
-        await expect(page.getByTestId('game-session-board-fire')).toHaveText(
-          'Fire at J10'
-        );
-      });
-      await test.step('Cancel and select J10 with the keyboard', async () => {
-        await page.getByTestId('game-session-board-cancel-aim').click();
-        await expect(
-          page.getByTestId('game-session-board-fire')
-        ).toBeDisabled();
-        await aim('j9').focus();
-        await page.keyboard.press('ArrowDown');
-        await expect(aim('j10')).toBeFocused();
-        // Evidence: the keyboard focus ring, distinct from selection.
-        await info.attach('keyboard-focus', {
-          body: await page.screenshot({ animations: 'disabled' }),
-          contentType: 'image/png',
-        });
-        await page.keyboard.press('Enter');
-        await expect(page.getByTestId('game-session-board-fire')).toHaveText(
-          'Fire at J10'
-        );
-      });
-      await test.step('Confirm once and retain the pending coordinate', async () => {
-        await page.getByTestId('game-session-board-fire').click();
-        await expect(
-          page.getByTestId('game-session-board-fire')
-        ).toBeDisabled();
-        await expect(aim('j10')).toHaveAccessibleName(
-          'J10: fired, waiting for the result'
-        );
-        // regression: battleship-submitting-shot-loses-feedback
-        // The idle title stays in the DOM beside the visible busy label.
-        await expect(page.getByTestId('game-session-board-fire')).toContainText(
-          'Firing at J10'
-        );
-        await expect(page.getByText('Shots so far')).toHaveCount(0);
-        await expect(page.getByTestId('game-session-status')).toContainText(
-          'Sending choice…'
-        );
-        await captureBattleEvidence(page, info);
-      });
-      expect(errors).toEqual([]);
     });
-    test(`storybook integration: battleship passive inspection ${theme}`, async ({
-      page,
-    }, info) => {
-      const errors = await openBattleStory(
-        page,
-        'screens-games-battleship-board--watching',
-        theme
+    await test.step('Cancel and select J10 with the keyboard', async () => {
+      await page.getByTestId('game-session-board-cancel-aim').click();
+      await expect(page.getByTestId('game-session-board-fire')).toBeDisabled();
+      await aim('j9').focus();
+      await page.keyboard.press('ArrowDown');
+      await expect(aim('j10')).toBeFocused();
+      // Evidence: the keyboard focus ring, distinct from selection.
+      await info.attach('keyboard-focus', {
+        body: await page.screenshot({ animations: 'disabled' }),
+        contentType: 'image/png',
+      });
+      await page.keyboard.press('Enter');
+      await expect(page.getByTestId('game-session-board-fire')).toHaveText(
+        'Fire at J10'
       );
-      const switcher = page.getByTestId('game-session-board-view-target');
-      if (await switcher.isVisible()) await switcher.click();
-      // A watcher reads the whole board at every size: no aiming workbench.
-      await expect(page.getByTestId('game-session-board-region')).toHaveCount(
-        0
+    });
+    await test.step('Confirm once and retain the pending coordinate', async () => {
+      await page.getByTestId('game-session-board-fire').click();
+      await expect(page.getByTestId('game-session-board-fire')).toBeDisabled();
+      await expect(aim('j10')).toHaveAccessibleName(
+        'J10: fired, waiting for the result'
       );
-      // Both of a watcher's boards say it; the board on show must.
-      await expect(
-        page.getByText('Shots so far').filter({ visible: true }).first()
-      ).toBeVisible();
-      await expect(
-        page.getByTestId('game-session-board-target-f10')
-      ).toHaveAccessibleName('F10: hit, sunk Destroyer');
-      await expect(page.getByTestId('game-session-board-fire')).toHaveCount(0);
+      // regression: battleship-submitting-shot-loses-feedback
+      // The idle title stays in the DOM beside the visible busy label.
+      await expect(page.getByTestId('game-session-board-fire')).toContainText(
+        'Firing at J10'
+      );
+      await expect(page.getByText('Shots so far')).toHaveCount(0);
+      await expect(page.getByTestId('game-session-status')).toContainText(
+        'Sending choice…'
+      );
       await captureBattleEvidence(page, info);
-      expect(errors).toEqual([]);
     });
-  }
+    expect(errors).toEqual([]);
+  });
+  test(`storybook integration: battleship passive inspection dark`, async ({
+    page,
+  }, info) => {
+    const errors = await openBattleStory(
+      page,
+      'screens-games-battleship-board--watching'
+    );
+    const switcher = page.getByTestId('game-session-board-view-target');
+    if (await switcher.isVisible()) await switcher.click();
+    // A watcher reads the whole board at every size: no aiming workbench.
+    await expect(page.getByTestId('game-session-board-region')).toHaveCount(0);
+    // Both of a watcher's boards say it; the board on show must.
+    await expect(
+      page.getByText('Shots so far').filter({ visible: true }).first()
+    ).toBeVisible();
+    await expect(
+      page.getByTestId('game-session-board-target-f10')
+    ).toHaveAccessibleName('F10: hit, sunk Destroyer');
+    await expect(page.getByTestId('game-session-board-fire')).toHaveCount(0);
+    await captureBattleEvidence(page, info);
+    expect(errors).toEqual([]);
+  });
 }

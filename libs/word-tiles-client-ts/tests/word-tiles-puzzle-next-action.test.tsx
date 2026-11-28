@@ -11,7 +11,7 @@ test('an unreadable definition offers the puzzle library without a move', () => 
   const destinations: unknown[] = [];
   const moves: string[] = [];
   const view = render(() => (
-    <ThemeProvider colorScheme="light">
+    <ThemeProvider>
       <WordTilesPuzzlePlayerView
         definition="{}"
         state=""
@@ -35,7 +35,7 @@ test('an unreadable definition offers the puzzle library without a move', () => 
 test('the solved eight-point move against target six offers a library action', () => {
   let opened = 0;
   const view = render(() => (
-    <ThemeProvider colorScheme="light">
+    <ThemeProvider>
       <WordTilesPuzzleStatus
         target={6}
         score={8}

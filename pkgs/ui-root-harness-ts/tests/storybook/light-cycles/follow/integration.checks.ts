@@ -119,7 +119,7 @@ for (const phone of [true, false]) {
         reducedMotion: reduced ? 'reduce' : 'no-preference',
       });
       await page.goto(
-        `/iframe.html?id=screens-games-light-cycles-stage--follow-${player ? 'own' : 'watched'}-cycle&viewMode=story&globals=theme:dark;motion:system`
+        `/iframe.html?id=screens-games-light-cycles-stage--follow-${player ? 'own' : 'watched'}-cycle&viewMode=story&globals=motion:system`
       );
       await expect(page.locator('#storybook-root')).toHaveAttribute(
         'data-story-ready',
@@ -180,7 +180,7 @@ for (const phone of [true, false]) {
       phone ? { width: 390, height: 844 } : { width: 1440, height: 900 }
     );
     await page.goto(
-      `/iframe.html?id=screens-games-light-cycles-stage--follow-${phone ? 'own' : 'watched'}-cycle&viewMode=story&globals=theme:dark;motion:system`
+      `/iframe.html?id=screens-games-light-cycles-stage--follow-${phone ? 'own' : 'watched'}-cycle&viewMode=story&globals=motion:system`
     );
     await expect(page.locator('#storybook-root')).toHaveAttribute(
       'data-story-ready',

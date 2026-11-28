@@ -13,7 +13,7 @@ test.use({
 test('storybook integration: Hearts 320px thirteen-card hand keeps full touch targets', async ({
   page,
 }, info) => {
-  await openHearts(page, 'screens-games-hearts-board--passing', 'light');
+  await openHearts(page, 'screens-games-hearts-board--passing');
   const cards = page
     .getByRole('toolbar', { name: 'Your hand' })
     .getByRole('button');
@@ -48,7 +48,7 @@ test('storybook integration: Hearts 320px thirteen-card hand keeps full touch ta
 test('storybook integration: Hearts 320x568 initial hand and pass fit before scrolling', async ({
   page,
 }, info) => {
-  await openHearts(page, 'screens-games-hearts-board--passing', 'dark');
+  await openHearts(page, 'screens-games-hearts-board--passing');
   const targets = page.locator(
     '[data-testid="game-session-board-hand"] button, [data-testid="game-session-board-pass"]'
   );

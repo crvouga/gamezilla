@@ -43,7 +43,7 @@ const STILL = {
 function mountProfile(friends: boolean): HTMLElement {
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
-      <ThemeProvider colorScheme="light" fixedLayout={PHONE}>
+      <ThemeProvider fixedLayout={PHONE}>
         <SurfaceStackProvider>
           <StaticAppRouterProvider router={router}>
             <TestViewportProvider value={PHONE}>

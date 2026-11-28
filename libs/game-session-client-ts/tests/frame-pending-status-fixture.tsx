@@ -131,7 +131,7 @@ const presentation: GamePresentation<JSX.Element> = {
 
 export function renderPendingFrame(children: () => JSX.Element) {
   return renderWithI18n(() => (
-    <ThemeProvider colorScheme="light">
+    <ThemeProvider>
       <ModerationProvider rules={shippedModerationRules()}>
         <SyncEngineProvider value={engine}>
           <TurnGamesProvider rules={rules} presentations={[presentation]}>

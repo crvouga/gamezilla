@@ -28,7 +28,6 @@ const meta = {
 } satisfies Meta<typeof Checkbox>;
 export default meta;
 
-/** Representative variants, themes and interaction states from the production contract. */
 export const States: StoryObj = {
   tags: ['!manifest'],
   parameters: { layout: 'fullscreen', controls: { disable: true } },

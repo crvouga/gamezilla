@@ -21,7 +21,6 @@ function mountMenu(showName: boolean): void {
     <AppHeaderGlobalMenuView
       identity={AVERY}
       connectivity="online"
-      theme="system"
       muted={false}
       onNavigate={() => undefined}
       showName={showName}

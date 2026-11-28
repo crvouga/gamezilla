@@ -14,20 +14,20 @@ const index = JSON.parse(
 ) as { entries: Record<string, Entry> };
 const pinnedExamples = new Set([
   'primitives-sparkline--states dark',
-  'product-cardtable--states light',
-  'product-bug-report--describe-and-send light',
-  'screens-matchmaking-result--open-moves light',
-  'screens-puzzles-result--unrated light',
-  'screens-puzzles-import--open-source light-1440',
+  'product-cardtable--states dark',
+  'product-bug-report--describe-and-send dark',
+  'screens-matchmaking-result--open-moves dark',
+  'screens-puzzles-result--unrated dark',
+  'screens-puzzles-import--open-source dark-1440',
 ]);
 for (const story of Object.values(index.entries).filter(
   (e) => e.type === 'story'
 )) {
   for (const scenario of visualScenarios(story)) {
     // These matrix entries are registered literally as regression examples.
-    const { theme, suffix } = scenario;
-    if (pinnedExamples.has(`${story.id} ${theme}${suffix}`)) continue;
-    test(`${story.id} ${theme}${suffix}`, async ({ page }) => {
+    const { suffix } = scenario;
+    if (pinnedExamples.has(`${story.id} dark${suffix}`)) continue;
+    test(`${story.id} dark${suffix}`, async ({ page }) => {
       await verifyStoryScenario(page, story.id, scenario);
     });
   }
@@ -38,29 +38,22 @@ test('primitives-sparkline--states dark', async ({ page }) => {
   const story = index.entries['primitives-sparkline--states'];
   if (!story) throw new Error('Missing Sparkline states story');
   const scenario = visualScenarios(story).find(
-    (candidate) => candidate.theme === 'dark' && candidate.width === 390
+    (candidate) => candidate.width === 390
   );
   if (!scenario) throw new Error('Missing Sparkline dark 390px scenario');
   await verifyStoryScenario(page, 'primitives-sparkline--states', scenario);
 });
 
-async function verifyBoardRegression(
-  page: Page,
-  id: string,
-  width: number,
-  theme = 'light'
-) {
+async function verifyBoardRegression(page: Page, id: string, width: number) {
   const story = index.entries[id];
   if (!story) throw new Error(`Missing regression story: ${id}`);
-  const scenario = visualScenarios(story).find(
-    (item) => item.theme === theme && item.width === width
-  );
+  const scenario = visualScenarios(story).find((item) => item.width === width);
   if (!scenario) throw new Error(`Missing regression viewport: ${width}`);
   await verifyStoryScenario(page, id, scenario);
 }
 
 // regression: desktop-puzzle-import-story-loses-screen
-test('screens-puzzles-import--open-source light-1440', async ({ page }) => {
+test('screens-puzzles-import--open-source dark-1440', async ({ page }) => {
   await verifyBoardRegression(
     page,
     'screens-puzzles-import--open-source',
@@ -71,7 +64,7 @@ test('screens-puzzles-import--open-source light-1440', async ({ page }) => {
 });
 
 // regression: matchmaking-result-story-closed-record
-test('screens-matchmaking-result--open-moves light', async ({ page }, info) => {
+test('screens-matchmaking-result--open-moves dark', async ({ page }, info) => {
   await verifyBoardRegression(
     page,
     'screens-matchmaking-result--open-moves',
@@ -86,7 +79,7 @@ test('screens-matchmaking-result--open-moves light', async ({ page }, info) => {
 });
 
 // regression: feedback-story-drops-typed-description
-test('storybook integration: product-bug-report--describe-and-send light', async ({
+test('storybook integration: product-bug-report--describe-and-send dark', async ({
   page,
 }, info) => {
   await verifyBoardRegression(
@@ -104,7 +97,7 @@ test('storybook integration: product-bug-report--describe-and-send light', async
 });
 
 // regression: puzzle-result-details-inaccessible-by-keyboard
-test('storybook integration: screens-puzzles-result--unrated light', async ({
+test('storybook integration: screens-puzzles-result--unrated dark', async ({
   page,
 }) => {
   await verifyBoardRegression(page, 'screens-puzzles-result--unrated', 390);
@@ -201,8 +194,7 @@ test('games-cellgridboard-boundary-contrast--open-water regression battleship-da
   await verifyBoardRegression(
     page,
     'games-cellgridboard-boundary-contrast--open-water',
-    390,
-    'dark'
+    390
   );
 });
 

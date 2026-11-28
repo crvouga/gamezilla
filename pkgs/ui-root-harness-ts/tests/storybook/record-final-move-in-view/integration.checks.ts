@@ -7,7 +7,7 @@ test('storybook integration: a move table that shrinks after mount keeps its cur
   page,
 }, info) => {
   await page.goto(
-    '/iframe.html?id=games-shared-gamemovelist--states&viewMode=story&globals=theme:light'
+    '/iframe.html?id=games-shared-gamemovelist--states&viewMode=story'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

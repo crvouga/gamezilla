@@ -17,7 +17,7 @@ function mount(
   onReturn: () => void = () => undefined
 ): Element {
   const { container } = render(() => (
-    <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
+    <ThemeProvider fixedLayout={{ width, height: 900 }}>
       <ReturnToGame
         title="Your game is under way"
         caption="Chess · Robin's space"

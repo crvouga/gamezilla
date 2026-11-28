@@ -3,6 +3,7 @@ import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GamePlayerBar } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameSearchStage } from '@pkgs/ui-root-client-ts/game-search-stage';
+import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
@@ -15,6 +16,7 @@ export type MultiplayerSearchView = {
   /** How many players a game seats, the person included. */
   readonly players: number;
   readonly gameName: string;
+  readonly motif: GameTileMotif;
   readonly goal?: string | undefined;
   /** Its time control as people write it (`5+0`); `null` when untimed. */
   readonly timeControl: string | null;
@@ -153,6 +155,7 @@ export function MultiplayerWaiting(props: {
 }): JSX.Element {
   return (
     <GameSearchStage
+      motif={props.search.motif}
       mark={
         props.offline === true ? (
           <WifiOffIcon size={24} color="warning" />

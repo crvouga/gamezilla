@@ -5,7 +5,6 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import {
-  PaintbrushIcon,
   SettingsIcon,
   UserIcon,
   Volume2Icon,
@@ -20,7 +19,6 @@ import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { StatusDotStatus } from '@pkgs/ui-root-client-ts/status-dot';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { JSX } from '@solidjs/web';
 import { type Accessor, createMemo, Show } from 'solid-js';
 
@@ -47,7 +45,6 @@ export type AppHeaderGlobalMenuViewProps = {
   readonly identity: GlobalMenuIdentity;
   /** The connection in one dot: online, offline, syncing or a sync issue. */
   readonly connectivity: StatusDotStatus;
-  readonly theme: ThemePreference;
   readonly muted: boolean;
   /** Open the row's screen. */
   readonly onNavigate: (href: string) => void;
@@ -58,16 +55,6 @@ export type AppHeaderGlobalMenuViewProps = {
    */
   readonly showName?: boolean | undefined;
 };
-
-function useThemeCaption(props: AppHeaderGlobalMenuViewProps): () => string {
-  const { t } = useLingui();
-  return () => {
-    const p = props.theme;
-    if (p === 'light') return t`Light`;
-    if (p === 'dark') return t`Dark`;
-    return t`System`;
-  };
-}
 
 /**
  * The Connectivity row: its label, then the status in words beside a status
@@ -93,7 +80,6 @@ function useGlobalMenuActions(
   props: AppHeaderGlobalMenuViewProps
 ): Accessor<readonly OverflowMenuAction[]> {
   const { t } = useLingui();
-  const themeCaption = useThemeCaption(props);
   const connectivityStatusLabel = useConnectivityStatusLabel();
   const go = (href: string) => () => props.onNavigate(href);
   return createMemo(() => [
@@ -121,13 +107,6 @@ function useGlobalMenuActions(
       onClick: go('/more/account'),
       endsGroup: true,
       dataSet: { testid: Handles.globalMenuAccount },
-    },
-    {
-      id: 'theme',
-      label: t`Theme`,
-      subtitle: themeCaption(),
-      icon: PaintbrushIcon,
-      onClick: go('/more/theme'),
     },
     {
       id: 'sound',
@@ -203,7 +182,7 @@ function MenuTrigger(props: {
  * The global account menu, presentational: the account face as trigger
  * (with the person's name beside it in the wide sidebar), a header naming
  * the person, and rows for Settings, Connectivity (with its
- * status), Account, Theme and Sound. It shows identity only — never a sign-in
+ * status), Account and Sound. It shows identity only — never a sign-in
  * state or a tier. `AppHeaderGlobalMenu` supplies identity and preferences.
  */
 export function AppHeaderGlobalMenuView(

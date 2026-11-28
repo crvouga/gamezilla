@@ -19,23 +19,22 @@ test('tablet settings keep preferences without a compact back button', async () 
   await s.apply(saveLayoutPreferences, 'alice');
   const before = await s.read(layoutPlaceAndPreferences, 'alice');
   expect(before.place).toBe('/more');
-  expect(before.appearance).toBe('dark');
-  expect(before.sounds).toContain('Muted');
+  expect(before.sounds).toBe(false);
   await s.apply(changeAvailableSpace, 'alice', 820, 1180);
   expect(await s.read(layoutPlaceAndPreferences, 'alice')).toEqual(before);
   expect(await s.read(layoutControlsReachable, 'alice')).toBe(true);
 });
 
-/** The 1180×820 tablet's Appearance screen offers global chrome, not compact back controls. */
-function tabletOnAppearance() {
-  let path = '/more/theme';
+/** The 1180×820 tablet's About screen offers global chrome, not compact back controls. */
+function tabletOnAbout() {
+  let path = '/more/about';
   let menu = false;
   let muted = false;
   const visible = (id: string): boolean =>
     id === Handles.statusCurrentUser ||
     (id === Handles.globalMenuSettings && menu) ||
     (path === '/more' &&
-      [Handles.settingsTheme, Handles.settingsSound].some(
+      [Handles.settingsAbout, Handles.settingsSound].some(
         (entry) => entry === id
       )) ||
     (path === '/more/sound' && id === Handles.soundEffectsSwitch);
@@ -44,10 +43,13 @@ function tabletOnAppearance() {
   };
   const ui = {
     get: (id: string) => ({
-      attribute: async (name: string) =>
-        id === Handles.statusCurrentUser && name === 'aria-expanded'
+      attribute: async (name: string) => {
+        if (id === Handles.soundEffectsSwitch && name === 'aria-checked')
+          return String(!muted);
+        return id === Handles.statusCurrentUser && name === 'aria-expanded'
           ? String(menu)
-          : null,
+          : null;
+      },
       isVisible: async () => visible(id),
       tap: async () => {
         requireVisible(id);
@@ -70,8 +72,8 @@ function tabletOnAppearance() {
 }
 
 // regression: tablet-settings-compact-navigation-detour
-test('the settings harness can leave tablet Appearance through the global menu', async () => {
-  const tablet = tabletOnAppearance();
+test('the settings harness can leave tablet About through the global menu', async () => {
+  const tablet = tabletOnAbout();
   await Promise.resolve(turnSoundsOff.act(tablet.s, 'alice'));
   expect(tablet.muted()).toBe(true);
 });

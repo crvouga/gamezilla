@@ -17,7 +17,7 @@ function renderPills(status: FriendshipStatus, compact: boolean): void {
   const harness = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <FriendActionPillsForStatus
           status={status}
           mutations={{

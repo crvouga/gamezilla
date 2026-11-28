@@ -492,7 +492,10 @@
       "outputLogs": "errors-only"
     },
     "generate:brand-artifacts": {
-      "dependsOn": ["@libs/tools-harness-ts#generate:identity"],
+      "dependsOn": [
+        "@libs/tools-harness-ts#generate:identity",
+        "@pkgs/ui-root-shared-ts#src"
+      ],
       "inputs": [
         "scripts/generate-brand-artifacts.ts",
         "scripts/brand-image-artifacts.ts",

@@ -8,7 +8,7 @@ import {
 
 describe('mergeBoardTheme', () => {
   it('overrides square colors and keeps feedback keys', () => {
-    const base = defaultBoardTheme('light');
+    const base = defaultBoardTheme();
     const override: Partial<BoardTheme> = {
       lightSquare: '#fff',
       feedback: { ...base.feedback, check: '#0f0' },
@@ -23,7 +23,7 @@ describe('mergeBoardTheme', () => {
 
 describe('boardThemeToCssVars', () => {
   it('maps theme colors to chess CSS custom properties', () => {
-    const theme = defaultBoardTheme('light');
+    const theme = defaultBoardTheme();
     const vars = boardThemeToCssVars(theme);
     expect(vars['--chess-sq-light']).toBe(theme.lightSquare);
     expect(vars['--chess-sq-dark']).toBe(theme.darkSquare);

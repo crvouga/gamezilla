@@ -13,7 +13,7 @@ test.use({
 test('storybook integration: Sokoban builder controls remain reachable at the reported viewport', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'editor--two-crates', 'dark');
+  await openSokoban(page, 'editor--two-crates');
   await capture(page, info, 'builder-top');
   const geometry = await builderGeometry(page, info);
   expect(
@@ -30,7 +30,7 @@ test('storybook integration: Sokoban builder controls remain reachable at the re
   }
   // Preview is a row of the builder's hub, a screen before the board.
   await page.goto(
-    '/iframe.html?id=screens-puzzle-packs-builder--editing&viewMode=story&globals=theme:dark'
+    '/iframe.html?id=screens-puzzle-packs-builder--editing&viewMode=story'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

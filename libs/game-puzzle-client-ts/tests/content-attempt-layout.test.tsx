@@ -24,7 +24,7 @@ function mount(
   overrides: Partial<PuzzlePackStageScreenViewProps> = {}
 ): void {
   renderWithI18n(() => (
-    <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 844 }}>
+    <ThemeProvider fixedLayout={{ width, height: 844 }}>
       <PuzzlePackStageScreenView
         status="ready"
         place={{ screen: place }}

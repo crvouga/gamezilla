@@ -10,7 +10,7 @@ import styles from './game-seat-swatch.module.css';
 /**
  * A seat's paint: a player color (`player1`..`player8`), or the paint of a
  * board whose pieces are not drawn in player colors, so the swatch matches
- * the pieces on it in both themes: `disc-one` and `disc-two` are the first
+ * the pieces on it: `disc-one` and `disc-two` are the first
  * and second disc of the disc-drop board, `trail-one` to `trail-four` the
  * first to fourth rider's trail in a trail arena, `pawn-one` to `pawn-four`
  * the first to fourth pawn ink of the pawn-and-wall board.
@@ -57,7 +57,7 @@ const DOT: Readonly<Record<GameSeatColor, string>> = {
 /**
  * A pawn paint is the board's own square with the pawn's ink on it, as the
  * pawn is drawn: the mark carries the color, so the seat's chip, legend and
- * pawn read the same in both themes, where a theme's player colors cannot.
+ * pawn share an identity.
  */
 export const GAME_SEAT_PAWN_INKS: Readonly<
   Record<'pawn-one' | 'pawn-two' | 'pawn-three' | 'pawn-four', string>
@@ -127,9 +127,7 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
         'box inline-flex flex-row shrink-0 items-center justify-center size-5',
         {
           'rounded-full': color() !== undefined,
-          // Several paints are light on a light card (a light-cycles trail,
-          // a pale disc); the outline ring keeps every painted swatch at 3:1
-          // or more against the card in both themes.
+          // The outline keeps every seat visible against its card at 3:1.
           'border border-outline': color() !== undefined,
           [DOT[color() ?? 'player1']]: color() !== undefined,
         },

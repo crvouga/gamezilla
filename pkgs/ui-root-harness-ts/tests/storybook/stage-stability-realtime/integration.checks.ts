@@ -100,9 +100,7 @@ async function keepsArenaInPlace(
   const sequence = SEQUENCES[game];
   await page.setViewportSize(viewport);
   const [first, ...rest] = sequence.stories;
-  await page.goto(
-    `/iframe.html?id=${first}&viewMode=story&globals=theme:light`
-  );
+  await page.goto(`/iframe.html?id=${first}&viewMode=story`);
   await ready(page);
   const start = await stageRects(page, sequence.drawing);
   // A phone's arena takes the screen's whole width (its drawing keeps

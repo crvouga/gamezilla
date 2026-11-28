@@ -9,12 +9,14 @@
   z-index: 2;
   padding-block-end: var(--ui-space-1);
   background: var(--ui-color-background);
+  background-image: var(--ui-finish-canvas);
 }
 
 /* Outcome precedes the final position, never the standings and player stack. */
 .outcome {
   padding: var(--ui-space-2);
   background: var(--ui-color-surface);
+  background-image: var(--ui-finish-surface);
   border-radius: var(--ui-radius-card);
 }
 

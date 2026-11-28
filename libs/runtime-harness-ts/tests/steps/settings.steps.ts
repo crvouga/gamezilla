@@ -1,4 +1,4 @@
-/** Settings that stick: the appearance, sounds, and which version this is. */
+/** Settings that stick: sounds and which version this is. */
 
 import { expect } from 'bun:test';
 import { partition } from '@libs/harness-ts/actions';
@@ -7,8 +7,6 @@ import type { Actor } from '@libs/harness-ts/parameter-types';
 import { focusActor, openSettings } from '@libs/harness-ts/shell-actions';
 import {
   APP_VERSION_INSTALLED,
-  appearanceShown,
-  chooseTheme,
   connectionStateShown,
   openAbout,
   openConnectionInSettings,
@@ -87,16 +85,6 @@ Then(
     });
   }
 );
-
-Given('{actor} has chosen the dark theme', async (w, actor: Actor) => {
-  await w.s.apply(chooseTheme, actor, 'dark');
-});
-
-Then("{actor}'s app is dark", async (w, actor: Actor) => {
-  await w.s.until((harness) => appearanceShown(harness, actor), {
-    pred: (scheme) => scheme === 'dark',
-  });
-});
 
 Given('{actor} has turned sounds off', async (w, actor: Actor) => {
   await w.s.apply(turnSoundsOff, actor);

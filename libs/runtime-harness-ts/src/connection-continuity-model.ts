@@ -7,10 +7,11 @@ import {
   connectionMissing,
 } from '@libs/harness-ts/network-notices';
 import { HARNESS_PRIMARY_SERVER_ID } from '@libs/harness-ts/server-nodes';
+import { readSoundsOn } from '@libs/harness-ts/sounds-preference';
 import { endSpace } from '@libs/spaces-harness-ts/space-actions';
 import { joinAcceptedOnServer } from '@libs/spaces-harness-ts/space-join-interruption';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { preferencePlace, themeShown } from './preference-recovery';
+import { preferencePlace } from './preference-recovery';
 import { sharedChoiceCanBePutAside } from './shared-choice-continuity';
 
 /** Independent faults at the device's path and at shared-choice ingress. */
@@ -127,7 +128,7 @@ export async function readContinuityChoice(
     feedback?.status !== 'confirmed';
   return {
     place: await preferencePlace(s, actor),
-    theme: await themeShown(s, actor),
+    soundsOn: await readSoundsOn(s, actor),
     choiceOpen: open,
     choiceUnfinished: feedback?.status === 'pending',
     choiceConfirmed: feedback?.status === 'confirmed',

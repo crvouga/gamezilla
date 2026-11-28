@@ -11,7 +11,6 @@ import { Tooltip } from '@pkgs/ui-root-client-ts/tooltip';
 import type { JSX } from '@solidjs/web';
 import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const PLACEMENTS: readonly TooltipPlacement[] = [
   'bottom',
@@ -28,35 +27,34 @@ export default function TooltipExample(): JSX.Element {
           'Hover an icon button, or reach it with Tab, to see its label. Escape hides it.'
         }
       </p>
-      <SchemePreview>
-        <div class="box flex-row flex-wrap gap-6 items-center py-8">
-          <For each={PLACEMENTS}>
-            {(placement) => (
-              <IconButton
-                label={`Settings (${placement})`}
-                tooltip="default"
-                tooltipPlacement={placement}
-                onClick={() => undefined}
-              >
-                <SettingsIcon size={24} />
-              </IconButton>
-            )}
-          </For>
-          <IconButton
-            label="Account"
-            tooltip="default"
-            tooltipFloating
-            onClick={() => undefined}
-          >
-            <UserIcon size={24} />
-          </IconButton>
-          <Tooltip label="A longer label wraps onto a second line before it clamps.">
-            <IconButton label="Alerts" tooltip="none" onClick={() => undefined}>
-              <BellIcon size={24} />
+
+      <div class="box flex-row flex-wrap gap-6 items-center py-8">
+        <For each={PLACEMENTS}>
+          {(placement) => (
+            <IconButton
+              label={`Settings (${placement})`}
+              tooltip="default"
+              tooltipPlacement={placement}
+              onClick={() => undefined}
+            >
+              <SettingsIcon size={24} />
             </IconButton>
-          </Tooltip>
-        </div>
-      </SchemePreview>
+          )}
+        </For>
+        <IconButton
+          label="Account"
+          tooltip="default"
+          tooltipFloating
+          onClick={() => undefined}
+        >
+          <UserIcon size={24} />
+        </IconButton>
+        <Tooltip label="A longer label wraps onto a second line before it clamps.">
+          <IconButton label="Alerts" tooltip="none" onClick={() => undefined}>
+            <BellIcon size={24} />
+          </IconButton>
+        </Tooltip>
+      </div>
     </ExampleRoot>
   );
 }

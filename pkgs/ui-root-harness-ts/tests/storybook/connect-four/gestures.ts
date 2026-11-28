@@ -132,7 +132,7 @@ async function inspect(page: Page, info: TestInfo, touch: boolean) {
 }
 async function cancelAim(page: Page, touch: boolean) {
   await page.emulateMedia({ reducedMotion: 'reduce' });
-  await openBoard(page, 'drop-a-disc', touch ? 'light' : 'dark', 'system');
+  await openBoard(page, 'drop-a-disc', 'system');
   const driver = await input(page, touch);
   const before = await board(page).getAttribute('data-cells');
   await driver.start(await center(page, 2));
@@ -161,12 +161,7 @@ export function defineGestures(width: number) {
     test('storybook integration: connect-four slide, inspect and fit', async ({
       page,
     }, info) => {
-      await openBoard(
-        page,
-        'drop-a-disc',
-        width === 390 ? 'light' : 'dark',
-        'system'
-      );
+      await openBoard(page, 'drop-a-disc', 'system');
       await inspect(page, info, width === 390);
     });
   });

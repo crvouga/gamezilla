@@ -38,7 +38,7 @@ const DOCKS = [
 
 function mount(content: () => unknown): void {
   renderWithI18n(() => (
-    <ThemeProvider colorScheme="dark" fixedLayout={{ width: 390, height: 844 }}>
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       {content() as never}
     </ThemeProvider>
   ));

@@ -8,7 +8,6 @@ import type {
 import type { JSX } from '@solidjs/web';
 import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const KEYWORDS = new Set(['select', 'from', 'where', 'and', 'or', 'limit']);
 const TOKEN_RE = /(--[^\n]*)|('([^']|'')*')|\b[a-z_][\w]*\b|\d+|[^\s]/gi;
@@ -42,18 +41,16 @@ export default function CodeEditorExample(): JSX.Element {
   const [value, setValue] = createSignal(INITIAL);
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <div class="box flex-col gap-3">
-          <label class="text textLabel">{'SQL-ish editor'}</label>
-          <CodeEditor
-            value={value()}
-            onChangeText={setValue}
-            tokenize={demoTokenize}
-            minLines={5}
-            aria-label={t`Demo code editor`}
-          />
-        </div>
-      </SchemePreview>
+      <div class="box flex-col gap-3">
+        <label class="text textLabel">{'SQL-ish editor'}</label>
+        <CodeEditor
+          value={value()}
+          onChangeText={setValue}
+          tokenize={demoTokenize}
+          minLines={5}
+          aria-label={t`Demo code editor`}
+        />
+      </div>
     </ExampleRoot>
   );
 }

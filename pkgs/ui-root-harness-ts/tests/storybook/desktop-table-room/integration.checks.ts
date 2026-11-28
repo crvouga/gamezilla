@@ -8,7 +8,6 @@ test('Quoridor desktop keeps the opening grid and wall targets in the first view
   await verifyStoryScenario(page, 'screens-games-quoridor-classic--opening', {
     width: 1440,
     height: 900,
-    theme: 'light',
     globals: {},
     suffix: '',
   });
@@ -44,7 +43,6 @@ test('Hearts desktop keeps all thirteen cards and the pass action in the first v
     {
       width: 1440,
       height: 844,
-      theme: 'light',
       globals: {},
       suffix: '',
     }

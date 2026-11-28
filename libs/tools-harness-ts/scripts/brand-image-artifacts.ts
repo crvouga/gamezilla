@@ -1,5 +1,6 @@
 import { renderBrandMark } from '@libs/product-brand-shared-ts/brand-mark';
 import type { ProductIdentity } from '@libs/product-identity-shared-ts/product-identity';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 import sharp from 'sharp';
 
 export type BrandImageArtifact = {
@@ -24,7 +25,7 @@ function iconContainer(png: Buffer, size: number): Buffer {
   return Buffer.concat([header, png]);
 }
 
-/** Install icons and launch images always use the configured mark and background. */
+/** Install icons keep the brand background. Launch images start on the app canvas. */
 export async function renderBrandImage(
   artifact: BrandImageArtifact,
   identity: ProductIdentity
@@ -52,7 +53,9 @@ export async function renderBrandImage(
       channels: 4,
       background: artifact.transparent
         ? { r: 0, g: 0, b: 0, alpha: 0 }
-        : identity.brand.backgroundColor,
+        : artifact.splash
+          ? COLOR_PALETTE.background
+          : identity.brand.backgroundColor,
     },
   }).composite(
     artifact.backgroundOnly ? [] : [{ input: mark, gravity: 'centre' }]

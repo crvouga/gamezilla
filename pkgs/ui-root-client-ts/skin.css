@@ -1,6 +1,20 @@
 /* Shared component paint. Semantic colors and geometry come from the theme. */
 
 @layer components {
+  /* A menu's rows share the finish of their panel. Selected rows keep
+     their own wash and the panel's hairlines show between them. */
+  :where(.bg-background) {
+    background-image: var(--ui-finish-canvas);
+  }
+
+  :where(.bg-surface, .bg-surface-elevated, .bg-surface-overlay) {
+    background-image: var(--ui-finish-surface);
+  }
+
+  :where(.bg-surface-muted) {
+    background-image: var(--ui-finish-well);
+  }
+
   .themeHost {
     display: flex;
     flex-direction: column;
@@ -148,6 +162,7 @@
   .btn[data-face="primary"],
   .fab[data-face="primary"] {
     background: var(--ui-color-tint-active);
+    background-image: var(--ui-finish-action);
     color: var(--ui-color-on-primary);
     --ui-on-fg: var(--ui-color-on-primary);
     --ui-on-fg-muted: var(--ui-color-on-primary);
@@ -170,15 +185,12 @@
 
   .fab[data-face="neutral"] {
     background: var(--ui-color-surface-muted);
+    background-image: var(--ui-finish-surface);
     color: var(--ui-color-text);
     --ui-on-fg: var(--ui-color-text);
     --ui-on-fg-muted: var(--ui-color-text-secondary);
     --ui-on-icon: var(--ui-color-icon);
   }
-
-  /* `.btn` and `.fab` hover with the `.clickableTint` overlay over their own
-     fill; the lighter `tint-hover` fill would drop the white label below AA
-     in dark. */
 
   .btn[data-face="primary-outline"] {
     border-color: var(--ui-color-tint);
@@ -193,9 +205,10 @@
     --ui-on-fg-muted: var(--ui-color-destructive);
   }
 
-  /* A solid secondary action sits on paper; outlines let the host show through. */
+  /* A solid secondary action uses the raised surface; outlines let the host show through. */
   .btn[data-face="neutral"] {
     background: var(--ui-color-surface);
+    background-image: var(--ui-finish-surface);
   }
 
   .btn[data-face="neutral"],

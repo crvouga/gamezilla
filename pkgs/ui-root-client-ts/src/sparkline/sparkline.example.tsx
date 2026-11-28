@@ -11,7 +11,6 @@ import type { JSX } from '@solidjs/web';
 import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const RATINGS = [
   1480, 1492, 1487, 1503, 1511, 1498, 1520, 1534, 1529, 1547, 1560, 1552,
@@ -20,33 +19,32 @@ const RATINGS = [
 export default function SparklineExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <For each={CONTROL_SIZE_TOKENS}>
-          {(size) => (
-            <ExampleSection title={`size ${size}`}>
-              <StackVertical width="full" maxWidth="form">
-                <Sparkline values={RATINGS} size={size} />
-              </StackVertical>
-            </ExampleSection>
-          )}
-        </For>
-        <For each={COLOR_TONES}>
-          {(tone) => (
-            <ExampleSection title={`tone ${tone}`}>
-              <StackVertical width="full" maxWidth="form">
-                <div
-                  class={[
-                    'box rounded-sm p-1',
-                    { 'bg-tint-active': tone === 'on-primary' },
-                  ]}
-                >
-                  <Sparkline values={RATINGS} tone={tone} size="sm" />
-                </div>
-              </StackVertical>
-            </ExampleSection>
-          )}
-        </For>
-      </SchemePreview>
+      <For each={CONTROL_SIZE_TOKENS}>
+        {(size) => (
+          <ExampleSection title={`size ${size}`}>
+            <StackVertical width="full" maxWidth="form">
+              <Sparkline values={RATINGS} size={size} />
+            </StackVertical>
+          </ExampleSection>
+        )}
+      </For>
+      <For each={COLOR_TONES}>
+        {(tone) => (
+          <ExampleSection title={`tone ${tone}`}>
+            <StackVertical width="full" maxWidth="form">
+              <div
+                class={[
+                  'box rounded-sm p-1',
+                  { 'bg-tint-active': tone === 'on-primary' },
+                ]}
+              >
+                <Sparkline values={RATINGS} tone={tone} size="sm" />
+              </div>
+            </StackVertical>
+          </ExampleSection>
+        )}
+      </For>
+
       <ExampleSection title="named: an image with an aria-label">
         <StackVertical width="full" maxWidth="form">
           <Sparkline values={RATINGS} aria-label="Rating over 12 games" />

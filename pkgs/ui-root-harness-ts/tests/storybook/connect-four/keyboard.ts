@@ -5,12 +5,8 @@ const column = (page: Page, number: number) =>
   page.getByTestId(`game-session-board-column-${number}`);
 
 /** Anchor just before the board, then use native browser keyboard traversal. */
-export async function captureKeyboard(
-  page: Page,
-  info: TestInfo,
-  theme: string
-) {
-  await openBoard(page, 'drop-a-disc', theme);
+export async function captureKeyboard(page: Page, info: TestInfo) {
+  await openBoard(page, 'drop-a-disc');
   const board = page.getByTestId('game-session-board');
   const initial = await board.getAttribute('data-cells');
   await column(page, 1).focus();
@@ -63,7 +59,7 @@ export async function captureKeyboard(
     '2'
   );
   await captureBoard(page, info, 'keyboard-two-drops');
-  await openBoard(page, 'full-column', theme);
+  await openBoard(page, 'full-column');
   await column(page, 1).focus();
   const full = await board.getAttribute('data-cells');
   await page.keyboard.press('Space');
@@ -77,11 +73,7 @@ export async function captureKeyboard(
   await captureBoard(page, info, 'keyboard-refusal-recovery');
 }
 
-export async function captureInactiveKeyboard(
-  page: Page,
-  info: TestInfo,
-  theme: string
-) {
+export async function captureInactiveKeyboard(page: Page, info: TestInfo) {
   for (const state of [
     'watching',
     'waiting-for-opponent',
@@ -89,7 +81,7 @@ export async function captureInactiveKeyboard(
     'lost',
     'full-board-draw',
   ]) {
-    await openBoard(page, state, theme);
+    await openBoard(page, state);
     const board = page.getByTestId('game-session-board');
     const before = await board.getAttribute('data-cells');
     await column(page, 1).focus();

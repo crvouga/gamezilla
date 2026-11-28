@@ -18,10 +18,7 @@ test('a request row answers with Accept and Decline, never Confirm or Delete', (
   const harness = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <AcceptDeclinePills
           compact
           onAccept={() => Promise.resolve()}

@@ -69,8 +69,7 @@ const TOKEN_RULES: readonly Rule[] = [
   {
     name: 'dark variant',
     test: (token) => /(^|:)dark:/.test(token),
-    instead:
-      'a color token: light and dark are one variable swap on `[data-theme]`',
+    instead: 'a shared color token from the Gamezilla palette',
   },
 ];
 

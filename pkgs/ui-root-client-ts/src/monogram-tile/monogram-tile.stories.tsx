@@ -10,7 +10,7 @@ const meta = {
 } satisfies Meta;
 export default meta;
 
-/** Every size, and the stable paint each name's seed picks, in both schemes. */
+/** Every size, and the stable paint each name's seed picks. */
 export const States: StoryObj = {
   parameters: { controls: { disable: true } },
   render: () => <Example />,

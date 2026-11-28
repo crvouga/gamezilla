@@ -21,7 +21,7 @@ function mount(child: () => JSX.Element, width = 390) {
   const time = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 844 }}>
+      <ThemeProvider fixedLayout={{ width, height: 844 }}>
         <StaticAppRouterProvider
           router={{
             push: () => undefined,

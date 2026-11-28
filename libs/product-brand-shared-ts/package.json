@@ -21,6 +21,7 @@
   "devDependencies": {
     "@libs/product-identity": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
+    "@pkgs/ui-root-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

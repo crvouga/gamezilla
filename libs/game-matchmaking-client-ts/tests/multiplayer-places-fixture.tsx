@@ -92,7 +92,13 @@ function base(): Omit<
     find: { players: 2, timed: false, timeControl: '5+0' },
     onChooseTimeControl: mock(() => undefined),
     onFind: accepted(),
-    search: { players: 2, gameName: 'Chess', timeControl: '5+0', seconds: 3 },
+    search: {
+      players: 2,
+      gameName: 'Chess',
+      motif: 'checkered',
+      timeControl: '5+0',
+      seconds: 3,
+    },
     onStop: accepted(),
     ratings: [{ pool: 'game', rating: 1512, games: 7 }],
     game: GAME,
@@ -163,10 +169,7 @@ export function mountPlaces(options: {
   }
   const view = renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: options.width ?? 390, height: 900 }}
-      >
+      <ThemeProvider fixedLayout={{ width: options.width ?? 390, height: 900 }}>
         <SurfaceStackProvider>
           <Places />
         </SurfaceStackProvider>

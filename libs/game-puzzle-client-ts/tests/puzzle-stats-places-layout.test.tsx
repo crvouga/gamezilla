@@ -76,10 +76,7 @@ function mount(
 ): void {
   renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <PuzzleStatsScreenView {...VIEW} {...overrides} place={place} />
       </ThemeProvider>
     </ClockProvider>

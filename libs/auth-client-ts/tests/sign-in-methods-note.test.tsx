@@ -20,7 +20,7 @@ test('the only-method note is the methods card last row, on phone and desktop', 
     const time = createHarnessClock();
     renderWithI18n(() => (
       <ClockProvider clock={time.clock} timers={time.timers}>
-        <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
+        <ThemeProvider fixedLayout={{ width, height: 900 }}>
           <SignInMethodsSection
             methods={{
               status: 'ready',

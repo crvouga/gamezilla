@@ -119,7 +119,7 @@ export function renderMatchFrame(
     forPosition: () => ({ id: 'fixture' }),
   } as unknown as TurnGames;
   return renderWithI18n(() => (
-    <ThemeProvider colorScheme="light">
+    <ThemeProvider>
       <ModerationProvider rules={shippedModerationRules()}>
         <SyncEngineProvider value={engine(profiles)}>
           <TurnGamesProvider rules={rules} presentations={[presentation]}>

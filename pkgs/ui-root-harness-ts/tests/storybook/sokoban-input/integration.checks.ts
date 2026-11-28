@@ -17,7 +17,7 @@ test.use({
 test('storybook integration: Sokoban editor corrects a missing worker', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'editor--edit-and-correct', 'light');
+  await openSokoban(page, 'editor--edit-and-correct');
   await expect(page.getByTestId('sokoban-ready')).toBeVisible();
   await expect(page.getByTestId('sokoban-square-B3')).toHaveAttribute(
     'data-identity',
@@ -30,7 +30,7 @@ test('storybook integration: Sokoban editor corrects a missing worker', async ({
 test('storybook integration: Sokoban touch swipe and cancellation preserve one-step steering', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'puzzle--fresh', 'light');
+  await openSokoban(page, 'puzzle--fresh');
   const box = await page.getByTestId('sokoban-board').boundingBox();
   if (!box) throw new Error('Sokoban board is missing');
   const touch = await page.context().newCDPSession(page);
@@ -82,7 +82,7 @@ test('storybook integration: Sokoban touch swipe and cancellation preserve one-s
 test('storybook integration: Sokoban mouse taps and captured outside release', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'puzzle--fresh', 'light');
+  await openSokoban(page, 'puzzle--fresh');
   const board = page.getByTestId('sokoban-board');
   await page.getByTestId('sokoban-board-tile-23').click();
   await counts(page, 1, 1);
@@ -106,7 +106,7 @@ test('storybook integration: Sokoban mouse taps and captured outside release', a
 test('storybook integration: Sokoban static preview preserves native touch scrolling and tab order', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'preview--default', 'light');
+  await openSokoban(page, 'preview--default');
   const board = page.locator('[data-component="TileBoard"]');
   await expect(board).toHaveAttribute('tabindex', '-1');
   await expect(board).toHaveAttribute('data-interactive', 'false');
@@ -120,7 +120,7 @@ test('storybook integration: Sokoban static preview preserves native touch scrol
 test('storybook integration: Sokoban queued input limit is explicit', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'puzzle--disabled', 'light');
+  await openSokoban(page, 'puzzle--disabled');
   const board = page.getByTestId('sokoban-board');
   for (const key of [
     'ArrowRight',

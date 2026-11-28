@@ -16,7 +16,7 @@ afterEach(cleanup);
 
 function mount(width: number): { dock: Element; bar: Element } {
   const { container } = render(() => (
-    <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 900 }}>
+    <ThemeProvider fixedLayout={{ width, height: 900 }}>
       <MiniPlayerDock>
         <MiniPlayerBar testId="bar">{'Live space'}</MiniPlayerBar>
       </MiniPlayerDock>

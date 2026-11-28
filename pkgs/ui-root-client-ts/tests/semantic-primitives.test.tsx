@@ -356,10 +356,7 @@ describe('small hosts', () => {
 
   test('Icon draws a held icon at a token size', () => {
     const view = render(() => (
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 320, height: 480 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 320, height: 480 }}>
         <Icon icon={ClockIcon} size="sm" label="Clock" />
       </ThemeProvider>
     ));

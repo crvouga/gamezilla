@@ -318,6 +318,7 @@ test('Chess identifies the existing Connect Four search and offers Stop', () => 
       search: {
         players: 2,
         gameName: 'Connect Four',
+        motif: 'discs',
         timeControl: '10+5',
         seconds: 3244197,
       },

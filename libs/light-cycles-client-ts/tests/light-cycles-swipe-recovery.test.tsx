@@ -16,10 +16,7 @@ test('an interrupted swipe cannot turn a rider after steering resumes', () => {
   const [stale, setStale] = createSignal(false);
   const inputs: unknown[] = [];
   const view = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <LightCyclesBoardView
         position={lightCyclesPositionCodec(3).encode(lightCyclesStart(3, 3))}
         orientation="white"

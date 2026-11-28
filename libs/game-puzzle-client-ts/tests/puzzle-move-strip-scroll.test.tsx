@@ -33,10 +33,7 @@ test('the selected move is revealed inside the strip, never by scrolling the pag
   try {
     renderWithI18n(() => (
       <ClockProvider clock={time.clock} timers={time.timers}>
-        <ThemeProvider
-          colorScheme="dark"
-          fixedLayout={{ width: 390, height: 844 }}
-        >
+        <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
           <PuzzleMoveHistory
             plies={PLIES}
             selectedSolveIdx={4}

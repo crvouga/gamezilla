@@ -11,7 +11,6 @@ import MorePerformanceScreen from './more-performance';
 import MoreServerStatusScreen from './more-server-status';
 import MoreSoundScreen from './more-sound';
 import MoreSyncScreen from './more-sync';
-import MoreThemeScreen from './more-theme';
 import MoreTroubleshootingScreen from './more-troubleshooting';
 import SsoCallbackScreen from './sso-callback';
 /**
@@ -29,7 +28,6 @@ export type AppRouteEntry = SubRoute;
 /** Routes that belong to the shell itself, not to any bounded context. */
 export const SHELL_ROUTE_TABLE: readonly AppRouteEntry[] = [
   { path: '/more', component: MoreScreen },
-  { path: '/more/theme', component: MoreThemeScreen },
   { path: '/more/performance', component: MorePerformanceScreen },
   { path: '/more/sound', component: MoreSoundScreen },
   { path: '/more/about', component: MoreAboutScreen },

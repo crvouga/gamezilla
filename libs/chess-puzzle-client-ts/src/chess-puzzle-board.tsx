@@ -6,7 +6,6 @@
  */
 
 import { chessPuzzleLastMove } from '@libs/chess-puzzle-shared-ts/last-move';
-import { BOARD_THEME } from '@libs/chess-root-shared-ts/board-theme';
 import type { PuzzleBoardProps } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { ChessBoard } from '@pkgs/chess-board-root-client-ts/chess-board';
 import { formatUci } from '@pkgs/chess-rules-shared-ts/uci';
@@ -27,7 +26,6 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
   return (
     <ChessBoard
       guidancePlacement="after"
-      theme={BOARD_THEME}
       sound={!sounds.muted()}
       dataSet={{ testid: props.testId }}
       fen={props.position}
@@ -61,7 +59,6 @@ function ReviewBoard(props: PuzzleBoardProps): JSX.Element {
   return (
     <ChessBoard
       fitSquare
-      theme={BOARD_THEME}
       sound={!sounds.muted()}
       dataSet={{ testid: props.testId }}
       fen={props.position}

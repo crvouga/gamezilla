@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { BRAND_ARTIFACTS } from '@libs/product-brand-shared-ts/brand-artifacts';
 import { syntheticIdentity } from '@libs/product-brand-shared-ts/synthetic-identity';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 
 const ROOT = join(import.meta.dir, '../../..');
 const FIX = 'bun run libs/tools-harness-ts/scripts/generate-brand-artifacts.ts';
@@ -14,8 +15,33 @@ describe('generated brand artifacts', () => {
     test(`${artifact.path} is exactly what the identity generates (${FIX})`, () => {
       const path = join(ROOT, artifact.path);
       expect(existsSync(path)).toBe(true);
-      expect(readFileSync(path, 'utf8')).toBe(artifact.render(PRODUCT));
+      expect(readFileSync(path, 'utf8')).toBe(
+        artifact.render(PRODUCT, COLOR_PALETTE.background)
+      );
     });
+
+  test('installed launches paint the app canvas under any configured identity', () => {
+    const configured = syntheticIdentity();
+    const identity = {
+      ...configured,
+      brand: {
+        ...configured.brand,
+        themeColor: '#ffeedd',
+        backgroundColor: '#000000',
+      },
+    };
+    const manifest = BRAND_ARTIFACTS.find((artifact) =>
+      artifact.path.endsWith('.webmanifest')
+    );
+    expect(
+      JSON.parse(manifest?.render(identity, COLOR_PALETTE.background) ?? 'null')
+    ).toMatchObject({
+      name: identity.brand.name,
+      short_name: identity.brand.shortName,
+      background_color: COLOR_PALETTE.background,
+      theme_color: COLOR_PALETTE.background,
+    });
+  });
 
   test('every artifact follows a rebrand and keeps no trace of the old brand', () => {
     const synthetic = syntheticIdentity();
@@ -27,12 +53,12 @@ describe('generated brand artifacts', () => {
       synthetic.external.sourceRepository,
     ].sort((a, b) => b.length - a.length);
     for (const artifact of BRAND_ARTIFACTS) {
-      let text = artifact.render(synthetic);
+      let text = artifact.render(synthetic, COLOR_PALETTE.background);
       for (const value of external) text = text.replaceAll(value, '');
       expect(text).not.toContain(PRODUCT.brand.name);
       expect(text).not.toContain(PRODUCT.brand.domain);
       // …and shows the new brand (its name or its domain).
-      const rendered = artifact.render(synthetic);
+      const rendered = artifact.render(synthetic, COLOR_PALETTE.background);
       expect(
         rendered.includes(synthetic.brand.name) ||
           rendered.includes(synthetic.brand.domain)

@@ -1,51 +1,12 @@
 /** @jsxImportSource @solidjs/web */
-/** Minimal theme root stays mounted when the sub/provider tree crashes. */
-
+/** The visual shell and motion preference stay mounted during crash recovery. */
 import type { MotionPreferencePort } from '@pkgs/device-shared-ts/motion-preference';
 import { KvProvider } from '@pkgs/kv-root-client-ts/solid';
 import type { Kv } from '@pkgs/kv-root-shared-ts/interface';
 import { useTestViewport } from '@pkgs/ui-root-client-ts/test-viewport';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import {
-  ThemePreferenceProvider,
-  useThemePreference,
-} from '@pkgs/ui-root-client-ts/theme-preference';
-import type { ColorScheme } from '@pkgs/ui-root-shared-ts/colors-types';
 import type { JSX } from '@solidjs/web';
-import { createSignal, onCleanup, onSettled, untrack } from 'solid-js';
-
-import { useBrowserOpening } from './browser-opening';
-
-/** The scheme `index.html` painted before the app loaded, when it set one. */
-function paintedScheme(): ColorScheme | undefined {
-  const scheme = document.documentElement.getAttribute('data-theme');
-  return scheme === 'light' || scheme === 'dark' ? scheme : undefined;
-}
-
-function AppTheme(props: {
-  readonly motion: MotionPreferencePort;
-  readonly children: JSX.Element;
-}): JSX.Element {
-  const { preference, settled, setPreference } = useThemePreference();
-  const opening = useBrowserOpening();
-  if (opening !== null) onSettled(() => opening.bindTheme(setPreference));
-  // Hold the painted scheme until the stored preference is read, so the first
-  // frame never shows the system scheme over a pinned one.
-  const painted = paintedScheme();
-  const testViewport = useTestViewport();
-  const motion = untrack(() => props.motion);
-  const [reduced, setReduced] = createSignal(motion.reduced());
-  onCleanup(motion.subscribe(setReduced));
-  return (
-    <ThemeProvider
-      colorScheme={settled() ? preference() : (painted ?? preference())}
-      reducedMotion={reduced()}
-      {...(testViewport != null ? { fixedLayout: testViewport } : {})}
-    >
-      {props.children}
-    </ThemeProvider>
-  );
-}
+import { createSignal, onCleanup, untrack } from 'solid-js';
 
 export function AppThemeProvider(props: {
   readonly kv: Kv;
@@ -53,11 +14,18 @@ export function AppThemeProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   const kv = untrack(() => props.kv);
+  const viewport = useTestViewport();
+  const motion = untrack(() => props.motion);
+  const [reduced, setReduced] = createSignal(motion.reduced());
+  onCleanup(motion.subscribe(setReduced));
   return (
     <KvProvider value={kv}>
-      <ThemePreferenceProvider>
-        <AppTheme motion={props.motion}>{props.children}</AppTheme>
-      </ThemePreferenceProvider>
+      <ThemeProvider
+        reducedMotion={reduced()}
+        {...(viewport ? { fixedLayout: viewport } : {})}
+      >
+        {props.children}
+      </ThemeProvider>
     </KvProvider>
   );
 }

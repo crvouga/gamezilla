@@ -1,7 +1,7 @@
 /**
  * Generative-avatar stand-ins for the explorer examples. An SVG shown as an
  * `<img>` cannot read CSS variables, so the sample is drawn from the
- * resolved palette (`useThemeTokens().palette()`) instead of literal colors.
+ * resolved palette (`useThemeTokens().palette`) instead of literal colors.
  */
 
 import type { ColorTokens } from '@pkgs/ui-root-shared-ts/colors-types';

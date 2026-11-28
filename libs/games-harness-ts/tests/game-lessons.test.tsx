@@ -38,7 +38,6 @@ function mountMenu(game: GameClientRegistration) {
           <I18nProvider i18n={i18n}>
             <ClockProvider clock={clock} timers={timers}>
               <ThemeProvider
-                colorScheme="light"
                 fixedLayout={{
                   width: game.family === 'light-cycles' ? 390 : 1440,
                   height: 900,

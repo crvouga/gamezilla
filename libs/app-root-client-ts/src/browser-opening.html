@@ -21,14 +21,11 @@
         data-testid="search-input" data-sensitive="true" />
     </div>
     <div data-route="/more" hidden>
-      <a href="/more/theme" data-testid="settings-theme">Appearance</a>
+      <a href="/more/sound" data-testid="settings-sound">Sound</a>
     </div>
-    <fieldset data-route="/more/theme" hidden>
-      <legend>Theme</legend>
-      <label><input type="radio" name="theme" value="light" data-testid="theme-option-light" />Light</label>
-      <label><input type="radio" name="theme" value="dark" data-testid="theme-option-dark" />Dark</label>
-      <label><input type="radio" name="theme" value="system" data-testid="theme-option-system" />System</label>
-    </fieldset>
+    <div data-route="/more/sound" hidden>
+      <p role="status">Opening sound settings…</p>
+    </div>
   </main>
 </div>
 <script>
@@ -37,7 +34,6 @@
     const title = shell.querySelector('h1');
     const links = Array.from(shell.querySelectorAll('a[href]'));
     const views = shell.querySelectorAll('[data-route]');
-    const choices = shell.querySelectorAll('input[name="theme"]');
     const create = shell.querySelector('[data-startup-create]');
     create.addEventListener('click', () => {
       create.disabled = true;
@@ -46,13 +42,6 @@
     const search = shell.querySelector('input[name="people-search"]');
     search.addEventListener('compositionstart', () => search.setAttribute('data-composing', ''));
     search.addEventListener('compositionend', () => search.removeAttribute('data-composing'));
-    let preference = 'system';
-    try {
-      const stored = JSON.parse(localStorage.getItem('ui.prefs/color-scheme'));
-      if (stored && ['light', 'dark'].includes(stored['ui.prefs/value'])) preference = stored['ui.prefs/value'];
-    } catch (_) {}
-    for (const choice of choices) choice.checked = choice.value === preference;
-
     function showLocation() {
       if (location.pathname !== '/') {
         create.disabled = false;
@@ -77,20 +66,6 @@
       }
       const focus = location.pathname === '/search' ? search : title;
       focus.focus();
-    });
-    shell.addEventListener('change', event => {
-      const choice = event.target;
-      if (choice.name !== 'theme') return;
-      preference = choice.value;
-      const scheme = preference === 'system'
-        ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
-        : preference;
-      document.documentElement.setAttribute('data-theme', scheme);
-      document.documentElement.setAttribute('data-startup-preference', preference);
-      try {
-        localStorage.setItem('ui.prefs/color-scheme', JSON.stringify({ 'ui.prefs/value': preference }));
-      } catch (_) {}
-      shell.dispatchEvent(new CustomEvent('startup-theme-change', { detail: preference }));
     });
     showLocation();
     window.addEventListener('popstate', showLocation);

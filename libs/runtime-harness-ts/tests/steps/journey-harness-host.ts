@@ -114,7 +114,7 @@ export function harnessJourneyHost(w: Pick<HarnessWorld, 's'>): JourneyHost {
       else await w.s.apply(spawnActor, HOST);
       await w.s.apply(openSettings, HOST);
       const settingsVisible = await w.s.read(async (s) =>
-        (await actorUi(s, HOST)).get(Handles.settingsTheme).isVisible()
+        (await actorUi(s, HOST)).get(Handles.settingsSound).isVisible()
       );
       return { kind: 'simulated', settingsVisible };
     },

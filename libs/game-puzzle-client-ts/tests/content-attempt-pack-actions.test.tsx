@@ -14,10 +14,7 @@ afterEach(cleanup);
 test("a solved pack puzzle's way on sits in its pack card, not the command row", () => {
   const view = (place: 'attempt' | 'progress') =>
     renderWithI18n(() => (
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <PuzzlePackStageScreenView
           status="ready"
           place={{ screen: place }}

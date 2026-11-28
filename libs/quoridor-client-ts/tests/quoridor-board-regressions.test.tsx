@@ -42,7 +42,7 @@ test('an accepted wall clears its preview instead of reporting an overlap', () =
   let session: GameFrameBoardSession<JSX.Element> | undefined;
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         {(() => {
           session = createQuoridorBoard({
             ...BOARD,
@@ -117,7 +117,7 @@ test('a finished hill game never announces the next player to move', () => {
   const { clock, timers } = createHarnessClock();
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         {(() => {
           const session = createQuoridorBoard({
             ...BOARD,
@@ -167,7 +167,7 @@ test('the tools are the board’s actions, one pressed, and choosing one keeps t
   let session: GameFrameBoardSession<JSX.Element> | undefined;
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         {(() => {
           session = createQuoridorBoard({
             ...BOARD,
@@ -230,7 +230,7 @@ test('mandatory pass leads the tools and updates when the position changes', () 
     });
     return (
       <ClockProvider clock={clock} timers={timers}>
-        <ThemeProvider colorScheme="light">{session.Board()}</ThemeProvider>
+        <ThemeProvider>{session.Board()}</ThemeProvider>
       </ClockProvider>
     );
   });
@@ -284,7 +284,7 @@ test('zero inventory disables both wall tools even when pawn moves remain', () =
     });
     return (
       <ClockProvider clock={clock} timers={timers}>
-        <ThemeProvider colorScheme="light">{session.Board()}</ThemeProvider>
+        <ThemeProvider>{session.Board()}</ThemeProvider>
       </ClockProvider>
     );
   });

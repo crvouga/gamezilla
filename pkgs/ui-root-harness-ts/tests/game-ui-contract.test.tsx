@@ -54,10 +54,7 @@ describe('game presentation contracts', () => {
     const { clock, timers } = createHarnessClock({ startMs: 0 });
     const view = render(() => (
       <ClockProvider clock={clock} timers={timers}>
-        <ThemeProvider
-          colorScheme="light"
-          fixedLayout={{ width: 390, height: 844 }}
-        >
+        <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
           <GameArenaExample />
         </ThemeProvider>
       </ClockProvider>
@@ -86,10 +83,7 @@ describe('game presentation contracts', () => {
     let reject: (reason: Error) => void = () => {};
     const view = render(() => (
       <ClockProvider clock={clock} timers={timers}>
-        <ThemeProvider
-          colorScheme="dark"
-          fixedLayout={{ width: 390, height: 844 }}
-        >
+        <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
           <GameActionButton
             title="Join round"
             operation={() => {

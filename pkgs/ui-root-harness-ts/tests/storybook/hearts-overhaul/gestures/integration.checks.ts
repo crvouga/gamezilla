@@ -109,11 +109,7 @@ for (const phone of [true, false]) {
     test('inspect the table, cancel pickup, pass and land a card', async ({
       page,
     }, info) => {
-      await openHearts(
-        page,
-        'screens-games-hearts-interaction--pass-and-play',
-        'light'
-      );
+      await openHearts(page, 'screens-games-hearts-interaction--pass-and-play');
       const board = page.getByTestId('game-session-board');
       const rate = phone ? 4 : 1;
       const cdp = await page.context().newCDPSession(page);
@@ -148,7 +144,7 @@ test('Hearts gestures show the queen-bearing trick beside its winner', async ({
   page,
 }, info) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openHearts(page, 'screens-games-hearts-board--queen-taken', 'light');
+  await openHearts(page, 'screens-games-hearts-board--queen-taken');
   const board = page.getByTestId('game-session-board');
   const seat = page.getByTestId('game-session-board-seat-black');
   await expect(seat).toContainText('This trick +13');
@@ -165,10 +161,6 @@ test('Hearts gestures: a 1440px trackpad pinch enlarges the mounted felt', async
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await openHearts(
-    page,
-    'screens-games-hearts-interaction--pass-and-play',
-    'light'
-  );
+  await openHearts(page, 'screens-games-hearts-interaction--pass-and-play');
   await inspect(page, false);
 });

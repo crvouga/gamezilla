@@ -67,7 +67,7 @@ async function wheel(page: Page, court: Locator) {
 }
 
 async function inspect(page: Page, info: TestInfo, phone: boolean) {
-  await openPong(page, 'watching', 'dark');
+  await openPong(page, 'watching');
   const court = page.getByRole('application', { name: 'Pong court' });
   const drawing = court.locator('svg[data-testid$="-drawing"]');
   const fit = await bounds(drawing);
@@ -108,7 +108,7 @@ async function steer(page: Page, info: TestInfo, reduced: boolean) {
   await page.emulateMedia({
     reducedMotion: reduced ? 'reduce' : 'no-preference',
   });
-  await openPong(page, 'paddle-movement', 'dark');
+  await openPong(page, 'paddle-movement');
   const court = page.getByRole('application', { name: 'Pong court' });
   const paddle = court.locator(
     'rect[data-side="first"][data-controlled="true"]'
@@ -169,7 +169,7 @@ for (const viewport of [
     test('inspect around the gesture and return to fit', ({ page }, info) =>
       inspect(page, info, viewport.width === 390));
     test('name the controlled end before the serve', async ({ page }, info) => {
-      await openPong(page, 'countdown', 'dark');
+      await openPong(page, 'countdown');
       const court = page.getByRole('application', { name: 'Pong court' });
       await expect(
         court.locator('[data-testid$="-first-gesture"]')

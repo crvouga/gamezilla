@@ -2,12 +2,7 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe, { type AxeResults } from 'axe-core';
 
-export async function openBattleStory(
-  page: Page,
-  id: string,
-  theme: string,
-  info?: TestInfo
-) {
+export async function openBattleStory(page: Page, id: string, info?: TestInfo) {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   await page.route('**/*', (route) =>
@@ -25,7 +20,7 @@ export async function openBattleStory(
   await page.goto(
     // `motion:system`: the browser decides, so videos and timings include the
     // board's real transitions instead of the preview's forced reduced motion.
-    `/iframe.html?id=${id}&viewMode=story&globals=theme:${theme};motion:system`
+    `/iframe.html?id=${id}&viewMode=story&globals=motion:system`
   );
   // Ready, or failed in its play: either way the boxes are worth recording.
   await page

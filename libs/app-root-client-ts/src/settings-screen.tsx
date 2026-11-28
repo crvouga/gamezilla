@@ -13,7 +13,6 @@ import {
 } from '@pkgs/feedback-client-ts/request-bug-report';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { JSX } from '@solidjs/web';
 import { type Accessor, createSignal, onCleanup } from 'solid-js';
 import { useOfflinePreference } from './offline-preference';
@@ -40,7 +39,6 @@ function useBugReporting<T>(
 export function SettingsScreen(): JSX.Element {
   const router = useRouter();
   const canViewBilling = useCan(PERMISSION.billingView);
-  const { preference } = useThemePreference();
   const { muted } = useSoundsPreference();
   const { offline, setOffline } = useOfflinePreference();
   const bugReports = bugReportsOf();
@@ -48,7 +46,6 @@ export function SettingsScreen(): JSX.Element {
   const shake = useBugReporting(bugReports?.shake, 'unavailable');
   return (
     <SettingsScreenView
-      theme={preference()}
       muted={muted()}
       offline={offline()}
       canViewBilling={canViewBilling()}

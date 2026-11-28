@@ -55,7 +55,7 @@ test('a forced Hill pass has one action and no contradictory move guidance', () 
   let session: GameFrameBoardSession<JSX.Element> | undefined;
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         {(() => {
           session = createQuoridorBoard({
             position: encodeQuoridor(game),

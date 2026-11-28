@@ -97,7 +97,7 @@ export type MonogramTileProps = {
 /**
  * `MonogramTile` -- a thing's own mark where it has no picture: a rounded
  * square in one of six tile colours, picked from a stable seed so the same
- * thing always wears the same colour in both themes, carrying the first
+ * thing always wears the same colour, carrying the first
  * letter of its name in white. Decorative: its name is always written beside it.
  *
  * @example
@@ -109,7 +109,7 @@ export function MonogramTile(props: MonogramTileProps): JSX.Element {
   const paint = (): MonogramPaint => monogramPaint(props.seed);
   return (
     <span
-      class={`box inline-flex shrink-0 items-center justify-center text text-on-primary select-none ${SIZE[props.size ?? 'md']} ${PAINT_CLASS[paint()]}`}
+      class={`box inline-flex shrink-0 items-center justify-center text text-on-monogram select-none ${SIZE[props.size ?? 'md']} ${PAINT_CLASS[paint()]}`}
       aria-hidden="true"
       data-paint={paint()}
       {...dataAttrs({ component: 'MonogramTile', ...props.dataSet })}

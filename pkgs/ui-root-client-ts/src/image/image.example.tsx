@@ -16,7 +16,7 @@ import { ExampleSection } from '../../storybook/fixtures/example-section';
 
 /** A 4:3 picture that needs no network. */
 const PICTURE = `data:image/svg+xml,${encodeURIComponent(
-  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' fill='${COLOR_PALETTE.light.surface}'/><circle cx='2' cy='1.5' r='1' fill='${COLOR_PALETTE.light.text}'/></svg>`
+  `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 4 3'><rect width='4' height='3' fill='${COLOR_PALETTE.surface}'/><circle cx='2' cy='1.5' r='1' fill='${COLOR_PALETTE.text}'/></svg>`
 )}`;
 /** Not a decodable image, so it fails without a request. */
 const MISSING = 'data:image/png;base64,AAAA';

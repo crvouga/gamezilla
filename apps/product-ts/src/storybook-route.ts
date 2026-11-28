@@ -54,7 +54,6 @@ const TAB_ROUTES: Readonly<Record<string, string>> = {
 // Concrete paths from the product route table and each sub's route declarations.
 const STACK_ROUTES: Readonly<Record<string, string>> = {
   'screens-settings-index': '/more',
-  'screens-settings-appearance': '/more/theme',
   'screens-settings-performance': '/more/performance',
   'screens-settings-sound': '/more/sound',
   'screens-settings-about': '/more/about',

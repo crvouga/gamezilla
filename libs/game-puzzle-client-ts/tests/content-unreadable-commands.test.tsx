@@ -45,10 +45,7 @@ function mount(value: ContentGame, ui: () => JSX.Element): void {
   const time = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <MutationClientContext value={{} as MutationClient}>
           <IdProvider createId={() => 'id'} random={() => 0.5}>
             <ContentGameProvider value={value}>

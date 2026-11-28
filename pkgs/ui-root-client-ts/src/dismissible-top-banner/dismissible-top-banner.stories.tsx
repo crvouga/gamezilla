@@ -36,7 +36,6 @@ const meta = {
 } satisfies Meta<typeof DismissibleBanner>;
 export default meta;
 
-/** Representative variants, themes and interaction states from the production contract. */
 export const States: StoryObj = {
   parameters: { controls: { disable: true } },
   render: () => <Example />,

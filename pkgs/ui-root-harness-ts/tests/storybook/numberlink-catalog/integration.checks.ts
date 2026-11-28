@@ -29,7 +29,7 @@ function routeKey(previous: number, current: number): string {
 test('storybook integration: play the Numberlink catalog from First threads', async ({
   page,
 }, info) => {
-  await openBoard(page, 'light', `${STORY}--first-threads`);
+  await openBoard(page, `${STORY}--first-threads`);
   await expect(
     page.getByText('First threads 9', { exact: true }).first()
   ).toBeVisible();
@@ -64,7 +64,7 @@ for (const [story, name] of [
   test(`storybook integration: Numberlink catalog ${story} fits a phone`, async ({
     page,
   }, info) => {
-    await openBoard(page, 'light', `${STORY}--${story}`);
+    await openBoard(page, `${STORY}--${story}`);
     const board = page.getByTestId('numberlink-board');
     await expect(board).toBeVisible();
     const box = await board.boundingBox();

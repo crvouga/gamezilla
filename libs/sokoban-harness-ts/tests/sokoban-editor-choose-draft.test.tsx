@@ -13,7 +13,7 @@ test('an unreadable board opens the saved draft chooser without editing the draf
   const time = createHarnessClock();
   const view = renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider colorScheme="dark">
+      <ThemeProvider>
         <SokobanEditor
           definition="not a board"
           disabled={false}

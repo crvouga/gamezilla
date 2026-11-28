@@ -72,10 +72,7 @@ function mount(
   };
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: compact ? 320 : 1440, height: 740 }}
-      >
+      <ThemeProvider fixedLayout={{ width: compact ? 320 : 1440, height: 740 }}>
         <FrameOthersView {...common} />
         <div data-testid="word-board" />
         <FrameNearSeatView {...common} />

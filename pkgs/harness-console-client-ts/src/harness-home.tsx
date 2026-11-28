@@ -99,7 +99,7 @@ export function HarnessHome(props: {
         />
         <MenuRow
           title="Commands"
-          caption="Crash, restart and partition instances, the clock, appearance"
+          caption="Crash, restart and partition instances, and the clock"
           leading={<SearchIcon size={18} color="icon" />}
           dataSet={{ 'harness-part': 'home-tool', tool: 'commands' }}
           onClick={() => props.onOpen('commands')}

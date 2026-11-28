@@ -18,7 +18,6 @@ export const HEARTS_TIMING_CONDITIONS = {
 export async function openHearts(
   page: Page,
   story: string,
-  theme: string,
   reducedMotion: 'no-preference' | 'reduce' = 'no-preference'
 ) {
   await page.emulateMedia({ reducedMotion });
@@ -40,7 +39,7 @@ export async function openHearts(
       : route.abort()
   );
   await page.goto(
-    `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme};motion:system`
+    `/iframe.html?id=${story}&viewMode=story&globals=motion:system`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-status',

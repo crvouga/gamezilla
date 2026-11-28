@@ -68,7 +68,7 @@ export type ProfileScreenViewProps = {
    */
   readonly friendsPlaying?: JSX.Element | undefined;
   readonly onEditProfile: () => void;
-  /** Opens Settings (appearance, sound, account and the rest). */
+  /** Opens Settings (sound, account and the rest). */
   readonly onOpenSettings: () => void;
   readonly onChooseUsername: () => void;
   readonly onRetry: () => void;
@@ -132,7 +132,7 @@ function ProfileSettingsEntry(props: {
     <MenuList>
       <MenuRow
         title={t`Settings`}
-        caption={t`Account, appearance, sound and more`}
+        caption={t`Account, sound and more`}
         leading={<SettingsArt />}
         onClick={() => props.onOpen()}
       />

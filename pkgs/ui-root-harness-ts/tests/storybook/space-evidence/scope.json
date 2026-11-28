@@ -1,5 +1,9 @@
 {
-  "light": [
+  "screens": [
+    "screens-game-home--open-choice",
+    "screens-game-home--open-how-to-play",
+    "screens-game-home--shared-choices",
+    "screens-game-home-settings--open-row",
     "screens-game-sessions-home--connection-needed",
     "screens-game-sessions-home--no-game",
     "screens-game-sessions-home--no-game-many-players",
@@ -56,10 +60,6 @@
     "screens-game-sessions-stage-menu--offer-draw",
     "screens-game-sessions-stage-menu--resign-confirmed",
     "screens-game-sessions-stage-moves--step-through",
-    "screens-game-home--open-choice",
-    "screens-game-home--open-how-to-play",
-    "screens-game-home--shared-choices",
-    "screens-game-home-settings--open-row",
     "screens-games-battleship-board--sink-a-ship",
     "screens-games-battleship-setup--refused-off-board",
     "screens-games-chess-board--early-game",
@@ -318,19 +318,6 @@
     "space-people-row--states",
     "space-person-menu--host-removes-guest",
     "space-setting-up--screen"
-  ],
-  "dark": [
-    "screens-game-sessions-setup--host-ready-to-start",
-    "screens-game-sessions-stage--your-turn",
-    "screens-space-ended--ended",
-    "screens-space-home--guest-waiting",
-    "screens-space-home--host-choosing",
-    "screens-space-join--live",
-    "screens-space-leave--guest",
-    "screens-spaces-home--populated",
-    "screens-spaces-members--populated",
-    "screens-spaces-share--host",
-    "space-in-game--screen"
   ],
   "interaction": [
     "screens-game-sessions-home--no-game-many-players",

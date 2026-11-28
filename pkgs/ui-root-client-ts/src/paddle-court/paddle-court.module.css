@@ -76,7 +76,7 @@
   cursor: crosshair;
 }
 /* Focus rings the court from inside its edge: the light ring always sits on
-   the court's dark canvas (well over 3:1 in both themes), and no ancestor
+   the court's dark canvas (well over 3:1), and no ancestor
    that clips its overflow can cut its sides off. */
 .court:focus-visible {
   outline: 3px solid var(--ui-color-focus-ring);

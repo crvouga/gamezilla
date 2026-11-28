@@ -52,10 +52,7 @@ function menu(options: {
   choices?: readonly GameMenuChoiceView[];
 }) {
   return renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="dark"
-      fixedLayout={{ width: options.width, height: 900 }}
-    >
+    <ThemeProvider fixedLayout={{ width: options.width, height: 900 }}>
       <GameHomeScreenView
         title="Connect Four"
         tile="discs"

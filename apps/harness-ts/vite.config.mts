@@ -4,6 +4,9 @@ import { resolve } from 'node:path';
 import { brandHtmlPlugin } from '@libs/product-brand-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
+import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/document-palette';
+import { inlineDocumentFragments } from '@pkgs/vite-workspace-resolver-server-ts/inline-document-fragments';
 import {
   DEFAULT_WORKSPACE_SCOPES,
   workspaceExportsResolver,
@@ -38,6 +41,8 @@ function servedBuildEnv(): void {
   process.env['VITE_COMMIT_DATE'] ??= git(['log', '-1', '--format=%cI']);
 }
 
+const canvasColor = JSON.stringify(COLOR_PALETTE.background);
+
 export default defineConfig(({ mode }) => {
   servedBuildEnv();
   const solidPlugin = solid({
@@ -52,6 +57,10 @@ export default defineConfig(({ mode }) => {
   });
   const plugins: PluginOption[] = [
     // `index.html` spells `%BRAND_NAME%`; the identity fills it in.
+    inlineDocumentFragments(
+      { 'opening.css': resolve(harnessDir, 'src/opening.css') },
+      withDocumentPalette
+    ),
     brandHtmlPlugin(),
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
     sqliteWebAssets({
@@ -68,6 +77,7 @@ export default defineConfig(({ mode }) => {
     envPrefix: ['VITE_'],
     plugins,
     define: {
+      'import.meta.env.APP_CANVAS_COLOR': canvasColor,
       'import.meta.env.MODE': JSON.stringify(mode),
     },
     server: {

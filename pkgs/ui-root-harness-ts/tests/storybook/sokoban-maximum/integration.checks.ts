@@ -18,7 +18,7 @@ test.use({
 test('storybook integration: Sokoban maximum board input and frame evidence', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'puzzle--maximum-board', 'dark');
+  await openSokoban(page, 'puzzle--maximum-board');
   const board = page.getByTestId('sokoban-board');
   await expect(board.getByRole('img')).toHaveCount(400);
   await capture(page, info, 'maximum-board');
@@ -35,7 +35,7 @@ test('storybook integration: Sokoban maximum board input and frame evidence', as
 test('storybook integration: Sokoban dense maximum board input and frame evidence', async ({
   page,
 }, info) => {
-  await openSokoban(page, 'puzzle--dense-maximum-board', 'light');
+  await openSokoban(page, 'puzzle--dense-maximum-board');
   const board = page.getByTestId('sokoban-board');
   await expect(board.getByRole('img')).toHaveCount(400);
   await capture(page, info, 'dense-maximum-board');

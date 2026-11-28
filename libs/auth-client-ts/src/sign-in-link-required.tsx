@@ -52,7 +52,6 @@ export function SignInLinkRequiredContent(props: {
               <SocialSignInButton
                 provider={provider}
                 action="continue"
-                theme={provider === 'apple' ? 'dark' : 'light'}
                 onClick={() => props.onProve(provider)}
                 dataSet={{ testid: Handles.authLinkWith(provider) }}
               />

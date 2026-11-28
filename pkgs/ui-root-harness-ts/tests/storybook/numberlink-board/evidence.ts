@@ -6,7 +6,6 @@ import axe from 'axe-core';
 
 export async function openStory(
   page: Page,
-  theme: string,
   story = 'screens-games-numberlink-puzzle--draw-paths'
 ) {
   // Measure the board, not Storybook: the highlight addon rescans every
@@ -18,7 +17,7 @@ export async function openStory(
   });
   // Real motion: the preview otherwise forces reduced motion everywhere.
   await page.goto(
-    `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme};motion:system`
+    `/iframe.html?id=${story}&viewMode=story&globals=motion:system`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -44,10 +43,9 @@ export async function attachJson(info: TestInfo, name: string, value: unknown) {
 
 export async function openBoard(
   page: Page,
-  theme: string,
   story = 'screens-games-numberlink-puzzle--draw-paths'
 ) {
-  await openStory(page, theme, story);
+  await openStory(page, story);
   await page.getByTestId('numberlink-board').scrollIntoViewIfNeeded();
 }
 

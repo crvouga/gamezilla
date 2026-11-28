@@ -10,23 +10,17 @@ test.use({
   trace: timingTrace,
 });
 
-test('storybook integration: Sokoban overhaul solve and recover 768/light', async ({
+test('storybook integration: Sokoban overhaul solve and recover 768', async ({
   page,
 }, info) => {
-  await solveAndRecover(page, info, viewport, 'light');
-});
-
-test('storybook integration: Sokoban overhaul solve and recover 768/dark', async ({
-  page,
-}, info) => {
-  await solveAndRecover(page, info, viewport, 'dark');
+  await solveAndRecover(page, info, viewport);
 });
 
 // regression: sokoban-tablet-board-leaves-empty-strip
 test('storybook integration: Sokoban tablet board sits centred in its column', async ({
   page,
 }) => {
-  await openSokoban(page, 'puzzle--fresh', 'light');
+  await openSokoban(page, 'puzzle--fresh');
   const warehouse = page.getByTestId('sokoban-board');
   const layout = await page
     .locator('[data-game-board]')

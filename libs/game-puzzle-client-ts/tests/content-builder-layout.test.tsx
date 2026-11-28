@@ -40,9 +40,7 @@ function mount(
   const time = createHarnessClock();
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider colorScheme="dark" fixedLayout={size}>
-        {ui()}
-      </ThemeProvider>
+      <ThemeProvider fixedLayout={size}>{ui()}</ThemeProvider>
     </ClockProvider>
   ));
 }

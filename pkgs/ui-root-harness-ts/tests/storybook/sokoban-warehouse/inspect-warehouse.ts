@@ -123,7 +123,7 @@ export async function inspectWarehouse(
   input: 'touch' | 'trackpad'
 ) {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
-  await openSokoban(page, 'puzzle--fresh', 'light', 'system');
+  await openSokoban(page, 'puzzle--fresh', 'system');
   const board = page.getByTestId('sokoban-board');
   if (input === 'touch') await pinch(page, board, info);
   else await trackpad(page, board, info);

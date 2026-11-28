@@ -2,12 +2,8 @@ import { expect, type Page, type TestInfo } from '@playwright/test';
 import { captureBoard, openBoard } from './capture';
 
 /** Retain the same focus/hover sequence before and after the input fixes. */
-export async function captureMixedInput(
-  page: Page,
-  info: TestInfo,
-  theme: string
-) {
-  await openBoard(page, 'drop-a-disc', theme);
+export async function captureMixedInput(page: Page, info: TestInfo) {
+  await openBoard(page, 'drop-a-disc');
   const focused = page.getByTestId('game-session-board-column-2');
   const hovered = page.getByTestId('game-session-board-column-6');
   const board = page.getByTestId('game-session-board');

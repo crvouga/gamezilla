@@ -8,7 +8,6 @@ import {
   BugIcon,
   CreditCardIcon,
   InfoIcon,
-  PaintbrushIcon,
   SmartphoneIcon,
   UserIcon,
   Volume2Icon,
@@ -20,7 +19,6 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
-import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
 import { dynamic, type JSX } from '@solidjs/web';
 import { type Accessor, For, Show } from 'solid-js';
@@ -53,8 +51,6 @@ type SettingsGroup = {
 };
 
 export type SettingsScreenViewProps = {
-  /** The chosen appearance, shown on the Appearance row. */
-  readonly theme: ThemePreference;
   /** Whether in-app sound effects are muted. */
   readonly muted: boolean;
   /** Whether the person chose to work offline. */
@@ -85,16 +81,6 @@ export type SettingsScreenViewProps = {
   /** Open a settings sub-screen. */
   readonly onNavigate: (href: Href) => void;
 };
-
-function useThemeValue(props: SettingsScreenViewProps): Accessor<string> {
-  const { t } = useLingui();
-  return () => {
-    const p = props.theme;
-    if (p === 'light') return t`Light`;
-    if (p === 'dark') return t`Dark`;
-    return t`System`;
-  };
-}
 
 function useAccountGroup(
   props: SettingsScreenViewProps
@@ -147,19 +133,10 @@ function usePreferencesGroup(
   props: SettingsScreenViewProps
 ): Accessor<SettingsGroup> {
   const { t } = useLingui();
-  const themeValue = useThemeValue(props);
   return () => ({
     key: 'preferences',
     title: t`Preferences`,
-    description: t`Look and sound`,
     rows: [
-      {
-        title: t`Appearance`,
-        value: themeValue(),
-        icon: PaintbrushIcon,
-        href: '/more/theme',
-        testid: Handles.settingsTheme,
-      },
       {
         title: t`Sound`,
         value: props.muted ? t`Muted` : t`On`,
@@ -172,7 +149,7 @@ function usePreferencesGroup(
 }
 
 /**
- * Working offline on its own, apart from look and sound: it is not a
+ * Working offline on its own, apart from sound: it is not a
  * preference but a choice that ends every game with others, which the row's
  * own caption says.
  */

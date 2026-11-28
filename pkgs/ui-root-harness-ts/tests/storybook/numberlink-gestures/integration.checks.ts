@@ -66,7 +66,7 @@ for (const width of [390, 1440]) {
     test('storybook integration: numberlink-gestures inspect, fit and draw', async ({
       page,
     }, info) => {
-      await openBoard(page, 'light');
+      await openBoard(page);
       const board = page.getByTestId('numberlink-board');
       const first = page.getByTestId('numberlink-board-cell-0');
       const fit = await first.boundingBox();
@@ -136,7 +136,6 @@ test('storybook integration: numberlink-gestures matching labels and stitches at
 }, info) => {
   await openBoard(
     page,
-    'light',
     'screens-games-numberlink-puzzle--dense-board-half-drawn'
   );
   const board = page.getByTestId('numberlink-board');

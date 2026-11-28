@@ -17,10 +17,25 @@ function SocialSignInDemo(): JSX.Element {
   };
 
   return (
-    <>
-      <GoogleExamples onClick={handleClick} loading={loading()} />
-      <DevExamples onClick={handleClick} />
-    </>
+    <div class="box gap-3">
+      <SocialSignInButton provider="google" onClick={handleClick} />
+      <SocialSignInButton
+        provider="apple"
+        action="signIn"
+        onClick={handleClick}
+      />
+      <SocialSignInButton
+        provider="dev"
+        action="signUp"
+        onClick={handleClick}
+      />
+      <SocialSignInButton
+        provider="google"
+        loading={loading()}
+        onClick={handleClick}
+      />
+      <SocialSignInButton provider="google" disabled onClick={handleClick} />
+    </div>
   );
 }
 
@@ -29,99 +44,5 @@ export default function SocialSignInButtonExample(): JSX.Element {
     <ExampleRoot>
       <SocialSignInDemo />
     </ExampleRoot>
-  );
-}
-
-function GoogleExamples(props: {
-  onClick: () => void;
-  loading: boolean;
-}): JSX.Element {
-  return (
-    <>
-      <div class="box flex-col gap-3">
-        <label class="text textLabel">
-          {'Google · Light · Rectangular (default)'}
-        </label>
-        <SocialSignInButton provider="google" onClick={props.onClick} />
-      </div>
-      <div class="box flex-col gap-3">
-        <label class="text textLabel">{'Google · Light · Pill'}</label>
-        <SocialSignInButton
-          provider="google"
-          shape="pill"
-          onClick={props.onClick}
-        />
-      </div>
-      <div class="box flex-col gap-3">
-        <label class="text textLabel">{'Google · Dark · Pill · Sign in'}</label>
-        <SocialSignInButton
-          provider="google"
-          theme="dark"
-          shape="pill"
-          action="signIn"
-          onClick={props.onClick}
-        />
-      </div>
-      <div class="box flex-col gap-3">
-        <label class="text textLabel">
-          {'Google · Neutral · Rectangular · Sign up'}
-        </label>
-        <SocialSignInButton
-          provider="google"
-          theme="neutral"
-          action="signUp"
-          onClick={props.onClick}
-        />
-      </div>
-      <div class="box flex-col gap-3">
-        <label class="text textLabel">{'Loading state'}</label>
-        <SocialSignInButton
-          provider="google"
-          loading={props.loading}
-          onClick={props.onClick}
-        />
-      </div>
-      <div class="box flex-col gap-3">
-        <label class="text textLabel">{'Disabled'}</label>
-        <SocialSignInButton
-          provider="google"
-          disabled
-          onClick={props.onClick}
-        />
-      </div>
-    </>
-  );
-}
-
-function DevExamples(props: { onClick: () => void }): JSX.Element {
-  return (
-    <>
-      <div class="box flex-col gap-3">
-        <label class="text textLabel">{'Dev IdP · Light · Rectangular'}</label>
-        <SocialSignInButton provider="dev" onClick={props.onClick} />
-      </div>
-      <div class="box flex-col gap-3">
-        <label class="text textLabel">
-          {'Dev IdP · Dark · Pill · Sign in'}
-        </label>
-        <SocialSignInButton
-          provider="dev"
-          theme="dark"
-          shape="pill"
-          action="signIn"
-          onClick={props.onClick}
-        />
-      </div>
-      <div class="box flex-col gap-3">
-        <label class="text textLabel">
-          {'Dev IdP · Neutral · Rectangular'}
-        </label>
-        <SocialSignInButton
-          provider="dev"
-          theme="neutral"
-          onClick={props.onClick}
-        />
-      </div>
-    </>
   );
 }

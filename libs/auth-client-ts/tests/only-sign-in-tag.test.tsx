@@ -13,10 +13,7 @@ afterEach(cleanup);
 // regression: account-only-sign-in-tag-top-aligned
 test('the only sign-in tag has its own box, which the row centres', () => {
   const { container } = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <RemoveMethodControl
         method="google"
         removable={false}

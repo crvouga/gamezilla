@@ -9,7 +9,6 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 function SectionLabel(props: { label: string }): JSX.Element {
   return <p class="text textSectionLabel">{props.label}</p>;
@@ -24,88 +23,82 @@ export default function EmptyStateExample(): JSX.Element {
         }
       </p>
       <SectionLabel label="Fill, with the primary action" />
-      <SchemePreview>
-        <div class="box h-70">
-          <EmptyState
-            icon={HouseIcon}
-            title="No live spaces"
-            body="Start one and invite your friends."
-            action={{ label: 'New space', onClick: () => undefined }}
-          />
-        </div>
-      </SchemePreview>
+
+      <div class="box h-70">
+        <EmptyState
+          icon={HouseIcon}
+          title="No live spaces"
+          body="Start one and invite your friends."
+          action={{ label: 'New space', onClick: () => undefined }}
+        />
+      </div>
 
       <div class="divider" role="separator" />
 
       <SectionLabel label="Fill, with a quieter way out" />
-      <SchemePreview>
-        <div class="box h-70">
-          <EmptyState
-            icon={CompassIcon}
-            title="There's nothing at this address"
-            body="The link may be old or mistyped."
-            action={{ label: 'Go to Spaces', onClick: () => undefined }}
-            secondaryAction={{ label: 'Go back', onClick: () => undefined }}
-          />
-        </div>
-      </SchemePreview>
+
+      <div class="box h-70">
+        <EmptyState
+          icon={CompassIcon}
+          title="There's nothing at this address"
+          body="The link may be old or mistyped."
+          action={{ label: 'Go to Spaces', onClick: () => undefined }}
+          secondaryAction={{ label: 'Go back', onClick: () => undefined }}
+        />
+      </div>
 
       <div class="divider" role="separator" />
 
       <SectionLabel label="On the page title's edge (align start)" />
-      <SchemePreview>
-        <div class="box h-70">
-          <EmptyState
-            align="start"
-            icon={CompassIcon}
-            title="There's nothing at this address"
-            body="The link may be old or mistyped."
-            action={{ label: 'Go to Spaces', onClick: () => undefined }}
-            secondaryAction={{ label: 'Go back', onClick: () => undefined }}
-          />
-        </div>
-      </SchemePreview>
+
+      <div class="box h-70">
+        <EmptyState
+          align="start"
+          icon={CompassIcon}
+          title="There's nothing at this address"
+          body="The link may be old or mistyped."
+          action={{ label: 'Go to Spaces', onClick: () => undefined }}
+          secondaryAction={{ label: 'Go back', onClick: () => undefined }}
+        />
+      </div>
 
       <div class="divider" role="separator" />
 
       <SectionLabel label="Fill, guidance only" />
-      <SchemePreview>
-        <div class="box h-70">
-          <EmptyState
-            icon={UsersIcon}
-            title="No friends yet"
-            body="Search for someone by username to add them."
-          />
-        </div>
-      </SchemePreview>
+
+      <div class="box h-70">
+        <EmptyState
+          icon={UsersIcon}
+          title="No friends yet"
+          body="Search for someone by username to add them."
+        />
+      </div>
 
       <div class="divider" role="separator" />
 
       <SectionLabel label="Compact, with icon and action" />
-      <SchemePreview>
-        <div class="panel">
-          <EmptyState
-            variant="compact"
-            icon={SearchIcon}
-            title="No results"
-            body="Try a different search."
-            action={{ label: 'Clear search', onClick: () => undefined }}
-          />
-        </div>
-      </SchemePreview>
+
+      <div class="panel">
+        <EmptyState
+          variant="compact"
+          icon={SearchIcon}
+          title="No results"
+          body="Try a different search."
+          action={{ label: 'Clear search', onClick: () => undefined }}
+        />
+      </div>
 
       <div class="divider" role="separator" />
 
       <SectionLabel label="Compact, no icon (inside a list)" />
-      <SchemePreview>
-        <div class="panel">
-          <EmptyState
-            variant="compact"
-            title="No matching commands"
-            body="Try a different search."
-          />
-        </div>
-      </SchemePreview>
+
+      <div class="panel">
+        <EmptyState
+          variant="compact"
+          title="No matching commands"
+          body="Try a different search."
+        />
+      </div>
     </ExampleRoot>
   );
 }

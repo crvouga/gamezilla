@@ -9,10 +9,7 @@ test('the feedback example retains each keystroke through submission', async () 
   const describe = mock();
   const send = mock();
   const view = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <EditableBugReport
         description=""
         screenshots={[]}

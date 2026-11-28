@@ -12,11 +12,7 @@ test.use({ viewport: { width: 390, height: 844 }, video: 'on', trace: 'on' });
 test('storybook integration: battleship targeting instructions label their surface', async ({
   page,
 }, info) => {
-  await openBattleStory(
-    page,
-    'screens-games-battleship-board--opening',
-    'light'
-  );
+  await openBattleStory(page, 'screens-games-battleship-board--opening');
   try {
     // The region instruction heads the map; the cell instruction is the
     // Fire control directly under the cells it asks for.
@@ -53,7 +49,6 @@ test('storybook integration: battleship shot history keeps the own seat on a pho
   await openBattleStory(
     page,
     'screens-games-battleship-board--fire-a-shot',
-    'light',
     info
   );
   try {
@@ -84,7 +79,6 @@ test('storybook integration: battleship placement heading sits with its guidance
   await openBattleStory(
     page,
     'screens-games-battleship-setup--enlarged-placement',
-    'light',
     info
   );
   const heading = await page
@@ -111,7 +105,6 @@ test('storybook integration: battleship own seat stays on a phone after the riva
   await openBattleStory(
     page,
     'screens-games-battleship-board--sunk-by-rival',
-    'light',
     info
   );
   for (const id of ['game-session-board-fire', 'game-session-seat-near']) {
@@ -134,7 +127,6 @@ test('storybook integration: battleship finished game keeps the switch and own s
     await openBattleStory(
       page,
       `screens-games-battleship-board--${story}`,
-      'light',
       info
     );
     await page

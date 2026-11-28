@@ -1,6 +1,6 @@
 import { chooseOfflineCommand } from '@libs/harness-ts/offline-gestures';
 /**
- * Settings a person sets once and expects kept: the appearance, sounds, and
+ * Settings a person sets once and expects kept: sounds and
  * the About screen's version. Stimuli go through Settings as a person would;
  * reads look at what the app shows.
  */
@@ -8,7 +8,7 @@ import { chooseOfflineCommand } from '@libs/harness-ts/offline-gestures';
 import { APP_VERSION } from '@libs/app-root-shared-ts/app-metadata';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { actorHtml, nodeText, visible } from '@libs/harness-ts/observations';
+import { nodeText, visible } from '@libs/harness-ts/observations';
 import { openSettings } from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
@@ -17,19 +17,6 @@ const WAIT_MS = 15_000;
 /** The version of the app every simulated device runs. */
 export const APP_VERSION_INSTALLED = APP_VERSION;
 
-/** Settings → Appearance → `scheme`, then see the app take it on. */
-export const chooseTheme = scenarioAction({
-  name: 'chooseTheme',
-  act: async (s, actorId: string, scheme: 'light' | 'dark') => {
-    // The global menu reaches Settings from compact and wide subscreens.
-    await Promise.resolve(openSettings.act(s, actorId));
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.settingsTheme).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.themeOption(scheme)).tap({ timeoutMs: WAIT_MS });
-    await s.session.waitForIdle();
-  },
-});
-
 /** Settings → Sound → sound effects off. */
 export const turnSoundsOff = scenarioAction({
   name: 'turnSoundsOff',
@@ -37,7 +24,9 @@ export const turnSoundsOff = scenarioAction({
     await Promise.resolve(openSettings.act(s, actorId));
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.settingsSound).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.soundEffectsSwitch).tap({ timeoutMs: WAIT_MS });
+    const sound = ui.get(Handles.soundEffectsSwitch);
+    if ((await sound.attribute('aria-checked')) === 'true')
+      await sound.tap({ timeoutMs: WAIT_MS });
     await s.session.waitForIdle();
   },
 });
@@ -99,18 +88,6 @@ export const openAbout = scenarioAction({
     await ui.get(Handles.aboutVersion).expect.visible({ timeoutMs: WAIT_MS });
   },
 });
-
-const THEME_HOST = /class="themeHost"[^>]*data-theme="(light|dark)"/;
-
-/** The appearance the app paints right now, or `null` before it paints. */
-export async function appearanceShown(
-  s: ProductHarness,
-  actorId: string
-): Promise<'light' | 'dark' | null> {
-  const html = await actorHtml(s, actorId);
-  const match = html === null ? null : THEME_HOST.exec(html);
-  return match === null ? null : (match[1] as 'light' | 'dark');
-}
 
 /** What Settings says about sound (`On` / `Muted`), or `null` off Settings. */
 export async function soundShownInSettings(

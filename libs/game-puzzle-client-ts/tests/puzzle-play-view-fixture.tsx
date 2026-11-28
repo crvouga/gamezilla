@@ -131,7 +131,7 @@ export function mountPlay(
 ): void {
   renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
-      <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 844 }}>
+      <ThemeProvider fixedLayout={{ width, height: 844 }}>
         <PuzzleStageScreenView
           {...VIEW}
           {...overrides}

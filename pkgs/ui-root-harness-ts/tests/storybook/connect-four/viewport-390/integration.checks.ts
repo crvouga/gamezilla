@@ -5,9 +5,8 @@ import { boardContext } from '../matrix';
 import { defineReview } from '../review';
 
 test.use(boardContext(390));
-for (const theme of ['light', 'dark']) {
-  defineReview(390, theme);
-  defineControls(390, theme);
-}
+
+defineReview(390);
+defineControls(390);
 
 defineGestures(390);

@@ -1,6 +1,5 @@
 /** @jsxImportSource @solidjs/web */
 
-import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { JSX } from '@solidjs/web';
 import {
   createContext,
@@ -16,7 +15,6 @@ import { restoreOpeningSearch } from './restore-opening-search';
 type Opening = {
   readonly ready: () => void | (() => void);
   readonly quietActivity: () => boolean;
-  readonly bindTheme: (setPreference: (value: ThemePreference) => void) => void;
 };
 
 const OpeningContext = createContext<Opening | null>(null);
@@ -55,11 +53,7 @@ export function BrowserOpening(props: {
   const document = root.ownerDocument;
   const window = document.defaultView;
   const interactions = new AbortController();
-  const themeEvents = new AbortController();
-  onCleanup(() => {
-    interactions.abort();
-    themeEvents.abort();
-  });
+  onCleanup(() => interactions.abort());
   const resumeActivity = (): void => interactions.abort();
   const reveal = (): void => {
     if (opening === null) return;
@@ -71,12 +65,10 @@ export function BrowserOpening(props: {
       focused?.getAttribute('data-startup-focus') ??
       focused?.getAttribute('data-testid') ??
       null;
-    themeEvents.abort();
     const createRequested = previous.querySelector(
       '[data-startup-create]:disabled'
     );
     previous.remove();
-    document.documentElement.removeAttribute('data-startup-preference');
     if (!restoreOpeningSearch(previous, root, focused) && restore)
       transferFocus(root, id);
     // Initial data can still be arriving. Give explicit actions their normal
@@ -88,19 +80,6 @@ export function BrowserOpening(props: {
     if (createRequested && window?.location.pathname === '/') {
       root.querySelector<HTMLElement>('[data-testid="space-create"]')?.click();
     }
-  };
-  const bindTheme = (setPreference: (value: ThemePreference) => void): void => {
-    const readChoice = (): void => {
-      const value = document.documentElement.getAttribute(
-        'data-startup-preference'
-      );
-      if (value === 'light' || value === 'dark' || value === 'system')
-        setPreference(value);
-    };
-    readChoice();
-    opening?.addEventListener('startup-theme-change', readChoice, {
-      signal: themeEvents.signal,
-    });
   };
   return (
     <OpeningContext
@@ -114,7 +93,6 @@ export function BrowserOpening(props: {
                 finish: reveal,
               }),
         quietActivity: () => !interactions.signal.aborted,
-        bindTheme,
       }}
     >
       {props.children}

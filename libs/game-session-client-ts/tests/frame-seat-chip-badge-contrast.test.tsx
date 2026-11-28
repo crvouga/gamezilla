@@ -29,7 +29,7 @@ function mountOwn(deciding: boolean, choosing = false): void {
   };
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider colorScheme="dark">
+      <ThemeProvider>
         <FrameSeatChipView seat={seat} own />
       </ThemeProvider>
     </ClockProvider>

@@ -24,7 +24,7 @@ function mount(width: number) {
   const time = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
+      <ThemeProvider fixedLayout={{ width, height: 900 }}>
         <SurfaceStackProvider>
           <NumberlinkPlayer {...props} />
           <NumberlinkSupport {...props} />

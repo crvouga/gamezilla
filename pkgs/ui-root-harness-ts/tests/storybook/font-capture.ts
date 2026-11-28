@@ -28,10 +28,10 @@ async function routeFonts(page: Page, held: boolean) {
 /** Fonts are released by observed loader/play events, never by a sleep. */
 export async function captureFontSchedule(
   page: Page,
-  options: { story: string; theme: string; held: boolean; width: number },
+  options: { story: string; held: boolean; width: number },
   info: TestInfo
 ) {
-  const { story, theme, held, width } = options;
+  const { story, held, width } = options;
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   const gate = await routeFonts(page, held);
@@ -39,7 +39,7 @@ export async function captureFontSchedule(
   await page.setViewportSize({ width, height: 844 });
   try {
     await page.goto(
-      `/iframe.html?id=screens-games-word-tiles-${story}&viewMode=story&globals=theme:${theme}`,
+      `/iframe.html?id=screens-games-word-tiles-${story}&viewMode=story`,
       { waitUntil: 'commit' }
     );
     const reached = await boundary;

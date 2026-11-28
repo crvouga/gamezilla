@@ -15,15 +15,15 @@ const MANIFEST_ICONS = [192, 512].flatMap((size) =>
 );
 
 /** The installable web app's manifest (`<link rel="manifest">`). */
-function renderWebManifest(identity: ProductIdentity): string {
+function renderWebManifest(identity: ProductIdentity, canvas: string): string {
   const manifest = {
     name: identity.brand.name,
     short_name: identity.brand.shortName,
     start_url: '/',
     scope: '/',
     display: 'standalone',
-    background_color: identity.brand.backgroundColor,
-    theme_color: identity.brand.themeColor,
+    background_color: canvas,
+    theme_color: canvas,
     icons: MANIFEST_ICONS,
   };
   return `${JSON.stringify(manifest, null, 2)}\n`;

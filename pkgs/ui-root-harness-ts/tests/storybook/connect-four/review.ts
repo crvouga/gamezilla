@@ -9,20 +9,20 @@ import {
 import { captureMixedInput } from './mixed-input';
 import { finishTiming, startTiming } from './timing';
 
-export function defineReview(width: number, theme: string) {
-  test(`storybook integration: connect-four mixed input ${width} ${theme}`, async ({
+export function defineReview(width: number) {
+  test(`storybook integration: connect-four mixed input ${width} dark`, async ({
     page,
   }, info) => {
-    await captureMixedInput(page, info, theme);
+    await captureMixedInput(page, info);
   });
-  test(`storybook integration: connect-four review ${width} ${theme}`, async ({
+  test(`storybook integration: connect-four review ${width} dark`, async ({
     page,
   }, info) => {
     const errors: string[] = [];
     page.on('pageerror', (error) => errors.push(error.message));
     const cdp = await page.context().newCDPSession(page);
     const cpuRate = width < 768 ? 4 : 1;
-    await openBoard(page, 'drop-a-disc', theme);
+    await openBoard(page, 'drop-a-disc');
     await captureBoard(page, info, 'two-disc-drop');
     // Throttle only the measured drops; audits and screenshots are not
     // interactions and would otherwise exhaust the test budget on phones.
@@ -61,7 +61,7 @@ export function defineReview(width: number, theme: string) {
       ),
       contentType: 'application/json',
     });
-    await openBoard(page, 'full-column', theme);
+    await openBoard(page, 'full-column');
     await captureBoard(page, info, 'full-column-keyboard-recovery');
     const recovered = await page
       .getByTestId('game-session-board')
@@ -72,24 +72,24 @@ export function defineReview(width: number, theme: string) {
       recovered ?? ''
     );
     await captureBoard(page, info, 'full-column-refused');
-    await openBoard(page, 'connect-four-to-win', theme);
+    await openBoard(page, 'connect-four-to-win');
     await captureBoard(page, info, 'winning-drop');
-    await openBoard(page, 'watching', theme);
+    await openBoard(page, 'watching');
     const board = page.getByTestId('game-session-board');
     const cells = await board.getAttribute('data-cells');
     await touchSpectatorColumn(page);
     await expect(board).toHaveAttribute('data-cells', cells ?? '');
     await captureBoard(page, info, 'spectator');
-    await openBoard(page, 'full-board-draw', theme);
+    await openBoard(page, 'full-board-draw');
     await captureBoard(page, info, 'draw');
     expect(errors).toEqual([]);
   });
 
   for (const state of ['opening', 'waiting-for-opponent', 'lost']) {
-    test(`storybook integration: connect-four ${state} ${width} ${theme}`, async ({
+    test(`storybook integration: connect-four ${state} ${width} dark`, async ({
       page,
     }, info) => {
-      await openBoard(page, state, theme);
+      await openBoard(page, state);
       await captureBoard(page, info, state);
     });
   }

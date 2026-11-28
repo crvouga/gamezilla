@@ -23,10 +23,7 @@ function metaLine(space: SpaceCardData): {
   oneRow: boolean;
 } {
   const { container } = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <SpaceCardView space={space} onOpen={() => undefined} />
     </ThemeProvider>
   ));

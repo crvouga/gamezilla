@@ -103,6 +103,7 @@ function StandingRow(props: {
   ranked: boolean;
 }): JSX.Element {
   const { i18n } = useLingui();
+  const winner = (): boolean => props.ranked && props.row.place === 1;
   const you = (): boolean => props.row.you === true;
   return (
     <li
@@ -122,11 +123,14 @@ function StandingRow(props: {
         <span
           class={[
             'text textLabel textNumeral inline-flex items-center gap-1 min-w-12 shrink-0',
-            { 'text-on-primary-soft': you() },
+            {
+              'text-reward': winner(),
+              'text-on-primary-soft': you() && !winner(),
+            },
           ]}
         >
           {props.row.ordinal ?? formatOrdinal(props.row.place, i18n().locale)}
-          <Show when={props.ranked && props.row.place === 1}>
+          <Show when={winner()}>
             <VictoryArt size={STANDING_TROPHY_SIZE} />
           </Show>
         </span>

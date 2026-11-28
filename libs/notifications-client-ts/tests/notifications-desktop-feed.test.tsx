@@ -70,7 +70,7 @@ function mount(
 ): HTMLElement {
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={STILL.clock} timers={STILL.timers}>
-      <ThemeProvider colorScheme="light" fixedLayout={size}>
+      <ThemeProvider fixedLayout={size}>
         <SurfaceStackProvider>
           <StaticAppRouterProvider router={router}>
             <TestViewportProvider value={size}>

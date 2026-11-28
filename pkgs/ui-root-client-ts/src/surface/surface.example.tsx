@@ -12,7 +12,6 @@ import type { JSX } from '@solidjs/web';
 import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 function Tones(): JSX.Element {
   return (
@@ -94,11 +93,9 @@ function Recipes(): JSX.Element {
 export default function SurfaceExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <Tones />
-        <Radii />
-        <Recipes />
-      </SchemePreview>
+      <Tones />
+      <Radii />
+      <Recipes />
     </ExampleRoot>
   );
 }

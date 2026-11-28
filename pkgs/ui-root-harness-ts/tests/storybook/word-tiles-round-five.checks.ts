@@ -23,7 +23,7 @@ for (const id of [
   const story = index.entries[id];
   if (!story) throw new Error('Missing literal Word Tiles regression story');
   for (const scenario of visualScenarios(story)) {
-    test(`${id} regression word-tiles-cramped-precision-window ${scenario.theme}${scenario.suffix}`, async ({
+    test(`${id} regression word-tiles-cramped-precision-window dark${scenario.suffix}`, async ({
       page,
     }) => {
       await verifyStoryScenario(page, story.id, scenario);
@@ -38,10 +38,8 @@ test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-cram
   const story =
     index.entries['screens-games-word-tiles-puzzle--enlarged-blank'];
   if (!story) throw new Error('Missing literal regression story');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 390 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing phone light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 390);
+  if (!scenario) throw new Error('Missing phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -52,10 +50,8 @@ test('screens-games-word-tiles-board--enlarged-coordinates regression word-tiles
   const story =
     index.entries['screens-games-word-tiles-board--enlarged-coordinates'];
   if (!story) throw new Error('Missing literal rack regression story');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 390 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing phone light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 390);
+  if (!scenario) throw new Error('Missing phone scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -66,10 +62,8 @@ test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-puzz
   const story =
     index.entries['screens-games-word-tiles-puzzle--enlarged-blank'];
   if (!story) throw new Error('Missing literal desktop puzzle regression');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 1440 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing desktop light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 1440);
+  if (!scenario) throw new Error('Missing desktop scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });
 
@@ -79,9 +73,7 @@ test('screens-games-word-tiles-board--your-turn regression word-tiles-match-desk
 }) => {
   const story = index.entries['screens-games-word-tiles-board--your-turn'];
   if (!story) throw new Error('Missing literal desktop match regression');
-  const scenario = visualScenarios(story).find(
-    (item) => item.width === 1440 && item.theme === 'light'
-  );
-  if (!scenario) throw new Error('Missing desktop light scenario');
+  const scenario = visualScenarios(story).find((item) => item.width === 1440);
+  if (!scenario) throw new Error('Missing desktop scenario');
   await verifyStoryScenario(page, story.id, scenario);
 });

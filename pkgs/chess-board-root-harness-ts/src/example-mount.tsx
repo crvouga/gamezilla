@@ -30,7 +30,7 @@ export function mountExample(args: {
           clock={args.session.ports.clock}
           timers={args.session.ports.timers}
         >
-          <ThemeProvider colorScheme="light">
+          <ThemeProvider>
             <AudioPlaybackProvider value={args.audio.port}>
               <BoardMotionProvider value={args.motion.env}>
                 <ChessBoard

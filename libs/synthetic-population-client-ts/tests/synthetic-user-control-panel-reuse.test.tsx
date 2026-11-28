@@ -59,10 +59,7 @@ function mountControlPanel() {
   const [record, setRecord] = createSignal<SyntheticUserDetail>(CEDAR);
   renderWithI18n(() => (
     <ClockProvider clock={harness.clock} timers={harness.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <SurfaceStackProvider>
           <StaticAppRouterProvider router={router}>
             <SyntheticUserScreenView

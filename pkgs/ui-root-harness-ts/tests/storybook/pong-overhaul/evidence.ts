@@ -4,7 +4,7 @@ import axe from 'axe-core';
 import { contrastDiagnostic } from './contrast-diagnostic';
 import { logScreenshot, logSummary } from './log-evidence';
 
-export async function openPong(page: Page, state: string, theme: string) {
+export async function openPong(page: Page, state: string) {
   const errors: string[] = [];
   page.on('pageerror', (error) => errors.push(error.message));
   // Storybook's highlight addon rescans every element's computed style on each
@@ -20,7 +20,7 @@ export async function openPong(page: Page, state: string, theme: string) {
       : route.abort()
   );
   await page.goto(
-    `/iframe.html?id=screens-games-pong-stage--${state}&viewMode=story&globals=theme:${theme};motion:system`
+    `/iframe.html?id=screens-games-pong-stage--${state}&viewMode=story&globals=motion:system`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

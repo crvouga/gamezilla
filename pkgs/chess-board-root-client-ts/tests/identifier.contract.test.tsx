@@ -21,7 +21,7 @@ test('a custom public identifier scopes square controls, probe and move output',
   const moves: Move[] = [];
   const { container } = renderWithI18n(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <AudioPlaybackProvider value={noopAudio()}>
           <ChessBoard
             size={320}

@@ -17,7 +17,7 @@ test('TOEEA is a grouped refusal with recall restoring the retained rack', () =>
   const moves: string[] = [];
   const view = render(() => (
     <IdProvider createId={() => 'puzzle'} random={() => 0.5}>
-      <ThemeProvider colorScheme="light">
+      <ThemeProvider>
         <WordTilesPuzzlePlayerView
           definition={encodePuzzle({
             ruleset: RULESET.id,

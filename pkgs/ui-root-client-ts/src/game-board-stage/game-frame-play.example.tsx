@@ -31,7 +31,7 @@ import {
   exampleSeat,
   exampleSeats,
 } from '../../storybook/fixtures/game-frame-example-data';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
+
 import { ScreenExampleBoard } from '../../storybook/fixtures/screen-example-game';
 
 const OUT: GamePlayerState = { kind: 'out', label: 'Out' };
@@ -199,12 +199,10 @@ function Watching(): JSX.Element {
 export default function GameFramePlayExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <Layouts />
-        <Pills />
-        <Actions />
-        <Watching />
-      </SchemePreview>
+      <Layouts />
+      <Pills />
+      <Actions />
+      <Watching />
     </ExampleRoot>
   );
 }

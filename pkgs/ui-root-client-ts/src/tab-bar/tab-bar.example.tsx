@@ -11,7 +11,6 @@ import type { JSX } from '@solidjs/web';
 import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const DESTINATIONS = [
   { id: 'home', label: 'Home', icon: HouseIcon },
@@ -38,9 +37,7 @@ export default function TabBarExample(): JSX.Element {
   return (
     <ExampleRoot>
       <ExampleSection title="Buttons: press to move the current page; badge on Activity">
-        <SchemePreview>
-          <InteractiveTabBar />
-        </SchemePreview>
+        <InteractiveTabBar />
       </ExampleSection>
       <ExampleSection title="Links: each item is a real link (open in a new tab works)">
         <TabBar

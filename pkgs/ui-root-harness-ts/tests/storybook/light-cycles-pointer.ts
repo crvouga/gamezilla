@@ -6,7 +6,7 @@ export async function verifySharedSwipeCapture(page: Page): Promise<void> {
   page.on('pageerror', (error) => failures.push(error.message));
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(
-    '/iframe.html?id=screens-games-light-cycles-stage--shared-swipe&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-games-light-cycles-stage--shared-swipe&viewMode=story'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

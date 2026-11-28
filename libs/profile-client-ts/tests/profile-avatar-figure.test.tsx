@@ -29,7 +29,7 @@ describe('profile avatar', () => {
     const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
     render(() => (
       <I18nProvider i18n={i18n}>
-        <ThemeProvider colorScheme="light">
+        <ThemeProvider>
           <ProfileAvatarFigure>
             <DeviceAvatar avatarConfig={null} seedFallback="alice" size={96} />
           </ProfileAvatarFigure>

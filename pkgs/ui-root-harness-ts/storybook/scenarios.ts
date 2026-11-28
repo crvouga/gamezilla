@@ -65,7 +65,7 @@ export function storyGlobalsCombinations(
   );
 }
 
-/** The shared responsive/theme matrix for canonical Storybook entries. */
+/** The shared responsive matrix for canonical Storybook entries. */
 export function visualScenarios(story: StoryEntry) {
   const [component, name] = story.id.split('--');
   if (!component || !name)
@@ -89,12 +89,11 @@ export function visualScenarios(story: StoryEntry) {
   return widths
     .filter((width) => supportsStoryViewport(story, width))
     .flatMap((width) =>
-      storyGlobalsCombinations(storyGlobalsMatrices[story.id]).flatMap(
-        (globals) =>
-          ['light', 'dark'].map((theme) => ({ width, theme, globals }))
+      storyGlobalsCombinations(storyGlobalsMatrices[story.id]).map(
+        (globals) => ({ width, globals })
       )
     )
-    .map(({ width, theme, globals }) => {
+    .map(({ width, globals }) => {
       // Matrix values join the width suffix so each combination owns its
       // test title; stories without a matrix keep their names.
       const suffix = [
@@ -103,7 +102,6 @@ export function visualScenarios(story: StoryEntry) {
       ].join('');
       return {
         width,
-        theme,
         suffix,
         globals,
         // Every width keeps the phone's height, unless the story asks for

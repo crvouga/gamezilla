@@ -17,7 +17,6 @@ import { Switch } from '@pkgs/ui-root-client-ts/switch';
 import type { JSX } from '@solidjs/web';
 import { createSignal, Show } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const noop = (): void => undefined;
 
@@ -52,7 +51,6 @@ function SettingsSections(): JSX.Element {
         <MenuRow
           title="Settings"
           leading={<SettingsIcon size={24} color="icon" />}
-          value="Dark"
           onClick={() => setTapped('Settings')}
         />
       </MenuSection>
@@ -218,9 +216,9 @@ export default function MenuRowExample(): JSX.Element {
           'Rows live in a raised panel under a section label. Hover, press, keyboard focus and disabled each show; the hairline starts at the text column, past any leading icon or avatar.'
         }
       </p>
-      <SchemePreview>
-        <SettingsSections />
-      </SchemePreview>
+
+      <SettingsSections />
+
       <StatesSection />
       <DisclosureSection />
       <PeopleSection />

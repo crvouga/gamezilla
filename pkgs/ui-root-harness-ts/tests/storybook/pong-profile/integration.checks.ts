@@ -20,7 +20,7 @@ test('storybook integration: pong-overhaul live rally main-thread profile', asyn
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openPong(page, 'live-rally', 'light');
+  await openPong(page, 'live-rally');
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
   await cdp.send('Profiler.enable');

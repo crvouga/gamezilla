@@ -32,38 +32,37 @@ const stories = [
   'accepted-exchange',
   'enlarged-coordinates',
 ];
-for (const theme of ['light', 'dark']) {
-  test.describe(`word tiles ${theme}`, () => {
-    for (const story of stories) {
-      test(`storybook integration: word-tiles evidence ${story} ${theme}`, async ({
-        page,
-      }, info) => {
-        await openStory(page, story, theme);
-        await auditAccessibility(page, info);
-      });
-    }
-    for (const size of [
-      { width: 320, height: 740 },
-      { width: 768, height: 1024 },
-      { width: 1440, height: 900 },
-    ]) {
-      test(`storybook integration: word-tiles opening ${theme} ${size.width}`, async ({
-        page,
-      }, info) => {
-        await page.setViewportSize(size);
-        await openStory(page, 'opening', theme);
-        await auditAccessibility(page, info);
-      });
-    }
-  });
-}
+
+test.describe(`word tiles dark`, () => {
+  for (const story of stories) {
+    test(`storybook integration: word-tiles evidence ${story} dark`, async ({
+      page,
+    }, info) => {
+      await openStory(page, story);
+      await auditAccessibility(page, info);
+    });
+  }
+  for (const size of [
+    { width: 320, height: 740 },
+    { width: 768, height: 1024 },
+    { width: 1440, height: 900 },
+  ]) {
+    test(`storybook integration: word-tiles opening dark ${size.width}`, async ({
+      page,
+    }, info) => {
+      await page.setViewportSize(size);
+      await openStory(page, 'opening');
+      await auditAccessibility(page, info);
+    });
+  }
+});
 
 // regression: game-status-scroll-unreachable
 test('storybook integration: word-tiles game status is keyboard reachable after an accepted pass', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openStory(page, 'accepted-pass', 'light');
+  await openStory(page, 'accepted-pass');
   const status = page.getByRole('region', { name: 'Game status' });
   await status.focus();
   await page.keyboard.press('Shift+Tab');
@@ -85,12 +84,11 @@ for (const input of ['mouse', 'touch', 'keyboard'] as const) {
             input,
             players,
             viewport: page.viewportSize(),
-            theme: 'light',
             motion: 'system',
           }),
           contentType: 'application/json',
         });
-        await openStory(page, `${players}-player-match`, 'light');
+        await openStory(page, `${players}-player-match`);
         await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
         await playWord(page, input);
         await auditAccessibility(page, info);
@@ -102,7 +100,7 @@ for (const input of ['mouse', 'touch', 'keyboard'] as const) {
 /** Row-label overflow on the fitted 1440x900 desktop opening. */
 async function fittedDesktop(page: Page) {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await openStory(page, 'opening', 'light');
+  await openStory(page, 'opening');
   return page.evaluate(() => {
     const board = document.querySelector<HTMLElement>(
       '[data-testid="game-session-board"]'
@@ -133,7 +131,7 @@ test('storybook integration: word-tiles find a square looks like an action on th
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openStory(page, 'opening', 'light');
+  await openStory(page, 'opening');
   // A phone keeps the view tools behind one Board tools button under the board.
   const view = page.getByRole('button', {
     name: 'Board tools: zoom and find a square',
@@ -171,7 +169,7 @@ test('storybook integration: word-tiles find a square looks like an action on th
 test('storybook integration: word-tiles an accepted word appears in the move record', async ({
   page,
 }) => {
-  await openStory(page, 'two-player-match', 'light');
+  await openStory(page, 'two-player-match');
   await expect(page.getByTestId('game-session-record')).toContainText(
     'No moves yet.'
   );
@@ -187,7 +185,7 @@ test('storybook integration: word-tiles placing tiles does not move the board', 
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openStory(page, 'two-player-match', 'light');
+  await openStory(page, 'two-player-match');
   const region = page.getByRole('region', { name: 'Scrollable word board' });
   const before = await region.boundingBox();
   const rack = page.getByTestId('game-session-board-rack');
@@ -208,7 +206,7 @@ test('word-tiles leaves the submit button above Game menu at 320px', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 320, height: 740 });
-  await openStory(page, 'opening', 'light');
+  await openStory(page, 'opening');
   const submit = await page
     .getByTestId('game-session-board-submit')
     .boundingBox();
@@ -224,7 +222,7 @@ test('storybook integration: word-tiles keeps a 16px edge at 390 and 4px only at
 }) => {
   const rackLeft = async (width: number, height: number) => {
     await page.setViewportSize({ width, height });
-    await openStory(page, 'two-player-match', 'light');
+    await openStory(page, 'two-player-match');
     return (await page.getByTestId('game-session-board-rack').boundingBox())?.x;
   };
   expect(await rackLeft(390, 844)).toBe(16);
@@ -237,7 +235,7 @@ test('storybook integration: word-tiles desktop keeps the own seat above the boa
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await openStory(page, 'two-player-match', 'light');
+  await openStory(page, 'two-player-match');
   const box = (testId: string) =>
     page
       .getByTestId(testId)
@@ -270,7 +268,7 @@ test('storybook integration: word-tiles desktop source order follows the screen:
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await openStory(page, 'two-player-match', 'light');
+  await openStory(page, 'two-player-match');
   const order = await page.evaluate(() => {
     const board = document.querySelector('[data-testid="game-session-board"]');
     const rack = document.querySelector(
@@ -305,7 +303,7 @@ test('storybook integration: word-tiles desktop word-list recovery button shows 
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await openStory(page, 'word-list-unavailable', 'light');
+  await openStory(page, 'word-list-unavailable');
   const retry = page.getByRole('button', {
     name: 'Reload word list',
     exact: true,
@@ -324,46 +322,42 @@ test('storybook integration: word-tiles keyboard focus ring stands out on dark a
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  for (const theme of ['light', 'dark']) {
-    await openStory(page, 'opening', theme);
-    // b1 is an empty plain square (dark felt); a1 is a light bonus square.
-    for (const id of ['b1', 'a1']) {
-      const cell = page.getByTestId(`game-session-board-cell-${id}`);
-      await cell.focus();
-      await page.keyboard.press('ArrowRight');
-      await page.keyboard.press('ArrowLeft');
-      const best = await cell.evaluate((element) => {
-        const parse = (value: string) =>
-          (value.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
-        const luminance = (rgb: number[]) => {
-          const [r = 0, g = 0, b = 0] = rgb.map((channel) => {
-            const c = channel / 255;
-            return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-          });
-          return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-        };
-        const contrast = (a: number[], b: number[]) => {
-          const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
-          return ((hi ?? 0) + 0.05) / ((lo ?? 0) + 0.05);
-        };
-        const css = getComputedStyle(element);
-        const background = parse(css.backgroundColor);
-        const ring = parse(css.outlineColor);
-        const inner = parse(css.boxShadow);
-        return {
-          focused: element.matches(':focus-visible'),
-          contrast: Math.max(
-            contrast(ring, background),
-            contrast(inner, background)
-          ),
-        };
-      });
-      expect(best.focused, `${theme} ${id} focus-visible`).toBe(true);
-      expect(
-        best.contrast,
-        `${theme} ${id} ring contrast`
-      ).toBeGreaterThanOrEqual(3);
-    }
+
+  await openStory(page, 'opening');
+  // b1 is an empty plain square (dark felt); a1 is a light bonus square.
+  for (const id of ['b1', 'a1']) {
+    const cell = page.getByTestId(`game-session-board-cell-${id}`);
+    await cell.focus();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowLeft');
+    const best = await cell.evaluate((element) => {
+      const parse = (value: string) =>
+        (value.match(/[\d.]+/g) ?? []).slice(0, 3).map(Number);
+      const luminance = (rgb: number[]) => {
+        const [r = 0, g = 0, b = 0] = rgb.map((channel) => {
+          const c = channel / 255;
+          return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+        });
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+      };
+      const contrast = (a: number[], b: number[]) => {
+        const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+        return ((hi ?? 0) + 0.05) / ((lo ?? 0) + 0.05);
+      };
+      const css = getComputedStyle(element);
+      const background = parse(css.backgroundColor);
+      const ring = parse(css.outlineColor);
+      const inner = parse(css.boxShadow);
+      return {
+        focused: element.matches(':focus-visible'),
+        contrast: Math.max(
+          contrast(ring, background),
+          contrast(inner, background)
+        ),
+      };
+    });
+    expect(best.focused, `dark ${id} focus-visible`).toBe(true);
+    expect(best.contrast, `dark ${id} ring contrast`).toBeGreaterThanOrEqual(3);
   }
 });
 
@@ -372,7 +366,7 @@ test('storybook integration: word-tiles the board stays put within its workspace
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openStory(page, 'two-player-match', 'light');
+  await openStory(page, 'two-player-match');
   // Measured from the top of the Word Tiles workspace: the shared status
   // card above it is outside this game's layout.
   const offset = async () =>
@@ -407,13 +401,13 @@ test('storybook integration: word-tiles phone status line stays one line while w
   const status = page.getByTestId('game-session-board-status');
   const height = async () =>
     status.evaluate((element) => element.getBoundingClientRect().height);
-  await openStory(page, 'opening', 'light');
+  await openStory(page, 'opening');
   const oneLine = await height();
   for (const [story, text] of [
     ['checking-words', 'checking words'],
     ['place-a-word', 'CAT 5 × 2 = 10 points'],
   ] as const) {
-    await openStory(page, story, 'light');
+    await openStory(page, story);
     await expect(status).toContainText(text);
     expect(await height(), story).toBe(oneLine);
   }
@@ -431,7 +425,7 @@ test('storybook integration: word-tiles desktop keeps the own seat whole in an 8
     'word-list-unavailable',
     'game-over',
   ]) {
-    await openStory(page, story, 'light');
+    await openStory(page, story);
     const seat = await page
       .getByTestId('game-session-seat-near')
       .first()
@@ -445,7 +439,7 @@ test('storybook integration: word-tiles desktop keeps Fit and Enlarge in one pla
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 844 });
-  await openStory(page, 'opening', 'light');
+  await openStory(page, 'opening');
   const fit = page.getByRole('button', { name: 'Fit board', exact: true });
   const enlarge = page.getByRole('button', {
     name: 'Enlarge board',
@@ -464,26 +458,20 @@ test('storybook integration: word-tiles bonus squares are told apart by colour a
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 844 });
-  for (const theme of ['light', 'dark']) {
-    await openStory(page, 'opening', theme);
-    const fills = await page.evaluate(() => {
-      const board = document.querySelector(
-        '[data-testid="game-session-board"]'
+
+  await openStory(page, 'opening');
+  const fills = await page.evaluate(() => {
+    const board = document.querySelector('[data-testid="game-session-board"]');
+    const fill = (square: string) => {
+      const cell = board?.querySelector(
+        `[data-state="empty"][data-square="${square}"]`
       );
-      const fill = (square: string) => {
-        const cell = board?.querySelector(
-          `[data-state="empty"][data-square="${square}"]`
-        );
-        return cell ? getComputedStyle(cell).backgroundColor : null;
-      };
-      return ['DL', 'TL', 'DW', 'TW'].map(fill);
-    });
-    expect(
-      fills.every((value) => value !== null),
-      theme
-    ).toBe(true);
-    expect(new Set(fills).size, theme).toBe(4);
-  }
+      return cell ? getComputedStyle(cell).backgroundColor : null;
+    };
+    return ['DL', 'TL', 'DW', 'TW'].map(fill);
+  });
+  expect(fills.every((value) => value !== null)).toBe(true);
+  expect(new Set(fills).size).toBe(4);
 });
 
 // regression: word-tiles-four-player-score-band
@@ -491,7 +479,7 @@ test('four named seats and scores share the 390px match row', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openStory(page, 'four-player-match', 'light');
+  await openStory(page, 'four-player-match');
   const seats = page
     .getByRole('list', { name: 'Players' })
     .getByRole('listitem');
@@ -515,7 +503,7 @@ test('the placement footer opens draw and resignation through Game menu', async 
   page,
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await openStory(page, 'place-a-word', 'light');
+  await openStory(page, 'place-a-word');
   await expect(page.getByTestId('game-session-board-submit')).toBeVisible();
   await expect(page.getByTestId('game-session-offer-draw')).toHaveCount(0);
   await expect(page.getByTestId('game-session-resign-now')).toHaveCount(0);

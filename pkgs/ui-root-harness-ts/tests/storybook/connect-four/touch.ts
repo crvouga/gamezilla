@@ -2,12 +2,8 @@ import { expect, type Page, type TestInfo } from '@playwright/test';
 import { captureBoard, openBoard } from './capture';
 
 /** Native touch cancellation and near-boundary hit tests, never forced clicks. */
-export async function captureTouchEdges(
-  page: Page,
-  info: TestInfo,
-  theme: string
-) {
-  await openBoard(page, 'drop-a-disc', theme);
+export async function captureTouchEdges(page: Page, info: TestInfo) {
+  await openBoard(page, 'drop-a-disc');
   const board = page.getByTestId('game-session-board');
   const before = await board.getAttribute('data-cells');
   const control = page.getByTestId('game-session-board-column-2');

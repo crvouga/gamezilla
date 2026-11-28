@@ -32,7 +32,7 @@ function openDocument(content: () => JSX.Element) {
   const shell = document.createElement('section');
   shell.dataset['startupShell'] = '';
   const button = document.createElement('button');
-  button.dataset['testid'] = 'theme-option-dark';
+  button.dataset['testid'] = 'space-create';
   shell.append(button);
   const root = document.createElement('div');
   document.body.append(shell, root);
@@ -42,7 +42,7 @@ function openDocument(content: () => JSX.Element) {
     () => (
       <ClockProvider clock={time.clock} timers={time.timers}>
         <I18nProvider i18n={i18n}>
-          <ThemeProvider colorScheme="light">
+          <ThemeProvider>
             <BrowserOpening root={root}>
               <PassiveActivity>{content()}</PassiveActivity>
             </BrowserOpening>
@@ -67,11 +67,8 @@ test('the opening stays usable until the route commits, including when its list 
   const { view, shell, button, dispose } = openDocument(() => (
     <Show when={ready()} fallback={<BootLoadingShell />}>
       <OpeningContent>
-        <button
-          data-testid="theme-option-dark"
-          onClick={() => setWorking(true)}
-        >
-          Dark
+        <button data-testid="space-create" onClick={() => setWorking(true)}>
+          New space
         </button>
         <LoadingState caption="Reading your spaces" />
         <Show when={working()}>
@@ -88,7 +85,7 @@ test('the opening stays usable until the route commits, including when its list 
     setReady(true);
     flush();
     expect(shell.isConnected).toBe(false);
-    const live = view.getByRole('button', { name: 'Dark' });
+    const live = view.getByRole('button', { name: 'New space' });
     expect(document.activeElement).toBe(live);
     expect(view.getByRole('status').textContent).toBe('Reading your spaces');
     expect(

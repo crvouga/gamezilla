@@ -9,6 +9,8 @@ import { DiscDropBoard } from '@pkgs/ui-root-client-ts/disc-drop-board';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import GameArenaExample from '@pkgs/ui-root-client-ts/game-board-stage/game-arena.example';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
+import { contrastRatio, parseColor } from '@pkgs/ui-root-shared-ts/contrast';
 import { fireEvent } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
 import { createSignal, flush, Show } from 'solid-js';
@@ -23,10 +25,7 @@ function example() {
   const [interactive, setInteractive] = createSignal(true);
   const view = render(() => (
     <ClockProvider clock={clock} timers={timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
         <GameArenaExample boardInteractive={interactive()} />
       </ThemeProvider>
     </ClockProvider>
@@ -184,10 +183,7 @@ function bareBoard(options: {
     />
   );
   return render(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <Show when={options.preview === true} fallback={board()}>
         <GameBoardStage preview previewLabel="Board preview">
           {board()}
@@ -330,10 +326,8 @@ test('the landing preview reads against the board yet stays an outline', () => {
 
 // regression: connect-four-prompt-low-contrast — "Pick a column to drop
 // your disc" was set in the board's muted light blue on its mid blue, hard
-// to read at a glance. The prompt is in the board's own ink; and the dark
-// theme's board is a deeper, less saturated blue than the light theme's,
-// so it never glares on a dark page.
-test("the prompt under the columns is in the board's ink, and the dark board is softer", () => {
+// to read at a glance. The prompt uses the board's own ink.
+test("the prompt under the columns is readable in the board's ink", () => {
   const css = readFileSync(
     join(
       import.meta.dirname,
@@ -344,35 +338,8 @@ test("the prompt under the columns is in the board's ink, and the dark board is 
   const start = css.indexOf('.prompt {');
   const prompt = css.slice(start, css.indexOf('}', start));
   expect(prompt).toMatch(/color:\s*var\(--ui-color-text\);/);
-  const tokens = JSON.parse(
-    readFileSync(
-      join(
-        import.meta.dirname,
-        '../../ui-root-shared-ts/src/design-tokens.json'
-      ),
-      'utf8'
-    )
-  ) as {
-    color: Record<
-      'light' | 'dark',
-      Record<string, { $value: { hex: string } }>
-    >;
-  };
-  const hex = (theme: 'light' | 'dark', name: string): string =>
-    tokens.color[theme][name]?.$value.hex ?? '';
-  const luminance = (value: string): number => {
-    const [r, g, b] = [1, 3, 5].map((at) => {
-      const c = Number.parseInt(value.slice(at, at + 2), 16) / 255;
-      return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-    });
-    return 0.2126 * (r ?? 0) + 0.7152 * (g ?? 0) + 0.0722 * (b ?? 0);
-  };
-  for (const name of ['gameConnectFourSurface', 'gameConnectFourCanvas'])
-    expect(luminance(hex('dark', name))).toBeLessThan(
-      luminance(hex('light', name))
-    );
-  // The prompt's ink on the dark board still reads at 7:1 or more.
-  const ink = luminance(hex('dark', 'gameConnectFourInk'));
-  const board = luminance(hex('dark', 'gameConnectFourSurface'));
-  expect((ink + 0.05) / (board + 0.05)).toBeGreaterThanOrEqual(7);
+  const ink = parseColor(COLOR_PALETTE.gameConnectFourInk);
+  const board = parseColor(COLOR_PALETTE.gameConnectFourSurface);
+  if (!ink || !board) throw new Error('Invalid Connect Four colors');
+  expect(contrastRatio(ink, board)).toBeGreaterThanOrEqual(7);
 });

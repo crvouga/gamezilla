@@ -9,25 +9,23 @@ test.use({ video: 'on', trace: 'on' });
 test('storybook integration: pong-overhaul court status keeps each part on one line on a phone', async ({
   page,
 }, info) => {
-  for (const theme of ['light', 'dark']) {
-    await page.setViewportSize({ width: 390, height: 844 });
-    await openPong(page, 'match-point', theme);
-    const lines = await page
-      .getByTestId('game-session-board-status')
-      .evaluate((status) => {
-        const range = document.createRange();
-        range.selectNodeContents(status);
-        const tops = new Set(
-          [...range.getClientRects()].map((rect) => Math.round(rect.top))
-        );
-        return {
-          parts: status.textContent.split('\n'),
-          lineBoxes: tops.size,
-        };
-      });
-    logSummary('PONG_STATUS_LINES', { theme, ...lines });
-    await recordPong(page, info, `status-lines-${theme}`);
-    expect(lines.parts.length).toBeGreaterThanOrEqual(2);
-    expect(lines.lineBoxes).toBe(lines.parts.length);
-  }
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openPong(page, 'match-point');
+  const lines = await page
+    .getByTestId('game-session-board-status')
+    .evaluate((status) => {
+      const range = document.createRange();
+      range.selectNodeContents(status);
+      const tops = new Set(
+        [...range.getClientRects()].map((rect) => Math.round(rect.top))
+      );
+      return {
+        parts: status.textContent.split('\n'),
+        lineBoxes: tops.size,
+      };
+    });
+  logSummary('PONG_STATUS_LINES', { ...lines });
+  await recordPong(page, info, `status-lines-dark`);
+  expect(lines.parts.length).toBeGreaterThanOrEqual(2);
+  expect(lines.lineBoxes).toBe(lines.parts.length);
 });

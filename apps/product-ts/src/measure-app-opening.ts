@@ -13,7 +13,7 @@ import { recordOpening } from './opening-review-video';
 const controls: OpeningControls = {
   settings: Handles.globalMenuSettings,
   menu: Handles.statusCurrentUser,
-  appearance: Handles.settingsTheme,
+  sound: Handles.settingsSound,
   spinner:
     '[data-testid="boot-loading"], .activity-indicator, [role="progressbar"]:not([aria-valuenow]), [data-activity-indicator]',
 };

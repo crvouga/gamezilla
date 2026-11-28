@@ -19,7 +19,6 @@
     "@libs/auth-client-ts": "workspace:*",
     "@libs/auth-shared-ts": "workspace:*",
     "@libs/chess-puzzle-shared-ts": "workspace:*",
-    "@libs/chess-root-shared-ts": "workspace:*",
     "@libs/game-puzzle-client-ts": "workspace:*",
     "@libs/game-puzzle-shared-ts": "workspace:*",
     "@libs/permissions-client-ts": "workspace:*",

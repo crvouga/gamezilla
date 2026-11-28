@@ -14,10 +14,7 @@ import { createSignal, Show } from 'solid-js';
 
 test('an agent opens a disclosure and selects a named tab inside it', async () => {
   const view = render(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 800, height: 600 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 800, height: 600 }}>
       <Collapsible title="Match history">
         <Tabs
           aria-label="Match result"
@@ -65,10 +62,7 @@ test('an agent can run a named command in the open account menu', async () => {
   let settings = 0;
   const [open, setOpen] = createSignal(true);
   const view = render(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 800, height: 600 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 800, height: 600 }}>
       <SurfaceStackProvider>
         <FloatingMenu
           open={open()}

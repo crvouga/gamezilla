@@ -1,30 +1,21 @@
 /** @jsxImportSource @solidjs/web */
 
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import type { DismissibleBannerTone } from '@pkgs/ui-root-client-ts/dismissible-top-banner';
 import {
   DismissibleBanner,
   DismissibleBannerPortalProvider,
 } from '@pkgs/ui-root-client-ts/dismissible-top-banner';
 import type { JSX } from '@solidjs/web';
-import { createSignal, For } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
-const SCHEMES = ['light', 'dark'] as const;
-
-function BannerPreview(props: {
-  scheme: (typeof SCHEMES)[number];
-  tone: DismissibleBannerTone;
-}): JSX.Element {
+function BannerPreview(): JSX.Element {
   return (
-    <div
-      class="box border border-solid border-border rounded-card overflow-hidden bg-background"
-      data-theme={props.scheme}
-    >
+    <div class="box border border-solid border-border rounded-card overflow-hidden bg-background">
       <DismissibleBannerPortalProvider>
         <DismissibleBanner
           visible
-          tone={props.tone}
+          tone="paper"
           onDismiss={() => undefined}
           title="A new version is ready"
           subtitle="Reload to get the latest fixes."
@@ -49,9 +40,7 @@ export default function DismissibleBannerExample(): JSX.Element {
           }
         </p>
         <Button title="Show banner" onClick={() => setVisible(true)} />
-        <For each={SCHEMES}>
-          {(scheme) => <BannerPreview scheme={scheme} tone="paper" />}
-        </For>
+        <BannerPreview />
         <DismissibleBanner
           visible={visible()}
           tone="paper"

@@ -12,23 +12,22 @@ test('storybook integration: pong board starts under the game title on one colum
       ? route.continue()
       : route.abort()
   );
-  for (const theme of ['light', 'dark'])
-    for (const viewport of [
-      { width: 768, height: 1024 },
-      { width: 390, height: 844 },
-    ]) {
-      await page.setViewportSize(viewport);
-      await page.goto(
-        `/iframe.html?id=screens-games-pong-stage--rally&viewMode=story&globals=theme:${theme}`
-      );
-      await expect(page.locator('#storybook-root')).toHaveAttribute(
-        'data-story-ready',
-        'true'
-      );
-      const host = await page.locator('[data-game-column]').boundingBox();
-      const stage = await page.locator('[data-game-board]').boundingBox();
-      if (!host || !stage) throw new Error('Missing game column or board');
-      expect(stage.x).toBeCloseTo(host.x, 0);
-      expect(stage.width).toBeCloseTo(host.width, 0);
-    }
+  for (const viewport of [
+    { width: 768, height: 1024 },
+    { width: 390, height: 844 },
+  ]) {
+    await page.setViewportSize(viewport);
+    await page.goto(
+      `/iframe.html?id=screens-games-pong-stage--rally&viewMode=story`
+    );
+    await expect(page.locator('#storybook-root')).toHaveAttribute(
+      'data-story-ready',
+      'true'
+    );
+    const host = await page.locator('[data-game-column]').boundingBox();
+    const stage = await page.locator('[data-game-board]').boundingBox();
+    if (!host || !stage) throw new Error('Missing game column or board');
+    expect(stage.x).toBeCloseTo(host.x, 0);
+    expect(stage.width).toBeCloseTo(host.width, 0);
+  }
 });

@@ -14,7 +14,7 @@ import { WEB_BRAND_ARTIFACTS } from './brand-artifact-web.ts';
 export type BrandArtifact = {
   /** Repository-relative path of the generated file. */
   readonly path: string;
-  readonly render: (identity: ProductIdentity) => string;
+  readonly render: (identity: ProductIdentity, canvas: string) => string;
 };
 
 /** Every generated brand artifact, from each platform's module. */

@@ -44,7 +44,6 @@ async function observeDrop(page: Page) {
 export async function captureMotion(
   page: Page,
   info: TestInfo,
-  theme: string,
   reduced: boolean
 ) {
   await page.emulateMedia({
@@ -52,7 +51,7 @@ export async function captureMotion(
   });
   // The canonical preview injects reduced motion for stable screenshots;
   // the system motion global lets the emulated media query alone decide.
-  await openBoard(page, 'drop-a-disc', theme, 'system');
+  await openBoard(page, 'drop-a-disc', 'system');
   await expect(page.locator('[data-reduced-motion]')).toHaveCount(0);
   await observeDrop(page);
   await page.getByTestId('game-session-board-column-2').click();

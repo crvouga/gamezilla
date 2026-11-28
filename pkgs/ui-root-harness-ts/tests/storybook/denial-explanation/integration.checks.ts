@@ -6,7 +6,7 @@ test('storybook integration: the complete multiplayer refusal fits at 320 pixels
 }) => {
   await page.setViewportSize({ width: 320, height: 844 });
   await page.goto(
-    '/iframe.html?id=screens-permissions-denial-modal--without-way-forward&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-permissions-denial-modal--without-way-forward&viewMode=story'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -67,27 +67,24 @@ const examples = [
 ];
 
 for (const width of [320, 390, 768, 1440]) {
-  for (const theme of ['light', 'dark']) {
-    for (const sample of examples) {
-      // regression: denial-only-explanation-truncated
-      test(`storybook integration: denial ${sample.story} explains itself at ${width} ${theme}`, async ({
-        page,
-      }) => {
-        await assertDenial(page, width, theme, sample);
-      });
-    }
+  for (const sample of examples) {
+    // regression: denial-only-explanation-truncated
+    test(`storybook integration: denial ${sample.story} explains itself at ${width} dark`, async ({
+      page,
+    }) => {
+      await assertDenial(page, width, sample);
+    });
   }
 }
 
 async function assertDenial(
   page: Page,
   width: number,
-  theme: string,
   sample: (typeof examples)[number]
 ) {
   await page.setViewportSize({ width, height: 844 });
   await page.goto(
-    `/iframe.html?id=screens-permissions-denial-modal--${sample.story}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=screens-permissions-denial-modal--${sample.story}&viewMode=story`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -149,7 +146,7 @@ async function assertDenial(
 test('storybook integration: literal denial without a way forward explains itself on a narrow phone', async ({
   page,
 }) => {
-  await assertDenial(page, 320, 'light', {
+  await assertDenial(page, 320, {
     story: 'without-way-forward',
     title: 'Finish your current multiplayer game first',
     buttons: ['OK'],

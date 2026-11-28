@@ -12,10 +12,7 @@ test('both file controls forward the chosen file for the caller to validate', ()
     if (file) chosen.push(file);
   };
   const view = render(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 1000, height: 600 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 1000, height: 600 }}>
       <FilePicker
         label="Choose an image"
         accept="image/*"

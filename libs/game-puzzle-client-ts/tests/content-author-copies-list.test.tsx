@@ -14,10 +14,7 @@ afterEach(cleanup);
 test('each copy says where it was kept, its check and its details', () => {
   const chosen: string[] = [];
   renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <ContentAuthorCopiesListView
         copies={[
           {

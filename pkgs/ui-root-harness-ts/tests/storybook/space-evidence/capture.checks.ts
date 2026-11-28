@@ -15,7 +15,11 @@ const boards = new Map(
     ids.map((id) => [id, group] as const)
   )
 );
-const light = new Set([...scope.light, ...scope.interaction, ...boards.keys()]);
+const screens = new Set([
+  ...scope.screens,
+  ...scope.interaction,
+  ...boards.keys(),
+]);
 
 // regression: quoridor-hill-camera-viewport
 for (const [width, height] of [
@@ -24,49 +28,44 @@ for (const [width, height] of [
 ] as const) {
   test.describe(`${width}x${height}`, () => {
     test.use({ deviceScaleFactor: width === 390 ? 2 : 1 });
-    for (const theme of ['light', 'dark'] as const) {
-      for (const id of theme === 'dark' ? scope.dark : light) {
-        test(`space-evidence ${id} ${theme}`, async ({ page }, info) => {
-          const interaction =
-            theme === 'light' && scope.interaction.includes(id);
-          const play = index.entries[id]?.tags.includes('play-fn') === true;
-          await page.emulateMedia({ colorScheme: theme });
-          await verifyStoryScenario(page, id, {
+
+    for (const id of screens) {
+      test(`space-evidence ${id} dark`, async ({ page }, info) => {
+        const interaction = scope.interaction.includes(id);
+        const play = index.entries[id]?.tags.includes('play-fn') === true;
+        await verifyStoryScenario(page, id, {
+          width,
+          height,
+          globals: {},
+          suffix: '',
+        });
+        const stem = `${id}--${width}x${height}-dark`;
+        if (scope.screens.includes(id)) {
+          await page.screenshot({ path: info.outputPath(`${stem}.png`) });
+        }
+        const group = boards.get(id);
+        const box = group
+          ? await page
+              .locator(
+                '[data-game-board], [data-testid="chess-puzzle-board-frame"], [data-component="WordTileBoard"]'
+              )
+              .first()
+              .boundingBox()
+          : undefined;
+        writeFileSync(
+          info.outputPath(`${stem}.json`),
+          JSON.stringify({
+            id,
             width,
             height,
-            theme,
-            globals: {},
-            suffix: '',
-          });
-          const stem = `${id}--${width}x${height}-${theme}`;
-          if (scope[theme].includes(id)) {
-            await page.screenshot({ path: info.outputPath(`${stem}.png`) });
-          }
-          const group = theme === 'light' ? boards.get(id) : undefined;
-          const box = group
-            ? await page
-                .locator(
-                  '[data-game-board], [data-testid="chess-puzzle-board-frame"], [data-component="WordTileBoard"]'
-                )
-                .first()
-                .boundingBox()
-            : undefined;
-          writeFileSync(
-            info.outputPath(`${stem}.json`),
-            JSON.stringify({
-              id,
-              width,
-              height,
-              theme,
-              interaction,
-              play,
-              group,
-              box,
-              sha: process.env['GITHUB_SHA'],
-            })
-          );
-        });
-      }
+            interaction,
+            play,
+            group,
+            box,
+            sha: process.env['GITHUB_SHA'],
+          })
+        );
+      });
     }
   });
 }

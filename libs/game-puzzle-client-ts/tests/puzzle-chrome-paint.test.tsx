@@ -63,10 +63,7 @@ test('a two-line status prompt grows its row instead of overlapping the coach', 
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
   render(() => (
     <I18nProvider i18n={i18n}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 390, height: 640 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 390, height: 640 }}>
         <PuzzleStatusHeader kind="started" solverSide="White" />
       </ThemeProvider>
     </I18nProvider>

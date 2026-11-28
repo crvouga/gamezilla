@@ -10,6 +10,7 @@ import {
 import { syntheticIdentity } from '@libs/product-brand-shared-ts/synthetic-identity';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
+import { COLOR_PALETTE } from '@pkgs/ui-root-shared-ts/color-palette';
 import fc from 'fast-check';
 import sharp from 'sharp';
 import { renderBrandImage } from './brand-image-artifacts';
@@ -146,6 +147,25 @@ describe('configured brand artwork', () => {
         .toBuffer();
       expect([...pixel]).toEqual(size === 16 ? [255, 0, 0] : [0, 0, 255]);
     }
+  });
+
+  test('a launch image opens on the product canvas around the configured mark', async () => {
+    const identity = syntheticIdentity();
+    const png = await renderBrandImage(
+      { path: 'launch.png', width: 64, height: 64, splash: true },
+      {
+        ...identity,
+        brand: { ...identity.brand, backgroundColor: '#ff0000' },
+      }
+    );
+    const { data, info } = await sharp(png)
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    expect(`#${data.subarray(0, 3).toString('hex')}`).toBe(
+      COLOR_PALETTE.background
+    );
+    const center = (32 * info.width + 32) * info.channels;
+    expect([...data.subarray(center, center + 3)]).toEqual([0, 0, 255]);
   });
 
   test('configuration changes the actual icon pixels, including the background', async () => {

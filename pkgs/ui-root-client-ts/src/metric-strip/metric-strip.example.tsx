@@ -10,7 +10,6 @@ import { StatPill } from '@pkgs/ui-root-client-ts/stat-pill';
 import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 function Strips(): JSX.Element {
   const { i18n } = useLingui();
@@ -66,12 +65,10 @@ function Pills(): JSX.Element {
 export default function MetricStripExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <StackVertical gap="lg">
-          <Strips />
-          <Pills />
-        </StackVertical>
-      </SchemePreview>
+      <StackVertical gap="lg">
+        <Strips />
+        <Pills />
+      </StackVertical>
     </ExampleRoot>
   );
 }

@@ -4,11 +4,7 @@ import { openBattleStory } from '../evidence';
 import { center, dragShip, snapshot, touch } from './input';
 
 export async function verifyDrag(page: Page, info: TestInfo, width: number) {
-  await openBattleStory(
-    page,
-    'screens-games-battleship-setup--partial',
-    'light'
-  );
+  await openBattleStory(page, 'screens-games-battleship-setup--partial');
   const full = page.getByRole('button', { name: 'Show full board' });
   if (await full.isVisible()) await full.click();
   const grid = page.getByTestId('game-session-setup-grid');
@@ -39,11 +35,7 @@ export async function verifyInspection(
   info: TestInfo,
   width: number
 ) {
-  await openBattleStory(
-    page,
-    'screens-games-battleship-board--opening',
-    'light'
-  );
+  await openBattleStory(page, 'screens-games-battleship-board--opening');
   const phone = width === 390;
   const grid = page.getByTestId(
     phone ? 'game-session-board-aim-grid' : 'game-session-board-target-grid'

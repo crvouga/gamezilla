@@ -6,7 +6,7 @@ test('storybook integration: publication refusal remains readable at 390 pixels'
 }) => {
   await page.setViewportSize({ width: 390, height: 900 });
   await page.goto(
-    '/iframe.html?id=screens-puzzle-packs-builder-publish--publish-denied&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-puzzle-packs-builder-publish--publish-denied&viewMode=story'
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -50,24 +50,18 @@ test('storybook integration: publication refusal remains readable at 390 pixels'
 });
 
 for (const width of [390, 768, 1440]) {
-  for (const theme of ['light', 'dark']) {
-    // regression: publication-denial-state-clipped
-    test(`storybook integration: publish denial and its step state fit at ${width}/${theme}`, async ({
-      page,
-    }) => {
-      await assertPublicationDenial(page, width, theme);
-    });
-  }
+  // regression: publication-denial-state-clipped
+  test(`storybook integration: publish denial and its step state fit at ${width}/dark`, async ({
+    page,
+  }) => {
+    await assertPublicationDenial(page, width);
+  });
 }
 
-async function assertPublicationDenial(
-  page: Page,
-  width: number,
-  theme: string
-) {
+async function assertPublicationDenial(page: Page, width: number) {
   await page.setViewportSize({ width, height: 900 });
   await page.goto(
-    `/iframe.html?id=screens-puzzle-packs-builder-publish--publish-denied&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=screens-puzzle-packs-builder-publish--publish-denied&viewMode=story`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
@@ -117,5 +111,5 @@ async function assertPublicationDenial(
 test('storybook integration: literal publication denial and Locked label fit on a phone', async ({
   page,
 }) => {
-  await assertPublicationDenial(page, 390, 'light');
+  await assertPublicationDenial(page, 390);
 });

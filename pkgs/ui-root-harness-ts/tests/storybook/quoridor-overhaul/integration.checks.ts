@@ -47,45 +47,42 @@ const repeats = (width: number) => (width === 390 ? [1, 2, 3] : [1]);
 // command bar (precise-coordinates at 390); Quoridor keeps the flowing page.
 for (const variant of ['classic', 'hill'] as const)
   for (const width of [390, 768, 1440])
-    for (const theme of ['light', 'dark'])
-      for (const repeat of repeats(width))
-        test(`storybook integration: quoridor overhaul ${variant} ${width} ${theme}${repeat > 1 ? ` repeat ${repeat}` : ''}`, async ({
-          page,
-        }, info) => {
-          test.setTimeout(180_000);
-          await page.setViewportSize({
-            width,
-            height: width === 390 ? 844 : 1024,
-          });
-          const errors: string[] = [];
-          page.on('pageerror', (error) => errors.push(error.message));
-          await page.route('**/*', (route) =>
-            new URL(route.request().url()).hostname === '127.0.0.1'
-              ? route.continue()
-              : route.abort()
-          );
-          await observeQuoridorInput(page);
-          // Unmeasured warm-up: the first cold Storybook boot under 4x throttling
-          // is bundle start-up, not board work. Every recorded journey runs warm.
-          await warmQuoridorStory(
-            page,
-            `screens-games-quoridor-${variant}--opening`,
-            theme
-          );
-          const cdp = await page.context().newCDPSession(page);
-          await cdp.send('Emulation.setCPUThrottlingRate', {
-            rate: width === 390 ? 4 : 1,
-          });
-          for (const journey of journeys[variant])
-            await test.step(`${variant}: ${journey}`, async () => {
-              await recordQuoridorState(
-                page,
-                info,
-                `screens-games-quoridor-${variant}--${journey}`,
-                theme
-              );
-              if (journey === 'opening')
-                await exerciseQuoridorNativeInput(page, info);
-            });
-          expect(errors).toEqual([]);
+    for (const repeat of repeats(width))
+      test(`storybook integration: quoridor overhaul ${variant} ${width} dark${repeat > 1 ? ` repeat ${repeat}` : ''}`, async ({
+        page,
+      }, info) => {
+        test.setTimeout(180_000);
+        await page.setViewportSize({
+          width,
+          height: width === 390 ? 844 : 1024,
         });
+        const errors: string[] = [];
+        page.on('pageerror', (error) => errors.push(error.message));
+        await page.route('**/*', (route) =>
+          new URL(route.request().url()).hostname === '127.0.0.1'
+            ? route.continue()
+            : route.abort()
+        );
+        await observeQuoridorInput(page);
+        // Unmeasured warm-up: the first cold Storybook boot under 4x throttling
+        // is bundle start-up, not board work. Every recorded journey runs warm.
+        await warmQuoridorStory(
+          page,
+          `screens-games-quoridor-${variant}--opening`
+        );
+        const cdp = await page.context().newCDPSession(page);
+        await cdp.send('Emulation.setCPUThrottlingRate', {
+          rate: width === 390 ? 4 : 1,
+        });
+        for (const journey of journeys[variant])
+          await test.step(`${variant}: ${journey}`, async () => {
+            await recordQuoridorState(
+              page,
+              info,
+              `screens-games-quoridor-${variant}--${journey}`
+            );
+            if (journey === 'opening')
+              await exerciseQuoridorNativeInput(page, info);
+          });
+        expect(errors).toEqual([]);
+      });

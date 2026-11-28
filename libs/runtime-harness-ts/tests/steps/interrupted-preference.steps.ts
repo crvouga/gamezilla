@@ -3,14 +3,14 @@
 import { Given, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 import {
-  openThemeChoices,
+  openSoundSettings,
   runIntoTrouble,
 } from '@libs/runtime-harness-ts/preference-recovery';
 
 Given(
-  '{actor} has opened the theme choices without choosing',
+  '{actor} has opened Sound without changing it',
   async (w, actor: Actor) => {
-    await w.s.apply(openThemeChoices, actor);
+    await w.s.apply(openSoundSettings, actor);
   }
 );
 

@@ -39,7 +39,7 @@ export function DemoProviders(props: {
   return (
     <I18nProvider i18n={i18n}>
       <ClockProvider clock={props.harness.clock} timers={props.harness.timers}>
-        <ThemeProvider colorScheme="light" fixedLayout={COMPACT}>
+        <ThemeProvider fixedLayout={COMPACT}>
           <SurfaceStackProvider>{props.children}</SurfaceStackProvider>
         </ThemeProvider>
       </ClockProvider>

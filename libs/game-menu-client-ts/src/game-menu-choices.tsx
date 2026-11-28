@@ -78,6 +78,7 @@ export function sharedScreens(
             screen: SHARED_GAME_SCREEN.matchmakingHome,
             Screen: () => (
               <MultiplayerScreen
+                motif={game.tile}
                 gameId={id}
                 title={game.title}
                 onBack={back}

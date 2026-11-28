@@ -17,6 +17,5 @@ test('preference setup reaches Settings through wide subscreen chrome', async ()
   await s.apply(saveLayoutPreferences, 'alice');
   const saved = await s.read(layoutPlaceAndPreferences, 'alice');
   expect(saved.place).toBe('/more');
-  expect(saved.appearance).toBe('dark');
-  expect(saved.sounds).toContain('Muted');
+  expect(saved.sounds).toBe(false);
 }, 240_000);

@@ -14,10 +14,7 @@ function fixture(initial: 'panel' | 'board' | undefined) {
     screen: 'attempt',
   });
   const view = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 768, height: 1024 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 768, height: 1024 }}>
       <PuzzlePackStageScreenView
         status="ready"
         place={place()}

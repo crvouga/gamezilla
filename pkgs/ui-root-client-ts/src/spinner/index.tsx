@@ -27,7 +27,7 @@ export type SpinnerColor = Exclude<ColorTone, 'inherit'> | 'current';
 export type SpinnerProps = {
   /** Default `md` (24px). */
   size?: SpinnerSize | undefined;
-  /** Default `secondary`. */
+  /** Default `tint`. */
   color?: SpinnerColor | undefined;
   /** Accessible name. Defaults to a localized "Loading…". */
   label?: string | undefined;
@@ -66,7 +66,7 @@ function colorClass(color: SpinnerColor): string {
  *
  * - `size`: `sm` (16, inside controls and rows), `md` (24, default, inline
  *   in a section), `lg` (40, alone on a whole screen).
- * - `color`: a text tone; defaults to `secondary`. `current` takes the
+ * - `color`: a text tone; defaults to `tint`. `current` takes the
  *   surrounding text color (inside a filled button).
  * - `label`: the accessible name ("Loading…" when unset). `decorative`
  *   hides it from assistive tech where the host already says it is busy.
@@ -101,7 +101,7 @@ export function Spinner(props: SpinnerProps): JSX.Element {
         class={spaced([
           'box items-center justify-center',
           SIZE[props.size ?? 'md'],
-          colorClass(props.color ?? 'secondary'),
+          colorClass(props.color ?? 'tint'),
         ])}
         {...dataAttrs({
           component: 'Spinner',

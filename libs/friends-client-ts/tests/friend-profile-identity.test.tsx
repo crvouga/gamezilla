@@ -12,10 +12,7 @@ test('the primary profile identity exposes the complete valid 32-character usern
   // regression: friend-profile-valid-username-clipped
   const username = 'wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww';
   renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <ModerationProvider rules={shippedModerationRules()}>
         <FriendProfileHeader
           profile={{

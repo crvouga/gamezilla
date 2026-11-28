@@ -151,7 +151,7 @@ function IconButtonFace(
   const bgContrast = (): string =>
     props.background === undefined
       ? 'transparent'
-      : (resolveColor(props.background, tokens.palette()) ?? 'transparent');
+      : (resolveColor(props.background, tokens.palette) ?? 'transparent');
 
   const handleClick = (): void => {
     props.onClick?.();
@@ -212,7 +212,7 @@ function IconButtonFace(
         >
           <OnColorProvider
             background={bgContrast()}
-            backdrop={tokens.palette().background}
+            backdrop={tokens.palette.background}
           >
             {props.children}
           </OnColorProvider>

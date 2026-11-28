@@ -6,7 +6,6 @@ import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
-import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const SNAPSHOT = JSON.stringify(
   { id: 'game_01', players: ['ada', 'grace'], clock: { initial: 300 } },
@@ -19,26 +18,24 @@ const LONG_LINE =
 export default function CodeBlockExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <SchemePreview>
-        <ExampleSection title="framed (default): whitespace kept, long lines scroll">
-          <CodeBlock aria-label="Snapshot">{SNAPSHOT}</CodeBlock>
-          <StackVertical width="full" maxWidth="form">
-            <CodeBlock>{LONG_LINE}</CodeBlock>
-          </StackVertical>
-        </ExampleSection>
-        <ExampleSection title="wrap">
-          <StackVertical width="full" maxWidth="form">
-            <CodeBlock wrap>{LONG_LINE}</CodeBlock>
-          </StackVertical>
-        </ExampleSection>
-        <ExampleSection title="framed false, on a surface">
-          <Surface tone="surface" radius="card" border padding="md">
-            <CodeBlock framed={false} wrap>
-              {LONG_LINE}
-            </CodeBlock>
-          </Surface>
-        </ExampleSection>
-      </SchemePreview>
+      <ExampleSection title="framed (default): whitespace kept, long lines scroll">
+        <CodeBlock aria-label="Snapshot">{SNAPSHOT}</CodeBlock>
+        <StackVertical width="full" maxWidth="form">
+          <CodeBlock>{LONG_LINE}</CodeBlock>
+        </StackVertical>
+      </ExampleSection>
+      <ExampleSection title="wrap">
+        <StackVertical width="full" maxWidth="form">
+          <CodeBlock wrap>{LONG_LINE}</CodeBlock>
+        </StackVertical>
+      </ExampleSection>
+      <ExampleSection title="framed false, on a surface">
+        <Surface tone="surface" radius="card" border padding="md">
+          <CodeBlock framed={false} wrap>
+            {LONG_LINE}
+          </CodeBlock>
+        </Surface>
+      </ExampleSection>
     </ExampleRoot>
   );
 }

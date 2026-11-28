@@ -13,7 +13,6 @@ async function playFromBoard(page: Page, phone: boolean): Promise<void> {
   await expectQuoridorStoryPasses(
     page,
     'screens-games-quoridor-classic--direct-manipulation',
-    'light',
     'system'
   );
   const board = page.getByTestId('game-session-board');

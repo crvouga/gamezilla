@@ -27,7 +27,7 @@ export const openSettings = scenarioAction({
     const ui = await actorUi(s, actorId);
     await openGlobalMenu(ui, Handles.globalMenuSettings, WAIT_MS);
     await ui.get(Handles.globalMenuSettings).tap({ timeoutMs: WAIT_MS });
-    await ui.get(Handles.settingsTheme).expect.visible({ timeoutMs: WAIT_MS });
+    await ui.get(Handles.settingsSound).expect.visible({ timeoutMs: WAIT_MS });
   },
 });
 

@@ -15,11 +15,7 @@ test('storybook integration: Hearts short passing view keeps scores and selected
 }, info) => {
   const cdp = await page.context().newCDPSession(page);
   await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
-  await openHearts(
-    page,
-    'screens-games-hearts-interaction--pass-and-play',
-    'light'
-  );
+  await openHearts(page, 'screens-games-hearts-interaction--pass-and-play');
   await startHeartsMetrics(page);
   const cards = page
     .getByRole('toolbar', { name: 'Your hand' })

@@ -9,7 +9,7 @@ test.use({ video: 'on', trace: 'on' });
 test('storybook integration: Hearts retains PNG and accessibility JSON as artifact files', async ({
   page,
 }, info) => {
-  await openHearts(page, 'screens-games-hearts-board--passing', 'light');
+  await openHearts(page, 'screens-games-hearts-board--passing');
   await captureHearts(page, info, 'retained-hand');
   await auditHearts(page, info);
   const image = await readFile(info.outputPath('retained-hand.png'));

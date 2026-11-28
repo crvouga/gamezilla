@@ -107,8 +107,8 @@ test('storybook integration: screens-space-home--host-choosing has exactly one r
 test('storybook integration: a stack route keeps its header without bottom tabs', async ({
   page,
 }) => {
-  await open(page, 'screens-settings-appearance--system', 390);
-  await expect(page.getByRole('heading', { name: 'Appearance' })).toBeVisible();
+  await open(page, 'screens-settings-sound--on', 390);
+  await expect(page.getByRole('heading', { name: 'Sound' })).toBeVisible();
   await expect(page.locator('[data-component="AppTabBar"]')).toHaveCount(0);
 });
 

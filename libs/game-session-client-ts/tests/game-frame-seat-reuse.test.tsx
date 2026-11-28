@@ -128,10 +128,7 @@ test('wide: a position-only tick keeps every player strip; a changed figure upda
   const [table, setTable] = createSignal(first);
   renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 1440, height: 900 }}
-      >
+      <ThemeProvider fixedLayout={{ width: 1440, height: 900 }}>
         <PlayFriendScreenView {...props()} table={table()} />
       </ThemeProvider>
     </ClockProvider>

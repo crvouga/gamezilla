@@ -13,28 +13,29 @@ as keyboard and pointer input.
 
 ## The look of the game table
 
-Ivory and charcoal surfaces frame the board. A deep teal accent marks
-play, selection, links and keyboard focus. A filled action has a firm lower
-edge that settles on press. Fluent artwork identifies people, destinations
-and modes. The board itself identifies the game. Manrope carries both the
-headlines and the smaller labels, with tabular figures for scores and clocks.
+The table has one dark appearance. A deep blue-black canvas recedes behind
+slate panels. Light catches their upper edge in a shallow neutral gradient.
+Menus carry that finish across the entire list. Violet identifies the action to
+take, the current choice and keyboard focus. Gold marks a win or earned place.
+Fluent artwork identifies people, destinations and modes. The board itself
+identifies the game. Manrope carries both headlines and labels, with tabular
+figures for scores and clocks.
 
 Game-prefixed color tokens belong only to playing surfaces. Component-local
 variables scope them to the board, leaving the surrounding chrome neutral.
-Chess keeps its cream and walnut squares; Connect Four uses a cobalt frame
+Chess uses silver and slate squares; Connect Four uses a cobalt frame
 and red/gold discs; Battleship has naval waters; Quoridor uses sand and timber;
 Hearts uses green felt and paper cards; Word Tiles uses a garden-green tray
 with cream letters and labeled bonus squares; Sokoban uses slate masonry and
-gold cargo; Numberlink uses ivory in light mode and plum slate in dark mode; Pong uses a violet court;
+gold cargo; Numberlink uses plum slate; Pong uses a violet court;
 Light Cycles uses a dark cyan arena with patterned bright trails.
 
 Values live in `pkgs/ui-root-shared-ts/src/design-tokens.json`. CSS
 variables, TypeScript token names and a resolved `tokens.json` are generated
-from it (`bun run tokens:generate`). The same task writes the adaptive background
-and text color assets used by the SwiftUI opening screen.
-Dark is the `:root` default; light is one variable swap on
-`[data-theme="light"]` (and `prefers-color-scheme: light` before a theme is
-set), never two sets of classes. `palette-contrast.test.ts` holds every
+from it (`bun run tokens:generate`). The SwiftUI opening screen and the web
+opening shell use the same palette as the game. The canvas, raised surfaces,
+inset wells and controls each have a static finish. Game boards and artwork
+own their paint. `palette-contrast.test.ts` holds every
 text/fill pair to WCAG AA (3:1 for large text, meaningful borders, focus
 rings, icons and seat colors) and keeps the seat colors apart in lightness.
 
@@ -45,7 +46,7 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 | Space | the 4px grid only: `none xs sm md lg xl 2xl 3xl` = 0 4 8 12 16 24 32 48; phone gutter 16 |
 | Radius | Small for tags and details, control for buttons and choices, card for grouped content, sheet for dialogs and boards. Avatars, dots and compact counters are round. |
 | Control height | 32 / 44 / 52; every control keeps a 44px hit area |
-| Depth | Fine lower edges on paper panels, an inset foot on filled actions and `shadow-float` for overlays |
+| Depth | Fine lower edges on slate panels, an inset foot on filled actions and `shadow-float` for overlays |
 | Motion | 150 / 200 / 250ms, one ease-out curve, only in answer to a tap; off under reduced motion |
 | Breakpoints | sm 640, md 768, lg 1024, xl 1280 |
 
@@ -68,7 +69,7 @@ preserve its interactive target when changing the size of its glyph.
 
 1. **Reserve the brand color for interaction.** Use `tint-active` for the
    main action, `tint` for links, and `tint-subtle` with `on-primary-soft` for
-   selection. A player’s “You” tag uses the brand ink. Give status its named hue and a word or icon. Game pieces,
+   selection. A player’s “You” tag uses the brand ink. Use `reward` for earned outcomes. Give status its named hue and a word or icon. Game pieces,
    seat colors and artwork keep their own palettes.
 2. **Pick a role, never a size.** Text is `P` / `Text` with a `variant`
    (`body`, `rowTitle`, `bodyBold`, `label`, `caption`, `footnote`,
@@ -86,7 +87,7 @@ preserve its interactive target when changing the size of its glyph.
    identifiers, never for numbers or labels. Google sign-in alone uses its
    mandated, self-hosted Google Sans Medium.
 4. **Lists are panels.** Group rows in a `MenuSection` / `MenuList` (or
-   `MainMenuScreen` for destinations): paper (`surface`) inside one hairline,
+   `MainMenuScreen` for destinations): a continuous `surface` inside one hairline,
    the card radius, hairlines between rows inset to the text column. A row never
    paints its own radius or border. Never stack separate cards to make a list.
 4a. **Nobody is an icon.** A person without a picture is the `Avatar`
@@ -96,7 +97,7 @@ preserve its interactive target when changing the size of its glyph.
    choices. Use the small radius for metadata, the card radius for a group
    of choices, and the sheet radius for a dialog or board. Reserve round
    silhouettes for identity, small counts and floating controls.
-6. **Use depth to show what moves.** Paper panels have a fine lower edge.
+6. **Use depth to show what moves.** Grouped panels have a fine lower edge.
    A filled primary or destructive button has an inset foot that compresses
    on press without resizing the control. Sheets, menus, popovers, tooltips
    and the floating action button use `shadow-float`.
@@ -244,7 +245,7 @@ the matched example also exposes waiting and cancellation. The form example
 shows native submission and failed-save recovery without leaving the editor,
 and history opens a review.
 Examples run inside a bounded viewport to exercise scrolling and pinned
-chrome. Their composition contracts run in both themes and compact / wide
+chrome. Their composition contracts run in compact / wide
 layouts in `../ui-root-harness-ts/tests/screen-layout-contract.test.tsx`.
 `screen-layout-regression.test.tsx`, `form-screen.test.tsx` and
 `puzzle-screen.test.tsx` in that harness pin the empty-slot, native-submit,
@@ -254,7 +255,7 @@ or overflow evidence.
 
 `PathGridBoard` is the rectangular path surface for game-owned players and
 editors. Its six closed path colors come from the shared tokens and meet the
-glyph contrast threshold against the canvas in both themes. They identify
+glyph contrast threshold against the canvas. They identify
 game pieces, never application actions. Labels identify every endpoint;
 unfinished paths are dashed and connected endpoints have a double outline.
 The consumer supplies rules, accessible cell names and callbacks. The surface

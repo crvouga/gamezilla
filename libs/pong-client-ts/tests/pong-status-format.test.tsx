@@ -17,10 +17,7 @@ test('the court status is formatted once per change of its words, not once per f
   const start = initialPongState(config, () => 0);
   const [position, setPosition] = createSignal(pongPositionCodec.encode(start));
   const view = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
       <PongBoard
         position={position()}
         orientation="white"

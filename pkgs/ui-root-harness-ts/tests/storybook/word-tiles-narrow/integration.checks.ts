@@ -12,23 +12,17 @@ test.beforeEach(async ({ page }) => observeInput(page));
 test.afterEach(async ({ page }, info) => recordEvidence(page, info));
 
 // regression: word-tiles-narrow-rack-targets
-test('storybook integration: word-tiles narrow two players light keeps full rack targets', async ({
+test('storybook integration: word-tiles narrow two players keeps full rack targets', async ({
   page,
 }, info) => {
-  await narrowWorkspace(page, info, { players: 'two', theme: 'light' });
+  await narrowWorkspace(page, info, 'two');
 });
 
-for (const fixture of [
-  { players: 'two', theme: 'dark' },
-  { players: 'three', theme: 'light' },
-  { players: 'three', theme: 'dark' },
-  { players: 'four', theme: 'light' },
-  { players: 'four', theme: 'dark' },
-]) {
-  test(`storybook integration: word-tiles narrow ${fixture.players} players ${fixture.theme} keeps full rack targets`, async ({
+for (const players of ['three', 'four']) {
+  test(`storybook integration: word-tiles narrow ${players} players keeps full rack targets`, async ({
     page,
   }, info) => {
-    await narrowWorkspace(page, info, fixture);
+    await narrowWorkspace(page, info, players);
   });
 }
 
@@ -36,13 +30,13 @@ for (const fixture of [
 test('storybook integration: word-tiles narrow two players opening fits without scrolling', async ({
   page,
 }, info) => {
-  await narrowOpeningFits(page, info, { players: 'two', theme: 'light' });
+  await narrowOpeningFits(page, info, 'two');
 });
 
 for (const players of ['three', 'four']) {
   test(`storybook integration: word-tiles narrow ${players} players opening fits without scrolling`, async ({
     page,
   }, info) => {
-    await narrowOpeningFits(page, info, { players, theme: 'light' });
+    await narrowOpeningFits(page, info, players);
   });
 }

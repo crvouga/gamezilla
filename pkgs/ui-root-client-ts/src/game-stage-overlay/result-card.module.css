@@ -11,6 +11,7 @@ section.docked {
   overflow: hidden;
   border: 1px solid var(--ui-color-border);
   background: var(--ui-color-surface);
+  background-image: var(--ui-finish-surface);
   /* The result's colour is a band inside the card's own corners. */
   box-shadow: inset 0 4px 0 var(--result-accent);
 }
@@ -18,7 +19,7 @@ section.docked[data-tone] {
   border-top-color: var(--ui-color-border);
 }
 section.docked[data-tone="won"] {
-  --result-accent: var(--ui-color-success);
+  --result-accent: var(--ui-color-reward);
 }
 section.docked[data-tone="lost"] {
   --result-accent: var(--ui-color-destructive);
@@ -73,6 +74,7 @@ section.docked[data-tone="lost"] {
 }
 .detailsToggle:hover {
   background: var(--ui-color-surface-muted);
+  background-image: var(--ui-finish-well);
 }
 .detailsToggle:focus-visible {
   outline: 2px solid var(--ui-color-tint);
@@ -172,6 +174,7 @@ section.docked[data-tone="lost"] {
     border: 1px solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface-elevated);
+    background-image: var(--ui-finish-surface);
     /* A scrim dims what the sheet lies over (the board, the seats), down
        to the card, which stays clear with its reason and its control. */
     box-shadow:

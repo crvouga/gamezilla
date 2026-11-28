@@ -8,7 +8,7 @@ const read = (path: string) => readFileSync(join(repo, path), 'utf8');
 type Color = { readonly $value: { readonly hex: string } };
 const tokens = JSON.parse(
   read('pkgs/ui-root-shared-ts/src/design-tokens.json')
-) as { color: Record<'light' | 'dark', Record<string, Color>> };
+) as { color: Record<string, Color> };
 
 function luminance(hex: string): number {
   const [r, g, b] = [1, 3, 5].map((at) => {
@@ -36,18 +36,18 @@ function tokenOf(selector: string, property: string): string | undefined {
 }
 
 /** The arena's local token, resolved to the Light Cycles colour it names. */
-function arenaHex(theme: 'light' | 'dark', local: string): string {
+function arenaHex(local: string): string {
   const name =
     new RegExp(
       `--ui-color-${local}: var\\(--ui-color-game-light-cycles-([a-z]+)\\);`
     ).exec(sheet)?.[1] ?? local.replace('game-light-cycles-', '');
   const key = `gameLightCycles${name.charAt(0).toUpperCase()}${name.slice(1)}`;
-  return tokens.color[theme][key]?.$value.hex ?? '';
+  return tokens.color[key]?.$value.hex ?? '';
 }
 
 // axe cannot judge SVG text, so a head's letter and the crash badge are
 // checked here against the colours the arena actually draws them in.
-test('rider letters read on every head and the crash cross reads on its badge, in both themes', () => {
+test('rider letters read on every head and the crash cross reads on its badge', () => {
   expect(tokenOf('.mark', 'fill')).toBe('background');
   expect(sheet.split('.disc {')[1]?.split('}')[0]).toContain(
     'fill: var(--rider-color);'
@@ -60,15 +60,11 @@ test('rider letters read on every head and the crash cross reads on its badge, i
     ),
   ].map((match) => match[1] ?? '');
   expect(riders).toHaveLength(4);
-  for (const theme of ['light', 'dark'] as const) {
-    const ground = arenaHex(theme, 'background');
-    for (const rider of riders)
-      expect(contrast(ground, arenaHex(theme, rider))).toBeGreaterThanOrEqual(
-        4.5
-      );
-    const badge = tokens.color[theme]['destructiveSurface']?.$value.hex ?? '';
-    expect(contrast(badge, ground)).toBeGreaterThanOrEqual(3);
-  }
+  const ground = arenaHex('background');
+  for (const rider of riders)
+    expect(contrast(ground, arenaHex(rider))).toBeGreaterThanOrEqual(4.5);
+  const badge = tokens.color['destructiveSurface']?.$value.hex ?? '';
+  expect(contrast(badge, ground)).toBeGreaterThanOrEqual(3);
 });
 
 // regression: light-cycles-crash-badge-in-rider-colour
@@ -91,17 +87,13 @@ test("a crash is never drawn in a rider's colour, and a crashed rider's letter i
     expect(riders.has(resolved)).toBe(false);
   }
   expect(sheet).not.toMatch(/\.head\[data-alive="false"\] \{[^}]*opacity/);
-  for (const theme of ['light', 'dark'] as const) {
-    const ground = arenaHex(theme, 'background');
-    for (const rider of riders)
-      expect(
-        contrast(arenaHex(theme, rider ?? ''), ground)
-      ).toBeGreaterThanOrEqual(4.5);
-  }
+  const ground = arenaHex('background');
+  for (const rider of riders)
+    expect(contrast(arenaHex(rider ?? ''), ground)).toBeGreaterThanOrEqual(4.5);
 });
 
 // regression: light-cycles-arena-focus-ring-invisible-on-light-page
-test('keyboard focus thickens the arena wall and keeps it visible in both themes', () => {
+test('keyboard focus thickens the arena wall and keeps it visible', () => {
   const focusedWall = '.arena:focus-visible .wall';
   expect(tokenOf(focusedWall, 'stroke')).toBe('focus-ring');
   expect(tokenOf('.ground', 'fill')).toBe('background');
@@ -112,13 +104,11 @@ test('keyboard focus thickens the arena wall and keeps it visible in both themes
       )?.[1]
     );
   expect(width(focusedWall)).toBeGreaterThan(width('.wall'));
-  for (const theme of ['light', 'dark'] as const) {
-    const ground = arenaHex(theme, 'background');
-    const ring = arenaHex(theme, 'focus-ring');
-    const page = tokens.color[theme]['background']?.$value.hex ?? '';
-    expect(contrast(ring, ground)).toBeGreaterThanOrEqual(3);
-    expect(
-      Math.max(contrast(ground, page), contrast(ring, page))
-    ).toBeGreaterThanOrEqual(3);
-  }
+  const ground = arenaHex('background');
+  const ring = arenaHex('focus-ring');
+  const page = tokens.color['background']?.$value.hex ?? '';
+  expect(contrast(ring, ground)).toBeGreaterThanOrEqual(3);
+  expect(
+    Math.max(contrast(ground, page), contrast(ring, page))
+  ).toBeGreaterThanOrEqual(3);
 });
