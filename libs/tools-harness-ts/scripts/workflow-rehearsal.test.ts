@@ -29,6 +29,15 @@ test('Release rehearsal verifies and plans without opening the release path', ()
     if: '${{ inputs.rehearsal }}',
     needs: 'deploy-verify',
   });
+  // regression: rehearsal-delays-release-policy
+  expect(workflow.jobs['deploy-rehearsal']).toHaveProperty(
+    'concurrency.group',
+    "${{ (inputs.abandoned-bootstrap-lock != '' || inputs.abandoned-foundation-lock != '') && 'repository-policy' || format('rehearsal-plan-{0}', github.run_id) }}"
+  );
+  expect(workflow.jobs['deploy-repository-policy']).toHaveProperty(
+    'concurrency.group',
+    'repository-policy'
+  );
   // regression: rehearsal-uses-main-only-aws-role
   expect(workflow.jobs['deploy-rehearsal']).toMatchObject({
     env: { AWS_ROLE_ARN: '${{ vars.AWS_HEALTH_ROLE_ARN }}' },

@@ -5,7 +5,6 @@ import type { BrowserTelemetry } from '@pkgs/observability-root-client-ts/browse
 import { createBrowserTelemetry } from '@pkgs/observability-root-client-ts/browser';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
-import sql from '@pkgs/sql-root-shared-ts/sql';
 
 type FinishedSpan = {
   readonly name: string;
@@ -101,7 +100,7 @@ beforeEach(async () => {
 });
 
 // regression: dev-sqlite-workers-served-as-html
-test('landing on the in-memory stand-in is a failed db.open that names its cause', async () => {
+test('a failed durable open is reported with its cause', async () => {
   // This runtime has no worker to host SQLite, as in a page whose worker
   // script could not load.
   const warnings: string[] = [];
@@ -113,18 +112,13 @@ test('landing on the in-memory stand-in is a failed db.open that names its cause
     child: () => logger,
   };
 
-  const client = await openMainSqlClient('user-1', TIMERS, logger);
-
-  expect(await client.query(sql<{ one: number }>`SELECT 1 AS one`)).toEqual([
-    { one: 1 },
-  ]);
+  await expect(openMainSqlClient('user-1', TIMERS, logger)).rejects.toThrow();
   await runtime.forceFlush();
   const opens = finished.filter((span) => span.name === 'db.open');
   expect(opens).toHaveLength(1);
-  expect(opens[0]?.attributes[ATTR.DB_SYSTEM_NAME]).toBe('sqlite.memory');
+  expect(opens[0]?.attributes[ATTR.DB_SYSTEM_NAME]).toBe('sqlite.opfs');
   expect(opens[0]?.status.code).toBe(SpanStatusCode.ERROR);
   expect(opens[0]?.status.message).toContain('local SQLite unavailable');
   expect(opens[0]?.events.map((event) => event.name)).toContain('exception');
-  expect(warnings).toHaveLength(1);
-  await client.disconnect();
+  expect(warnings).toHaveLength(0);
 });

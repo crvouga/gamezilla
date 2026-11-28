@@ -1,7 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 /**
  * What a person sees while the app boots on a local database that is
- * missing, damaged, full, hung or gone: the app, never an error screen.
+ * missing, damaged, full, hung or gone: a recovery state that keeps saved data.
  */
 
 import { afterEach, describe, expect, test } from 'bun:test';
@@ -268,17 +268,17 @@ describe('booting the app', () => {
     b.unmount();
   });
 
-  test('opens when the database cannot be opened', async () => {
+  test('shows recovery when the durable database cannot be opened', async () => {
     const b = await boot({
       openSqlClient: () => Promise.reject(new Error('no worker could start')),
     });
-    await until(() => b.state() === 'ready');
-    expect(b.state()).toBe('ready');
+    await until(() => b.state() === 'error');
+    expect(b.state()).toBe('error');
     b.unmount();
   });
 
   test.each(Object.keys(STORAGE_FAULTS) as (keyof typeof STORAGE_FAULTS)[])(
-    'opens when the database is dead on arrival (%s)',
+    'shows recovery when the durable database is dead on arrival (%s)',
     async (name) => {
       const b = await boot({
         openSqlClient: async () => {
@@ -287,8 +287,8 @@ describe('booting the app', () => {
           return faulty.client;
         },
       });
-      await until(() => b.state() === 'ready');
-      expect(b.state()).toBe('ready');
+      await until(() => b.state() === 'error');
+      expect(b.state()).toBe('error');
       b.unmount();
     }
   );

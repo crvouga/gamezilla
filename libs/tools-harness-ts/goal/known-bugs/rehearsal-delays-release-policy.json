@@ -1,0 +1,4 @@
+{
+  "summary": "Read-only rehearsal 46128860239 held repository-policy while main Release 46128907141 queued its policy apply, consuming the production admission budget. Ordinary plans need no writer exclusion; explicit abandoned-lock recovery still does.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-rehearsal.test.ts"
+}

@@ -1,0 +1,4 @@
+{
+  "summary": "SQLite opening waited for the application module instead of starting alongside it.",
+  "regressionTest": "libs/app-root-client-ts/tests/local-database-failure.test.ts"
+}
