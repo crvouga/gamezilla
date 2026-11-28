@@ -495,6 +495,11 @@ is visibility at operation start, not verified human identity or proof of a
 working connection. Ingress rejects browser claims to the server cohort or
 server-only database/delivery targets. Do not label these metrics as a population-wide human SLO.
 
+Grafana uses one rule per diagnostic kind. Each target keeps its own predicate
+and becomes a separate `app_sync_target` alert series. This shares rule metadata
+without combining target outcomes, thresholds, delivery routes or hold times.
+The capacity regression includes both environments and Grafana SLO recording rules.
+
 Start with `bun obs slow --source prod --since 1h`; inspect the environment on
 each trace (`--source prod` selects the store, not the deployment). Follow
 `sync.work.database`, `sync.work.transport`, `sync.work.schema`, and outbox
