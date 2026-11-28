@@ -1,0 +1,4 @@
+{
+  "summary": "The bootstrap check rejected the guarded Grafana quota lookup because it counted all instance guards instead of checking that each Grafana resource is guarded.",
+  "regressionTest": "libs/infra-server-ts/tests/foundation-bootstrap.test.ts"
+}
