@@ -3,7 +3,7 @@
 import { withShippedModeration } from '@libs/moderation-client-ts/moderation-story.example';
 import { buildNotificationSections } from '@libs/notifications-shared-ts/notifications-sections';
 import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
-import { BellIcon } from '@pkgs/ui-root-client-ts/icons';
+import { NotificationsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { NotificationsScreenView } from './notifications-screen-view';
@@ -319,12 +319,18 @@ export const LongContent: Story = {
 
 /** A guest may not have an inbox: the sign-in way forward replaces it. */
 export const Denied: Story = {
+  play: async ({ canvasElement, args }) => {
+    await userEvent.click(
+      within(canvasElement).getByRole('button', { name: 'Sign in' })
+    );
+    await expect(args.denial?.action?.onPress).toHaveBeenCalledTimes(1);
+  },
   args: {
     sections: [],
     denial: {
-      icon: BellIcon,
-      title: 'Sign in to get notifications',
-      body: 'Friend requests and invites arrive here once you sign in.',
+      icon: NotificationsArt,
+      title: 'Sign in to see notifications',
+      body: 'Friend requests and space invites will land here.',
       action: { label: 'Sign in', onPress: fn() },
       dataSet: { testid: 'permission-denial', reason: 'requires_account' },
     },

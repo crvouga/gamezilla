@@ -32,6 +32,7 @@ export default defineConfig({
       'game-art-review',
       'navigation-art-review',
       'list-icon-review',
+      'empty-art-review',
     ].includes(process.env['STORYBOOK_PATTERN'] ?? '')
       ? ['**/screen-art-review/capture.checks.ts']
       : []),

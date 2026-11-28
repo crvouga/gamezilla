@@ -98,8 +98,7 @@ export type StateBlockIconProps = {
 };
 
 /**
- * The state's glyph inside a hairline circle: a 48px outline icon in a 96px
- * disc (`fill`), or 32px in 64px (`compact`).
+ * Illustrations fill the 96px or 64px slot. System glyphs sit inside a hairline disc.
  */
 export function StateBlockIcon(props: StateBlockIconProps): JSX.Element {
   const isFill = (): boolean => (props.variant ?? 'fill') === 'fill';
@@ -107,7 +106,7 @@ export function StateBlockIcon(props: StateBlockIconProps): JSX.Element {
   return (
     <div
       class={[
-        'box shrink-0 items-center justify-center rounded-full border border-solid border-border',
+        'stateBlockIcon box shrink-0 items-center justify-center',
         { 'size-24 mb-2': isFill(), 'size-16 mb-1': !isFill() },
       ]}
       data-component="StateBlockIcon"

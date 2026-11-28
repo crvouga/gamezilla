@@ -48,10 +48,43 @@ const listScreens = new Set([
   'screens-admin-synthetic-user--running',
   'space-person-menu--add-bot',
 ]);
+const emptyScreens = new Set([
+  'screens-admin-live-watch--user-went-offline',
+  'screens-spaces-home--empty',
+  'screens-space-join--missing',
+  'screens-space-ended--ended',
+  'screens-search-people--idle',
+  'screens-search-people--no-results',
+  'screens-notifications-inbox--denied',
+  'screens-notifications-inbox--empty',
+  'screens-notifications-inbox--empty-archived',
+  'screens-friends-list--empty',
+  'screens-friends-user--unavailable',
+  'screens-account-devices--empty',
+  'screens-account-device-detail--not-found',
+  'screens-history-games--empty',
+  'screens-matchmaking-status--unavailable',
+  'screens-spaces-members--empty',
+  'screens-spaces-share--empty',
+  'screens-puzzles-stage-status--empty',
+  'screens-puzzles-link--unavailable',
+  'screens-puzzles-home-themes--no-match',
+  'screens-puzzles-review--unavailable',
+  'screens-puzzles-stats--empty',
+  'screens-puzzles-stats-log--empty',
+  'screens-puzzles-stats-trend--empty',
+  'screens-puzzle-packs-home--empty',
+  'screens-puzzle-packs-home-browse--empty',
+  'screens-puzzle-packs-home-continue--empty',
+  'screens-puzzle-packs-home-mine--empty',
+  'screens-puzzle-packs-home-playtests--empty',
+  'screens-puzzle-packs-home-solved--empty',
+]);
 const selections = new Map([
   ['game-art-review', gameScreens],
   ['navigation-art-review', navigationScreens],
   ['list-icon-review', listScreens],
+  ['empty-art-review', emptyScreens],
 ]);
 const review = process.env['STORYBOOK_PATTERN'] ?? 'screen-art-review';
 const selection = selections.get(review);
@@ -107,6 +140,22 @@ for (const entry of Object.values(index.entries)) {
           suffix: '',
           globals: selection ? { spaceRole: 'host' } : {},
         });
+        const art = page.locator(
+          '.stateBlockIcon > img[data-icon-family="artwork"]'
+        );
+        if (
+          review === 'empty-art-review' &&
+          [
+            'screens-spaces-home--empty',
+            'screens-search-people--idle',
+            'screens-notifications-inbox--denied',
+          ].includes(entry.id)
+        ) {
+          await expect(art).toHaveCount(1);
+          await expect(art).toHaveCSS('width', '96px');
+          await expect(art.locator('..')).toHaveCSS('border-top-width', '0px');
+          await art.evaluate((image: HTMLImageElement) => image.decode());
+        }
         const pictures = page.locator('img[data-component="Illustration"]');
         for (const picture of await pictures.all()) {
           await picture.evaluate((image: HTMLImageElement) => image.decode());
