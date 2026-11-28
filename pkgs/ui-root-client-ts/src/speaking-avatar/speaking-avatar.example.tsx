@@ -40,16 +40,9 @@ export default function SpeakingAvatarExample(): JSX.Element {
       <p class="text textCaption">{'Rotating message (re-types on change)'}</p>
       <RotatingMessage />
 
-      <p class="text textCaption">{'Custom seed (different face)'}</p>
+      <p class="text textCaption">{'Larger avatar'}</p>
       <SpeakingAvatar
-        message="Different seed, different face."
-        seed="bishop"
-        speak={false}
-      />
-
-      <p class="text textCaption">{'Smaller avatar (compact layout)'}</p>
-      <SpeakingAvatar
-        message="Tighter layout for compact screens."
+        message="A larger portrait."
         avatarSize={40}
         speak={false}
       />

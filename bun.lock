@@ -8042,8 +8042,6 @@
       "name": "@pkgs/ui-root-shared-ts",
       "version": "0.0.0",
       "dependencies": {
-        "@dicebear/collection": "catalog:",
-        "@dicebear/core": "catalog:",
         "@pkgs/colors-shared-ts": "workspace:*",
         "@pkgs/i18n-shared-ts": "workspace:*",
         "@pkgs/keyword-shared-ts": "workspace:*",

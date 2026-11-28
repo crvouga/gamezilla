@@ -1,6 +1,6 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
-import { BotArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
+import { AutomationArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
 
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
@@ -43,7 +43,7 @@ function UserObservatoryLinks(
       <Show when={props.canOpenSyntheticUsers}>
         <MenuSection title={<Trans>Synthetic Population</Trans>}>
           <MenuRow
-            leading={<BotArt />}
+            leading={<AutomationArt />}
             title={t`Synthetic Population`}
             caption={t`The Synthetic Users, their workers, events and the desired synthetic population`}
             onClick={() => props.onOpenSyntheticUsers()}

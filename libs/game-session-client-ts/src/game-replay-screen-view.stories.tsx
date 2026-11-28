@@ -92,6 +92,16 @@ type Story = StoryObj<typeof meta>;
 /** A replay opens on the final position; the steps forward are held back at the end. */
 export const FinalPosition: Story = {};
 
+export const BotOpponent: Story = {
+  args: {
+    players: PLAYERS.map((player) =>
+      player.you
+        ? player
+        : { ...player, person: '', bot: true, plainName: 'Bot (medium)' }
+    ),
+  },
+};
+
 /** Stepping back through the game: every step is open. */
 export const MidGame: Story = { args: { ply: 3 } };
 

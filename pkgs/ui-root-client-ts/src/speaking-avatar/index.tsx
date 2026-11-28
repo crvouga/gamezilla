@@ -3,24 +3,23 @@
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { booleanKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { speakingAvatarSvg } from '@pkgs/ui-root-shared-ts/speaking-avatar-svg';
-import { svgToDataUri } from '@pkgs/ui-root-shared-ts/svg-data-uri';
 import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { type Accessor, createMemo, omit, Show, untrack } from 'solid-js';
+import { BotArt } from '../illustration/index';
 import type { SoundIndicatorState } from '../sound-indicator/index';
 import { SoundIndicator } from '../sound-indicator/index';
 import { SpeechBubble } from '../speech-bubble/index';
+import { Text } from '../text/index';
 
 const MUTED_ROW_KEY = asKeyword('ui/speaking-avatar-muted');
 const MUTED_VALUE_ATTR = asKeyword('ui/value');
 const MUTED_CODEC = booleanKvCodec(MUTED_VALUE_ATTR);
 
-const DEFAULT_AVATAR_SIZE = 96;
-const DEFAULT_SEED = 'speaking-avatar';
+const DEFAULT_AVATAR_SIZE = 32;
 
 /** Reactive input handed to the injected speaker. */
 export type SpeakingAvatarSpeechArgs = {
@@ -58,10 +57,7 @@ export type SpeakingAvatarProps = Omit<
   bubbleResolving?: boolean | undefined;
   /** Injected TTS binding (see module docs). Read once at mount. */
   speaker?: SpeakingAvatarSpeaker | undefined;
-  /** Size of the DiceBear head graphic in pixels (width === height). Defaults to `96`. */
   avatarSize?: number | undefined;
-  /** DiceBear seed (controls which face is generated). Defaults to `'speaking-avatar'`. */
-  seed?: string | undefined;
   /**
    * When `true` (default), audio playback is permitted (given a `speaker`).
    * When `false`, audio is permanently off and the mute toggle / indicator
@@ -90,21 +86,7 @@ function resolveIndicatorState(
   return 'idle';
 }
 
-function HeadImage(props: { svg: string; size: number }): JSX.Element {
-  return (
-    <img
-      class="block shrink-0"
-      src={svgToDataUri(props.svg)}
-      alt=""
-      width={props.size}
-      height={props.size}
-      draggable="false"
-    />
-  );
-}
-
 function AvatarHead(props: {
-  svg: string;
   size: number;
   muted: boolean;
   indicator: SoundIndicatorState;
@@ -121,7 +103,7 @@ function AvatarHead(props: {
       aria-label={props.muted ? t`Unmute coach` : t`Mute coach`}
       data-testid={props.testId}
     >
-      <HeadImage svg={props.svg} size={props.size} />
+      <BotArt size={props.size} />
       <div class="box absolute right-0 bottom-0">
         <SoundIndicator
           state={props.indicator}
@@ -136,8 +118,7 @@ function AvatarHead(props: {
 }
 
 /**
- * `SpeakingAvatar` -- a DiceBear "fun-emoji" character rendered raw (no
- * circular crop), paired with a speech bubble that slides+fades in whenever
+ * `SpeakingAvatar` -- the mascot portrait, paired with a speech bubble that slides+fades in whenever
  * the message changes, in sync with TTS playback.
  *
  * Purely presentational: the message comes in as a plain string. Callers
@@ -169,7 +150,6 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
     'bubbleResolving',
     'speaker',
     'avatarSize',
-    'seed',
     'speak',
     'numberOfLines',
     'fixedHeight',
@@ -181,10 +161,6 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
     props.speak === false ? undefined : props.speaker
   );
   const size = () => props.avatarSize ?? DEFAULT_AVATAR_SIZE;
-  const svg = createMemo(() =>
-    speakingAvatarSvg(props.seed ?? DEFAULT_SEED, size())
-  );
-
   const [muted, setMuted] = createKvState<boolean>({
     key: MUTED_ROW_KEY,
     default: false,
@@ -210,27 +186,31 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
       data-loading={String(speech.isLoading())}
       {...dataAttrs({ component: 'SpeakingAvatar', ...props.dataSet })}
     >
-      <Show
-        when={createSpeech !== undefined}
-        fallback={
-          <div class="box self-center">
-            <HeadImage svg={svg()} size={size()} />
-          </div>
-        }
-      >
-        <AvatarHead
-          svg={svg()}
-          size={size()}
-          muted={muted()}
-          indicator={indicator()}
-          onToggle={() => setMuted((m) => !m)}
-          testId={
-            props.dataSet?.['testid'] === undefined
-              ? undefined
-              : `${props.dataSet['testid']}-mute`
+      <div class="box items-center shrink-0">
+        <Show
+          when={createSpeech !== undefined}
+          fallback={
+            <div class="box self-center">
+              <BotArt size={size()} />
+            </div>
           }
-        />
-      </Show>
+        >
+          <AvatarHead
+            size={size()}
+            muted={muted()}
+            indicator={indicator()}
+            onToggle={() => setMuted((m) => !m)}
+            testId={
+              props.dataSet?.['testid'] === undefined
+                ? undefined
+                : `${props.dataSet['testid']}-mute`
+            }
+          />
+        </Show>
+        <Text variant="caption">
+          <Trans>Coach</Trans>
+        </Text>
+      </div>
       <SpeechBubble
         text={props.message}
         loading={speech.isLoading() || props.bubbleResolving === true}

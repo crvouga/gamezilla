@@ -1,6 +1,6 @@
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import {
-  BotArt,
+  AutomationArt,
   PuzzleArt,
   StatsArt,
 } from '@pkgs/ui-root-client-ts/illustration';
@@ -39,7 +39,7 @@ export function AdminDashboardScreenView(props: {
           onClick={() => props.onObservatory()}
         />
         <MenuRow
-          leading={<BotArt />}
+          leading={<AutomationArt />}
           title={<Trans>Synthetic Population</Trans>}
           caption={
             <Trans>

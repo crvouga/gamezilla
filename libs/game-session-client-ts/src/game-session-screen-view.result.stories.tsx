@@ -6,6 +6,7 @@ import { FrameStory, onBoard } from './game-frame-board.example';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import {
   AVERY,
+  BOT,
   FRAME_CONTROLS_EXCLUDE,
   frameArgs,
   JORDAN,
@@ -46,6 +47,20 @@ type Story = StoryObj<typeof meta>;
 
 /** The viewer won: the headline is theirs, Rematch is the one filled command, then the final board and the standings. */
 export const YouWin: Story = {};
+
+export const BotOpponent: Story = {
+  args: {
+    table: { shape: 'strip', near: playSeat(AVERY), others: [playSeat(BOT)] },
+    result: {
+      headline: 'You won',
+      note: null,
+      scoreLabel: null,
+      standings: STANDINGS.map((row) =>
+        row.you ? row : { ...row, name: BOT.plainName, holder: BOT.holder }
+      ),
+    },
+  },
+};
 
 /**
  * J12: the ending is a dialog; Rematch in it starts the next game, and

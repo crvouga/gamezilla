@@ -1,6 +1,8 @@
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
+import { BotArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { For, Match, Switch } from 'solid-js';
 import { createFrameChoices, FrameChoiceRow } from './game-frame-choice';
@@ -24,7 +26,14 @@ export function BotDifficultyPlace(
       back={<Trans>Back to setup</Trans>}
       title={props.seat.sideLabel}
     >
-      <MenuSection title={<Trans>How this bot plays</Trans>}>
+      <MenuSection
+        title={
+          <StackHorizontal align="center" gap="sm">
+            <BotArt />
+            <Trans>How this bot plays</Trans>
+          </StackHorizontal>
+        }
+      >
         <For each={offered()?.difficulties ?? []}>
           {(difficulty) => (
             <FrameChoiceRow

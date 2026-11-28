@@ -19,8 +19,6 @@
     "test": "bun test tests"
   },
   "dependencies": {
-    "@dicebear/collection": "catalog:",
-    "@dicebear/core": "catalog:",
     "@pkgs/colors-shared-ts": "workspace:*",
     "@pkgs/i18n-shared-ts": "workspace:*",
     "@pkgs/keyword-shared-ts": "workspace:*",
