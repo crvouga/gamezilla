@@ -36,7 +36,10 @@ export async function observePongRematch(
 ): Promise<void> {
   let rematchId = '';
   await host.act('observePongRematch', async (ui) => {
-    const next = await pongJourneyStart(ui);
+    const next = await pongJourneyStart(
+      ui,
+      start.side === 'white' ? 'black' : 'white'
+    );
     check(next.gameId !== start.gameId, 'The rematch reused the finished game');
     check(next.side !== start.side, 'Alice kept her earlier paddle');
     check(
@@ -46,7 +49,7 @@ export async function observePongRematch(
     rematchId = next.gameId;
   });
   await host.actAsGuest('observePongRematch', async (ui) => {
-    const next = await pongJourneyStart(ui);
+    const next = await pongJourneyStart(ui, start.side);
     check(next.gameId === rematchId, 'The people see different rematches');
     check(next.side === start.side, 'Bob kept his earlier paddle');
     check(

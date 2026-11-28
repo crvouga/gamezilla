@@ -16,7 +16,7 @@ function wideCourt(
     visible: [board, status, 'multiplayer-seat-near'],
     captions: {},
     texts: {
-      [status]: 'Serve in 2',
+      [status]: alreadyServing ? 'Keep the ball in play.' : 'Reconnecting…',
       [`${board}-score-left`]: 'Left 0',
       [`${board}-score-right`]: 'Right 0',
       [`${board}-target`]: 'First to 11',
@@ -24,12 +24,13 @@ function wideCourt(
   }).ui;
   function attribute(id: string, name: string): string | null {
     const attributes: Record<string, Record<string, string>> = {
-      [board]: { 'data-interactive': String(active) },
       'multiplayer-game': {
         'data-game-id': active ? 'new-match' : 'previous-match',
       },
-      'multiplayer-seat-near': { 'data-side': side },
-      [status]: { 'data-stage': active ? 'countdown' : 'finished' },
+      'multiplayer-seat-near': {
+        'data-side': active ? side : side === 'white' ? 'black' : 'white',
+      },
+      [status]: { 'data-stage': 'reconnecting' },
       [`${board}-drawing`]: { viewBox: '0 0 1200 800' },
     };
     return attributes[id]?.[name] ?? null;
@@ -39,9 +40,20 @@ function wideCourt(
     get: (id) => ({
       ...base.get(id),
       wait: async (condition) => {
-        expect(id).toBe(status);
-        expect(condition).toEqual({ text: 'Serve in', exact: false });
-        active = true;
+        if (id === 'multiplayer-colour') {
+          expect(condition).toEqual({
+            text: side === 'white' ? 'play Left' : 'play Right',
+            exact: false,
+          });
+          active = true;
+        } else {
+          expect(id).toBe(status);
+          expect(condition).toEqual({
+            text: ['Serve in', 'Keep the ball in play.'],
+            exact: false,
+          });
+          expect(active).toBe(true);
+        }
       },
       attribute: async (name) => attribute(id, name),
     }),
@@ -49,6 +61,7 @@ function wideCourt(
   return (_name, gestures) => gestures(ui);
 }
 
+// regression: pong-playability-read-during-reconnection
 // regression: pong-wide-rematch-awaited-phone-slider
 test('both wide courts reveal the same scoreless rematch with the assigned paddles swapped', async () => {
   await observePongRematch(
