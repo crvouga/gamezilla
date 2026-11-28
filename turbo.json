@@ -1963,6 +1963,7 @@
         "!pkgs/ui-root-shared-ts/src/token-names.ts"
       ],
       "outputs": [
+        "apps/product-client-swift/src/assets.xcassets/table-*.colorset/Contents.json",
         "pkgs/ui-root-client-ts/src/tokens.css",
         "pkgs/ui-root-client-ts/src/tokens.json",
         "pkgs/ui-root-shared-ts/src/token-names.ts"

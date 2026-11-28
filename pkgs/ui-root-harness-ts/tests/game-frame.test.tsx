@@ -332,6 +332,23 @@ describe('Game frame: game over', () => {
     expect(screen.getByRole('listitem')).toHaveTextContent('WinnerErin');
   });
 
+  test("a winner's place carries the trophy; a table where everyone tied carries none", () => {
+    const trophies = (rows: readonly GameStandingRow[]): string[] => {
+      const view = renderUi(() => (
+        <GameStandings aria-label="Standings" rows={rows} />
+      ));
+      const marked = within(view.container)
+        .getAllByRole('listitem')
+        .filter((item) => item.querySelector('[data-icon-family="artwork"]'))
+        .map((item) => item.getAttribute('data-place') ?? '');
+      view.unmount();
+      return marked;
+    };
+    expect(trophies([1, 2, 3].map(standingRow))).toEqual(['1']);
+    expect(trophies([1, 1, 3].map(standingRow))).toEqual(['1', '1']);
+    expect(trophies([1, 1].map(standingRow))).toEqual([]);
+  });
+
   test('ordinals follow the locale ordinal rules', () => {
     const places = [1, 2, 3, 4, 11, 12, 13, 21, 22, 23, 101, 111];
     expect(places.map((place) => formatOrdinal(place, 'en'))).toEqual([

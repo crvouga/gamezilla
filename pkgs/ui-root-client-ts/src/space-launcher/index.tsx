@@ -104,7 +104,8 @@ function orderedGames(
 
 /**
  * `SpaceLauncher` -- the stage while the host chooses a game: a status
- * line, then a grid of game tiles (four across on a phone), one per game.
+ * line, then a grid of game cards (two across on a phone), one per game,
+ * each faced with its board.
  * It looks the same for every game, so it is not a template; modes,
  * variants and head counts live in each game's own setup.
  *

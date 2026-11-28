@@ -65,6 +65,12 @@ describe('AppHeaderIsland sidebar', () => {
     expect(items[1]?.hasAttribute('aria-current')).toBe(false);
     // Rows in a list take the control radius, not the pill.
     expect(items[0]?.className).toMatch(/\brounded-control\b/);
+    // Every row is a 52px target; only the current row's tile takes the accent.
+    for (const item of items) expect(item.className).toMatch(/\bh-13\b/);
+    const tile = (item: Element | undefined): string =>
+      item?.querySelector('[data-slot="tile"]')?.className ?? '';
+    expect(tile(items[0])).toMatch(/\bbg-tint-active\b/);
+    expect(tile(items[1])).not.toMatch(/\bbg-tint-active\b/);
     expect(screen.getByText('Avatar')).toBeTruthy();
     await user.click(screen.getByRole('button', { name: 'Settings' }));
     expect(onSettings).toHaveBeenCalledTimes(1);

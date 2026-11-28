@@ -1,0 +1,20 @@
+/* One number of a solo run: paper with a fine lower edge. */
+.statTile {
+  border: var(--ui-space-hairline) solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
+  box-shadow: 0 var(--ui-space-hairline) var(--ui-color-border);
+}
+/* A finish: the place reads first, a winner's trophy beside it. */
+.standingPlace {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--ui-space-1);
+  min-width: var(--ui-space-12);
+}
+/* The viewer's finish: the selection wash and the accent bar on its start
+   edge, so their row is found at a glance in a long table. */
+[data-you="true"] > .standing {
+  box-shadow: inset var(--ui-space-xs) 0 var(--ui-color-tint);
+}

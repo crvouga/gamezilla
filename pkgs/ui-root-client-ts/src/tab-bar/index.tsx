@@ -40,7 +40,7 @@ const STROKE_CURRENT = 2.5;
 const STROKE_DEFAULT = 2;
 
 const ITEM_CLASS =
-  'clickable group flex-1 min-w-0 h-16 items-center justify-center gap-1 px-1';
+  'clickable group flex-1 min-w-0 h-14 items-center justify-center gap-1 px-1';
 
 /** A click the browser should keep: new tab, new window, download. */
 function isModifiedClick(event: MouseEvent): boolean {
@@ -59,7 +59,7 @@ function TabBarItemFace(props: { item: TabBarItem }): JSX.Element {
     <>
       <span
         class={[
-          'box h-9 w-16 items-center justify-center rounded-full transition motion-reduce:transition-none motion-safe:group-active:scale-95',
+          'box h-8 w-12 max-w-full items-center justify-center rounded-control transition-colors',
           {
             'bg-tint-subtle': props.item.current,
             'group-hover:bg-interactive-hover': !props.item.current,
@@ -147,11 +147,10 @@ function TabBarButton(props: { item: TabBarItem }): JSX.Element {
  * `TabBar` -- the compact bottom navigation: one destination per item, icon
  * over label, pinned under the content on phones.
  *
- * - **Look.** A 64px row on the canvas with one hairline above it and the
- *   bottom safe-area inset below. Each destination's picture sits in a 36px
- *   pill with a 12px label underneath. The current pill fills with the
- *   accent's subtle tone and its label turns full ink and semibold; a press
- *   presses the pill in. Each label box is held at its semibold width
+ * - **Look.** A 56px row on the canvas with one hairline above it and the
+ *   bottom safe-area inset below. Each destination's picture sits in a 32px
+ *   tile with its label underneath. The current tile fills with the
+ *   accent's subtle tone and its label turns full ink and semibold. Each label box is held at its semibold width
  *   (`reserveBold`), so selection never reflows the labels.
  * - **Meaning.** A `navigation` landmark of links or buttons, never an ARIA
  *   `tablist`: that role needs `tab` children, panels and arrow-key roving,
@@ -181,7 +180,7 @@ export function TabBar(props: TabBarProps): JSX.Element {
       {...dataAttrs({ component: 'TabBar', ...props.dataSet })}
       aria-label={props['aria-label']}
     >
-      <div class="box flex-row items-stretch h-16">
+      <div class="box flex-row items-stretch h-14">
         <For each={props.items}>
           {(item) => (
             <Show

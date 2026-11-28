@@ -1,7 +1,9 @@
 /** @jsxImportSource @solidjs/web */
 
-import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
-import type { AppHeaderIslandItem } from '@pkgs/ui-root-client-ts/app-header-island-types';
+import {
+  AppHeaderIsland,
+  type AppHeaderIslandItem,
+} from '@pkgs/ui-root-client-ts/app-header-island';
 import { AppLogo } from '@pkgs/ui-root-client-ts/app-logo';
 import {
   Gamepad2Icon,

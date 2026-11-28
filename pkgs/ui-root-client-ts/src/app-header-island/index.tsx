@@ -1,7 +1,10 @@
 /** @jsxImportSource @solidjs/web */
 
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
-import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import {
+  type ComponentDataSet,
+  dataAttrs,
+} from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, Show } from 'solid-js';
@@ -10,11 +13,41 @@ import {
   useAppFrameGlobalTrailing,
   useAppFrameScreenTitleId,
 } from '../app-frame-chrome/index';
-import type {
-  AppHeaderIslandItem,
-  AppHeaderIslandProps,
-} from '../app-header-island-types';
+import type { IconComponent } from '../create-icon/index';
 import { ScreenBreadcrumbTrail } from '../screen-breadcrumb-trail/index';
+
+export type AppHeaderIslandItem = {
+  readonly id: string;
+  readonly label: string;
+  readonly icon: IconComponent;
+  readonly active: boolean;
+  readonly onClick: () => void;
+  /** DOM `data-*` identifiers for the tab. */
+  readonly dataSet?: ComponentDataSet | undefined;
+};
+
+export type AppHeaderIslandProps = {
+  /** Left slot (typically `AppLogo` or space Close/Back). */
+  leading?: JSX.Element | undefined;
+  /**
+   * Primary destinations rendered in the center. Omit or pass `[]` for chrome
+   * that only uses leading + trailing (e.g. active space).
+   */
+  items?: readonly AppHeaderIslandItem[] | undefined;
+  /**
+   * Right slot (space actions, avatar menu, …). Defaults to the
+   * `AppFrameChromeProvider` `globalTrailing` chrome when omitted.
+   */
+  trailing?: JSX.Element | undefined;
+  /**
+   * `horizontal` (default): one 52px top row. `vertical`: the wide sidebar —
+   * logo on top, one navigation row per item, the trailing chrome at the foot.
+   * A vertical island never shows breadcrumbs; screens draw their own.
+   */
+  orientation?: 'horizontal' | 'vertical' | undefined;
+  /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
+  dataSet?: ComponentDataSet | undefined;
+};
 
 const STROKE_CURRENT = 2.5;
 const STROKE_DEFAULT = 2;
@@ -24,7 +57,7 @@ function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
   return (
     <SdkButton
       class={[
-        'clickable clickableTint flex-row items-center gap-2 px-4 h-11 rounded-full border transition-colors',
+        'clickable clickableTint flex-row items-center gap-2 px-4 h-11 rounded-control border transition-colors',
         {
           'bg-tint-subtle border-outline': props.item.active,
           'border-transparent': !props.item.active,
@@ -64,7 +97,7 @@ function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
 /**
  * One sidebar row: the destination's picture on a tile, then its label. The
  * current row fills with the accent's subtle tone and its tile with the
- * accent itself; a press presses the tile in.
+ * accent itself.
  */
 function RailNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
   const ItemIcon = dynamic(() => props.item.icon);
@@ -82,7 +115,7 @@ function RailNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
     >
       <span
         class={[
-          'box size-10 shrink-0 items-center justify-center rounded-control transition motion-reduce:transition-none motion-safe:group-active:scale-95',
+          'box size-10 shrink-0 items-center justify-center rounded-control transition-colors',
           {
             'bg-tint-active': props.item.active,
             'bg-surface': !props.item.active,

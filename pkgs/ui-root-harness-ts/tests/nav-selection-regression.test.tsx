@@ -6,8 +6,10 @@
  */
 
 import { describe, expect, test } from 'bun:test';
-import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
-import type { AppHeaderIslandItem } from '@pkgs/ui-root-client-ts/app-header-island-types';
+import {
+  AppHeaderIsland,
+  type AppHeaderIslandItem,
+} from '@pkgs/ui-root-client-ts/app-header-island';
 import { HouseIcon, SearchIcon } from '@pkgs/ui-root-client-ts/icons';
 import { TabBar, type TabBarItem } from '@pkgs/ui-root-client-ts/tab-bar';
 import { createSignal, flush } from 'solid-js';
