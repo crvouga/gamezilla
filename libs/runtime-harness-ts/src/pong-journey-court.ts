@@ -8,15 +8,26 @@ export type PongJourneyStart = {
   readonly gameId: string;
   readonly side: PongJourneySide;
   readonly targetScore: number;
+  readonly score: Readonly<Record<'left' | 'right', number>>;
   readonly courtHeight: number;
 };
 
 export const pongJourneyCourt = (ui: Driver) => readPongCourt(ui, BOARD);
 
 export async function pongJourneyStart(ui: Driver): Promise<PongJourneyStart> {
-  await ui
-    .get(`${BOARD}-status`)
-    .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  const board = ui.get(BOARD);
+  await board.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  // A finished or reconnecting court cannot take input. Both layouts offer
+  // the same playable court before the next serve or during the rally.
+  if ((await board.attribute('data-interactive')) !== 'true') {
+    await ui
+      .get(`${BOARD}-status`)
+      .wait({ text: 'Serve in', exact: false }, { timeoutMs: JOURNEY_WAIT_MS });
+    check(
+      (await board.attribute('data-interactive')) === 'true',
+      'The Pong court is not ready for input'
+    );
+  }
   const gameId = await ui.get('multiplayer-game').attribute('data-game-id');
   check(gameId !== null && gameId !== '', 'No matched Pong game is shown');
   const seat = ui.get('multiplayer-seat-near');
@@ -27,8 +38,13 @@ export async function pongJourneyStart(ui: Driver): Promise<PongJourneyStart> {
     'The near seat has no assigned Pong paddle'
   );
   const court = await pongJourneyCourt(ui);
+  check(
+    court.stage === 'countdown' || court.stage === 'playing',
+    'Pong did not start'
+  );
   return {
     gameId,
+    score: court.score,
     side,
     targetScore: court.targetScore,
     courtHeight: court.height,

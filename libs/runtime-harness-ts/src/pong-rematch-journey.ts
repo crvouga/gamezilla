@@ -1,4 +1,3 @@
-import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { check, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 import { type JourneyHost, journeyDevice } from './journey-types';
 import {
@@ -31,59 +30,27 @@ export async function acceptPongRematch(
   });
 }
 
-/**
- * A rematch can still show the finished score for a moment after both
- * people accept. The serve announcement is the new game.
- */
-async function startedCourt(ui: Driver) {
-  await ui
-    .get('multiplayer-board-status')
-    .wait({ text: 'Serve in', exact: false }, { timeoutMs: JOURNEY_WAIT_MS });
-  const court = await pongJourneyCourt(ui);
-  check(
-    court.stage === 'countdown' || court.stage === 'playing',
-    'The rematch did not start'
-  );
-  return court;
-}
-
-async function rematchShown(
-  ui: Driver,
-  side: PongJourneyStart['side']
-): Promise<PongJourneyStart> {
-  // A finished court has no enabled paddle. The rematch swaps paddles.
-  await ui.get(`multiplayer-board-${side}-control`).wait('enabled', {
-    timeoutMs: JOURNEY_WAIT_MS,
-  });
-  return pongJourneyStart(ui);
-}
-
 export async function observePongRematch(
-  host: JourneyHost,
+  host: Pick<JourneyHost, 'act' | 'actAsGuest'>,
   start: PongJourneyStart
 ): Promise<void> {
   let rematchId = '';
   await host.act('observePongRematch', async (ui) => {
-    const next = await rematchShown(
-      ui,
-      start.side === 'white' ? 'black' : 'white'
-    );
+    const next = await pongJourneyStart(ui);
     check(next.gameId !== start.gameId, 'The rematch reused the finished game');
     check(next.side !== start.side, 'Alice kept her earlier paddle');
-    const court = await startedCourt(ui);
     check(
-      court.score.left === 0 && court.score.right === 0,
+      next.score.left === 0 && next.score.right === 0,
       'The rematch kept old points'
     );
     rematchId = next.gameId;
   });
   await host.actAsGuest('observePongRematch', async (ui) => {
-    const next = await rematchShown(ui, start.side);
-    const court = await pongJourneyCourt(ui);
+    const next = await pongJourneyStart(ui);
     check(next.gameId === rematchId, 'The people see different rematches');
     check(next.side === start.side, 'Bob kept his earlier paddle');
     check(
-      court.score.left === 0 && court.score.right === 0,
+      next.score.left === 0 && next.score.right === 0,
       'Bob sees the earlier score'
     );
   });

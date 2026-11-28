@@ -324,7 +324,9 @@ test.each([
       await readObjectBytes(store, `${scenario}.board/steps/0001.png`)
     ).not.toBeNull();
     expect(
-      JSON.parse((await readUtf8(store, `${scenario}.board/geometry.json`))!)
+      JSON.parse(
+        (await readUtf8(store, `${scenario}.board/steps/geometry.json`))!
+      )
     ).toEqual(parts);
   }
 );
