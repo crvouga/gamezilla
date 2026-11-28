@@ -9,9 +9,9 @@ import {
   WordTileBoard,
   type WordTileBoardCell,
 } from '@pkgs/ui-root-client-ts/word-tile-board';
+import WordTileBoardExample from '@pkgs/ui-root-client-ts/word-tile-board/word-tile-board.example';
 import { fireEvent } from '@solidjs/testing-library';
 import { createSignal, flush } from 'solid-js';
-import WordTileBoardExample from '../../ui-root-client-ts/src/word-tile-board/word-tile-board.example';
 
 function example() {
   const { clock, timers } = createHarnessClock();

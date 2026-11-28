@@ -6,14 +6,11 @@ export type SourceImport = {
 };
 
 /** Parse module references so quotes, comments and multiline syntax cannot evade boundaries. */
-export function sourceImports(text: string): readonly SourceImport[] {
-  const file = ts.createSourceFile(
-    'source.tsx',
-    text,
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TSX
-  );
+export function sourceImports(
+  text: string,
+  path = 'source.tsx'
+): readonly SourceImport[] {
+  const file = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true);
   const imports: SourceImport[] = [];
   function add(node: ts.Node | undefined, typeOnly = false): void {
     if (node !== undefined && ts.isStringLiteralLike(node))
@@ -32,7 +29,14 @@ export function sourceImports(text: string): readonly SourceImport[] {
           bindings.elements.every((binding) => binding.isTypeOnly));
       add(node.moduleSpecifier, typeOnly);
     } else if (ts.isExportDeclaration(node)) {
-      add(node.moduleSpecifier, node.isTypeOnly);
+      const exports = node.exportClause;
+      const typeOnly =
+        node.isTypeOnly ||
+        (exports !== undefined &&
+          ts.isNamedExports(exports) &&
+          exports.elements.length > 0 &&
+          exports.elements.every((binding) => binding.isTypeOnly));
+      add(node.moduleSpecifier, typeOnly);
     } else if (
       ts.isCallExpression(node) &&
       (node.expression.kind === ts.SyntaxKind.ImportKeyword ||

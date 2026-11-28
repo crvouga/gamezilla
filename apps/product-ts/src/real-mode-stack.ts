@@ -4,6 +4,8 @@
  * every package's spec run). Default `test:spec` never calls this.
  */
 
+import type { LocalStackHandle } from '@apps/product-api-ts/scripts/boot-local-stack';
+import { bootLocalStack } from '@apps/product-api-ts/scripts/boot-local-stack';
 import {
   EMQX_API_KEY,
   EMQX_API_SECRET,
@@ -12,8 +14,6 @@ import {
   EMQX_WS_PORT,
 } from '@pkgs/emqx-shared-ts/ports';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-local-shared-ts/ports';
-import type { LocalStackHandle } from '../../product-api-ts/scripts/boot-local-stack';
-import { bootLocalStack } from '../../product-api-ts/scripts/boot-local-stack';
 
 let started: Promise<void> | undefined;
 let active: LocalStackHandle | undefined;

@@ -3,10 +3,10 @@
 import { expect, test } from 'bun:test';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { PuzzleGrid } from '@pkgs/ui-root-client-ts/puzzle-grid';
-import { fireEvent, screen } from '@solidjs/testing-library';
 import PuzzleGridExample, {
   sequenceTiles,
-} from '../../ui-root-client-ts/src/puzzle-grid/puzzle-grid.example';
+} from '@pkgs/ui-root-client-ts/puzzle-grid/puzzle-grid.example';
+import { fireEvent, screen } from '@solidjs/testing-library';
 import { renderUi } from './render';
 
 test('a named list of numbered tiles in sequence, each one button', () => {

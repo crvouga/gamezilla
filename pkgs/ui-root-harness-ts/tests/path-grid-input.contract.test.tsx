@@ -4,11 +4,11 @@ import { join } from 'node:path';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { PathGridBoard } from '@pkgs/ui-root-client-ts/path-grid-board';
+import PathGridBoardExample from '@pkgs/ui-root-client-ts/path-grid-board/path-grid-board.example';
 import { pathGridSegment } from '@pkgs/ui-root-client-ts/path-grid-pointer';
 import { fireEvent } from '@solidjs/testing-library';
 import fc from 'fast-check';
 import { createSignal, flush } from 'solid-js';
-import PathGridBoardExample from '../../ui-root-client-ts/src/path-grid-board/path-grid-board.example';
 import { renderUi as render } from './render';
 
 test('pointer sample expansion stays in bounds and visits adjacent cells through the final sample', () => {

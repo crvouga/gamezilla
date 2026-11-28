@@ -10,7 +10,7 @@ file($body) where {
   not $body <: includes "@io-wall-ok",
   $body <: or {
     includes "@pkgs/http-client",
-    includes "@pkgs/pubsub-root-shared-ts",
+    includes "@pkgs/pubsub-",
     includes "/wall"
   },
   $body <: contains bubble or {

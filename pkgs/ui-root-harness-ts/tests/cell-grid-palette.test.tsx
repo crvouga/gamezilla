@@ -4,8 +4,8 @@ import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
+import CellGridPaletteExample from '@pkgs/ui-root-client-ts/cell-grid-palette/cell-grid-palette.example';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import CellGridPaletteExample from '../../ui-root-client-ts/src/cell-grid-palette/cell-grid-palette.example';
 import { renderUi } from './render';
 
 function tool(name: string): HTMLElement {

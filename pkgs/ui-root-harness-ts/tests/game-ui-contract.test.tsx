@@ -3,11 +3,11 @@ import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render'
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
+import GameArenaExample from '@pkgs/ui-root-client-ts/game-board-stage/game-arena.example';
 import { GameCountdown } from '@pkgs/ui-root-client-ts/game-countdown';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 import { createSignal, flush } from 'solid-js';
-import GameArenaExample from '../../ui-root-client-ts/src/game-board-stage/game-arena.example';
 
 describe('game presentation contracts', () => {
   test('countdown follows the deadline, freezes, resumes and releases its timer', () => {

@@ -1,9 +1,9 @@
 import { expect, test } from 'bun:test';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
+import meta from '@pkgs/chess-board-root-client-ts/chess-board/chess-board.stories';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import meta from '../../chess-board-root-client-ts/src/chess-board/chess-board.stories';
 
 // regression: storybook-clock-context-child-spread
 test('the initial chess story mounts once inside its real injected providers', () => {

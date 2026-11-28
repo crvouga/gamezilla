@@ -288,6 +288,13 @@ const PROBES: readonly Probe[] = [
     message: 'Shared game/domain logic must not import networking',
   },
   {
+    // regression: domain-pubsub-adapter-import
+    path: 'libs/zz-shared-ts/src/transport.ts',
+    source:
+      "export { createMqttPubsub } from '@pkgs/pubsub-mqtt-shared-ts/create-mqtt-pubsub';",
+    message: 'Shared game/domain logic must not import networking',
+  },
+  {
     path: 'libs/zz-client-ts/src/harness-user.ts',
     source:
       "import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';",

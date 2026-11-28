@@ -1,0 +1,4 @@
+{
+  "summary": "Relative imports could reach sibling implementations without passing package category or family policy.",
+  "regressionTest": "libs/tools-harness-ts/scripts/package-boundaries.test.ts"
+}
