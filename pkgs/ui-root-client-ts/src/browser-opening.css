@@ -33,7 +33,7 @@ html[data-theme="light"] body {
   inset: 0;
   overflow: auto;
   padding: max(12px, env(safe-area-inset-top)) 16px
-    calc(68px + env(safe-area-inset-bottom));
+    calc(80px + env(safe-area-inset-bottom));
   position: fixed;
 }
 
@@ -70,18 +70,23 @@ html[data-theme="light"] body {
   flex: 1;
   flex-direction: column;
   font-size: 12px;
-  gap: 0;
+  gap: 4px;
   justify-content: center;
   line-height: 16px;
-  min-height: 52px;
+  min-height: 64px;
   padding: 0;
   text-decoration: none;
 }
 
+/* The picture's pill, as the tab bar draws it: filled for the current page. */
 .startup-shell nav a::before {
+  border-radius: 9999px;
   content: attr(data-icon) / "";
   font-size: 24px;
-  line-height: 28px;
+  height: 36px;
+  line-height: 36px;
+  text-align: center;
+  width: 64px;
 }
 
 .startup-shell nav strong {
@@ -118,6 +123,15 @@ html[data-theme="light"] body {
 .startup-shell a[aria-current] {
   color: var(--ui-color-tint);
   font-weight: 700;
+}
+
+.startup-shell nav a[aria-current] {
+  color: var(--ui-color-text);
+  font-weight: 600;
+}
+
+.startup-shell nav a[aria-current]::before {
+  background: var(--ui-color-tint-subtle);
 }
 
 .startup-shell-failed {
@@ -190,13 +204,34 @@ html[data-theme="light"] body {
     margin: 0 0 20px 12px;
   }
 
+  /* The sidebar's rows: the picture on a tile, the current row in the
+     accent's subtle tone and its tile in the accent. */
   .startup-shell nav a {
+    border-radius: 12px;
     flex: 0 0 auto;
     flex-direction: row;
     font-size: 16px;
     gap: 12px;
     justify-content: start;
-    min-height: 44px;
-    padding: 0 12px;
+    min-height: 52px;
+    padding: 0 12px 0 8px;
+  }
+
+  .startup-shell nav a::before {
+    background: var(--ui-color-surface);
+    border-radius: 12px;
+    height: 40px;
+    line-height: 40px;
+    width: 40px;
+  }
+
+  .startup-shell nav a[aria-current] {
+    background: var(--ui-color-tint-subtle);
+    color: var(--ui-color-on-primary-soft);
+    font-weight: 700;
+  }
+
+  .startup-shell nav a[aria-current]::before {
+    background: var(--ui-color-tint-active);
   }
 }

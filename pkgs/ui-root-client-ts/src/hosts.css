@@ -33,9 +33,14 @@
     min-height: 0;
     margin: 0;
     padding: 0;
-    border: 1px solid var(--ui-color-border);
+  }
+
+  .card,
+  .panel {
+    border: var(--ui-space-hairline) solid var(--ui-color-border);
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
+    box-shadow: 0 var(--ui-space-hairline) var(--ui-color-border);
   }
 
   /* A panel groups related rows: a sheet of paper (the surface tone) inside
@@ -50,9 +55,6 @@
     box-sizing: border-box;
     min-width: 0;
     overflow: hidden;
-    border: 1px solid var(--ui-color-border);
-    border-radius: var(--ui-radius-card);
-    background: var(--ui-color-surface);
   }
 
   .panelItem {
@@ -170,10 +172,9 @@
     font-weight: var(--ui-text-body-strong-weight);
   }
 
-  /* A row's title: body size at medium weight, so it outranks the row's
-     caption and the section label above it. */
+  /* Titles lead the eye down lists even beside colorful artwork. */
   .textRowTitle {
-    font-weight: var(--ui-font-weight-medium);
+    font-weight: var(--ui-font-weight-semibold);
   }
 
   /* A navigation label that is semibold only while current. The box is

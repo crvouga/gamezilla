@@ -24,7 +24,7 @@ const GAMES = [
 type Game = (typeof GAMES)[number]['key'];
 
 describe('Button faces follow the brief', () => {
-  test('secondary (neutral solid) is the outline face and disables as one', () => {
+  test('secondary actions keep a quiet outline when disabled', () => {
     expect(buttonFaceName({ intent: 'neutral' })).toBe('neutral');
     expect(buttonFaceName({ intent: 'neutral', disabled: true })).toBe(
       'disabled-outline'

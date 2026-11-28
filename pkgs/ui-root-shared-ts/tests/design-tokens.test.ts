@@ -213,9 +213,9 @@ describe('values derived from the tokens', () => {
   });
 
   test('colors, fonts and motion render as the CSS of the design', () => {
-    expect(COLOR_PALETTE.dark.background).toBe('#0f1115');
-    expect(COLOR_PALETTE.dark.tintActive).toBe('#5c61f2');
-    expect(COLOR_PALETTE.light.tintSubtle).toBe('#eceefe');
+    expect(COLOR_PALETTE.dark.background).toBe('#17120e');
+    expect(COLOR_PALETTE.dark.tintActive).toBe('#8a3aa0');
+    expect(COLOR_PALETTE.light.tintSubtle).toBe('#f4e9f7');
     expect(COLOR_PALETTE.dark.scrim).toBe('#00000099');
     expect(fonts.sans.startsWith('Manrope,')).toBe(true);
     expect(fonts.display.startsWith('Manrope,')).toBe(true);

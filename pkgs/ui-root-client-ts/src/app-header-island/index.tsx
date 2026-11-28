@@ -61,12 +61,17 @@ function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
   );
 }
 
+/**
+ * One sidebar row: the destination's picture on a tile, then its label. The
+ * current row fills with the accent's subtle tone and its tile with the
+ * accent itself; a press presses the tile in.
+ */
 function RailNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
   const ItemIcon = dynamic(() => props.item.icon);
   return (
     <SdkButton
       class={[
-        'clickable clickableTint flex-row items-center gap-3 px-3 h-11 w-full rounded-control transition-colors',
+        'clickable clickableTint group flex-row items-center gap-3 ps-2 pe-3 h-13 w-full rounded-control transition-colors',
         { 'bg-tint-subtle': props.item.active },
       ]}
       {...dataAttrs({ component: 'AppHeaderIslandTab', ...props.item.dataSet })}
@@ -75,10 +80,21 @@ function RailNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
       aria-current={props.item.active ? 'page' : undefined}
       onClick={() => props.item.onClick()}
     >
-      <ItemIcon
-        strokeWidth={props.item.active ? STROKE_CURRENT : STROKE_DEFAULT}
-        color={props.item.active ? 'tint' : 'textSecondary'}
-      />
+      <span
+        class={[
+          'box size-10 shrink-0 items-center justify-center rounded-control transition motion-reduce:transition-none motion-safe:group-active:scale-95',
+          {
+            'bg-tint-active': props.item.active,
+            'bg-surface': !props.item.active,
+          },
+        ]}
+        data-slot="tile"
+      >
+        <ItemIcon
+          strokeWidth={props.item.active ? STROKE_CURRENT : STROKE_DEFAULT}
+          color={props.item.active ? 'onPrimary' : 'textSecondary'}
+        />
+      </span>
       <span
         class={[
           'text line-clamp-1 min-w-0',

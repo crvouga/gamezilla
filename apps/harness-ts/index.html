@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0f1115" />
+  <meta name="theme-color" content="#17120e" />
   <script>
     // The console keeps no stored theme: it follows the system, set before
     // first paint so boot never flashes from one scheme to the other.
@@ -27,15 +27,15 @@
 
     html,
     body {
-      background: var(--ui-color-background, #0f1115);
-      color: var(--ui-color-text, #e8eaef);
+      background: var(--ui-color-background, #17120e);
+      color: var(--ui-color-text, #f2eadf);
       color-scheme: dark;
     }
 
     html[data-theme="light"],
     html[data-theme="light"] body {
-      background: var(--ui-color-background, #f5f6f8);
-      color: var(--ui-color-text, #151821);
+      background: var(--ui-color-background, #f7f2ea);
+      color: var(--ui-color-text, #2b211a);
       color-scheme: light;
     }
 
@@ -54,11 +54,11 @@
 
     .activity-indicator {
       animation: activity-step 1000ms steps(12, end) infinite;
-      color: var(--ui-color-text-secondary, #9ca4b3);
+      color: var(--ui-color-text-secondary, #b9ab9b);
     }
 
     html[data-theme="light"] .activity-indicator {
-      color: var(--ui-color-text-secondary, #566072);
+      color: var(--ui-color-text-secondary, #675849);
     }
 
     .startup-shell-failed {
@@ -79,7 +79,7 @@
     }
 
     .startup-shell-guidance {
-      color: var(--ui-color-text-secondary, #9ca4b3);
+      color: var(--ui-color-text-secondary, #b9ab9b);
     }
 
     .startup-shell-detail {
@@ -90,7 +90,7 @@
     }
 
     .startup-shell-reload {
-      background: var(--ui-color-tint-active, #5c61f2);
+      background: var(--ui-color-tint-active, #8a3aa0);
       border: 0;
       border-radius: 9999px;
       color: var(--ui-color-on-primary, #ffffff);
@@ -108,7 +108,7 @@
     }
 
     html[data-theme="light"] .startup-shell-guidance {
-      color: var(--ui-color-text-secondary, #566072);
+      color: var(--ui-color-text-secondary, #675849);
     }
 
     html[data-theme="light"] .startup-shell-detail {
@@ -116,7 +116,7 @@
     }
 
     html[data-theme="light"] .startup-shell-reload {
-      background: var(--ui-color-tint-active, #4f46e5);
+      background: var(--ui-color-tint-active, #7a2e8e);
       color: var(--ui-color-on-primary, #ffffff);
     }
 

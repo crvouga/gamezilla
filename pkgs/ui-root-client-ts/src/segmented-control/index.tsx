@@ -25,7 +25,7 @@ export type SegmentedControlProps<K extends string = string> = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** Inset between track edge and the selected pill (`p-1`). */
+/** Inset between track edge and the selected segment (`p-1`). */
 const CONTAINER_PADDING = 4;
 /** Gap between segments (`gap-1`). */
 const SEGMENT_GAP = 4;
@@ -58,7 +58,7 @@ function SegmentButton<K extends string>(props: {
   return (
     <SegmentedControlItem
       class={[
-        'clickable segment hitTarget rounded-full flex-1 items-center justify-center min-h-9 px-3 bg-transparent relative z-1',
+        'clickable segment hitTarget rounded-sm flex-1 items-center justify-center min-h-9 px-3 bg-transparent relative z-1',
         {
           clickableTint: !props.isActive,
         },
@@ -88,8 +88,8 @@ function SegmentButton<K extends string>(props: {
  * `SegmentedControl` -- horizontal tab-like mode switcher.
  *
  * A row of segments (`role="radiogroup"` / `role="radio"`); exactly one is
- * selected at a time. The track is a clear pill inside the 3:1 `outline`
- * edge with a 4px inset; the selected segment is the soft tint pill
+ * selected at a time. The track is a muted well inside the 3:1 `outline`
+ * edge with a 4px inset; the selected segment is the soft tint
  * (`tint-subtle` fill, `primary-strong` edge, `on-primary-soft` label), the
  * others ink. The indicator is sized as a fraction of the track
  * (`width: calc(100% / n)`, `left` offset by index), so it needs no
@@ -126,7 +126,7 @@ export function SegmentedControl<K extends string = string>(
   return (
     <SdkSegmentedControl<K>
       class={[
-        'box flex-row p-1 gap-1 border border-outline rounded-full relative',
+        'box flex-row p-1 gap-1 border border-outline rounded-control bg-surface-muted relative',
         { 'opacity-disabled': props.disabled === true },
       ]}
       {...dataAttrs({ component: 'SegmentedControl', ...props.dataSet })}
@@ -140,7 +140,7 @@ export function SegmentedControl<K extends string = string>(
     >
       <Show when={props.segments.length > 0}>
         <div
-          class="box segmentIndicator absolute top-1 bottom-1 rounded-full bg-tint-subtle border border-primary-strong pointer-events-none"
+          class="box segmentIndicator absolute top-1 bottom-1 rounded-sm bg-tint-subtle border border-primary-strong pointer-events-none"
           data-component="SegmentIndicator"
           style={{ left: indicator().left, width: indicator().width }}
           aria-hidden="true"
