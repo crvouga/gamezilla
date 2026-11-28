@@ -1,6 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
-import { MascotPortrait } from '@pkgs/ui-root-client-ts/app-logo';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
   type GameMenuChoice,
@@ -8,6 +7,7 @@ import {
 } from '@pkgs/ui-root-client-ts/game-menu-screen';
 import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import {
+  AutomationArt,
   BooksArt,
   FriendsArt,
   GamesArt,
@@ -38,7 +38,7 @@ export type GameMenuChoiceView = {
 
 /**
  * The quiet choices: looking back (history, puzzle stats), settings and
- * how to play. They wait behind More; every other choice is a way to play.
+ * how to play. Every other choice is a way to play.
  */
 export const GAME_CHOICE_EMPHASIS: Readonly<
   Record<string, 'quiet' | undefined>
@@ -55,7 +55,7 @@ const ICON: Readonly<Record<string, IconComponent>> = {
   [SHARED_GAME_SCREEN.puzzleStats]: StatsArt,
   [SHARED_GAME_SCREEN.puzzlePacksHome]: BooksArt,
   [SHARED_GAME_SCREEN.vsHuman]: FriendsArt,
-  [SHARED_GAME_SCREEN.vsBot]: MascotPortrait,
+  [SHARED_GAME_SCREEN.vsBot]: AutomationArt,
   [SHARED_GAME_SCREEN.matchmakingHome]: MatchmakingArt,
   [SHARED_GAME_SCREEN.historyHome]: HistoryArt,
   [SHARED_GAME_SCREEN.settings]: SettingsArt,
@@ -127,7 +127,6 @@ function GameMenuHub(props: GameHomeScreenViewProps): JSX.Element {
       motif={props.tile}
       subtitle={props.subtitle}
       choices={choices()}
-      moreTestId={Handles.gameChoicesMore}
     />
   );
 }
@@ -136,8 +135,8 @@ function GameMenuHub(props: GameHomeScreenViewProps): JSX.Element {
  * A game's menu in a space, presentational: a hub of the template screens
  * the game offers. The first way to play (finding an opponent, else vs
  * human, else vs bot, else puzzles) is the one primary control, the other ways to play
- * are full-width rows, and history, puzzle stats, settings and how to play
- * wait behind More. How to play is a small place of its own behind the hub,
+ * are full-width rows, followed by history, settings and how to play.
+ * How to play is a small place of its own behind the hub,
  * opened by its row.
  * `GameMenu` decides which choices the game offers, opens the screen each
  * one names and keeps this device's place.

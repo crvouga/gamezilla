@@ -25,15 +25,15 @@ function illustration(src: string) {
 export const VictoryArt = illustration(
   new URL('../../assets/fluent-emoji/trophy.webp', import.meta.url).href
 );
-const HuggingPeople = illustration(
-  new URL('../../assets/fluent-emoji/people-hugging.webp', import.meta.url).href
+const Handshake = illustration(
+  new URL('../../assets/fluent-emoji/handshake.webp', import.meta.url).href
 );
 
-/** The decorative People Hugging illustration for friends and human opponents. */
+/** The decorative Handshake illustration for friends and human opponents. */
 export function FriendsArt(
   props: Pick<IconProps, 'size' | 'dataSet'>
 ): JSX.Element {
-  return <HuggingPeople {...props} />;
+  return <Handshake {...props} />;
 }
 export const AutomationArt = illustration(
   new URL('../../assets/fluent-emoji/robot.webp', import.meta.url).href

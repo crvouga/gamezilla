@@ -57,7 +57,7 @@ an app destination, game mode, achievement or meaningful empty state. Each
 individual game uses its registered [GameTile](src/game-tile/index.tsx), a
 miniature of its own board rendered in its playing colors. Pair illustrated
 choices with visible text. The default artwork is 32 px and decorative. Use
-People Hugging for human opponents, Robot for bots and Sports Medal for
+Handshake for human opponents, Robot for bots and Sports Medal for
 tournaments. Board positions, player clocks and move records keep the space
 they need for play.
 

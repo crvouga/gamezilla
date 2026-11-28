@@ -4,7 +4,6 @@ import { chooseGameMode, gameTile } from '@libs/harness-ts/game-tiles';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { openMoreChoices } from './game-more-choices';
 import { showGameSessionHome } from './game-session-places';
 
 /** What each shared screen shows first, so a person can tell it is open. */
@@ -46,9 +45,6 @@ export const openGameChoice = scenarioAction({
   act: async (s, actor: string, screen: string) => {
     const ui = await actorUi(s, actor);
     await bringToFront(s, actor);
-    // A quiet choice (history, settings) is behind More.
-    if (!(await ui.get(Handles.gameChoice(screen)).isVisible()))
-      await openMoreChoices(ui);
     await ui.get(Handles.gameChoice(screen)).expect.visible();
     await ui.get(Handles.gameChoice(screen)).tap();
   },
@@ -93,7 +89,6 @@ export async function offeredGameChoices(
 ): Promise<readonly GameChoiceScreen[]> {
   const ui = await actorUi(s, actor);
   await bringToFront(s, actor);
-  await openMoreChoices(ui);
   const offered: GameChoiceScreen[] = [];
   for (const screen of [...SHARED_GAME_CHOICES, ...PUZZLE_GAME_CHOICES])
     if (await ui.get(Handles.gameChoice(screen)).isVisible())

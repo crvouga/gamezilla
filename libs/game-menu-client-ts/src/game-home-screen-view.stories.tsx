@@ -80,10 +80,19 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Matchmaking leads as the primary control, game sessions is a row; history and how to play wait behind More. */
-export const SharedChoices: Story = {};
+/** Matchmaking leads as the primary control, game sessions is a row; history and how to play follow in order. */
+export const SharedChoices: Story = {
+  parameters: {
+    storyRoute: {
+      pathname: '/space/story-room',
+      tab: false,
+      spaceBody: 'shell',
+      spaceTitle: 'Connect Four',
+    },
+  },
+};
 
-/** A game offering puzzles and settings: matchmaking leads, puzzles stay a row, settings wait behind More. */
+/** A game offering puzzles and settings: matchmaking leads, puzzles stay a row, settings follow history. */
 export const WithPuzzlesAndSettings: Story = {
   parameters: {
     storyRoute: {
@@ -101,7 +110,7 @@ export const WithPuzzlesAndSettings: Story = {
   },
 };
 
-/** A bigger game finds players rather than one opponent; with no quiet choice but how to play, More holds just that. */
+/** A bigger game finds players rather than one opponent; the lesson follows its ways to play. */
 export const ManyPlayers: Story = {
   args: {
     title: 'Hearts',
@@ -127,7 +136,7 @@ export const ManyPlayers: Story = {
   },
 };
 
-/** A puzzle-only game: the puzzle library is the primary control, its lesson behind More. */
+/** A puzzle-only game: the puzzle library is the primary control, with a direct route to its lesson. */
 export const OwnChoicesOnly: Story = {
   args: {
     title: 'Numberlink',
@@ -169,20 +178,16 @@ export const OpenChoice: Story = {
   },
 };
 
-/** More starts closed; opening it shows the quiet choices and keeps the primary control in place. */
-export const OpenMore: Story = {
+/** History opens directly from the game menu. */
+export const OpenHistory: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    const more = await canvas.findByTestId('game-choices-more');
-    await expect(more).toHaveAttribute('aria-expanded', 'false');
-    await userEvent.click(more);
-    await expect(more).toHaveAttribute('aria-expanded', 'true');
     await userEvent.click(await canvas.findByTestId('game-choice-history'));
     await expect(args.onChoose).toHaveBeenCalledWith('history');
   },
 };
 
-/** More opens in place; its how to play row opens the place behind the menu. */
+/** The how to play row opens the lesson. */
 export const OpenHowToPlay: Story = {
   parameters: { test: { restoreMocks: false } },
   render: (args, context) => {
@@ -200,7 +205,6 @@ export const OpenHowToPlay: Story = {
   },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('game-choices-more'));
     await userEvent.click(await canvas.findByTestId('game-choice-how-to-play'));
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'how-to-play' });
     await expect(await canvas.findByTestId('practice-prompt')).toBeVisible();

@@ -21,7 +21,6 @@ function threeChoices(width: number) {
         screenId="game-home"
         title="Connect Four"
         motif="discs"
-        moreTestId="choice-more"
         choices={[
           {
             key: 'game-session',
@@ -54,11 +53,6 @@ function threeChoices(width: number) {
   ));
 }
 
-/** Open More, as a person does before a quiet choice. */
-function openMore(view: ReturnType<typeof menu>): void {
-  fireEvent.click(view.getByTestId('choice-more'));
-}
-
 function menu(width: number, onPlay: () => void) {
   return render(() => (
     <ThemeProvider fixedLayout={{ width, height: 900 }}>
@@ -67,7 +61,6 @@ function menu(width: number, onPlay: () => void) {
         title="Connect Four"
         motif="discs"
         subtitle="Drop discs and line up four"
-        moreTestId="choice-more"
         choices={[
           {
             key: 'game-session',
@@ -116,7 +109,7 @@ describe('GameMenuScreen', () => {
     const play = view.getByTestId('choice-play');
     expect(play.getAttribute('data-emphasis')).toBe('primary');
     expect(play.getAttribute('data-component')).toBe('GameMenuChoice');
-    expect(play.closest('[data-layout="primary"]')).not.toBeNull();
+    expect(play.closest('ul')).toBe(view.getByRole('list'));
     expect(play.textContent).toContain('Play with friends or bots');
     expect(play.textContent).not.toContain('Choose who plays');
     fireEvent.click(play);
@@ -126,16 +119,13 @@ describe('GameMenuScreen', () => {
 
   // regression: game-menu-history-weighs-as-play — wide, "History and stats"
   // was a tile as large as the ways to play, so looking back weighed the
-  // same as starting a game. It waits behind More, a compact row.
-  test('wide: a quiet choice is a compact row behind More, never a tile', () => {
+  // same as starting a game. It follows the primary action as a supporting row.
+  test('wide: history follows play as a supporting row', () => {
     const view = menu(1440, () => undefined);
-    openMore(view);
     const history = view.getByTestId('choice-history');
     const play = view.getByTestId('choice-play');
-    expect(history.closest('[data-layout="links"]')).not.toBeNull();
-    expect(history.closest('[data-layout="grid"]')).toBeNull();
-    expect(history.closest('[data-layout="primary"]')).toBeNull();
-    expect(play.closest('[data-layout="links"]')).toBeNull();
+    expect(history.closest('ul')).toBe(play.closest('ul'));
+    expect(history.getAttribute('data-emphasis')).toBe('quiet');
     expect(history.getAttribute('data-component')).toBe('GameMenuChoice');
     view.unmount();
   });
@@ -147,7 +137,6 @@ describe('GameMenuScreen', () => {
   // edge, only shorter.
   test("wide: the look back is a shorter card of the rows' own kind", () => {
     const view = threeChoices(1440);
-    openMore(view);
     const history = view.getByTestId('choice-history');
     expect(history.className).toBe(view.getByTestId('choice-find').className);
     expect(history).toHaveAttribute('data-emphasis', 'quiet');
@@ -235,7 +224,6 @@ describe('GameMenuScreen', () => {
         view.container.querySelectorAll('[data-emphasis="primary"]')
       ).toHaveLength(1);
       expect(view.queryByText('Recommended')).toBeNull();
-      fireEvent.click(view.getByTestId('choice-more'));
       expect(view.getByTestId('choice-history')).toHaveAttribute(
         'data-emphasis',
         'quiet'
@@ -255,61 +243,31 @@ describe('GameMenuScreen', () => {
   // regression: game-menu-lead-tall-empty — the lead then spanned the other
   // tile and the look back, 180px tall with its words floating in its
   // middle. The primary control is as tall as its words; the other way to
-  // play is a full-width row under it; the look back waits behind More.
-  test('wide: the primary control, then the other ways to play as rows, then More', () => {
-    const view = threeChoices(1440);
-    const play = view.getByTestId('choice-play');
-    const find = view.getByTestId('choice-find');
-    const more = view.getByTestId('choice-more');
-    const grid = find.closest('[data-layout="grid"]') as HTMLElement;
-    const lead = play.closest('[data-layout="primary"]') as HTMLElement;
-    const follows = (a: Element, b: Element): boolean =>
-      (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
-    expect(grid).not.toBeNull();
-    expect(lead).not.toBeNull();
-    expect(grid.contains(play)).toBe(false);
-    expect(follows(lead, grid)).toBe(true);
-    expect(follows(grid, more)).toBe(true);
-    // regression: game-menu-history-orphaned — the look back was a half-width
-    // row alone under the two tiles; it is a full-width row inside More.
-    // regression: game-menu-history-floats-at-hero — the look back is a row
-    // behind More under the rows, never at the hero.
-    fireEvent.click(more);
-    const history = view.getByTestId('choice-history');
-    const links = history.closest('[data-layout="links"]') as HTMLElement;
-    expect(links.closest('[data-layout="hero"]')).toBeNull();
-    expect(links.closest('[data-component="DisclosureCard"]')).toBeTruthy();
-    expect(follows(grid, links)).toBe(true);
-    expect(history.closest('[data-layout="grid"]')).toBeNull();
-    view.unmount();
-  });
-
-  test('More is a named control, closed at first; opening it leaves the primary control in place', () => {
-    for (const width of [1440, 390]) {
-      const view = menu(width, () => undefined);
-      const more = view.getByRole('button', { name: 'More' });
-      expect(more).toBe(view.getByTestId('choice-more'));
-      expect(more.getAttribute('aria-expanded')).toBe('false');
-      const play = view.getByTestId('choice-play');
-      const lead = play.closest('[data-layout="primary"]');
-      const above = lead?.previousElementSibling;
-      fireEvent.click(more);
-      expect(more.getAttribute('aria-expanded')).toBe('true');
-      expect(view.getByTestId('choice-play')).toBe(play);
-      expect(play.closest('[data-layout="primary"]')).toBe(lead);
-      expect(lead?.previousElementSibling).toBe(above);
+  // play and the look back each keep a full row.
+  // regression: game-menu-history-orphaned — a lone half-width history row broke alignment.
+  // regression: game-menu-history-floats-at-hero — history belongs after the play rows.
+  test.each([390, 1440])(
+    'at %ipx every choice is a sibling in its original order',
+    (width) => {
+      const view = threeChoices(width);
+      const list = view.getByRole('list');
+      expect(Array.from(list.children, (row) => row.textContent)).toEqual([
+        'Play with friends',
+        'Find an opponent',
+        'History and stats',
+      ]);
+      expect(view.queryByRole('button', { name: 'More' })).toBeNull();
       view.unmount();
     }
-  });
+  );
 
-  test('a game with no quiet choice shows no More', () => {
+  test('a single play option is still the primary action', () => {
     const view = render(() => (
       <ThemeProvider fixedLayout={{ width: 390, height: 900 }}>
         <GameMenuScreen
           screenId="game-home"
           title="Numberlink"
           motif="paths"
-          moreTestId="choice-more"
           choices={[
             {
               key: 'library',
@@ -322,7 +280,6 @@ describe('GameMenuScreen', () => {
         />
       </ThemeProvider>
     ));
-    expect(view.queryByTestId('choice-more')).toBeNull();
     expect(
       view.getByTestId('choice-library').getAttribute('data-emphasis')
     ).toBe('primary');
@@ -338,7 +295,6 @@ describe('GameMenuScreen', () => {
   // tag, so every row is its title over its whole caption.
   test('phone: every row is its title over its caption, with no tag anywhere', () => {
     const view = threeChoices(390);
-    fireEvent.click(view.getByTestId('choice-more'));
     expect(
       view.queryByText('With the people in this space, or bots')
     ).toBeNull();

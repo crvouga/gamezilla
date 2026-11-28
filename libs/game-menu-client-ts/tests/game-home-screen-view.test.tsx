@@ -1,7 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 /**
  * A game's menu leads with its first way to play, keeps the other ways to
- * play as rows and the quiet choices behind More; how to play is a place
+ * play and the supporting choices in order; how to play is a place
  * behind it.
  */
 import { expect, mock, test } from 'bun:test';
@@ -67,19 +67,12 @@ function menu(options: {
   ));
 }
 
-/** Open More on the menu, as a person does before a quiet choice. */
-function openMore(view: ReturnType<typeof menu>): HTMLElement {
-  const more = view.getByTestId('game-choices-more');
-  more.click();
-  return more;
-}
-
 // regression: game-menu-tagline-repeats-rules — under Connect Four's name
 // the menu said "Drop discs and line up four" and then the rules, the same
 // instruction twice. The rules now have a place of their own: the menu
-// says what the game is once and offers how to play as a row behind More.
+// says what the game is once and offers how to play as a direct row.
 test.each([390, 1440])(
-  'at %ipx the menu omits its subtitle, and how to play is a row behind More',
+  'at %ipx the menu omits its subtitle, and how to play is a direct row',
   (width) => {
     const view = menu({
       width,
@@ -88,7 +81,7 @@ test.each([390, 1440])(
     });
     expect(view.queryByText(TAGLINE)).toBeNull();
     expect(view.queryByText(PROMPT)).toBeNull();
-    openMore(view);
+
     expect(view.getByTestId('game-choice-how-to-play')).toBeTruthy();
     view.unmount();
   }
@@ -138,7 +131,7 @@ test('the primary control is finding an opponent, else vs human, else puzzles', 
       choices,
     });
     const lead = view.container
-      .querySelector('[data-layout="primary"] [data-testid^="game-choice-"]')
+      .querySelector('[data-emphasis="primary"][data-testid^="game-choice-"]')
       ?.getAttribute('data-testid');
     view.unmount();
     return lead ?? null;
@@ -158,36 +151,26 @@ test('the other ways to play are full-width rows with their captions', () => {
     choices: [FIND_AN_OPPONENT, ...PLAY_CHOICES],
   });
   const custom = view.getByTestId('game-choice-vs-human');
-  expect(custom.closest('[data-layout="grid"]')).not.toBeNull();
-  expect(custom.closest('[data-layout="primary"]')).toBeNull();
+  expect(custom.closest('ul')).not.toBeNull();
+  expect(custom.getAttribute('data-emphasis')).toBeNull();
   expect(custom.textContent).toContain('Play a Friend');
   view.unmount();
 });
 
-test('More starts closed, opens the quiet choices in place and leaves the primary control where it is', () => {
+test('every offered choice is directly available in catalog order, followed by the lesson', () => {
   const view = menu({
     width: 390,
     lesson: LESSON,
     place: { screen: 'home' },
     choices: [FIND_AN_OPPONENT, ...PLAY_CHOICES],
   });
-  const more = view.getByTestId('game-choices-more');
-  expect(more.textContent).toContain('More');
-  expect(more.getAttribute('aria-expanded')).toBe('false');
-  const primary = view.getByTestId('game-choice-multiplayer');
-  const before = primary.parentElement?.parentElement;
-  more.click();
-  expect(more.getAttribute('aria-expanded')).toBe('true');
-  for (const quiet of ['game-choice-history', 'game-choice-how-to-play'])
-    expect(
-      view.getByTestId(quiet).closest('[data-layout="links"]')
-    ).not.toBeNull();
-  expect(view.getByTestId('game-choice-multiplayer')).toBe(primary);
-  expect(primary.parentElement?.parentElement).toBe(before);
+  expect(view.getAllByRole('listitem').map((item) => item.textContent)).toEqual(
+    ['Matchmaking', 'Play a Friend', 'History and stats', 'How to play']
+  );
   view.unmount();
 });
 
-test('a quiet choice behind More opens through the same onChoose', () => {
+test('a supporting choice opens through the same onChoose', () => {
   const onChoose = mock((_screen: string) => undefined);
   const view = menu({
     width: 390,
@@ -195,7 +178,7 @@ test('a quiet choice behind More opens through the same onChoose', () => {
     place: { screen: 'home' },
     onChoose,
   });
-  openMore(view);
+
   view.getByTestId('game-choice-history').click();
   expect(onChoose).toHaveBeenCalledWith('history');
   view.getByTestId('game-choice-vs-human').click();
@@ -211,7 +194,7 @@ test('the how to play row opens its place, and that place gives the first move',
     place: { screen: 'home' },
     onOpen,
   });
-  openMore(hub);
+
   hub.getByTestId('game-choice-how-to-play').click();
   expect(onOpen).toHaveBeenCalledWith({ screen: 'how-to-play' });
   hub.unmount();
@@ -231,7 +214,7 @@ test('a game that says nothing about how to play offers no such row', () => {
     lesson: undefined,
     place: { screen: 'home' },
   });
-  openMore(view);
+
   expect(view.queryByTestId('game-choice-how-to-play')).toBeNull();
   expect(view.queryByText(TAGLINE)).toBeNull();
   view.unmount();
