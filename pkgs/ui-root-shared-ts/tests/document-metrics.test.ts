@@ -5,7 +5,7 @@ import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/document-palette';
 // regression: startup-metrics-shift
 test('opening typography and radius resolve before the application stylesheet arrives', () => {
   const css =
-    'h1{font-size:var(--ui-text-display-size,26px)}main{font-family:var(--ui-font-sans);line-height:var(--ui-text-body-leading,22px);border-radius:var(--ui-radius-control,12px)}';
+    'h1{font-weight:var(--ui-text-display-weight);font-size:var(--ui-text-display-size,26px)}main{font-family:var(--ui-font-sans);line-height:var(--ui-text-body-leading,22px);border-radius:var(--ui-radius-control,12px)}';
   const opening = withDocumentPalette(css);
   const full = renderTokensCss();
   const definitions = (source: string) =>
@@ -28,6 +28,7 @@ test('opening typography and radius resolve before the application stylesheet ar
   for (const name of [
     '--ui-text-display-size',
     '--ui-font-sans',
+    '--ui-text-display-weight',
     '--ui-text-body-leading',
     '--ui-radius-control',
   ]) {
