@@ -80,7 +80,6 @@ export function CrashScreenView(props: CrashScreenViewProps): JSX.Element {
     <Main>
       <ScrollView
         grow
-        tone="background"
         flushEdge={false}
         dataSet={{ component: 'RootErrorBoundary' }}
       >

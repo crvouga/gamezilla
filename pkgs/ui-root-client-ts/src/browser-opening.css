@@ -13,8 +13,7 @@ body,
   margin: 0;
 }
 
-html,
-body {
+html {
   background: var(--ui-finish-canvas) var(--ui-color-background);
   color: var(--ui-color-text);
   color-scheme: dark;

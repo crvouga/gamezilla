@@ -63,7 +63,7 @@ test('a provider crash retains the product surface and recovery controls', () =>
   const alert = screen.getByRole('alert');
   const root = alert.closest('[data-component="RootErrorBoundary"]');
   expect(root?.closest('[data-component="ThemeProvider"]')).toBeTruthy();
-  expect(root?.classList.contains('bg-background')).toBe(true);
+  expect(root?.classList.contains('bg-background')).toBe(false);
   expect(
     screen.getByRole('heading', { name: 'Something went wrong' })
   ).toBeTruthy();

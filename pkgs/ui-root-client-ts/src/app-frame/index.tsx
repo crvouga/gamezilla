@@ -61,7 +61,7 @@ function AppFrameWide(props: AppFrameProps): JSX.Element {
   const rail = (): JSX.Element | undefined => props.rail;
   return (
     <main
-      class="box flex-1 min-h-0 min-w-0 w-full max-w-full bg-background overflow-clip"
+      class="box flex-1 min-h-0 min-w-0 w-full max-w-full overflow-clip"
       data-component="AppFrame"
       data-mode="wide"
     >
@@ -93,7 +93,7 @@ function AppFrameWide(props: AppFrameProps): JSX.Element {
 function AppFrameCompact(props: AppFrameProps): JSX.Element {
   return (
     <main
-      class="box flex-1 min-h-0 bg-background"
+      class="box flex-1 min-h-0"
       data-component="AppFrame"
       data-mode="compact"
     >
@@ -108,9 +108,8 @@ function AppFrameCompact(props: AppFrameProps): JSX.Element {
 
 /**
  * `AppFrame` -- the root shell. Mobile-first: compact is the full-bleed
- * column; wide is a centered column. One canvas everywhere: the frame paints
- * `background` edge to edge at every width, and nothing inside it (header,
- * top bar, screen bodies) paints a second page tone. `surface` is for wells.
+ * column; wide is a centered column. The frame and screen chrome share
+ * the viewport canvas, including the gutters around the wide column.
  *
  * Regions (`data-region` on each box AppFrame draws):
  *

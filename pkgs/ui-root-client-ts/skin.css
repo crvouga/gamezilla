@@ -1,10 +1,15 @@
 /* Shared component paint. Semantic colors and geometry come from the theme. */
 
 @layer components {
-  /* A menu's rows share the finish of their panel. Selected rows keep
-     their own wash and the panel's hairlines show between them. */
-  :where(.bg-background) {
-    background-image: var(--ui-finish-canvas);
+  /* The document owns its canvas through startup and navigation. Embedded
+     viewports such as a harness actor own an independent, bounded canvas. */
+  html[data-app-shell],
+  .themeHost {
+    background: var(--ui-finish-canvas) var(--ui-color-background);
+  }
+
+  html[data-app-shell] #root > .themeHost {
+    background: transparent;
   }
 
   :where(.bg-surface, .bg-surface-elevated, .bg-surface-overlay) {
@@ -41,8 +46,6 @@
     font-family: var(--ui-font-sans);
     color: var(--ui-color-text);
     caret-color: var(--ui-color-text);
-    background-color: var(--ui-color-background);
-    background-image: var(--ui-finish-canvas);
     -webkit-font-smoothing: antialiased;
   }
 

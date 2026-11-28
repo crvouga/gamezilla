@@ -17,7 +17,7 @@ export function CommandPaletteSection(
 ): JSX.Element {
   return (
     <div
-      class="box px-3 pt-2 pb-1 bg-background"
+      class="box px-3 pt-2 pb-1"
       data-component="CommandPaletteSection"
       id={props.id}
       role="presentation"
