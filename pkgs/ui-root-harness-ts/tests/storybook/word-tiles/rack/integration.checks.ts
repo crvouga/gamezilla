@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { verifyStoryScenario } from '../verify-story-scenario';
+import { verifyStoryScenario } from '../../verify-story-scenario';
 
 // regression: word-tiles-rounded-rack-hit-targets
 test('all seven opening letters remain reachable inside the rounded rack', async ({
