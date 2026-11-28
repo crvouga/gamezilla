@@ -536,7 +536,7 @@ Release shared services         shared secrets -> auth relay -> fleet stack
 Release development             foundation -> migrate -> product (assets + API + rooms)
                                 -> edge -> billing:sync -> health -> retire superseded Workers
 Release production              the same chain, once development is green
-Publish release                tag and GitHub release
+                                -> tag and GitHub release
 Preview infrastructure changes rehearsal only: plan fleet and dev foundation
 ```
 

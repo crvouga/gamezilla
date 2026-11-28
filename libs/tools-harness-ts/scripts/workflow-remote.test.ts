@@ -92,9 +92,14 @@ describe('WORKFLOW_DISPATCH', () => {
       'deploy-fleet',
       'deploy-repository-policy',
     ]);
-    expect(deploy.jobs['deploy-release']!.needs).toBe('deploy-prd');
-    expect(deploy.jobs['deploy-release']!.if).toContain(
-      "needs.deploy-prd.result == 'success'"
+    expect(deploy.jobs['deploy-prd']).toHaveProperty(
+      'steps',
+      expect.arrayContaining([
+        expect.objectContaining({
+          name: 'Tag the commit and publish the release',
+          if: "${{ success() && env.SECRETS_ENV == 'prd' }}",
+        }),
+      ])
     );
   });
 
