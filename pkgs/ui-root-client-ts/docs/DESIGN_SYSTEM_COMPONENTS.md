@@ -26,8 +26,8 @@ under every component. They live in
 
 | Item | Status | Notes |
 | --- | --- | --- |
-| Theme tokens (light / dark / true black) | ✅ | `Theme Tokens` entry; generated `tokens.css` |
-| Theme provider + preference (system / light / dark) | 🟡 | `theme-context`, `theme-preference`, `scheme-preview` |
+| Gamezilla’s dark palette | ✅ | `Theme Tokens` entry; generated `tokens.css` |
+| Responsive layout, typography and reduced motion | 🟡 | `theme-context` |
 | Type roles (`body`, `bodyBold`, `label`, `caption`, `footnote`, `mono`, `numeral`) | ✅ | via `Text`, `Heading` |
 | Spacing, radius, shadow, motion scales | ✅ | in tokens |
 | Layout mode / breakpoint hooks | 🟡 | `use-layout-mode`, `responsive`, `media-query` |

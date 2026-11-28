@@ -135,6 +135,16 @@ describe('player colors', () => {
 });
 
 describe('palette contrast', () => {
+  test('the primary label holds AA at the shaded end of the action face', () => {
+    const ink = parseColor(COLOR_PALETTE.onPrimary);
+    const fill = parseCssColor(COLOR_PALETTE.tintActive);
+    const shade = parseCssColor(COLOR_PALETTE.actionShade);
+    if (!ink || !fill || !shade) throw new Error('Invalid action colors');
+    expect(
+      contrastRatio(ink, rgbaToRgb8(compositeOver(shade, fill)))
+    ).toBeGreaterThanOrEqual(TEXT);
+  });
+
   test(`every text and glyph pair meets WCAG AA`, () => {
     const failures = PAIRS.flatMap(([fg, bg, minimum]) => {
       const value = ratio(fg, bg);
