@@ -69,7 +69,7 @@ const TOKEN_RULES: readonly Rule[] = [
   {
     name: 'dark variant',
     test: (token) => /(^|:)dark:/.test(token),
-    instead: 'a shared color token from the Gamezilla palette',
+    instead: 'a shared palette token',
   },
 ];
 

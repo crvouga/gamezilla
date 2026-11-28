@@ -106,7 +106,7 @@ function LeadingSlot(props: {
  * `SocialSignInButton` -- branded sign-in button for third-party identity providers.
  *
  * Google and Apple use their official marks, colors and button metrics.
- * The development provider uses Gamezilla's surface and text roles.
+ * The development provider uses the shared surface and text roles.
  *
  * @example
  * ```tsx
