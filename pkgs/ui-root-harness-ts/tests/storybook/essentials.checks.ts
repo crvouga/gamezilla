@@ -262,7 +262,7 @@ for (const width of [390, 1280]) {
     });
 
     await openControls(page, 'components-disclosure-tabs');
-    const list = page.getByRole('tablist', { name: 'Range' });
+    const list = page.getByRole('tablist', { name: 'Range', exact: true });
     const day = list.getByRole('tab', { name: 'Day' });
     const month = list.getByRole('tab', { name: 'Month' });
     const raised = await shadow(day);
