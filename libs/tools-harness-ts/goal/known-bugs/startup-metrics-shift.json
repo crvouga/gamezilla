@@ -1,0 +1,4 @@
+{
+  "summary": "The opening document used fallback typography and corner sizes that changed when application tokens loaded.",
+  "regressionTest": "pkgs/ui-root-shared-ts/tests/document-metrics.test.ts"
+}

@@ -1,6 +1,8 @@
 import { COLOR_PALETTE } from './color-palette.ts';
 import type { ColorTokenName } from './colors-types';
 
+import { documentMetrics } from './document-metrics.ts';
+
 export const COLOR_TOKEN_NAMES = Object.keys(COLOR_PALETTE) as ColorTokenName[];
 
 export function kebab(name: string): string {
@@ -28,5 +30,5 @@ export function withDocumentPalette(css: string): string {
   const colors = COLOR_TOKEN_NAMES.filter((name) =>
     needed.includes(colorVar(name))
   ).map((name) => `--ui-color-${kebab(name)}:${COLOR_PALETTE[name]}`);
-  return `:root{color-scheme:dark;${[...colors, ...finishes].join(';')}}\n${css}`;
+  return `:root{color-scheme:dark;${[...colors, ...finishes].join(';')}}\n${documentMetrics(css)}\n${css}`;
 }
