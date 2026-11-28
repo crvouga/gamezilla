@@ -24,7 +24,7 @@ terms:
   - term: Settings
     definition: >-
       The place a person reaches from anywhere in the app to manage their
-      account and preferences: the theme, sounds, About, and the devices on
+      account and preferences: sounds, About, and the devices on
       their account. Leaving it brings them back to the tab they left.
     avoid: [options, settings page, config, configuration]
     published: true
@@ -128,18 +128,10 @@ terms:
 
   - term: preference
     definition: >-
-      A choice a person makes in Settings about how the app looks and sounds:
-      the theme, and whether sounds are on. It is kept on the device after the
+      A choice a person makes in Settings, such as whether sounds are on. It is kept on the device after the
       app closes.
-    forms: [preferences, look and sound choices, theme choices]
+    forms: [preferences, sound choices]
     avoid: [config, local storage]
-
-  - term: dark theme
-    definition: >-
-      How the app looks when a person prefers it dark, instead of the light
-      theme; a preference.
-    forms: [light theme]
-    avoid: [dark mode, color scheme, skin]
 
   - term: sounds
     definition: The app's sound effects, which a person can turn off and on; a preference.

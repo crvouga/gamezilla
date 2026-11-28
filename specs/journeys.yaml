@@ -652,7 +652,7 @@ journeys:
     - specs/runtime/app-updates.feature
     tour: true
   Device preferences survive closing the app:
-    description: Sound and appearance choices can be revisited after reopening without changing identity.
+    description: Sound choices can be revisited after reopening without changing identity.
     events:
     - Starts signing in
     - Chooses Google online
@@ -663,8 +663,6 @@ journeys:
     - Opens sound preferences
     - Changes the sound preference
     - Returns to Settings
-    - Opens appearance preferences
-    - Chooses a permitted theme
     - Closes the app
     - Reopens the app
     - Opens Settings

@@ -14,13 +14,13 @@ Feature: Keep using the app while a connection is missing
       And Alice can reach every control offered there
 
     Scenario: Reopening after reconnecting keeps the saved preferences available
-      Given Alice has chosen the dark theme
+      Given Alice has turned sounds off
       And Alice has a place in the app and saved preferences
       And Alice is offline
       When the connection comes back
       And Alice closes and reopens the app
       Then Alice has the same place in the app and saved preferences
-      And Alice's app is dark
+      And Alice's sounds are off
 
   Rule: An unfinished choice never prevents another place in the app from being reached
     No counter-example: going elsewhere does not decide whether the unfinished choice counted.
@@ -65,11 +65,11 @@ Feature: Keep using the app while a connection is missing
       Then Alice is told signing in needs a connection
 
     Scenario: A local preference still changes with no connection
-      Given Alice has chosen the dark theme
+      Given Alice has turned sounds off
       And Alice is offline
-      And Alice has opened the theme choices without choosing
-      When Alice chooses the light theme
-      Then Alice's app is light
+      And Alice has opened Sound without changing it
+      When Alice turns sounds back on
+      Then Alice's sounds are on
       And Alice is not asked to wait for a connection
 
   Rule: Connection in Settings says whether the app is connected and what still works without a connection

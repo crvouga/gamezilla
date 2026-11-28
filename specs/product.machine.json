@@ -584,10 +584,8 @@
       "The owner turns this person away": "user",
       "Tries changing the tally after being turned away": "user",
       "Changes the sound preference": "user",
-      "Chooses a permitted theme": "user",
       "Opens About": "user",
       "Opens account privacy": "user",
-      "Opens appearance preferences": "user",
       "Opens billing plans": "user",
       "Opens connected sign-in methods": "user",
       "Opens puzzle import": "user",
@@ -2711,9 +2709,6 @@
                         "hints": ["App address: /more"]
                       },
                       "on": {
-                        "Opens appearance preferences": {
-                          "target": "#Settings: Appearance"
-                        },
                         "Opens sound preferences": {
                           "target": "#Settings: Sounds"
                         },
@@ -2728,26 +2723,6 @@
                         },
                         "Opens connected sign-in methods": {
                           "target": "#App: Sign-in methods"
-                        }
-                      }
-                    },
-                    "Settings: Appearance": {
-                      "id": "Settings: Appearance",
-                      "meta": {
-                        "routes": ["/more/theme"],
-                        "description": "Theme choices apply on this device and survive closing the app.",
-                        "snapshot": "Theme choices apply on this device and survive closing the app.",
-                        "confidence": "assumed",
-                        "source": ["specs/runtime/device-layouts.feature:6"],
-                        "events": [],
-                        "hints": ["App address: /more/theme"]
-                      },
-                      "on": {
-                        "Chooses a permitted theme": {
-                          "target": "#Settings: Appearance"
-                        },
-                        "Returns to Settings": {
-                          "target": "#Settings: Settings home"
                         }
                       }
                     },
