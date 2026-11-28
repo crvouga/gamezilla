@@ -97,3 +97,50 @@
 .vertical[data-paddle][data-overlay="true"]:disabled {
   opacity: 1;
 }
+
+/* Leave the platform control in charge in forced-color environments. */
+@media (forced-colors: none) {
+  .horizontal {
+    appearance: none;
+  }
+  .horizontal::-webkit-slider-runnable-track {
+    height: var(--ui-space-2);
+    border-radius: var(--ui-radius-full);
+    background: var(--ui-finish-slot) var(--ui-color-outline);
+    box-shadow: var(--ui-depth-slot);
+  }
+  .horizontal::-moz-range-track {
+    height: var(--ui-space-2);
+    border-radius: var(--ui-radius-full);
+    background: var(--ui-finish-slot) var(--ui-color-outline);
+    box-shadow: var(--ui-depth-slot);
+  }
+  .horizontal::-webkit-slider-thumb {
+    appearance: none;
+    margin-top: calc(-1 * var(--ui-space-2));
+    box-sizing: border-box;
+    height: var(--ui-space-xl);
+    width: var(--ui-space-xl);
+    border: var(--ui-space-hairline) solid var(--ui-color-primary-strong);
+    border-radius: var(--ui-radius-full);
+    background: var(--ui-finish-piece) var(--ui-color-tint-active);
+    box-shadow: var(--ui-depth-piece);
+  }
+  .horizontal::-moz-range-thumb {
+    box-sizing: border-box;
+    height: var(--ui-space-xl);
+    width: var(--ui-space-xl);
+    border: var(--ui-space-hairline) solid var(--ui-color-primary-strong);
+    border-radius: var(--ui-radius-full);
+    background: var(--ui-finish-piece) var(--ui-color-tint-active);
+    box-shadow: var(--ui-depth-piece);
+  }
+}
+.horizontal:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.horizontal:disabled {
+  cursor: default;
+  opacity: var(--ui-opacity-disabled);
+}

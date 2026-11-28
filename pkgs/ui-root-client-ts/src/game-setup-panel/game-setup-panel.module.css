@@ -103,7 +103,7 @@
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface);
   background-image: var(--ui-finish-surface);
-  box-shadow: 0 var(--ui-space-hairline) var(--ui-color-border);
+  box-shadow: var(--ui-depth-control);
   cursor: pointer;
   transition:
     background-color var(--ui-duration-fast) var(--ui-easing-standard),
@@ -112,7 +112,7 @@
 .choice[data-selected="true"] {
   background: var(--ui-color-tint-subtle);
   border-color: var(--ui-color-tint);
-  box-shadow: inset 0 0 0 var(--ui-space-hairline) var(--ui-color-tint);
+  box-shadow: var(--ui-depth-pressed);
   color: var(--ui-color-on-primary-soft);
 }
 .choice[data-selected="true"] .choiceTitle,
@@ -124,7 +124,7 @@
   outline-offset: 2px;
 }
 .choices:not(:disabled) .choice:active {
-  box-shadow: inset 0 0 0 var(--ui-space-hairline) var(--ui-color-outline);
+  box-shadow: var(--ui-depth-pressed);
 }
 .choices:disabled .choice,
 .choices:disabled .choice[data-selected="true"] {
@@ -156,7 +156,7 @@
 }
 @media (hover: hover) and (pointer: fine) {
   .choices:not(:disabled) .choice:hover {
-    background: var(--ui-color-interactive-hover);
+    border-color: var(--ui-color-outline);
   }
   .choices:not(:disabled) .choice[data-selected="true"]:hover {
     background: var(--ui-color-tint-subtle);

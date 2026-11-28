@@ -101,6 +101,10 @@
     border-radius: var(--ui-radius-card);
     background: var(--ui-color-surface);
     background-image: var(--ui-finish-surface);
+    box-shadow: var(--ui-depth-control);
+  }
+  .card:active {
+    box-shadow: var(--ui-depth-pressed);
   }
   /* Wide and short, as most boards are: the board fills it, and a row of
      cards leaves room for the next section in view. */

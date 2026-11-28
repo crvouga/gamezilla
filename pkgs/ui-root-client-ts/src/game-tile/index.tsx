@@ -70,8 +70,16 @@ function Checkered(): JSX.Element {
           />
         ))
       )}
-      <circle class={styles['c3']} cx="25" cy="15" r="3.5" />
-      <circle class={styles['c4']} cx="15" cy="25" r="3.5" />
+      <ellipse class={styles['shade']} cx="27" cy="23" rx="7" ry="1.8" />
+      <g class={styles['c4']}>
+        <path d="M20 8h3v2h2V8h3v2h2V8h3v5l-2.5 2 .5 5 2 1v2H20v-2l2-1 .5-5-2.5-2z" />
+        <path class={styles['glint']} d="M21 9h1v3h-1zm3 6h1l-.5 4H23z" />
+      </g>
+      <ellipse class={styles['shade']} cx="13" cy="33" rx="7" ry="1.8" />
+      <g class={styles['c3']}>
+        <circle cx="12" cy="21" r="3.9" />
+        <path d="M9.5 24h5l-1 1.8c0 2 1.2 3.4 3 4l1.2 1v2H6.3v-2l1.2-1c1.8-.6 3-2 3-4z" />
+      </g>
     </>
   );
 }
@@ -87,12 +95,14 @@ function Discs(): JSX.Element {
     <>
       {DISCS.flatMap((row, r) =>
         row.map((tone, c) => (
-          <circle
-            class={styles[tone]}
-            cx={8 + c * 12}
-            cy={8 + r * 12}
-            r="4.75"
-          />
+          <g transform={`translate(${8 + c * 12} ${8 + r * 12})`}>
+            <circle class={styles['shade']} cy="1" r="5.25" />
+            <circle class={styles[tone]} r="4.75" />
+            <path
+              class={tone === 'c4' ? styles['socket'] : styles['glintLine']}
+              d="M-3 .2a3.2 3.2 0 0 1 3.2-3.2"
+            />
+          </g>
         ))
       )}
     </>
@@ -112,7 +122,9 @@ function Fleet(): JSX.Element {
           />
         ))
       )}
-      <rect class={styles['c4']} x="6" y="21" width="26" height="8" rx="4" />
+      <path class={styles['shade']} d="M4 27q7-6 14-6h12l4 4-5 4H10z" />
+      <path class={styles['c4']} d="M4 25q7-6 14-6h12l4 4-5 4H10z" />
+      <path class={styles['glint']} d="M6 24.5q7-4.5 13-4.5h10l2 1.5H18z" />
       <circle class={styles['c1']} cx="15" cy="25" r="2.25" />
       <circle class={styles['c2']} cx="30" cy="9" r="3" />
     </>
@@ -123,13 +135,23 @@ function Cards(): JSX.Element {
   return (
     <>
       <rect
-        class={styles['c3']}
-        x="9"
+        class={styles['underCard']}
+        x="5"
         y="9"
         width="15"
         height="21"
         rx="2"
         transform="rotate(-14 16.5 19.5)"
+      />
+      <path class={styles['c1']} d="m10 14 2.5-3 2.5 3-2.5 3z" />
+      <rect
+        class={styles['shade']}
+        x="16"
+        y="12"
+        width="16"
+        height="22"
+        rx="2"
+        transform="rotate(10 24.5 20.5)"
       />
       <rect
         class={styles['c3']}
@@ -175,6 +197,22 @@ function Walls(): JSX.Element {
 function Letters(): JSX.Element {
   return (
     <>
+      <rect
+        class={styles['shade']}
+        x="4"
+        y="15"
+        width="14"
+        height="14"
+        rx="2"
+      />
+      <rect
+        class={styles['shade']}
+        x="22"
+        y="15"
+        width="14"
+        height="14"
+        rx="2"
+      />
       <rect class={styles['c3']} x="4" y="13" width="14" height="14" rx="2" />
       <rect class={styles['c3']} x="22" y="13" width="14" height="14" rx="2" />
       <rect class={styles['c1']} x="13" y="4" width="14" height="5" rx="1.5" />
@@ -198,10 +236,14 @@ function Crates(): JSX.Element {
         fill="none"
         stroke-width="1"
       />
-      <rect class={styles['c3']} x="11" y="11" width="18" height="18" rx="2" />
+      <path class={styles['c3']} d="m8 14 7-6h16l-5 6z" />
+      <path class={styles['glint']} d="m8 14 7-6h16l-5 6z" />
+      <path class={styles['c3']} d="m26 14 5-6v17l-5 7z" />
+      <path class={styles['shade']} d="m26 14 5-6v17l-5 7z" />
+      <rect class={styles['c3']} x="8" y="14" width="18" height="18" rx="1" />
       <path
         class={styles['cut']}
-        d="M14 14l12 12M26 14l-12 12"
+        d="M11 17l12 12M23 17L11 29"
         fill="none"
         stroke-width="2"
         stroke-linecap="round"
@@ -249,6 +291,7 @@ function Court(): JSX.Element {
       />
       <rect class={styles['c1']} x="5" y="8" width="4" height="12" rx="2" />
       <rect class={styles['c2']} x="31" y="19" width="4" height="12" rx="2" />
+      <ellipse class={styles['shade']} cx="26.5" cy="18.5" rx="3.5" ry="1.5" />
       <circle class={styles['c3']} cx="25" cy="15" r="3" />
     </>
   );
@@ -308,41 +351,42 @@ export function GameTile(props: GameTileProps): JSX.Element {
       aria-hidden="true"
       {...dataAttrs({ component: 'GameTile', ...props.dataSet })}
     >
-      <svg viewBox="0 0 40 40" class={styles['art']}>
-        <rect class={styles['bg']} width="40" height="40" />
-        <Switch>
-          <Match when={props.motif === 'checkered'}>
-            <Checkered />
-          </Match>
-          <Match when={props.motif === 'discs'}>
-            <Discs />
-          </Match>
-          <Match when={props.motif === 'fleet'}>
-            <Fleet />
-          </Match>
-          <Match when={props.motif === 'cards'}>
-            <Cards />
-          </Match>
-          <Match when={props.motif === 'walls'}>
-            <Walls />
-          </Match>
-          <Match when={props.motif === 'letters'}>
-            <Letters />
-          </Match>
-          <Match when={props.motif === 'crates'}>
-            <Crates />
-          </Match>
-          <Match when={props.motif === 'paths'}>
-            <Paths />
-          </Match>
-          <Match when={props.motif === 'court'}>
-            <Court />
-          </Match>
-          <Match when={props.motif === 'trails'}>
-            <Trails />
-          </Match>
-        </Switch>
-      </svg>
+      <span class={styles['miniature']}>
+        <svg viewBox="0 0 40 40" class={styles['art']}>
+          <Switch>
+            <Match when={props.motif === 'checkered'}>
+              <Checkered />
+            </Match>
+            <Match when={props.motif === 'discs'}>
+              <Discs />
+            </Match>
+            <Match when={props.motif === 'fleet'}>
+              <Fleet />
+            </Match>
+            <Match when={props.motif === 'cards'}>
+              <Cards />
+            </Match>
+            <Match when={props.motif === 'walls'}>
+              <Walls />
+            </Match>
+            <Match when={props.motif === 'letters'}>
+              <Letters />
+            </Match>
+            <Match when={props.motif === 'crates'}>
+              <Crates />
+            </Match>
+            <Match when={props.motif === 'paths'}>
+              <Paths />
+            </Match>
+            <Match when={props.motif === 'court'}>
+              <Court />
+            </Match>
+            <Match when={props.motif === 'trails'}>
+              <Trails />
+            </Match>
+          </Switch>
+        </svg>
+      </span>
     </span>
   );
 }

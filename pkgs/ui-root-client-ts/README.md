@@ -46,13 +46,13 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 | Space | the 4px grid only: `none xs sm md lg xl 2xl 3xl` = 0 4 8 12 16 24 32 48; phone gutter 16 |
 | Radius | Small for tags and details, control for buttons and choices, card for grouped content, sheet for dialogs and boards. Avatars, dots and compact counters are round. |
 | Control height | 32 / 44 / 52; every control keeps a 44px hit area |
-| Depth | Fine lower edges on slate panels, an inset foot on filled actions and `shadow-float` for overlays |
+| Depth | A raised panel, recessed well, control with a compressible lower wall, piece, socket and floating sheet |
 | Motion | 150 / 200 / 250ms, one ease-out curve, only in answer to a tap; off under reduced motion |
 | Breakpoints | sm 640, md 768, lg 1024, xl 1280 |
 
 ### Illustrations and controls
 
-Choose a shared [Fluent Emoji Flat illustration](src/illustration/index.tsx) for
+Choose a shared [Fluent Emoji 3D illustration](src/illustration/index.tsx) for
 an app destination, game mode, achievement or meaningful empty state. Each
 individual game uses its registered [GameTile](src/game-tile/index.tsx), a
 miniature of its own board rendered in its playing colors. Pair illustrated
@@ -60,6 +60,17 @@ choices with visible text. The default artwork is 32 px and decorative. Use
 People Hugging for human opponents, Robot for bots and Sports Medal for
 tournaments. Board positions, player clocks and move records keep the space
 they need for play.
+
+To add artwork, use the 3D PNG of the matching subject from the immutable
+[Microsoft source revision](https://github.com/microsoft/fluentui-emoji/tree/1ffb34c752ecf5d402f04cfb4b392c77f57c54bc/assets).
+Keep its lighting, transparent padding and original colors. Convert to RGBA,
+resize inside 96 × 96 with Lanczos and export transparent WebP at quality 85,
+method 6. Register the asset once in `src/illustration/index.tsx`. Specify both
+dimensions on the host. Startup and mounted navigation reference the same file.
+The Trophy, Video Game and Robot in the Illustration catalog are the references
+for metal, plastic and faces. A new board motif uses its playing colors and
+a recognizable arrangement of pieces. Review it beside its name at 40 px and
+in the cover grid. Use the hosted tabletop captures to compare both sizes.
 
 Functional controls use the [Fluent UI System Icons Regular collection](src/icons.ts).
 Its default glyph is 20 px. Give an icon-only button an accessible name and
@@ -97,10 +108,13 @@ preserve its interactive target when changing the size of its glyph.
    choices. Use the small radius for metadata, the card radius for a group
    of choices, and the sheet radius for a dialog or board. Reserve round
    silhouettes for identity, small counts and floating controls.
-6. **Use depth to show what moves.** Grouped panels have a fine lower edge.
-   A filled primary or destructive button has an inset foot that compresses
-   on press without resizing the control. Sheets, menus, popovers, tooltips
-   and the floating action button use `shadow-float`.
+6. **Light comes from the upper left.** Seat the whole list on one raised
+   panel. Recess typed values and tracks into it. Mold a lower wall on a
+   filled key and compress it when pressed. A movable counter catches light
+   along its crown, a socket holds shadow along its upper lip. In a component
+   stylesheet pair a `--ui-finish-*` with its `--ui-depth-*` recipe.
+   Piece, slot and action finishes layer over the underlying seat or intent
+   color. Overlay depth separates a sheet from the table.
 7. **One navigation surface.** Wide layouts navigate from the sidebar
    (`AppHeaderIsland orientation="vertical"` in `AppFrame` `rail`): logo,
    one row per destination, the global chrome at its foot. Screens beside it
@@ -118,7 +132,7 @@ preserve its interactive target when changing the size of its glyph.
 9. **Motion answers a person.** Use the fast transition for hover, the
    normal transition for selection, and the slow transition for surfaces.
    Both the device and in-app reduced-motion settings keep controls still.
-10. **One activity indicator.** Every wait shows `Spinner` (twelve petals,
+10. **One activity indicator.** Every wait shows `Spinner` (eight ticks,
     stepping once a second): alone, in `LoadingState`, inside a loading
     `Button`, and on the boot screen in `index.html`. A whole-screen wait
     (boot and every `fill` `LoadingState`) shows it at 40px; inline waits at

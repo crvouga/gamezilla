@@ -2,12 +2,14 @@
    tile's few paints onto the game-prefixed tokens of the board it shows, so
    the tile changes with the board. */
 .tile {
-  display: inline-flex;
+  display: inline-grid;
   flex-shrink: 0;
+  place-items: center;
   overflow: hidden;
   width: 40px;
   height: 40px;
-  box-shadow: inset 0 0 0 1px var(--ui-color-border);
+  background: var(--ui-finish-slot) var(--tile-bg);
+  box-shadow: var(--ui-depth-well);
 }
 .tile[data-size="lg"] {
   width: 56px;
@@ -17,23 +19,56 @@
   width: 96px;
   height: 96px;
 }
-/* The face of a game's card: the board's own colour edge to edge, the
-   board centred in it at the height it is given. */
 .tile[data-size="cover"] {
-  box-sizing: border-box;
   width: 100%;
   height: 100%;
-  padding: var(--ui-space-2);
-  background: var(--tile-bg);
-  box-shadow: none;
+}
+/* One small physical board on the mat. Keep the projection shallow so
+   the game reads at row size and stays upright beside its name. */
+.miniature {
+  display: grid;
+  position: relative;
+  height: 78%;
+  aspect-ratio: 1;
+  border-radius: var(--ui-radius-sm);
+  transform: skewY(-5deg) scaleY(0.92);
+  background-color: var(--tile-bg);
+  box-shadow: var(--ui-depth-control);
+}
+.miniature::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--ui-finish-piece);
+  box-shadow: var(--ui-depth-piece);
+  pointer-events: none;
 }
 .art {
   display: block;
   width: 100%;
   height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
 }
-.bg {
-  fill: var(--tile-bg);
+.glint {
+  fill: var(--ui-color-material-glint);
+}
+.shade {
+  fill: var(--ui-color-on-tint-scrim);
+}
+.glintLine,
+.socket {
+  fill: none;
+  stroke: var(--ui-color-material-glint);
+  stroke-linecap: round;
+  stroke-width: 1.25;
+}
+.socket {
+  stroke: var(--ui-color-on-tint-scrim);
+}
+.underCard {
+  fill: var(--ui-color-board-light);
 }
 .c1 {
   fill: var(--tile-1);
@@ -111,8 +146,8 @@
 }
 .tile[data-motif="paths"] {
   --tile-bg: var(--ui-color-game-numberlink-canvas);
-  --tile-1: var(--ui-color-game-numberlink-one);
-  --tile-2: var(--ui-color-game-numberlink-two);
+  --tile-1: var(--ui-color-path-orange);
+  --tile-2: var(--ui-color-path-purple);
 }
 .tile[data-motif="court"] {
   --tile-bg: var(--ui-color-game-pong-canvas);
