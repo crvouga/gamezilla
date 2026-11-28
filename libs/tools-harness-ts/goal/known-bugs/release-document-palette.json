@@ -1,0 +1,4 @@
+{
+  "summary": "Node could not load the first-paint palette while Vite read the product configuration, blocking Release.",
+  "regressionTest": "pkgs/ui-root-shared-ts/tests/document-palette.test.ts"
+}

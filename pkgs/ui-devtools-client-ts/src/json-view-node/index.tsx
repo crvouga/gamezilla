@@ -25,7 +25,7 @@ import {
 } from '@pkgs/ui-devtools-shared-ts/json-view-logic';
 import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
-import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
+import { colorVar } from '@pkgs/ui-root-shared-ts/document-palette';
 import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { TreeGroup, TreeItem, TreeItemLabel } from '@ui-sdk/solid/tree';

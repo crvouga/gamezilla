@@ -16,7 +16,7 @@ export type BrowserDocument = {
 };
 
 export type BrowserCall = {
-  readonly target: 'driver' | 'node' | 'document-node' | 'view';
+  readonly target: 'driver' | 'node' | 'document-node' | 'view' | 'screencast';
   readonly path: readonly string[];
   readonly method: string;
   readonly args: readonly unknown[];

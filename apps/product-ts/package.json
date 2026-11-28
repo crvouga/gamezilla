@@ -110,6 +110,7 @@
     "solid-js": "catalog:"
   },
   "devDependencies": {
+    "ffmpeg-static": "5.3.0",
     "@apps/harness-ts": "workspace:*",
     "@clack/prompts": "catalog:",
     "@libs/auth-shared-ts": "workspace:*",

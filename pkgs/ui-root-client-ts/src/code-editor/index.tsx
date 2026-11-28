@@ -15,7 +15,7 @@ import type {
   CodeTokenKind,
 } from '@pkgs/ui-root-shared-ts/code-editor-types';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
+import { colorVar } from '@pkgs/ui-root-shared-ts/document-palette';
 import { spacingScale } from '@pkgs/ui-root-shared-ts/scale';
 import type { JSX } from '@solidjs/web';
 import { Textarea } from '@ui-sdk/solid/textarea';

@@ -3,6 +3,7 @@ import { wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { createIsolatedProcess } from '@pkgs/os-server-ts/wall-isolated-process';
 import type { IsolatedWorker } from '@pkgs/os-server-ts/wall-isolated-worker';
 import { browserProcessChannel } from './browser-process-channel';
+import type { ScreencastFrame } from './chrome-screencast';
 import {
   type BrowserCall,
   type BrowserDocument,
@@ -15,6 +16,15 @@ export type BrowserDeviceOptions = {
   readonly actorId?: string;
   readonly dataStore: { readonly directory: string };
 };
+
+function remoteScreencast(rpc: <T>(call: BrowserCall) => Promise<T>) {
+  const call = <T>(method: 'start' | 'stop') =>
+    rpc<T>({ target: 'screencast', path: [], method, args: [] });
+  return {
+    start: () => call<void>('start'),
+    stop: () => call<readonly ScreencastFrame[]>('stop'),
+  };
+}
 
 async function openBrowserTab<Open>(
   channel: ReturnType<typeof browserProcessChannel<Open>>,
@@ -42,6 +52,7 @@ async function openBrowserTab<Open>(
   }
   return {
     driver: { ...raw, close },
+    screencast: remoteScreencast(rpc),
     console: channel.consoleLines,
     network: channel.networkLines,
     view: {

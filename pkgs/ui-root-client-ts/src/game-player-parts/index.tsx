@@ -8,7 +8,7 @@
  */
 
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
+import { colorVar } from '@pkgs/ui-root-shared-ts/document-palette';
 import type { JSX } from '@solidjs/web';
 import { Badge } from '../badge/index';
 import { StatusDot } from '../status-dot/index';
