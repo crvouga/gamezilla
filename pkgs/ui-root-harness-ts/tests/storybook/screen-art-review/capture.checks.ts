@@ -74,7 +74,7 @@ for (const entry of Object.values(index.entries)) {
           height,
           theme,
           suffix: '',
-          globals: {},
+          globals: gameReview ? { spaceRole: 'host' } : {},
         });
         const pictures = page.locator('img[data-component="Illustration"]');
         for (const picture of await pictures.all()) {
