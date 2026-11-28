@@ -3,7 +3,7 @@ import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
-import { SpacesArt } from '@pkgs/ui-root-client-ts/illustration';
+import { GamesArt } from '@pkgs/ui-root-client-ts/illustration';
 
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -37,7 +37,7 @@ export type SpacesLobbyViewProps = {
 function SpacesEmptyState(): JSX.Element {
   return (
     <EmptyState
-      icon={SpacesArt}
+      icon={GamesArt}
       title={<Trans>No spaces yet</Trans>}
       body={
         <Trans>

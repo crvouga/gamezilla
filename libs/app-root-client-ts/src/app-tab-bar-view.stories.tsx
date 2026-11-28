@@ -23,7 +23,7 @@ export const SpacesCurrent: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const navigation = canvas.getByRole('navigation', { name: 'Navigation' });
-    for (const name of ['Spaces', 'Notifications', 'Profile']) {
+    for (const name of ['Spaces', 'Search', 'Notifications', 'Profile']) {
       const tab = canvas.getByRole('button', { name });
       const art = tab.querySelector('img');
       if (art === null) throw new Error(`Missing illustration for ${name}`);

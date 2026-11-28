@@ -8,7 +8,7 @@ import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import { Divider } from '@pkgs/ui-root-client-ts/divider';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
-import { SpacesArt } from '@pkgs/ui-root-client-ts/illustration';
+import { GamesArt } from '@pkgs/ui-root-client-ts/illustration';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { NameText } from '@pkgs/ui-root-client-ts/name-text';
@@ -310,14 +310,14 @@ function useJoinRecoveryCopy(): (status: SpaceJoinStatus) => JoinRecoveryCopy {
       return {
         title: t`You can't join this space`,
         body: t`Ask the host to add you or send you the link. If they add you, look under Shared with you in Spaces.`,
-        icon: SpacesArt,
+        icon: GamesArt,
         testId: Handles.spaceJoinUnavailable,
       };
     if (status === 'missing')
       return {
         title: t`This space can't be found`,
         body: t`The link may be wrong, or the space may never have existed.`,
-        icon: SpacesArt,
+        icon: GamesArt,
         testId: Handles.spaceNotFound,
       };
     return {

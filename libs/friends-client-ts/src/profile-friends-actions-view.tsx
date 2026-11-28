@@ -1,10 +1,8 @@
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
+import { SearchArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import type { JSX } from '@solidjs/web';
-
-const ROW_ICON_SIZE = 20;
 
 /**
  * The profile's way to make a friend: a row under the friends count, in the
@@ -19,7 +17,7 @@ export function ProfileFriendsActions(): JSX.Element {
     <MenuRow
       title={t`Find friends`}
       caption={t`Search by username`}
-      leading={<UserPlusIcon size={ROW_ICON_SIZE} color="tint" />}
+      leading={<SearchArt />}
       onClick={() => router.push('/search')}
     />
   );

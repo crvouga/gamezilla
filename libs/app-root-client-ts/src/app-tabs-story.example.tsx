@@ -3,11 +3,11 @@
  * shipped hrefs, icons and test ids, so shell chrome stories match the app.
  */
 
-import { SearchIcon } from '@pkgs/ui-root-client-ts/icons';
 import {
+  GamesArt,
   NotificationsArt,
   ProfileArt,
-  SpacesArt,
+  SearchArt,
 } from '@pkgs/ui-root-client-ts/illustration';
 import type { AppTabSpec } from './app-tabs';
 
@@ -16,7 +16,7 @@ export const STORY_APP_TABS: readonly AppTabSpec[] = [
     name: 'Spaces',
     href: '/',
     label: 'Spaces',
-    Icon: SpacesArt,
+    Icon: GamesArt,
     testID: 'tab-spaces',
     alsoActiveUnder: ['/space'],
   },
@@ -24,7 +24,7 @@ export const STORY_APP_TABS: readonly AppTabSpec[] = [
     name: 'Search',
     href: '/search',
     label: 'Search',
-    Icon: SearchIcon,
+    Icon: SearchArt,
     testID: 'tab-search',
   },
   {

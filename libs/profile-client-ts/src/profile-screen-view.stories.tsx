@@ -67,6 +67,28 @@ type Story = StoryObj<typeof meta>;
  */
 export const Ready: Story = {};
 
+export const NoFriends: Story = {
+  render: (args) => (
+    <ProfileScreenView
+      {...args}
+      friendsStats={<StoryFriendsStats count={0} />}
+      friendsCount={<StoryFriendsCount count={0} />}
+      friendsActions={<StoryFriendsActions />}
+    />
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const name of [/All friends/, /Find friends/, /^Settings/]) {
+      const row = canvas.getByRole('button', { name });
+      const image = row.querySelector('img');
+      if (!image) throw new Error('Missing destination artwork');
+      await image.decode();
+      await expect(image.width).toBe(32);
+      await expect(image).toHaveAttribute('alt', '');
+    }
+  },
+};
+
 /**
  * The username is no longer allowed: others see a stable stand-in name until
  * the person chooses a new username, and the profile says so.

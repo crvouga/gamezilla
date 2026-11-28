@@ -2,7 +2,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
-import { SpacesArt } from '@pkgs/ui-root-client-ts/illustration';
+import { GamesArt } from '@pkgs/ui-root-client-ts/illustration';
 
 import type { JSX } from '@solidjs/web';
 import { SpaceRecoveryState } from './space-recovery-state';
@@ -43,7 +43,7 @@ export function SpaceEndedScreenView(
       dataSet={{ testid: Handles.spaceEnded }}
     >
       <SpaceRecoveryState
-        icon={SpacesArt}
+        icon={GamesArt}
         title={<Trans>This space has ended</Trans>}
         body={body()}
       >
