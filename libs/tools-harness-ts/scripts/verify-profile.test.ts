@@ -53,7 +53,7 @@ type Step = {
 type Job = {
   name: string;
   strategy?: {
-    'fail-fast'?: boolean;
+    'fail-fast'?: boolean | string;
     matrix?: { shard?: number[] | string; revision?: string };
   };
   env?: Record<string, string>;
@@ -326,7 +326,11 @@ describe('Verify Nightly workflow', () => {
           suite === 'visual'
             ? '${{ matrix.shard }}/8'
             : '${{ matrix.shard }}/${{ strategy.job-total }}';
-        expect(job.strategy?.['fail-fast'], suite).toBe(true);
+        expect(job.strategy?.['fail-fast'], suite).toBe(
+          suite === 'browser'
+            ? "${{ inputs.browser-journey != 'game-table' }}"
+            : true
+        );
         expect(job.name).toBe(`verify-nightly:${suite} (${place})`);
         expect(job.env, suite).toEqual(
           suite === 'visual'

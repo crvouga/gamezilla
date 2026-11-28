@@ -1,0 +1,4 @@
+{
+  "summary": "At 1280px the Battleship multiplayer journey awaited the compact target area for F2 even though wide boards expose the cell itself.",
+  "regressionTest": "libs/battleship-client-ts/tests/automation.test.tsx"
+}

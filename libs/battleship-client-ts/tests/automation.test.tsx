@@ -20,7 +20,7 @@ afterEach(async () => {
 });
 
 /** The registered presentation's board, driven as the game automation drives it. */
-function boardDriver(played: string[]): SolidDomDriver {
+function boardDriver(played: string[], width = 390): SolidDomDriver {
   const time = createHarnessClock();
   const Board = battleshipGameClient.presentation.Board;
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
@@ -34,7 +34,7 @@ function boardDriver(played: string[]): SolidDomDriver {
       createRoot: () => () => (
         <I18nProvider i18n={i18n}>
           <ClockProvider clock={time.clock} timers={time.timers}>
-            <ThemeProvider>
+            <ThemeProvider fixedLayout={{ width, height: 800 }}>
               <Board
                 position={encodeBattleshipPosition(['a1:miss', 'b2:miss'])}
                 orientation="white"
@@ -64,6 +64,15 @@ test('the game automation fires a shot through the targeting grid', async () => 
   await driver.launch();
   await battleshipAutomation.perform(driver, 'board', 'e5');
   expect(played).toEqual(['e5']);
+});
+
+// regression: battleship-wide-automation-awaits-missing-region
+test('a wide multiplayer board fires F2 from the full targeting grid', async () => {
+  const played: string[] = [];
+  driver = boardDriver(played, 1280);
+  await driver.launch();
+  await battleshipAutomation.perform(driver, 'board', 'f2');
+  expect(played).toEqual(['f2']);
 });
 
 test('the presentation names the game, its sides and its ending', () => {

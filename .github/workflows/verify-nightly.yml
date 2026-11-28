@@ -247,7 +247,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
-      fail-fast: true
+      fail-fast: ${{ inputs.browser-journey != 'game-table' }}
       matrix:
         # The whole suite is about 50 runner-hours, so a night runs four of
         # its 24-minute partitions (`apps/product-ts/scripts/stack-shards.ts`)
