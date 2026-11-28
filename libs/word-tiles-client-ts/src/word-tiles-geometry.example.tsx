@@ -11,11 +11,7 @@ function describe(element: Element | null): string {
   );
 }
 
-/** Full box visibility, including corner hit testing; toBeVisible alone misses sticky overlap. */
-export async function assertClear(
-  element: HTMLElement,
-  contentFits = true
-): Promise<void> {
+async function assertFits(element: HTMLElement, contentFits: boolean) {
   const rect = element.getBoundingClientRect();
   const doc = element.ownerDocument;
   await expect(rect.width).toBeGreaterThan(0);
@@ -27,6 +23,16 @@ export async function assertClear(
   await expect(rect.right).toBeLessThanOrEqual(doc.documentElement.clientWidth);
   if (contentFits)
     await expect(element.scrollWidth).toBeLessThanOrEqual(element.clientWidth);
+  return rect;
+}
+
+/** Corner hit tests catch sticky controls covering an otherwise visible target. */
+export async function assertClear(
+  element: HTMLElement,
+  contentFits = true
+): Promise<void> {
+  const rect = await assertFits(element, contentFits);
+  const doc = element.ownerDocument;
   for (const x of [rect.left + 2, rect.right - 2]) {
     for (const y of [rect.top + 2, rect.bottom - 2]) {
       const hit = doc.elementFromPoint(x, y);
@@ -35,6 +41,14 @@ export async function assertClear(
         `corner ${Math.round(x)},${Math.round(y)} of ${describe(element)} is covered by ${describe(hit)}`
       ).toBe(true);
     }
+  }
+}
+
+/** Check the tray bounds and the hit area of each actual letter. */
+export async function assertRackClear(rack: HTMLElement): Promise<void> {
+  await assertFits(rack, true);
+  for (const tile of within(rack).getAllByRole('button')) {
+    await assertClear(tile);
   }
 }
 
@@ -113,7 +127,7 @@ export async function checkInitialWordWorkspace(
   await assertClear(canvas.getByTestId('game-session-seat-near'));
   await assertClear(primary);
   await assertClear(more);
-  await assertClear(canvas.getByTestId('game-session-board-rack'));
+  await assertRackClear(canvas.getByTestId('game-session-board-rack'));
   const viewport = canvas.getByRole('region', {
     name: 'Scrollable word board',
   });
