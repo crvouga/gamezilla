@@ -73,6 +73,7 @@ export function FrameStage(
   const compact = (): boolean => mode() !== 'wide';
   return (
     <GameBoardStage
+      seatCount={props.table.others.length + Number(props.table.near !== null)}
       information={props.information}
       viewportFit={props.boardFit}
       align={props.boardAlign}

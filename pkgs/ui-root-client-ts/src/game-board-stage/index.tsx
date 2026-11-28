@@ -29,6 +29,8 @@ export {
  * with turn chrome of its own leaves it out there (`useGameBoardPreview`).
  */
 export function GameBoardStage(props: {
+  /** Number of participants in the game, including the viewer's seat. */
+  seatCount?: number | undefined;
   /** The other players, above the board. */
   others?: JSX.Element;
   /** Whose turn it is, between the other players and the person's own strip. */
@@ -103,6 +105,7 @@ export function GameBoardStage(props: {
         },
       ]}
       data-preview={String(props.preview === true)}
+      data-seat-count={props.seatCount}
       data-viewport-fit={props.viewportFit}
       style={{
         '--game-board-fit': limit() === undefined ? undefined : `${limit()}px`,

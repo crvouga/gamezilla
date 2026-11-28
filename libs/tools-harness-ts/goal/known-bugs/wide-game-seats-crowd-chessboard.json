@@ -1,0 +1,4 @@
+{
+  "summary": "At 1280x713, two full-width player strips followed by separate turn and move rows left only 32px squares in a matched chess game.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/screen-art-review/tabletop.checks.ts"
+}
