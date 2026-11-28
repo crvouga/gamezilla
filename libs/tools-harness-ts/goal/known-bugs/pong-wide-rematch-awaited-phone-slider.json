@@ -1,0 +1,4 @@
+{
+  "summary": "After the 1280-pixel Pong match and rematch acceptance, the journey waited for a phone-only slider to read the new game.",
+  "regressionTest": "libs/runtime-harness-ts/tests/pong-rematch-wide-court.test.ts"
+}
