@@ -37,6 +37,28 @@
   max-width: none;
   gap: var(--ui-space-1);
 }
+/* Phone: the opponent stays over the board and the person stays under it,
+   the way a matched game reads. The turn and the moves follow that seat.
+   The players slot is `display: contents`, so these two are the stage's
+   own items. A table of three or more keeps everyone else over the board. */
+@media (max-width: 879px) {
+  .fixed .stage > [data-game-board-stage] > [data-game-players] > :first-child {
+    order: 0;
+  }
+  .fixed .stage > [data-game-board-stage] > [data-game-board] {
+    order: 1;
+  }
+  .fixed
+    .stage
+    > [data-game-board-stage]
+    > [data-game-players]:has(> :nth-child(2):last-child)
+    > :last-child {
+    order: 2;
+  }
+  .fixed .stage > [data-game-board-stage] > .information {
+    order: 3;
+  }
+}
 .stage [data-game-board-stage] > :not([data-game-board]) {
   flex: none;
   margin-inline: var(--ui-space-2);
@@ -161,21 +183,7 @@
     --game-board-workspace-inset: var(--ui-space-4);
   }
 }
-/* Two seats on a phone share one row, the way a clock strip does: each
-   seat keeps its clock, and the board under them gains a row. A table of
-   three or more stays stacked so every name still reads. */
-@container game-column (max-width: 879px) {
-  .stage
-    [data-game-players]:has(> :nth-child(2):last-child) {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--ui-space-1);
-  }
-  .stage [data-game-players]:has(> :nth-child(2):last-child) > * {
-    min-width: 0;
-    margin-inline: 0;
-  }
-}
+
 /* History commands and the way onward each keep their row, including
    when Progress becomes the longer completion action. */
 @container game-column (max-width: 383px) {
