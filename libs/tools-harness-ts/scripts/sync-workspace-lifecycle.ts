@@ -61,9 +61,7 @@ export const ORCHESTRATORS: Orchestrator[] = [
     render: (commands) => ({
       $schema: 'https://t3.codes/schema/t3.json',
       defaultThreadEnvMode: 'worktree',
-      scripts: [
-        { name: 'Localhost', command: commands.run, icon: 'play' },
-      ],
+      scripts: [{ name: 'Localhost', command: commands.run, icon: 'play' }],
     }),
   },
   {

@@ -47,7 +47,8 @@ export function hygieneDecision(branch: HygieneBranch): HygieneDecision {
     return keep('default or archive branch');
   if (branch.worktree !== null)
     return keep(`worktree still attached: ${branch.worktree}`);
-  if (branch.pulls.some((pull) => pull.state === 'OPEN')) return keep('open PR');
+  if (branch.pulls.some((pull) => pull.state === 'OPEN'))
+    return keep('open PR');
   if (branch.remoteSha !== null && branch.remoteSha !== branch.sha)
     return keep('local and remote heads differ');
   // Squash merges do not keep the pre-merge head. Integration is enough:
@@ -66,7 +67,8 @@ export function hygieneDecision(branch: HygieneBranch): HygieneDecision {
       pull.mergeCommit !== null
   );
   if (!proof) return keep('no merged PR at this exact head targeting main');
-  if (!branch.mergeIncluded) return keep('merge commit absent from origin/main');
+  if (!branch.mergeIncluded)
+    return keep('merge commit absent from origin/main');
   return { reason: null, force: true };
 }
 
