@@ -15,7 +15,7 @@ import { type BrowserCall, runsNoPageCode } from './remote-browser-driver';
 export type BrowserDevice = {
   readonly driver: Driver & { get(id: string, scope?: 'document'): DriverNode };
   readonly view: object;
-  readonly screencast?: Screencast;
+  readonly screencast?: Screencast & Pick<Bun.WebView, 'cdp'>;
   readonly console?: readonly string[];
   readonly network?: readonly string[];
   readonly traceCall?: TraceBrowserCall;
@@ -92,6 +92,13 @@ function invokeScreencast(screencast: Screencast | undefined, method: string) {
   throw new Error('Unknown screencast operation');
 }
 
+function viewReceiver(device: BrowserDevice, method: string): object {
+  // A frame acknowledgement and a driver command share Bun's single CDP slot.
+  return method === 'cdp' && device.screencast
+    ? device.screencast
+    : device.view;
+}
+
 async function invoke(
   device: BrowserDevice,
   call: BrowserCall
@@ -110,7 +117,7 @@ async function invoke(
     call.target === 'driver'
       ? device.driver
       : call.target === 'view'
-        ? device.view
+        ? viewReceiver(device, call.method)
         : call.path.reduce<Pick<Driver, 'get'>>(
             (value, id) => value.get(id),
             call.target === 'document-node'
