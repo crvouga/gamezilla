@@ -148,13 +148,19 @@ function RecordMoves(
 }
 
 /**
- * Before the first move, what the game has ahead, one row per step (`Deal 1
+ * Before the first move, what the game has ahead, one group per step (`Deal 1
  * · Pass left`), the step open now marked `Now` in words, not by colour
  * alone.
  */
 function RecordOutline(props: { readonly record: FrameRecord }): JSX.Element {
   return (
-    <StackVertical gap="xs" testId="game-session-record-outline">
+    <StackHorizontal
+      gap="sm"
+      wrap
+      shrink
+      dataSet={{ 'record-outline': 'true' }}
+      testId="game-session-record-outline"
+    >
       <For each={props.record.outline ?? []}>
         {(step) => (
           <StackHorizontal align="center" justify="between" gap="sm">
@@ -170,7 +176,7 @@ function RecordOutline(props: { readonly record: FrameRecord }): JSX.Element {
           </StackHorizontal>
         )}
       </For>
-    </StackVertical>
+    </StackHorizontal>
   );
 }
 
@@ -415,7 +421,7 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
                 </Show>
               }
               variant="solid"
-              fullWidth
+              flex={1}
               onClick={() => props.onClose()}
               dataSet={{ testid: 'game-session-back-to-live' }}
             />

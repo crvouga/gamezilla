@@ -35,6 +35,32 @@ export async function pongJourneyStart(ui: Driver): Promise<PongJourneyStart> {
   };
 }
 
+/** Keep an arrow held across simulation ticks, as a person does on the wide court. */
+async function steerWithArrows(
+  ui: Driver,
+  side: PongJourneySide,
+  targetY: number
+): Promise<void> {
+  const paddle = ui.get(
+    `${BOARD}-${side === 'white' ? 'first' : 'second'}-paddle`
+  );
+  const [top, size] = await Promise.all([
+    paddle.attribute('y'),
+    paddle.attribute('height'),
+  ]);
+  const height = Number(size);
+  check(top !== null && height > 0, 'No Pong paddle is shown');
+  const distance = targetY - (Number(top) + height / 2);
+  const court = ui.get(BOARD);
+  if (Math.abs(distance) <= height / 4) {
+    await court.key('arrowUp', 'keyup');
+    await court.key('arrowDown', 'keyup');
+  } else {
+    await court.key(distance < 0 ? 'arrowDown' : 'arrowUp', 'keyup');
+    await court.key(distance < 0 ? 'arrowUp' : 'arrowDown', 'keydown');
+  }
+}
+
 /** Follow the ball or move away using the control this layout offers. */
 export async function guidePongJourney(
   ui: Driver,
@@ -60,11 +86,7 @@ export async function guidePongJourney(
     if (await slider.isVisible()) {
       await slider.input(String(target));
     } else {
-      // Edge targets lie just inside the court so native input hits the playing surface.
-      await ui.get(BOARD).tapAt({
-        xRatio: side === 'white' ? 0.25 : 0.75,
-        yRatio: Math.max(1, Math.min(999, target)) / 1000,
-      });
+      await steerWithArrows(ui, side, (target / 1000) * courtHeight);
     }
   } catch (error) {
     // The point that ends the game can land between reading and moving.

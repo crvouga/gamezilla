@@ -1,0 +1,4 @@
+{
+  "summary": "The fixed 32px information bands clipped the live Connect Four first-move countdown and, at 390×844, the first Hearts deal outline in the private setup stage.",
+  "regressionTest": "apps/product-ts/tests/live-browser.test.ts"
+}

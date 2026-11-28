@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 the fixed 32px status band clipped the second line of both the puzzle instruction and its save receipt on the Numberlink in-progress and fresh Sokoban stages.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/screen-art-review/tabletop.checks.ts"
+}

@@ -146,6 +146,21 @@ test('the board reads its squares once per change, however a caller computes the
   ]);
 });
 
+// regression: word-tiles-native-scrollbar-clips-squares
+test('a 390px board centers the selected tile in the space between classic scrollbars', () => {
+  const view = example();
+  const viewport = view.getByRole('region', { name: 'Scrollable word board' });
+  Object.defineProperties(viewport, {
+    offsetWidth: { value: 359 },
+    clientWidth: { value: 344 },
+    offsetHeight: { value: 314 },
+    clientHeight: { value: 299 },
+  });
+  fireEvent.click(view.getByRole('button', { name: 'Enlarge board' }));
+  expect(viewport.style.getPropertyValue('--word-tile-gutter-x')).toBe('15px');
+  expect(viewport.style.getPropertyValue('--word-tile-gutter-y')).toBe('15px');
+});
+
 // regression: word-tiles-enlarged-context-loss
 test('enlargement retains all squares in an overview and announces the chosen mode', () => {
   const view = example();

@@ -122,6 +122,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       // Sized by its width, in its own shape: a stage gives it a room it
       // fits whole in, never one it is stretched to fill.
       data-board-sizing="width"
+      data-board-drawing
       {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
       role="application"
       aria-label={props.label}

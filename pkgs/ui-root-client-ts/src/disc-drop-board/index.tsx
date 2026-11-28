@@ -103,13 +103,13 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
         prompting() && promptLine() ? promptId : undefined,
         !thumbnail() && props.keyboardHelp ? keyboardHelpId : undefined
       )}
-      data-testid={props.testId}
+      data-board-drawing
       data-preview-cell={input.target() ?? -1}
       data-cells={JSON.stringify(props.cells)}
       data-won={String(props.winning.length > 0)}
       data-keyboard-help={String(input.keyboard())}
       data-inspecting={String(input.inspecting())}
-      {...dataAttrs({ component: 'DiscDropBoard' })}
+      {...dataAttrs({ component: 'DiscDropBoard', testid: props.testId })}
       style={{ '--disc-columns': props.columns }}
     >
       <Show when={promptLine()}>

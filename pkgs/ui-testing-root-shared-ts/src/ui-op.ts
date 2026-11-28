@@ -64,9 +64,14 @@ async function runNodeOp(
     case 'clear':
       await node.clear();
       return;
-    case 'key':
-      await node.key(keyOf(op));
+    case 'key': {
+      const phase = op.extra['phase'];
+      await node.key(
+        keyOf(op),
+        phase === 'keydown' || phase === 'keyup' ? phase : undefined
+      );
       return;
+    }
     case 'scroll':
       await node.scroll(op.extra['direction'] as ScrollDirection);
       return;

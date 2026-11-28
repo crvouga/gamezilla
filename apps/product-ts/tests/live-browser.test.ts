@@ -178,7 +178,11 @@ test('a match inside one journey step records its first visible board once', asy
   const view = {
     ...successfulStepView(),
     evaluate: async (script: string) =>
-      script === 'location.href' ? 'https://example.test/space/one' : visible,
+      script === 'location.href'
+        ? 'https://example.test/space/one'
+        : script.startsWith('Array.from')
+          ? visible
+          : [],
   };
   await capture(view, 'open room');
   expect(
@@ -275,3 +279,52 @@ test('successful journey step evidence cannot claim a screenshot when capture fa
   );
   expect(await readUtf8(store, 'capture/steps/0001.json')).toBeNull();
 });
+
+// regression: wide-live-stage-crops-board
+// regression: live-stage-clips-countdown-and-deal-outline
+test.each([
+  [
+    'connect-four-game.two-people-share-the-completed-game',
+    'Column 6 bottom cell',
+  ],
+  [
+    'light-cycles-start.a-fresh-guest-begins-the-chosen-light-cycles-game-with-bots-light-cycles-quad',
+    'Light Cycles arena',
+  ],
+  [
+    'connect-four-game.two-people-share-the-completed-game',
+    'First-move countdown',
+  ],
+  [
+    'hearts-first-trick.a-fresh-guest-passes-three-cards-and-sees-the-first-trick-taken',
+    'Deal outline',
+  ],
+])(
+  '%s retains the captured screen and identifies the clipped playing area or label',
+  async (scenario, name) => {
+    const store = new ObjectStoreImplInMemory();
+    const parts = [
+      {
+        name,
+        part: { left: 48, right: 208, top: 52, bottom: 72 },
+        room: { left: 0, right: 390, top: 32, bottom: 64 },
+      },
+    ];
+    const view = {
+      evaluate: async (script: string) => {
+        if (script === 'location.href') return 'https://example.test/game';
+        return script.startsWith('Array.from') ? true : parts;
+      },
+      screenshot: async () => new Uint8Array([137, 80, 78, 71]),
+    };
+    await expect(
+      createJourneyBoardCapture(scenario, store)(view, 'enter the game')
+    ).rejects.toThrow(name);
+    expect(
+      await readObjectBytes(store, `${scenario}.board/steps/0001.png`)
+    ).not.toBeNull();
+    expect(
+      JSON.parse((await readUtf8(store, `${scenario}.board/geometry.json`))!)
+    ).toEqual(parts);
+  }
+);

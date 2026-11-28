@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 the four replay steps were followed by a full-width button, leaving the label and right edge of Back to the game outside the viewport.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/screen-art-review/tabletop.checks.ts"
+}

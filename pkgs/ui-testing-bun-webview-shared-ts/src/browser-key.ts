@@ -1,3 +1,4 @@
+import type { KeyPhase } from '@pkgs/ui-testing-root-shared-ts/keys';
 import type { BunWebView } from './bun-webview-host';
 
 function browserKeyInit(key: string): KeyboardEventInit {
@@ -15,7 +16,8 @@ function browserKeyInit(key: string): KeyboardEventInit {
 function dispatchBrowserKey(
   selector: string | null,
   key: string,
-  init: KeyboardEventInit
+  init: KeyboardEventInit,
+  phase: KeyPhase | null
 ): boolean {
   const root =
     selector === null
@@ -28,6 +30,10 @@ function dispatchBrowserKey(
     ? document.activeElement
     : root;
   if (!(target instanceof HTMLElement)) return false;
+  if (phase !== null) {
+    target.dispatchEvent(new KeyboardEvent(phase, init));
+    return false;
+  }
   const accepted = target.dispatchEvent(new KeyboardEvent('keydown', init));
   const field =
     target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement;
@@ -59,10 +65,11 @@ function dispatchBrowserKey(
 export async function pressBrowserKey(
   view: BunWebView,
   key: string,
-  selector: string | null = null
+  selector: string | null = null,
+  phase?: KeyPhase
 ): Promise<void> {
   const edit = await view.evaluate(
-    `(${dispatchBrowserKey.toString()})(${JSON.stringify(selector)}, ${JSON.stringify(key)}, (${browserKeyInit.toString()})(${JSON.stringify(key)}))`
+    `(${dispatchBrowserKey.toString()})(${JSON.stringify(selector)}, ${JSON.stringify(key)}, (${browserKeyInit.toString()})(${JSON.stringify(key)}), ${JSON.stringify(phase ?? null)})`
   );
   if (edit === true) await view.press(key);
 }

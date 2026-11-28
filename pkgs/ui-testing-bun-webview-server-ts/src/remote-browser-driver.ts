@@ -53,7 +53,7 @@ function node(
     input: (text, options) => call('input', text, options),
     selectFile: (file) => call('selectFile', file),
     clear: () => call('clear'),
-    key: (key) => call('key', key),
+    key: (key, phase) => (phase ? call('key', key, phase) : call('key', key)),
     scroll: (direction, amount) => call('scroll', direction, amount),
     wait: (state, options) => call('wait', state, options),
     isVisible: () => call('isVisible'),

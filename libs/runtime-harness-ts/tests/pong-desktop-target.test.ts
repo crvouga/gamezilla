@@ -1,13 +1,11 @@
 import { expect, test } from 'bun:test';
 import { guidePongJourney } from '@libs/runtime-harness-ts/pong-journey-court';
-import type {
-  Driver,
-  TapPosition,
-} from '@pkgs/ui-testing-root-shared-ts/driver';
+import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { journeyDiagnosticDriver } from './journey-diagnostic-driver';
 
 // regression: pong-wide-journey-awaits-hidden-slider
-test('on a wide Pong court the assigned player follows the ball without a phone slider', async () => {
+// regression: pong-wide-court-releases-input-before-the-simulation-tick
+test('wide-court arrows stay held while the paddle follows the ball, then release at its target', async () => {
   const board = 'multiplayer-board';
   const status = `${board}-status`;
   const base = journeyDiagnosticDriver({
@@ -16,27 +14,35 @@ test('on a wide Pong court the assigned player follows the ball without a phone 
     texts: {},
     captions: {},
   }).ui;
-  const touches: TapPosition[] = [];
+  const held = new Set<string>();
+  let ballY = 90;
   const ui: Driver = {
     ...base,
     get: (id) => ({
       ...base.get(id),
-      attribute: async (name) =>
-        id === status && name === 'data-stage'
-          ? 'rally'
-          : id === `${board}-ball` && name === 'data-ball-y'
-            ? '90'
-            : null,
-      tapAt: async (point) => {
+      attribute: async (name) => {
+        if (id === status && name === 'data-stage') return 'playing';
+        if (id === `${board}-ball` && name === 'data-ball-y')
+          return String(ballY);
+        if (id.endsWith('-paddle') && name === 'y') return '150';
+        if (id.endsWith('-paddle') && name === 'height') return '60';
+        return null;
+      },
+      key: async (key, phase) => {
         expect(id).toBe(board);
-        touches.push(point);
+        if (phase === 'keydown') held.add(key);
+        if (phase === 'keyup') held.delete(key);
       },
     }),
   };
-  expect(await guidePongJourney(ui, 'white', true, 360)).toBe(false);
-  expect(await guidePongJourney(ui, 'black', false, 360)).toBe(false);
-  expect(touches).toEqual([
-    { xRatio: 0.25, yRatio: 0.25 },
-    { xRatio: 0.75, yRatio: 0.999 },
-  ]);
+  expect(await guidePongJourney(ui, 'black', true, 360)).toBe(false);
+  expect([...held]).toEqual(['arrowUp']);
+  ballY = 270;
+  await guidePongJourney(ui, 'black', true, 360);
+  expect([...held]).toEqual(['arrowDown']);
+  ballY = 180;
+  await guidePongJourney(ui, 'black', true, 360);
+  expect(held.size).toBe(0);
+  await guidePongJourney(ui, 'white', false, 360);
+  expect([...held]).toEqual(['arrowUp']);
 });
