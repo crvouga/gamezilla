@@ -1,0 +1,4 @@
+{
+  "summary": "The desktop evidence run requested an 800px content height but captured 1280×713 images because Chrome counted 87px of native window controls.",
+  "regressionTest": "apps/product-ts/tests/live-browser.test.ts"
+}
