@@ -138,7 +138,7 @@
     line-height: var(--ui-leading-base);
   }
 
-  .fab {
+  .clickable.fab {
     height: var(--ui-control-size-lg);
     min-height: var(--ui-control-size-lg);
     min-width: var(--ui-control-size-lg);
