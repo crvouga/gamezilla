@@ -6,7 +6,6 @@ import type { JSX } from '@solidjs/web';
 import { createMemo, For, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { createScreenSlot } from '../screen-slot';
-import styles from './game-action-bar.module.css';
 
 /** One game action. */
 export type GameActionItem = {
@@ -92,7 +91,10 @@ export function GameActionBar(props: GameActionBarProps): JSX.Element {
   return (
     <Show when={props.items.length > 0 || commands.present()}>
       <div
-        class={[styles['actions'], { 'w-full': props.width !== 'content' }]}
+        class={[
+          'flex flex-row flex-wrap items-center gap-2 min-w-0 max-w-full shrink *:max-w-full',
+          { 'w-full': props.width !== 'content' },
+        ]}
         role="group"
         aria-label={props['aria-label']}
         {...dataAttrs({ component: 'GameActionBar', ...props.dataSet })}

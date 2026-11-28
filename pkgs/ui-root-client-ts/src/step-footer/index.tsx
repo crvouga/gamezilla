@@ -6,7 +6,6 @@ import type { JSX } from '@solidjs/web';
 import { createUniqueId } from 'solid-js';
 import { bindElementTargets } from '../element-targets';
 import type { ScrollTarget } from '../scroll';
-import styles from './step-footer.module.css';
 
 export type StepFooterProps = {
   /** What the step's actions finish (`3 · Check and publish`); names it. */
@@ -36,7 +35,7 @@ export function StepFooter(props: StepFooterProps): JSX.Element {
   return (
     <section
       ref={targets}
-      class={styles['footer']}
+      class="flex flex-col gap-ui-sm min-w-0 pt-ui-lg border-t border-border"
       aria-labelledby={id}
       {...dataAttrs({ component: 'StepFooter', ...props.dataSet })}
     >

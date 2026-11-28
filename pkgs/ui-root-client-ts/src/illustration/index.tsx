@@ -22,40 +22,41 @@ function illustration(src: string) {
 }
 
 export const VictoryArt = illustration(
-  new URL('./trophy.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/trophy.svg', import.meta.url).href
 );
 export const ChessArt = illustration(
-  new URL('./chess-pawn.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/chess-pawn.svg', import.meta.url).href
 );
 export const DiscsArt = illustration(
-  new URL('./red-circle.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/red-circle.svg', import.meta.url).href
 );
 export const FleetArt = illustration(
-  new URL('./ship.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/ship.svg', import.meta.url).href
 );
 export const CardsArt = illustration(
-  new URL('./heart-suit.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/heart-suit.svg', import.meta.url).href
 );
 export const WallsArt = illustration(
-  new URL('./brick.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/brick.svg', import.meta.url).href
 );
 export const LettersArt = illustration(
-  new URL('./input-latin-letters.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/input-latin-letters.svg', import.meta.url)
+    .href
 );
 export const CratesArt = illustration(
-  new URL('./package.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/package.svg', import.meta.url).href
 );
 export const PathsArt = illustration(
-  new URL('./link.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/link.svg', import.meta.url).href
 );
 export const CourtArt = illustration(
-  new URL('./ping-pong.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/ping-pong.svg', import.meta.url).href
 );
 export const TrailsArt = illustration(
-  new URL('./motorcycle.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/motorcycle.svg', import.meta.url).href
 );
 const HuggingPeople = illustration(
-  new URL('./people-hugging.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/people-hugging.svg', import.meta.url).href
 );
 
 /** The decorative People Hugging illustration for friends and human opponents. */
@@ -65,53 +66,58 @@ export function FriendsArt(
   return <HuggingPeople {...props} />;
 }
 export const BotArt = illustration(
-  new URL('./robot.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/robot.svg', import.meta.url).href
 );
 export const TournamentsArt = illustration(
-  new URL('./sports-medal.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/sports-medal.svg', import.meta.url).href
 );
 export const GamesArt = illustration(
-  new URL('./video-game.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/video-game.svg', import.meta.url).href
 );
 export const SearchArt = illustration(
-  new URL('./magnifying-glass-tilted-left.svg', import.meta.url).href
+  new URL(
+    '../../assets/fluent-emoji/magnifying-glass-tilted-left.svg',
+    import.meta.url
+  ).href
 );
 export const HistoryArt = illustration(
-  new URL('./mantelpiece-clock.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/mantelpiece-clock.svg', import.meta.url)
+    .href
 );
 export const BooksArt = illustration(
-  new URL('./books.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/books.svg', import.meta.url).href
 );
 export const StatsArt = illustration(
-  new URL('./bar-chart.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/bar-chart.svg', import.meta.url).href
 );
 export const PuzzleArt = illustration(
-  new URL('./puzzle-piece.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/puzzle-piece.svg', import.meta.url).href
 );
 export const DeviceArt = illustration(
-  new URL('./mobile-phone.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/mobile-phone.svg', import.meta.url).href
 );
 export const ThemeArt = illustration(
-  new URL('./artist-palette.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/artist-palette.svg', import.meta.url).href
 );
 export const RewardsArt = illustration(
-  new URL('./wrapped-gift.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/wrapped-gift.svg', import.meta.url).href
 );
 export const MatchmakingArt = illustration(
-  new URL('./crossed-swords.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/crossed-swords.svg', import.meta.url).href
 );
 export const RulesArt = illustration(
-  new URL('./open-book.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/open-book.svg', import.meta.url).href
 );
 export const ProfileArt = illustration(
-  new URL('./bust-in-silhouette.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/bust-in-silhouette.svg', import.meta.url)
+    .href
 );
 export const SpacesArt = illustration(
-  new URL('./house.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/house.svg', import.meta.url).href
 );
 export const NotificationsArt = illustration(
-  new URL('./bell.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/bell.svg', import.meta.url).href
 );
 export const ArchiveArt = illustration(
-  new URL('./card-file-box.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/card-file-box.svg', import.meta.url).href
 );

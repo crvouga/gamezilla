@@ -1,7 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
 import type { JSX } from '@solidjs/web';
-import styles from '../sound-indicator/sound-indicator.module.css';
 
 const VIEW_BOX = '0 0 640 512';
 
@@ -23,11 +22,7 @@ export type AnimatedSpeakerWavesProps = {
   color: string;
 };
 
-/**
- * `AnimatedSpeakerWaves` -- speaker glyph whose three wave arcs ripple via
- * CSS keyframes (see `sound-indicator.module.css`). Honours
- * `prefers-reduced-motion` (arcs render static).
- */
+/** Speaker glyph with three static wave arcs. */
 export function AnimatedSpeakerWaves(
   props: AnimatedSpeakerWavesProps
 ): JSX.Element {
@@ -40,21 +35,9 @@ export function AnimatedSpeakerWaves(
       data-component="AnimatedSpeakerWaves"
     >
       <path d={CONE_PATH} fill={props.color} />
-      <path
-        class={`${styles['wave']} ${styles['wave1']}`}
-        d={INNER_WAVE_PATH}
-        fill={props.color}
-      />
-      <path
-        class={`${styles['wave']} ${styles['wave2']}`}
-        d={MIDDLE_WAVE_PATH}
-        fill={props.color}
-      />
-      <path
-        class={`${styles['wave']} ${styles['wave3']}`}
-        d={OUTER_WAVE_PATH}
-        fill={props.color}
-      />
+      <path d={INNER_WAVE_PATH} fill={props.color} />
+      <path d={MIDDLE_WAVE_PATH} fill={props.color} />
+      <path d={OUTER_WAVE_PATH} fill={props.color} />
     </svg>
   );
 }
