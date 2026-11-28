@@ -14,33 +14,35 @@ export type PongJourneyStart = {
 
 export const pongJourneyCourt = (ui: Driver) => readPongCourt(ui, BOARD);
 
-export async function pongJourneyStart(ui: Driver): Promise<PongJourneyStart> {
-  const board = ui.get(BOARD);
-  await board.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-  // A finished or reconnecting court cannot take input. Both layouts offer
-  // the same playable court before the next serve or during the rally.
-  if ((await board.attribute('data-interactive')) !== 'true') {
+export async function pongJourneyStart(
+  ui: Driver,
+  expectedSide?: PongJourneySide
+): Promise<PongJourneyStart> {
+  const status = ui.get(`${BOARD}-status`);
+  if (expectedSide !== undefined) {
+    const paddle = expectedSide === 'white' ? 'Left' : 'Right';
     await ui
-      .get(`${BOARD}-status`)
-      .wait({ text: 'Serve in', exact: false }, { timeoutMs: JOURNEY_WAIT_MS });
-    check(
-      (await board.attribute('data-interactive')) === 'true',
-      'The Pong court is not ready for input'
-    );
+      .get('multiplayer-colour')
+      .wait(
+        { text: `play ${paddle}`, exact: false },
+        { timeoutMs: JOURNEY_WAIT_MS }
+      );
   }
-  const gameId = await ui.get('multiplayer-game').attribute('data-game-id');
+  // One observation must see a playable announcement. A connected court can
+  // enter its rally immediately, and a stale display still has seats and a score.
+  await status.wait(
+    { text: ['Serve in', 'Keep the ball in play.'], exact: false },
+    { timeoutMs: JOURNEY_WAIT_MS }
+  );
+  const [gameId, side, court] = await Promise.all([
+    ui.get('multiplayer-game').attribute('data-game-id'),
+    ui.get('multiplayer-seat-near').attribute('data-side'),
+    pongJourneyCourt(ui),
+  ]);
   check(gameId !== null && gameId !== '', 'No matched Pong game is shown');
-  const seat = ui.get('multiplayer-seat-near');
-  await seat.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-  const side = await seat.attribute('data-side');
   check(
     side === 'white' || side === 'black',
-    'The near seat has no assigned Pong paddle'
-  );
-  const court = await pongJourneyCourt(ui);
-  check(
-    court.stage === 'countdown' || court.stage === 'playing',
-    'Pong did not start'
+    'No assigned Pong paddle is shown'
   );
   return {
     gameId,

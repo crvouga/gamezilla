@@ -40,12 +40,3 @@ export function readDomText(element: Element): string | null {
   if (label !== null && label.length > 0) return label;
   return null;
 }
-
-export function textMatches(
-  actual: string | null,
-  expected: string,
-  exact: boolean
-): boolean {
-  if (exact) return actual === expected;
-  return actual?.includes(expected) ?? false;
-}

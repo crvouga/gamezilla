@@ -1,0 +1,4 @@
+{
+  "summary": "On the wide court, the journey re-read the live phase just after observing readiness and rejected a brief connection transition as a match that had not started.",
+  "regressionTest": "libs/runtime-harness-ts/tests/pong-rematch-wide-court.test.ts"
+}

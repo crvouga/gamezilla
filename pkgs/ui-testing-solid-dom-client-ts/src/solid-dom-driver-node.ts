@@ -11,7 +11,10 @@ import type {
   WaitState,
   WaitTextCondition,
 } from '@pkgs/ui-testing-root-shared-ts/driver';
-import { isWaitTextCondition } from '@pkgs/ui-testing-root-shared-ts/driver';
+import {
+  isWaitTextCondition,
+  waitTextMatches,
+} from '@pkgs/ui-testing-root-shared-ts/driver';
 import {
   runExpectHidden,
   runExpectText,
@@ -26,7 +29,6 @@ import type {
   RenderedApp,
 } from '@pkgs/ui-testing-root-shared-ts/render-adapter';
 import { UiTestError } from '@pkgs/ui-testing-root-shared-ts/ui-test-error';
-import { textMatches } from './dom-text';
 import type { WaitPump } from './dom-wait';
 import { waitForDom } from './dom-wait';
 import { dispatchSettled } from './settle';
@@ -239,7 +241,8 @@ export class SolidDomDriverNode implements DriverNode {
     const verb = exact ? 'equals' : 'contains';
     const where = formatTestIdPath(this.path);
     const description =
-      options?.description ?? `text ${verb} "${state.text}" on ${where}`;
+      options?.description ??
+      `text ${verb} ${JSON.stringify(state.text)} on ${where}`;
     let lastActual: string | null = null;
     const readText = (): string | null => {
       const element = this.queryElement();
@@ -249,14 +252,14 @@ export class SolidDomDriverNode implements DriverNode {
       await this.waitUntil(
         () => {
           lastActual = readText();
-          return textMatches(lastActual, state.text, exact);
+          return waitTextMatches(lastActual, state);
         },
         description,
         options?.timeoutMs
       );
     } catch (error) {
       throw new UiTestError(
-        `Expected text ${verb} "${state.text}" on ${where}, got ${JSON.stringify(lastActual)}`,
+        `Expected text ${verb} ${JSON.stringify(state.text)} on ${where}, got ${JSON.stringify(lastActual)}`,
         { cause: error }
       );
     }
