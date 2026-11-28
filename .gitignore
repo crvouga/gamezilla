@@ -175,6 +175,8 @@ graphify-out/
 # Identity and branded files are external configuration/build outputs.
 /apps/product-client-swift/config/product-identity.generated.xcconfig
 /apps/product-client-swift/src/product-identity.generated.swift
+/apps/product-client-swift/src/assets.xcassets/app-icon.appiconset/app-icon.png
+/apps/product-client-swift/src/assets.xcassets/brand-mark.imageset/mark.svg
 /apps/product-client-ts/public/favicon.ico
 /apps/product-client-ts/public/pwa/apple-icon-180.png
 /apps/product-client-ts/public/pwa/apple-splash-dark-1125-2436.png

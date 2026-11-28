@@ -16,5 +16,9 @@ final class AppSmokeTests: XCTestCase {
     let title = app.staticTexts["root-title"]
     XCTAssertTrue(title.exists)
     XCTAssertEqual(title.label, ProductIdentity.displayName)
+    let screenshot = XCTAttachment(screenshot: app.screenshot())
+    screenshot.name = "native-root"
+    screenshot.lifetime = .keepAlways
+    add(screenshot)
   }
 }
