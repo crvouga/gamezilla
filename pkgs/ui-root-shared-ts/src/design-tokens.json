@@ -2,170 +2,170 @@
   "$description": "The look of the product: every color, distance, type size, radius and motion, in the W3C Design Tokens format. This file is the source. Language projections are generated from it.",
   "color": {
     "$type": "color",
-    "$description": "Blue-violet neutrals, iris actions and gold rewards. Each game owns its playing surface.",
+    "$description": "Graphite surfaces, muted iris actions and gold rewards. Each game owns its playing surface.",
     "background": {
       "$description": "The game room canvas.",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0902, 0.0941, 0.1373],
+        "components": [0.0941, 0.098, 0.102],
         "alpha": 1,
-        "hex": "#171823"
+        "hex": "#18191a"
       }
     },
     "surface": {
       "$description": "Panels and groups of controls.",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.1333, 0.1412, 0.2],
+        "components": [0.1412, 0.1451, 0.149],
         "alpha": 1,
-        "hex": "#222433"
+        "hex": "#242526"
       }
     },
     "surfaceMuted": {
       "$description": "Sunken well (`surface-sunken`): inputs, media wells, empty board cells, tags, inactive stat pills.",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0745, 0.0824, 0.1255],
+        "components": [0.0824, 0.0863, 0.0902],
         "alpha": 1,
-        "hex": "#131520"
+        "hex": "#151617"
       }
     },
     "surfaceElevated": {
       "$description": "Raised above the canvas: dialogs and sheets (`surface-raised`).",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.1882, 0.2, 0.2784],
+        "components": [0.1922, 0.1961, 0.2],
         "alpha": 1,
-        "hex": "#303347"
+        "hex": "#313233"
       }
     },
     "surfaceOverlay": {
       "$description": "Floating above content: popovers, menus, tooltips (`surface-raised`).",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.2118, 0.2235, 0.302],
+        "components": [0.2196, 0.2235, 0.2275],
         "alpha": 1,
-        "hex": "#36394d"
+        "hex": "#38393a"
       }
     },
     "text": {
       "$description": "Primary text (`ink`).",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.9569, 0.9529, 0.9804],
+        "components": [0.9529, 0.949, 0.9412],
         "alpha": 1,
-        "hex": "#f4f3fa"
+        "hex": "#f3f2f0"
       }
     },
     "textSecondary": {
       "$description": "Secondary text, timestamps, inactive (`ink-muted`).",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.7176, 0.7176, 0.7922],
+        "components": [0.7255, 0.7216, 0.7098],
         "alpha": 1,
-        "hex": "#b7b7ca"
+        "hex": "#b9b8b5"
       }
     },
     "icon": {
       "$description": "Glyphs at rest; the `ink-muted` value, held to 3:1.",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.7176, 0.7176, 0.7922],
+        "components": [0.7255, 0.7216, 0.7098],
         "alpha": 1,
-        "hex": "#b7b7ca"
+        "hex": "#b9b8b5"
       }
     },
     "tint": {
       "$description": "Primary as text (`primary-ink`): links and selected labels. Never a fill.",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.7412, 0.6627, 1.0],
+        "components": [0.7529, 0.7059, 0.8627],
         "alpha": 1,
-        "hex": "#bda9ff"
+        "hex": "#c0b4dc"
       }
     },
     "tintHover": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.8471, 0.7961, 1.0],
+        "components": [0.8392, 0.8039, 0.9098],
         "alpha": 1,
-        "hex": "#d8cbff"
+        "hex": "#d6cde8"
       }
     },
     "tintActive": {
       "$description": "The primary play or commit action, paired with onPrimary.",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.5725, 0.4549, 0.9608],
+        "components": [0.6392, 0.5686, 0.8235],
         "alpha": 1,
-        "hex": "#9274f5"
+        "hex": "#a391d2"
       }
     },
     "tintSubtle": {
       "$description": "Selected chip, active turn, active player, your avatar (`primary-soft`).",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.2039, 0.1686, 0.3059],
+        "components": [0.2039, 0.2, 0.2157],
         "alpha": 1,
-        "hex": "#342b4e"
+        "hex": "#343337"
       }
     },
     "primaryStrong": {
       "$description": "Selected borders, active indicators, your own pieces (`primary-strong`).",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.698, 0.6039, 0.9882],
+        "components": [0.6824, 0.6157, 0.851],
         "alpha": 1,
-        "hex": "#b29afc"
+        "hex": "#ae9dd9"
       }
     },
     "onPrimarySoft": {
       "$description": "Text and initials on `tintSubtle` (`on-primary-soft`).",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.9137, 0.8824, 1.0],
+        "components": [0.9176, 0.9098, 0.9373],
         "alpha": 1,
-        "hex": "#e9e1ff"
+        "hex": "#eae8ef"
       }
     },
     "onPrimary": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0941, 0.0745, 0.149],
+        "components": [0.098, 0.0902, 0.1137],
         "alpha": 1,
-        "hex": "#181326"
+        "hex": "#19171d"
       }
     },
     "onDestructive": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0902, 0.0941, 0.1373],
+        "components": [0.0941, 0.098, 0.102],
         "alpha": 1,
-        "hex": "#171823"
+        "hex": "#18191a"
       }
     },
     "onSuccess": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0902, 0.0941, 0.1373],
+        "components": [0.0941, 0.098, 0.102],
         "alpha": 1,
-        "hex": "#171823"
+        "hex": "#18191a"
       }
     },
     "onWarning": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0902, 0.0941, 0.1373],
+        "components": [0.0941, 0.098, 0.102],
         "alpha": 1,
-        "hex": "#171823"
+        "hex": "#18191a"
       }
     },
     "onInfo": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.0902, 0.0941, 0.1373],
+        "components": [0.0941, 0.098, 0.102],
         "alpha": 1,
-        "hex": "#171823"
+        "hex": "#18191a"
       }
     },
     "onTintScrim": {
@@ -196,27 +196,27 @@
       "$description": "Decorative dividers only (`line`).",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.2235, 0.2353, 0.3137],
+        "components": [0.2314, 0.2353, 0.2392],
         "alpha": 1,
-        "hex": "#393c50"
+        "hex": "#3b3c3d"
       }
     },
     "outline": {
       "$description": "Borders that carry meaning (`line-strong`): inputs, secondary buttons, unselected chips. Held to 3:1.",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.5373, 0.5451, 0.6353],
+        "components": [0.5608, 0.5647, 0.5686],
         "alpha": 1,
-        "hex": "#898ba2"
+        "hex": "#8f9091"
       }
     },
     "focusRing": {
       "$description": "The 2px focus ring, 2px offset, on every interactive control (`focus`).",
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.7412, 0.6627, 1.0],
+        "components": [0.7686, 0.7216, 0.8863],
         "alpha": 1,
-        "hex": "#bda9ff"
+        "hex": "#c4b8e2"
       }
     },
     "destructive": {
@@ -515,7 +515,7 @@
       }
     },
     "boardCell": {
-      "$description": "An empty board cell or slot (the `surface-sunken` value).",
+      "$description": "An empty board cell or slot.",
       "$value": {
         "colorSpace": "srgb",
         "components": [0.0745, 0.0824, 0.1255],
@@ -553,9 +553,9 @@
     "disabled": {
       "$value": {
         "colorSpace": "srgb",
-        "components": [0.1686, 0.1765, 0.2353],
+        "components": [0.1725, 0.1765, 0.1804],
         "alpha": 1,
-        "hex": "#2b2d3c"
+        "hex": "#2c2d2e"
       }
     },
     "scrim": {

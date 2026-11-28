@@ -14,23 +14,23 @@ import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import type { JSX } from '@solidjs/web';
 import { AppHeaderGlobalMenuView } from './app-header-global-menu-view';
-import { useGlobalMenuInSidebar } from './global-menu-in-sidebar';
 import { createConnectivity } from './use-connectivity';
 
 /** Wires `AppHeaderGlobalMenuView` to identity, connectivity and preferences. */
-export function AppHeaderGlobalMenu(): JSX.Element {
+export function AppHeaderGlobalMenu(props: {
+  readonly showName?: boolean;
+}): JSX.Element {
   const router = useRouter();
   const connectivity = createConnectivity();
   const menuIdentity = useGlobalMenuIdentity();
   const { muted } = useSoundsPreference();
-  const inSidebar = useGlobalMenuInSidebar();
   return (
     <AppHeaderGlobalMenuView
       identity={menuIdentity()}
       connectivity={connectivity.status()}
       muted={muted()}
       onNavigate={(href) => router.push(href)}
-      showName={inSidebar}
+      showName={props.showName}
     />
   );
 }

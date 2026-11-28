@@ -1,0 +1,4 @@
+{
+  "summary": "At 1280 × 800 the Spaces sidebar placed the current player's face and name to the right of the navigation columns. A long handle could run into the game area.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/header-island/integration.checks.ts"
+}

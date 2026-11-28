@@ -13,10 +13,10 @@ as keyboard and pointer input.
 
 ## The look of the game table
 
-The table has one dark appearance. A deep blue-black canvas recedes behind
-slate panels. Light catches their upper edge in a shallow neutral gradient.
-Menus carry that finish across the entire list. Violet identifies the action to
-take, the current choice and keyboard focus. Gold marks a win or earned place.
+The table has one dark appearance. Graphite panels rise above a charcoal
+canvas, with light catching their upper edges. Menus carry that finish across
+the list. Selected rows use a near-neutral wash. Muted iris identifies actions,
+selected marks and keyboard focus. Gold marks a win or earned place.
 Fluent artwork identifies people, destinations and modes. The board itself
 identifies the game. Manrope carries both headlines and labels, with tabular
 figures for scores and clocks.

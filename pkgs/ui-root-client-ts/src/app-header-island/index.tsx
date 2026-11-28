@@ -15,6 +15,7 @@ import {
 } from '../app-frame-chrome/index';
 import type { IconComponent } from '../create-icon/index';
 import { ScreenBreadcrumbTrail } from '../screen-breadcrumb-trail/index';
+import { sidebarRow } from './sidebar-row';
 
 export type AppHeaderIslandItem = {
   readonly id: string;
@@ -103,10 +104,7 @@ function RailNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
   const ItemIcon = dynamic(() => props.item.icon);
   return (
     <SdkButton
-      class={[
-        'clickable clickableTint group flex-row items-center gap-3 ps-2 pe-3 h-13 w-full rounded-control transition-colors',
-        { 'bg-tint-subtle': props.item.active },
-      ]}
+      class={[sidebarRow, { 'bg-tint-subtle': props.item.active }]}
       {...dataAttrs({ component: 'AppHeaderIslandTab', ...props.item.dataSet })}
       type="button"
       aria-label={props.item.label}
@@ -168,9 +166,7 @@ function AppHeaderRail(
         </nav>
       </Show>
       <div class="box flex-1" aria-hidden="true" />
-      <div class="box flex-row flex-wrap items-center gap-2 px-1">
-        {props.trailing}
-      </div>
+      <div class="box min-w-0">{props.trailing}</div>
     </header>
   );
 }
