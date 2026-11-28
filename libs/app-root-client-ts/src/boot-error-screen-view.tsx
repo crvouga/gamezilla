@@ -6,8 +6,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { BugIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { Surface } from '@pkgs/ui-root-client-ts/surface';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { createSignal, Match, Switch } from 'solid-js';
 
@@ -78,7 +77,7 @@ export function LocalDatabaseBootErrorScreenView(
   const { t } = useLingui();
   const [confirmReset, setConfirmReset] = createSignal(false);
   return (
-    <Surface tone="background" grow align="center" justify="center">
+    <StackVertical grow align="center" justify="center">
       <ErrorState
         dataSet={{ component: 'LocalDatabaseBootErrorScreen' }}
         title={<BootErrorTitle kind={props.kind} />}
@@ -120,6 +119,6 @@ export function LocalDatabaseBootErrorScreenView(
         successBody={t`Reload the app to continue.`}
         errorTitle={t`Could not reset local data`}
       />
-    </Surface>
+    </StackVertical>
   );
 }

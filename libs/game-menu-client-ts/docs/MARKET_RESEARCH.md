@@ -16,4 +16,4 @@ IMG_0660. A dismissible sheet groups presets by speed in three-column rows. An o
 
 ## Design implications
 
-Give the first available play mode a prominent full-width control. Keep secondary destinations together under More. For timed games, group the existing presets by speed and keep the selected time visible. The screenshots leave desktop sizing and untimed games open. See the [stage references](../../games-shared-ts/docs/game-stage/MARKET_RESEARCH.md) for the transition into play.
+Give the first available play mode a prominent full-width control. Show the remaining modes, history, settings and lessons as direct rows in catalog order. For timed games, group the existing presets by speed and keep the selected time visible. The screenshots leave desktop sizing and untimed games open. See the [stage references](../../games-shared-ts/docs/game-stage/MARKET_RESEARCH.md) for the transition into play.

@@ -200,6 +200,7 @@ const DRAWN_GRADIENTS: Readonly<Record<string, readonly string[]>> = {
 };
 
 const GRADIENT = /(?:repeating-)?(?:linear|radial|conic)-gradient\(/i;
+const CANVAS_OWNERS = new Set(['html', 'html[data-app-shell]', '.themeHost']);
 const DEPTH = /^var\(--ui-(?:depth-[a-z]+|shadow-float)\)$/;
 // A hard-edged ring with no offset or blur can mark focus, selection or a scrim.
 const RING =
@@ -232,6 +233,13 @@ function materialIssue(
   const offset = match.index;
   const property = match[1]?.toLowerCase() ?? '';
   const value = (match[2] ?? '').trim().replace(/\s+/g, ' ');
+  if (
+    value.includes('var(--ui-finish-canvas)') &&
+    !selectorAt(code, offset)
+      .split(',')
+      .every((owner) => CANVAS_OWNERS.has(owner.trim()))
+  )
+    return 'page gradient on a nested surface — leave the layout transparent or use its own surface finish';
   if (/^--ui-(depth|finish)-/.test(property))
     return 'local material definition — define the finish or depth in the shared token generator';
   if (
@@ -290,7 +298,7 @@ function stylesheetViolations(
     }
   }
   if (
-    !/gradient\(|box-shadow\s*:|drop-shadow\(|--ui-(depth|finish)-[\w-]+\s*:/i.test(
+    !/--ui-finish-canvas|gradient\(|box-shadow\s*:|drop-shadow\(|--ui-(depth|finish)-[\w-]+\s*:/i.test(
       code
     )
   )

@@ -1,15 +1,13 @@
 /*
  * Pinned under the host's top bar while the body scrolls (a phone's game
- * status strip): on the page's own background, so what scrolls under it
- * never shows through, with a little of that background under it.
+ * status strip). An opaque surface masks the board as it scrolls past.
  */
 .pinned {
   position: sticky;
   top: 0;
   z-index: 2;
   padding-block-end: var(--ui-space-1);
-  background: var(--ui-color-background);
-  background-image: var(--ui-finish-canvas);
+  background: var(--ui-finish-surface) var(--ui-color-surface);
 }
 
 /* Outcome precedes the final position, never the standings and player stack. */

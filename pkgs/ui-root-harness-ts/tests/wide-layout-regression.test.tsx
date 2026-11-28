@@ -1,7 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 /**
- * One canvas and one leading edge on wide layouts: the frame paints the
- * `background` tone edge to edge, every screen starts at the frame column's
+ * One canvas and one leading edge on wide layouts: the viewport paints the
+ * page tone edge to edge, every screen starts at the frame column's
  * edge with its title in the same column, menus and collections take the
  * whole column, and only prose keeps a reading measure. Compact hosts wider
  * than a measure (tablets) center it.
@@ -43,13 +43,13 @@ function classes(selector: string): string {
 
 describe('wide layout canvas and centered measure', () => {
   // regression: wide-layout-canvas-and-centered-measure
-  test('the wide frame paints the background canvas, never the surface well', () => {
+  test('the wide frame leaves its viewport canvas visible edge to edge', () => {
     renderUi(
       framed(() => <p class="text">{'body'}</p>),
       WIDE
     );
     const frame = classes('[data-component="AppFrame"]');
-    expect(frame).toMatch(/\bbg-background\b/);
+    expect(frame).not.toMatch(/\bbg-background\b/);
     expect(frame).not.toMatch(/\bbg-surface\b/);
   });
 

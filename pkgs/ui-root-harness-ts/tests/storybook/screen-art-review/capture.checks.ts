@@ -19,7 +19,7 @@ const gameScreens = new Set([
   'screens-space-home--host-choosing',
   'screens-space-home--guest-waiting',
   'screens-game-home--with-puzzles-and-settings',
-  'screens-game-home--open-more',
+  'screens-game-home--shared-choices',
   'screens-games-chess-puzzle--solving',
 ]);
 const navigationScreens = new Set([
@@ -33,7 +33,6 @@ const navigationScreens = new Set([
   'screens-space-join--unavailable',
   'screens-space-ended--ended',
   'screens-shell-not-found--not-found',
-  'screens-game-home--open-more',
   'screens-game-home--shared-choices',
 ]);
 const listScreens = new Set([
@@ -107,7 +106,7 @@ const extra = new Set([
   'screens-spaces-share--empty',
   'screens-game-sessions-home--no-game-many-players',
   'screens-game-home--with-puzzles-and-settings',
-  'screens-game-home--open-more',
+  'screens-game-home--shared-choices',
   'screens-friends-list--empty',
   'screens-account-devices--empty',
   'screens-notifications-inbox--empty-archived',

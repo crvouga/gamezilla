@@ -1,0 +1,4 @@
+{
+  "summary": "On the desktop game picker, the page gradient restarted along the edges of the space column and formed a visible rectangle.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/space-regressions/integration.checks.ts"
+}

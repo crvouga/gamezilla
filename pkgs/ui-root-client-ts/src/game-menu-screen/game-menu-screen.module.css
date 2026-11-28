@@ -1,31 +1,12 @@
-/* A game's menu: the hero (the game's board and name, from the start
-   edge), the first way to play as one primary control, the other ways to
-   play as full-width rows, then the quiet choices behind More. */
+/* The board motif and title identify the game above its action list. */
 .hero {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  gap: var(--ui-space-4);
+  gap: var(--ui-space-2);
   min-width: 0;
   padding-block: var(--ui-space-2);
-}
-.heroWords {
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-1);
-  min-width: 0;
-}
-@media (min-width: 1024px) {
-  .hero {
-    gap: var(--ui-space-6);
-    padding-block: var(--ui-space-4) var(--ui-space-2);
-  }
-}
-/* The first way to play: full width, the one control of the menu that
-   stands on the accent. */
-.lead {
-  display: flex;
-  min-width: 0;
+  text-align: center;
 }
 .grid {
   display: grid;
@@ -75,23 +56,10 @@
     border-color: var(--ui-color-outline);
   }
 }
-/* The name, and anything placed right beside it. */
-.titleRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--ui-space-2);
-  min-width: 0;
-}
 .words {
-  display: flex;
   flex: 1;
-  flex-direction: column;
-  gap: var(--ui-space-1);
   min-width: 0;
-}
-.title {
-  min-width: 0;
+  overflow-wrap: anywhere;
 }
 .chevron {
   display: flex;
@@ -109,14 +77,6 @@
   background-image: var(--ui-finish-piece);
   box-shadow: var(--ui-depth-piece);
   --ui-on-icon: var(--ui-color-on-primary);
-}
-/* The quiet choices under the rows: compact rows sharing the rows' edges,
-   one column. */
-.links {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: var(--ui-space-2);
-  margin-top: var(--ui-space-2);
 }
 /* A phone keeps the rows' inner edge at the page's own inset. */
 @media (max-width: 767px) {

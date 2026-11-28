@@ -5,8 +5,7 @@ body,
   margin: 0;
 }
 
-html,
-body {
+html {
   background-color: var(--ui-color-background);
   background-image: var(--ui-finish-canvas);
   color: var(--ui-color-text);

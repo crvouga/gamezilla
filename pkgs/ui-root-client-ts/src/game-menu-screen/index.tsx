@@ -1,13 +1,11 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
-import { createMemo, For, Show } from 'solid-js';
+import { createMemo, For } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
-import { DisclosureCard } from '../disclosure-card/index';
 import { EmbeddedScreen } from '../embedded-screen/index';
 import { GameTile, type GameTileMotif } from '../game-tile/index';
 import { ChevronRightIcon } from '../icons';
@@ -17,9 +15,7 @@ import { useLayoutMode } from '../use-layout-mode';
 import styles from './game-menu-screen.module.css';
 
 /**
- * One way into a game: the primary control when it is the first way to
- * play, a full-width row for any other way to play, a row behind More when
- * quiet.
+ * A destination on the game menu. The first way to play is the primary action.
  */
 export type GameMenuChoice = Pick<
   MainMenuItem,
@@ -27,11 +23,7 @@ export type GameMenuChoice = Pick<
 > & {
   /** What the choice is, as a picture heading its tile (or its row). */
   icon: IconComponent;
-  /**
-   * `quiet`: a look back or a setting, never a way to play; it waits behind
-   * More. Every other choice is a way to play, and the first of them leads
-   * the menu as its one primary control.
-   */
+  /** A supporting destination such as history, settings or instructions. */
   emphasis?: 'quiet' | undefined;
   onClick: () => void;
 };
@@ -47,29 +39,8 @@ export type GameMenuScreenProps = {
   subtitle?: JSX.Element | undefined;
   /** In the order shown: the first way to play (not `quiet`) is primary. */
   choices: readonly GameMenuChoice[];
-  /** Rendered as the More toggle's `data-testid`. */
-  moreTestId?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
-
-/** The menu's choices sorted by how they are drawn. */
-type MenuSplit = {
-  /** The first way to play, drawn as the one primary control. */
-  primary: GameMenuChoice | undefined;
-  /** The other ways to play, full-width rows. */
-  rows: readonly GameMenuChoice[];
-  /** Looks back and settings, behind More. */
-  more: readonly GameMenuChoice[];
-};
-
-function splitChoices(choices: readonly GameMenuChoice[]): MenuSplit {
-  const quiet = choices.filter((c) => c.emphasis === 'quiet');
-  const [primary, ...rows] = choices.filter((c) => c.emphasis !== 'quiet');
-  // A menu with no way to play shows what it has, as rows, with no More.
-  return primary === undefined
-    ? { primary: undefined, rows: quiet, more: [] }
-    : { primary, rows, more: quiet };
-}
 
 /**
  * A choice as a row, read in one line across: its picture, its name, then
@@ -92,12 +63,8 @@ function ChoiceTile(props: {
       {...dataAttrs({ component: 'GameMenuChoice', ...props.choice.dataSet })}
     >
       <Artwork size={48} />
-      <span class={styles['words']}>
-        <span class={styles['titleRow']}>
-          <span class={`${styles['title']} text textHeading`}>
-            {props.choice.title}
-          </span>
-        </span>
+      <span class={`${styles['words']} text textHeading`}>
+        {props.choice.title}
       </span>
       <span class={styles['chevron']} aria-hidden="true">
         <ChevronRightIcon size={20} />
@@ -106,34 +73,11 @@ function ChoiceTile(props: {
   );
 }
 
-/** The quiet choices, behind a More control that starts closed. */
-function MoreChoices(props: {
-  choices: readonly GameMenuChoice[];
-  testId: string | undefined;
-}): JSX.Element {
-  return (
-    <DisclosureCard title={<Trans>More</Trans>} toggleTestId={props.testId}>
-      <div class={styles['links']} role="list" data-layout="links">
-        <For each={props.choices}>
-          {(choice) => (
-            <div class={styles['item']} role="listitem">
-              <ChoiceTile choice={choice} />
-            </div>
-          )}
-        </For>
-      </div>
-    </DisclosureCard>
-  );
-}
-
-/**
- * A game's menu: the game's board and name from the start edge, its first
- * way to play as one primary control, its other ways to play as
- * full-width rows, and its looks back and settings behind More, closed
- * until opened and opening in place under the rows.
- */
+/** A centered game identity followed by every destination in the game's order. */
 export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
-  const split = createMemo(() => splitChoices(props.choices));
+  const primary = createMemo(() =>
+    props.choices.find((choice) => choice.emphasis !== 'quiet')
+  );
   const mode = useLayoutMode();
   return (
     <EmbeddedScreen
@@ -143,31 +87,17 @@ export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
     >
       <header class={styles['hero']} data-layout="hero">
         <GameTile motif={props.motif} size={mode() === 'wide' ? 'xl' : 'lg'} />
-        <div class={styles['heroWords']}>
-          <h1 class="text textTitle min-w-0 break-words">{props.title}</h1>
-        </div>
+        <h1 class="text textTitle min-w-0 break-words">{props.title}</h1>
       </header>
-      <Show when={split().primary} keyed>
-        {(choice) => (
-          <div class={styles['lead']} data-layout="primary">
-            <ChoiceTile choice={choice} primary />
-          </div>
-        )}
-      </Show>
-      <Show when={split().rows.length > 0}>
-        <div class={styles['grid']} role="list" data-layout="grid">
-          <For each={split().rows}>
-            {(choice) => (
-              <div class={styles['item']} role="listitem">
-                <ChoiceTile choice={choice} />
-              </div>
-            )}
-          </For>
-        </div>
-      </Show>
-      <Show when={split().more.length > 0}>
-        <MoreChoices choices={split().more} testId={props.moreTestId} />
-      </Show>
+      <ul class={styles['grid']}>
+        <For each={props.choices}>
+          {(choice) => (
+            <li class={styles['item']}>
+              <ChoiceTile choice={choice} primary={choice === primary()} />
+            </li>
+          )}
+        </For>
+      </ul>
     </EmbeddedScreen>
   );
 }

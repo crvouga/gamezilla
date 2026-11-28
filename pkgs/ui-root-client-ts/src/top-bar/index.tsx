@@ -120,7 +120,7 @@ export function TopBar(props: TopBarProps): JSX.Element {
   return (
     <header
       class={[
-        'box shrink-0 bg-background border-b',
+        'box shrink-0 border-b',
         {
           safeTop: props.safeAreaTop !== false,
           'border-border': props.divider !== false,

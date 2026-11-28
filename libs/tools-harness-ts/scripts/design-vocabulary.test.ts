@@ -58,6 +58,17 @@ describe('designVocabularyViolations', () => {
     );
   });
 
+  test('the viewport owns the page gradient', () => {
+    const canvas =
+      'background: var(--ui-finish-canvas) var(--ui-color-background);';
+    expect(
+      hits(`html[data-app-shell], .themeHost { ${canvas} }`, 'skin.css')
+    ).toEqual([]);
+    expect(
+      hits(`.shell { ${canvas} }`, 'src/space-shell.module.css')
+    ).toHaveLength(1);
+  });
+
   test('shared components cannot paint local lighting, even with token colors', () => {
     const path = 'src/game-menu/menu.module.css';
     const text = [

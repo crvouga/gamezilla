@@ -1,7 +1,6 @@
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { openMoreChoices } from './game-more-choices';
 import { openGameSessionPlace } from './game-session-places';
 
 /** The controls that open the moves place: from the live board, and from a result. */
@@ -45,8 +44,6 @@ export const openGameHistory = scenarioAction({
       s,
       async () => {
         if (await ui.get('game-history-statistics').isVisible()) return true;
-        // On the game's menu, History and stats waits behind More.
-        await openMoreChoices(ui);
         if (await ui.get('game-session-history-stats').isVisible())
           await ui.get('game-session-history-stats').tap();
         // While a game is played the way to the history is a row of its

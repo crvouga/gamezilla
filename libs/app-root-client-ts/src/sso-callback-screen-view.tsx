@@ -2,7 +2,7 @@
 
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { Surface } from '@pkgs/ui-root-client-ts/surface';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 
 /**
@@ -12,8 +12,8 @@ import type { JSX } from '@solidjs/web';
  */
 export function SsoCallbackScreenView(): JSX.Element {
   return (
-    <Surface tone="background" grow align="center" justify="center">
+    <StackVertical grow align="center" justify="center">
       <LoadingState caption={<Trans>Signing in…</Trans>} />
-    </Surface>
+    </StackVertical>
   );
 }

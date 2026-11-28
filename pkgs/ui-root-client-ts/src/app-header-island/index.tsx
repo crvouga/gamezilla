@@ -14,8 +14,8 @@ import {
   useAppFrameScreenTitleId,
 } from '../app-frame-chrome/index';
 import type { IconComponent } from '../create-icon/index';
+import { sidebarRow } from '../layout-classes';
 import { ScreenBreadcrumbTrail } from '../screen-breadcrumb-trail/index';
-import { sidebarRow } from './sidebar-row';
 
 export type AppHeaderIslandItem = {
   readonly id: string;

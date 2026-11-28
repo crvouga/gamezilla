@@ -105,7 +105,7 @@ const withProviders = createJSXDecorator((Story, context) => {
       <ClockProvider clock={harness.clock} timers={harness.timers}>
         <ThemeProvider
           reducedMotion={storyReducedMotion(context.globals)}
-          transparent
+          transparent={context.parameters['appRouter'] !== true}
         >
           <SurfaceStackProvider>
             {withOptionalRouter(context.parameters, context.id, () => (

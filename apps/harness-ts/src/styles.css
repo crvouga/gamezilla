@@ -12,8 +12,6 @@ body,
 
 body {
   overflow: hidden;
-  /* The design tokens paint the page background once their stylesheet loads. */
-  background: var(--ui-color-background);
 }
 
 #root {

@@ -35,8 +35,8 @@ export const competitorScreens: readonly CompetitorScreen[] = [
   {
     screenshot: 'chess-com-main-menu-2.png',
     label: 'Chess.com play menu, more open',
-    story: 'screens-game-home--open-more',
-    storyTitle: 'Screens/Space/Game home/Home · Open more',
+    story: 'screens-game-home--shared-choices',
+    storyTitle: 'Screens/Space/Game home/Home · Shared choices',
   },
   {
     screenshot: 'chess-com-choose-time-1.png',

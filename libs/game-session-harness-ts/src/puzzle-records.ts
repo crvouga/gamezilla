@@ -22,7 +22,6 @@ import {
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { DriverKey } from '@pkgs/ui-testing-root-shared-ts/keys';
-import { openMoreChoices } from './game-more-choices';
 import { SHARED_SCREEN_MARK } from './game-navigation';
 import { PUZZLE_RATING_SCALE } from './puzzle-fixtures';
 import { moveChipText } from './puzzle-screen';
@@ -101,8 +100,6 @@ async function stepTowardStats(
 ): Promise<boolean> {
   const ui = await actorUi(s, actorId);
   if (await ui.get(Handles.chessStatsElo).isVisible()) return true;
-  // Puzzle stats and History and stats wait behind More on the game's menu.
-  await openMoreChoices(ui);
   if (!entered.ownSpace && (await inSpaceSteeredByAnother(s, actorId))) {
     // regression: puzzle-stats-unreachable-from-a-guest-space
     // A watcher's stats live in their own space, not the host's.
