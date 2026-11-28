@@ -70,7 +70,7 @@ on:
         type: string
         default: ''
       browser-journey:
-        description: Optional journey feature path to run against the isolated production build and capture each step (browser group)
+        description: Journey feature path, or boot-time for both recorded opening checks (browser group)
         type: string
         default: ''
       browser-partition:
@@ -289,9 +289,15 @@ jobs:
         env:
           BROWSER_JOURNEY: ${{ inputs.browser-journey }}
           JOURNEY_CAPTURE_STEPS: '1'
+          JOURNEY_CAPTURE_RUN: ${{ github.run_id }}-${{ github.run_attempt }}
         run: |
-          [[ "$BROWSER_JOURNEY" =~ ^specs/(journeys/[a-z0-9-]+|billing/open-provider-pages)\.feature$ ]]
-          bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bunx turbo run test:release-journeys --filter=@apps/product-ts -- "$BROWSER_JOURNEY"
+          if [[ "$BROWSER_JOURNEY" == boot-time ]]; then
+            journeys=(specs/journeys/first-opening.feature specs/journeys/reopening.feature)
+          else
+            [[ "$BROWSER_JOURNEY" =~ ^specs/(journeys/[a-z0-9-]+|billing/open-provider-pages)\.feature$ ]]
+            journeys=("$BROWSER_JOURNEY")
+          fi
+          bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bunx turbo run test:release-journeys --filter=@apps/product-ts -- "${journeys[@]}"
       # Step timelines, screenshots, recordings and traces of every scenario,
       # and the partition's runs with their expected and measured seconds.
       - name: Retain browser reports and traces

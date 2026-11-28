@@ -1,0 +1,4 @@
+{
+  "summary": "Chrome can deliver a recorded frame during navigation. A concurrent acknowledgement collides with Bun's one active DevTools command, terminating the timed browser journey.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/chrome-screencast.test.ts"
+}

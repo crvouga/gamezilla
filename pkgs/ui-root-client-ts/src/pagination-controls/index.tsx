@@ -5,7 +5,7 @@ import type { PaginationWindowItem } from '@pkgs/ui-root-shared-ts/build-paginat
 import { buildPaginationWindow } from '@pkgs/ui-root-shared-ts/build-pagination-window';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
+import { colorVar } from '@pkgs/ui-root-shared-ts/document-palette';
 import { dynamic, type JSX } from '@solidjs/web';
 import {
   Pagination,

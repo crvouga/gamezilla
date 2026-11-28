@@ -1,8 +1,9 @@
 // @io-wall-ok — the device's browser process owns this ephemeral tab and its popups.
 import { wallTimers } from '@pkgs/clock-shared-ts/wall';
+import { chromeScreencast } from '@pkgs/ui-testing-bun-webview-server-ts/chrome-screencast';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-driver';
 import { browserNetworkEvidence } from './browser-network-evidence';
-import type { Device, LiveTarget } from './live-browser';
+import type { LiveTarget } from './live-browser';
 
 /** Phone-sized: the layout most people use. */
 const VIEWPORT = { width: 390, height: 844 } as const;
@@ -23,7 +24,7 @@ export async function openBrowserTab(
   createView: (options: Bun.WebView.ConstructorOptions) => Bun.WebView = (
     options
   ) => new Bun.WebView(options)
-): Promise<Device> {
+) {
   const dataStore = 'ephemeral' as const;
   const consoleLines: string[] = [];
   const view = createView({
@@ -47,6 +48,7 @@ export async function openBrowserTab(
   });
   return {
     apiOrigin: target.apiOrigin,
+    screencast: chromeScreencast(view),
     view,
     driver,
     console: consoleLines,
