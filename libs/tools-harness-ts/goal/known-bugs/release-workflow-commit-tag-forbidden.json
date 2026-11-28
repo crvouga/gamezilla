@@ -1,0 +1,4 @@
+{
+  "summary": "Release 46122825994 deployed commit 28a5c824f5 successfully but GitHub rejected publication with Resource not accessible by integration after a newer merge. The workflow token could not tag the earlier workflow-changing commit.",
+  "regressionTest": "libs/tools-harness-ts/scripts/release-publishing.test.ts"
+}

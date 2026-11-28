@@ -59,7 +59,6 @@ const DEPLOY_JOBS: Record<string, string> = {
   'deploy-storybook': 'Release the Storybook site',
   'deploy-dev': 'Release development',
   'deploy-prd': 'Release production',
-  'deploy-release': 'Publish release',
   'deploy-await-health': 'Wait for a running Health check',
   'deploy-verdict': 'Release verdict',
 };
