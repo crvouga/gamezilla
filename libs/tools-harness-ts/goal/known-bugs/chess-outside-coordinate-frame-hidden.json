@@ -1,0 +1,4 @@
+{
+  "summary": "Requesting outside chess coordinates created a gutter with hidden rank and file labels. The public board must show its requested frame on a playing-sized board and keep the default coordinates inside the squares.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/chess-board-frame.test.tsx"
+}

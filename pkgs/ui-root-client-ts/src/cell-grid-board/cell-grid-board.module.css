@@ -268,7 +268,14 @@
   font-size: calc(100cqw / var(--cell-grid-columns) * 0.82);
   line-height: 1;
 }
+.tile {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+
 .coordinate {
+  z-index: 3;
   position: absolute;
   /* Never the light piece's outline: a coordinate is plain ink. */
   -webkit-text-stroke: 0;
@@ -278,7 +285,7 @@
   pointer-events: none;
   color: var(--ui-color-board-dark);
 }
-.cell[data-shade="dark"] .coordinate {
+.cell[data-shade="dark"] ~ .coordinate {
   color: var(--ui-color-board-light);
 }
 .coordinate[data-corner="row"] {

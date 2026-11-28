@@ -22,10 +22,10 @@ describe('the Battleship registration', () => {
   test('offers game sessions, matchmaking and history, and no puzzles', () => {
     expect(battleshipGameShared.id).toBe('battleship');
     expect(Object.keys(battleshipGameShared.capabilities).sort()).toEqual([
-      'vs-human',
-      'vs-bot',
       'history',
       'matchmaking',
+      'vs-bot',
+      'vs-human',
     ]);
     expect(battleshipGameShared.capabilities.matchmaking.namespace).toBe(
       'battleship/'

@@ -1,0 +1,4 @@
+{
+  "summary": "An edge tile combined its bonus or glyph with decorative coordinates in its text label, obscuring its accessible name.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx"
+}

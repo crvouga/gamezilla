@@ -48,5 +48,9 @@ test.each([
 ])('only enabled outside coordinates add a frame: %j', async (config) => {
   await using board = await boardSystem.run({ seed: 424242 });
   await board.apply(setupBoard, config);
-  expect((await board.read(readOptions)).frame).toBeNull();
+  const { coordinates, frame } = await board.read(readOptions);
+  expect(frame).toBeNull();
+  expect(coordinates).toEqual(
+    config.showCoordinates ? 'abcdefgh87654321'.split('') : []
+  );
 });

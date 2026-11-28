@@ -44,9 +44,6 @@ export function chessMoveSquares(
 /**
  * Chess as every game screen mounts it: the shared chess board in the
  * game's theme, a move sent as its from and to squares and any promotion.
- * A board reads its coordinates outside the squares (`ChessBoardFrame`),
- * larger than a corner holds, its ranks at the same end edge on a phone
- * and a wide screen, so the squares start under the screen's title.
  */
 export function ChessGameBoard(props: GameBoardProps): JSX.Element {
   return (
@@ -62,7 +59,6 @@ export function ChessGameBoard(props: GameBoardProps): JSX.Element {
       autoPromoteQueen={false}
       showCoordinates
       showGuidance
-      coordinatePlacement="outside-end"
       highlightLastMove
       highlightLegalMoves
       onMove={(move) =>

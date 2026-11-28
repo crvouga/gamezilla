@@ -99,7 +99,11 @@ test('the targeting grid shows only the public shots, never a ship that was not 
     const element = target(cell);
     if (fired.has(cell)) continue;
     expect(element.getAttribute('data-tone')).toBe('open');
+    const rank = cell.slice(1);
+    const rowLabel = cell.startsWith('a') ? rank : '';
+    const columnLabel = rank === '10' ? cell.charAt(0).toUpperCase() : '';
     expect(element.textContent).toBe('');
+    expect(element.parentElement?.textContent).toBe(rowLabel + columnLabel);
     expect(element.getAttribute('aria-label')).toBe(
       `${cell.toUpperCase()}: not fired at`
     );

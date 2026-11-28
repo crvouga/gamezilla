@@ -8,13 +8,8 @@ const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'] as const;
 const RANKS = ['8', '7', '6', '5', '4', '3', '2', '1'] as const;
 
 /**
- * A fill-width chess board with its coordinates outside the squares: a
- * slim labelled frame, the ranks down its start edge (or its end edge,
- * `ranks="end"`) and the files along its foot, at a size a square's corner cannot hold. Every playing board
- * (280px and wider, a phone's or a desktop's, in a game or a puzzle) reads
- * its coordinates the same way; a thumbnail keeps the labels in the
- * squares' corners, and the frame takes no room. The board inside draws its
- * own coordinates as usual; the frame hides them while it shows its own.
+ * Place ranks beside the board and files below it for a caller that requests
+ * outside coordinates. Below 280px the board keeps its square-corner labels.
  *
  * @example
  * ```tsx

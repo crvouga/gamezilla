@@ -52,16 +52,12 @@ export async function assertPuzzleBounds(canvasElement: HTMLElement) {
     }
   }
   await expect(violations).toEqual([]);
-  const frame = canvasElement.querySelector(
-    '[data-component="ChessBoardFrame"]'
+  await expect(
+    canvasElement.querySelector('[data-component="ChessBoardFrame"]')
+  ).toBeNull();
+  await expect(canvasElement.querySelectorAll('text[data-ink]')).toHaveLength(
+    16
   );
-  const layout = canvasElement.querySelector(
-    '[data-component="ChessBoardLayout"]'
-  );
-  if (frame && layout)
-    await expect(frame.getBoundingClientRect().bottom).toBeLessThanOrEqual(
-      layout.getBoundingClientRect().bottom
-    );
 }
 
 // regression: chess-puzzle-guidance-clips-first-rank

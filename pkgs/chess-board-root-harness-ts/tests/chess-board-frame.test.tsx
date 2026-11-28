@@ -7,7 +7,7 @@ import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render'
 import { ChessBoardFrame } from '@pkgs/chess-board-root-client-ts/chess-board-frame';
 
 const SRC = join(import.meta.dirname, '../../chess-board-root-client-ts/src');
-/** Every playing board (not a thumbnail) labels its edges outside. */
+/** Minimum width at which the opt-in outside frame has room for its labels. */
 const PLAYING_QUERY = '@container chess-frame (min-width: 280px) {';
 
 function labels(container: HTMLElement): readonly string[][] {
@@ -43,11 +43,9 @@ test('the frame labels ranks down its edge and files along its foot, from the vi
   black.unmount();
 });
 
-// regression: chess-coordinates-inconsistent — a desktop board wrote its
-// coordinates in the squares' corners while a phone's wrote them outside,
-// and a puzzle's phone board inside again: every playing board now labels
-// its edges outside, and only a thumbnail keeps corner labels.
-test('every playing board shows the outside labels, and its corner labels step aside', () => {
+// regression: chess-coordinates-inconsistent
+// regression: chess-outside-coordinate-frame-hidden
+test('requesting an outside frame shows its labels once it has room and hides the corner duplicates', () => {
   const frame = readFileSync(
     join(SRC, 'chess-board-frame/chess-board-frame.module.css'),
     'utf8'

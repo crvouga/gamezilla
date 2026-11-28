@@ -3,7 +3,7 @@
    name here; each rule is scoped to the Battleship board theme (a legend is
    only ever Battleship's). */
 
-/* Include the coordinate gutter, gaps and padding in the bounded target size. */
+/* Include the gaps and padding in the bounded target size. */
 .board[data-fill="false"][data-board-theme="battleship"] {
   grid-template-columns: repeat(var(--cell-grid-columns), minmax(0, 1fr));
   max-width: calc(
@@ -14,8 +14,8 @@
   );
 }
 /* On a phone a Battleship grid's ten targets are as large as its frame
-   allows: a narrow label column, hairline gaps and slim padding give the
-   room to the targets, each about 32px instead of 30px. */
+   allows: inside-square labels, hairline gaps and slim padding leave the
+   available width for the targets. */
 @container game-column (max-width: 879px) {
   .board[data-fill="true"][data-board-theme="battleship"] {
     grid-template-columns: repeat(var(--cell-grid-columns), minmax(0, 1fr));

@@ -195,7 +195,9 @@ describe('game surfaces', () => {
     expect(start).toBeGreaterThanOrEqual(0);
     const grid = phone.slice(start, phone.indexOf('}', start));
     expect(grid).toContain(selector);
-    expect(grid).toContain('minmax(1rem, 0.5fr)');
+    expect(grid).toContain(
+      'grid-template-columns: repeat(var(--cell-grid-columns), minmax(0, 1fr))'
+    );
     expect(grid).toContain('gap: 1px');
     expect(grid).toContain('padding: var(--ui-space-1)');
   });

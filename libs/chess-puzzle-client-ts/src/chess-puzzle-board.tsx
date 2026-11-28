@@ -44,7 +44,6 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
       // keyboard help under it; a phone, played by touch, keeps nothing.
       showGuidance={layout.breakpoint() !== 'mobile'}
       guidanceDetail={mode() === 'wide' ? 'full' : 'keyboard'}
-      coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'inside'}
       highlightLastMove
       lastMove={chessPuzzleLastMove(props.lastAction)}
       highlightLegalMoves
@@ -59,7 +58,6 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
 
 function ReviewBoard(props: PuzzleBoardProps): JSX.Element {
   const sounds = useSoundsPreference();
-  const mode = useLayoutMode();
   return (
     <ChessBoard
       fitSquare
@@ -72,15 +70,14 @@ function ReviewBoard(props: PuzzleBoardProps): JSX.Element {
       interactive={false}
       animations={props.animated}
       showCoordinates
-      coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'inside'}
       highlightLastMove
     />
   );
 }
 
 /**
- * Chess's board for the platform's puzzle screens, its coordinates outside
- * the squares through the public board's coordinate placement, filling the
+ * Chess's board for the platform's puzzle screens, its coordinates inside
+ * the squares, filling the
  * well the screen measured: in `play` the solver's
  * moves (reported in UCI, never auto-queened), a hint's square outline, a wrong
  * move's cross and the solution and suggestions as arrows; in `review` a

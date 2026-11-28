@@ -29,6 +29,7 @@ function example() {
   ));
 }
 
+// regression: board-coordinate-labels-obscure-cell-content
 test('squares print their bonus, tiles their letter, and each state is in its label', () => {
   const view = example();
   const board = view.getByRole('group', { name: 'Example word board' });
@@ -38,9 +39,11 @@ test('squares print their bonus, tiles their letter, and each state is in its la
   expect(
     view.getByRole('button', { name: 'T 1, d3' }).getAttribute('data-state')
   ).toBe('recent');
-  expect(view.getByRole('button', { name: '3W, a1, empty' }).textContent).toBe(
-    '3W'
-  );
+  const corner = view.getByRole('button', { name: '3W, a1, empty' });
+  expect(corner.textContent).toBe('3W');
+  const tile = corner.parentElement;
+  expect(tile?.querySelector('[data-axis="row"]')?.textContent).toBe('1');
+  expect(tile?.querySelector('[data-axis="column"]')?.textContent).toBe('a');
   expect(start.getAttribute('aria-disabled')).toBe('true');
 });
 

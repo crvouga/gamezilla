@@ -49,7 +49,6 @@
 }
 .board {
   display: grid;
-  /* Row labels 10 to 15 keep their own gutter instead of running into column a. */
   grid-template-columns: repeat(var(--word-tile-columns), minmax(0, 1fr));
   width: 100%;
   max-width: 40rem;
@@ -60,7 +59,14 @@
   color: var(--ui-color-text);
   container-type: inline-size;
 }
+.tile {
+  position: relative;
+  display: grid;
+  min-width: 0;
+}
+
 .coordinate {
+  z-index: 3;
   position: absolute;
   inset-inline-start: 0;
   inset-block-end: 0;
