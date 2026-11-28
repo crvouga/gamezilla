@@ -6,10 +6,10 @@ import {
 } from '@pkgs/ui-root-client-ts/app-header-island';
 import { AppLogo } from '@pkgs/ui-root-client-ts/app-logo';
 import {
-  Gamepad2Icon,
-  SearchIcon,
-  UserIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+  GamesArt,
+  ProfileArt,
+  SearchArt,
+} from '@pkgs/ui-root-client-ts/illustration';
 import type { JSX } from '@solidjs/web';
 import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
@@ -17,9 +17,9 @@ import { ExampleSection } from '../../storybook/fixtures/example-section';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const DESTINATIONS = [
-  { id: 'spaces', label: 'Spaces', icon: Gamepad2Icon },
-  { id: 'search', label: 'Search', icon: SearchIcon },
-  { id: 'profile', label: 'Profile', icon: UserIcon },
+  { id: 'spaces', label: 'Spaces', icon: GamesArt },
+  { id: 'search', label: 'Search', icon: SearchArt },
+  { id: 'profile', label: 'Profile', icon: ProfileArt },
 ] as const;
 
 function InteractiveHeader(): JSX.Element {
@@ -45,7 +45,7 @@ function InteractiveHeader(): JSX.Element {
 export default function AppHeaderIslandExample(): JSX.Element {
   return (
     <ExampleRoot>
-      <ExampleSection title="Logo, navigation (current = text color, semibold, underline), actions">
+      <ExampleSection title="Navigation with Spaces selected">
         <SchemePreview>
           <InteractiveHeader />
         </SchemePreview>

@@ -13,7 +13,7 @@ as keyboard and pointer input.
 
 ## The look of the game table
 
-Warm paper and walnut surfaces frame the board. The blackberry accent marks
+Ivory and charcoal surfaces frame the board. A deep teal accent marks
 play, selection, links and keyboard focus. A filled action has a firm lower
 edge that settles on press. Fluent artwork identifies people, destinations
 and modes. The board itself identifies the game. Manrope carries both the
@@ -40,7 +40,7 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 
 | Scale | Steps |
 | --- | --- |
-| Type | eight styles: `display-xl` 40/44, `display` 26/30, `stat` 20/24 (numbers), `title` 18/24, `body` 15/22, `body-strong` 15/22, `caption` 13/18, `label` 12/16 |
+| Type | eight styles: `display-xl` 40/44, `display` 26/30, `stat` 20/24 (numbers), `title` 18/24, `body` 15/22, `body-strong` 15/22, `caption` 14/20, `label` 12/16 |
 | Face | Manrope 400 / 500 / 600 / 700 for copy, headlines and numbers (tabular figures); self-hosted, `font-display: swap` |
 | Space | the 4px grid only: `none xs sm md lg xl 2xl 3xl` = 0 4 8 12 16 24 32 48; phone gutter 16 |
 | Radius | Small for tags and details, control for buttons and choices, card for grouped content, sheet for dialogs and boards. Avatars, dots and compact counters are round. |
@@ -68,7 +68,7 @@ preserve its interactive target when changing the size of its glyph.
 
 1. **Reserve the brand color for interaction.** Use `tint-active` for the
    main action, `tint` for links, and `tint-subtle` with `on-primary-soft` for
-   selection. Give status its named hue and a word or icon. Game pieces,
+   selection. A player’s “You” tag uses the brand ink. Give status its named hue and a word or icon. Game pieces,
    seat colors and artwork keep their own palettes.
 2. **Pick a role, never a size.** Text is `P` / `Text` with a `variant`
    (`body`, `rowTitle`, `bodyBold`, `label`, `caption`, `footnote`,

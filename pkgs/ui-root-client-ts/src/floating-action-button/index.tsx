@@ -22,7 +22,7 @@ export type FloatingActionButtonProps = {
   'aria-label': string;
   icon?: IconComponent | undefined;
   intent?: ButtonIntent | undefined;
-  /** When set, renders an extended pill FAB with icon + label. */
+  /** When set, renders an extended FAB with icon + label. */
   label?: JSX.Element | undefined;
   loadingLabel?: JSX.Element | undefined;
   successLabel?: JSX.Element | undefined;
@@ -92,13 +92,12 @@ function FabContent(props: {
   );
 }
 
-const FAB_CLASS =
-  'items-center justify-center flex-row overflow-hidden rounded-full';
+const FAB_CLASS = 'items-center justify-center flex-row overflow-hidden';
 
 /**
- * `FloatingActionButton` -- round (or extended pill) primary action.
+ * `FloatingActionButton` -- floating primary action.
  *
- * A 52px disc (`--ui-control-size-lg`) or, with `label`, an extended pill:
+ * A 52px disc (`--ui-control-size-lg`) or, with `label`, a wider control:
  * the primary fill with an on-primary 24px icon, and the one soft
  * `shadow-float` because it floats above content (`skin.css` `.fab`).
  *

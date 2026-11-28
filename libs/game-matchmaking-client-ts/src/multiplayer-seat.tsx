@@ -61,7 +61,7 @@ function OwnMark(props: {
   const gameSideLabel = useGameSideLabel();
   return (
     <Badge
-      intent="info"
+      intent="brand"
       size="sm"
       tone="solid"
       label={
