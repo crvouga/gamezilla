@@ -42,7 +42,7 @@ function ChoiceIcon(props: {
 }): JSX.Element {
   const Picture = (): JSX.Element => {
     const Icon = props.choice.icon;
-    return <Icon size={props.size === 'tile' ? 24 : 20} />;
+    return <Icon size={props.size === 'tile' ? 32 : 20} />;
   };
   return (
     <span

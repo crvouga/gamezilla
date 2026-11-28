@@ -5,7 +5,7 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { H1 } from '@pkgs/ui-root-client-ts/heading';
 import { CompassIcon } from '@pkgs/ui-root-client-ts/icons';
-import { SpacesArt } from '@pkgs/ui-root-client-ts/illustration';
+import { GamesArt } from '@pkgs/ui-root-client-ts/illustration';
 import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
 import {
   StateBlock,
@@ -54,7 +54,7 @@ export function NotFoundScreenView(
           <StateBlockActions>
             <Button
               title={<Trans>Go to Spaces</Trans>}
-              icon={SpacesArt}
+              icon={GamesArt}
               onClick={() => props.onGoToSpaces()}
               dataSet={{ testid: Handles.routeNotFoundAction }}
             />

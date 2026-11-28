@@ -5,7 +5,7 @@ import SearchScreen from './search';
 import { defineSubClient } from '@libs/sub-client-ts/client';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
-import { SearchIcon } from '@pkgs/ui-root-client-ts/icons';
+import { SearchArt } from '@pkgs/ui-root-client-ts/illustration';
 
 /** Read inside the tab memo, so the label follows the active locale. */
 function searchTabLabel(): string {
@@ -22,7 +22,7 @@ export const SEARCH_CLIENT = defineSubClient({
       href: '/search',
       order: 1,
       label: searchTabLabel,
-      Icon: SearchIcon,
+      Icon: SearchArt,
       testID: Handles.tabSearch,
     },
   ],
