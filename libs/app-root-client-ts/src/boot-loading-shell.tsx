@@ -17,7 +17,6 @@ export function BootLoadingShell(): JSX.Element {
       justify="center"
       role="status"
       testId={Handles.bootLoading}
-      dataSet={{ component: 'BootLoadingShell' }}
     >
       <P variant="caption">
         <Trans>Opening saved data…</Trans>
