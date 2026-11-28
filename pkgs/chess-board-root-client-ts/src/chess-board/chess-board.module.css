@@ -32,6 +32,7 @@
     var(--chess-sq-light) 0% 50%
   );
   background-size: 25% 25%;
+  box-shadow: var(--ui-depth-slot);
 }
 
 .layer {

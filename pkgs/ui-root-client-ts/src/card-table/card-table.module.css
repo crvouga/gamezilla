@@ -249,9 +249,9 @@
   overflow: hidden;
   border-radius: var(--ui-radius-sm);
   border: 1px solid var(--ui-color-outline);
-  background: var(--ui-color-board-card-face);
+  background: var(--ui-finish-piece) var(--ui-color-board-card-face);
   color: var(--ui-color-board-card-ink);
-  box-shadow: var(--ui-shadow-float);
+  box-shadow: var(--ui-depth-piece);
   font: inherit;
   line-height: 1;
   text-align: start;

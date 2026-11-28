@@ -296,6 +296,7 @@ function ArenaField(props: { board: TrailArenaProps; arenaId: string }) {
       </For>
       <rect
         class={styles['wall']}
+        stroke={`url(#${props.arenaId}-rim)`}
         x={-ground()}
         y={-ground()}
         width={props.board.width + 2 * ground()}

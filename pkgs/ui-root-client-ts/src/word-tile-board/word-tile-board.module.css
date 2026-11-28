@@ -55,7 +55,8 @@
   gap: var(--ui-space-hairline);
   padding: var(--ui-space-1);
   border-radius: var(--ui-radius-card);
-  background: var(--ui-color-background);
+  background: var(--ui-finish-piece) var(--ui-color-background);
+  box-shadow: var(--ui-depth-raised);
   color: var(--ui-color-text);
   container-type: inline-size;
 }
@@ -89,7 +90,7 @@
   padding: 0;
   border: 1px solid var(--ui-color-border);
   border-radius: 0;
-  background: var(--ui-color-board-cell);
+  background: var(--ui-finish-slot) var(--ui-color-board-cell);
   color: var(--ui-color-text);
   cursor: pointer;
   touch-action: manipulation;
@@ -98,6 +99,22 @@
 }
 .cell[aria-disabled="true"] {
   cursor: default;
+}
+.cell[data-state="committed"],
+.cell[data-state="recent"],
+.cell[data-state="tentative"] {
+  background: var(--ui-finish-piece) var(--ui-color-game-word-tiles-accent);
+  color: var(--ui-color-board-card-ink);
+  border-color: var(--ui-color-game-word-tiles-muted);
+  border-bottom-width: 2px;
+  box-shadow: var(--ui-depth-piece);
+}
+.cell[data-state="recent"] {
+  outline: 2px solid var(--ui-color-board-card-ink);
+  outline-offset: -2px;
+}
+.cell[data-state="tentative"] {
+  border: 2px dashed var(--ui-color-board-card-ink);
 }
 .cell:focus-visible {
   /* Two tones, so the ring stands out on dark empty squares, light bonus
@@ -108,22 +125,6 @@
   outline-offset: 0;
   box-shadow: 0 0 0 4px var(--ui-color-board-card-face);
   z-index: 1;
-}
-.cell[data-state="committed"],
-.cell[data-state="recent"],
-.cell[data-state="tentative"] {
-  background: var(--ui-color-game-word-tiles-accent);
-  color: var(--ui-color-board-card-ink);
-  border-color: var(--ui-color-game-word-tiles-muted);
-  border-bottom-width: 2px;
-}
-.cell[data-state="recent"] {
-  outline: 2px solid var(--ui-color-board-card-ink);
-  outline-offset: -2px;
-}
-.cell[data-state="tentative"] {
-  background: var(--ui-color-game-word-tiles-accent);
-  border: 2px dashed var(--ui-color-board-card-ink);
 }
 .letter {
   font-weight: 700;

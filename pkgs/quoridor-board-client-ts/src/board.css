@@ -1,11 +1,14 @@
 /* The tiles sit in a sand tray. Each pawn casts a short, fixed relief shadow. */
 [data-board-theme="quoridor"][data-fill] {
-  box-shadow: inset 0 0 0 var(--ui-space-hairline)
-    var(--ui-color-game-quoridor-muted);
+  background-image: var(--ui-finish-piece);
+  box-shadow: var(--ui-depth-raised);
 }
 [data-board-theme="quoridor"][data-fill] [data-tone="occupied"] > span {
   text-shadow:
-    0 var(--ui-space-hairline) var(--ui-color-game-quoridor-ink),
+    calc(-1 * var(--ui-space-hairline)) calc(-1 * var(--ui-space-hairline))
+    var(--ui-color-game-quoridor-surface),
+    var(--ui-space-hairline) var(--ui-space-hairline)
+    var(--ui-color-game-quoridor-ink),
     0 var(--ui-space-1) var(--ui-color-game-quoridor-muted);
 }
 

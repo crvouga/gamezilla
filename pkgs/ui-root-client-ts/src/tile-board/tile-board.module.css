@@ -72,7 +72,8 @@
   aspect-ratio: var(--tile-board-columns) / var(--tile-board-rows);
   margin-inline: auto;
   border-radius: var(--ui-radius-card);
-  background: var(--color-surface-muted);
+  background: var(--ui-finish-slot) var(--color-surface-muted);
+  box-shadow: var(--ui-depth-raised);
   overflow: hidden;
   user-select: none;
 }
@@ -162,6 +163,8 @@
   transition: transform 90ms ease-out;
 }
 .token {
+  background-image: var(--ui-finish-piece);
+  box-shadow: var(--ui-depth-piece);
   display: grid;
   place-items: center;
   box-sizing: border-box;
@@ -175,15 +178,15 @@
 }
 .piece[data-tone="actor"] .token {
   border-radius: 50%;
-  background: var(--tile-board-actor);
+  background-color: var(--tile-board-actor);
 }
 .piece[data-tone="object"] .token {
   border-radius: 18%;
-  background: var(--tile-board-object);
+  background-color: var(--tile-board-object);
 }
 .piece[data-tone="settled"] .token {
   border-radius: 18%;
-  background: var(--tile-board-settled);
+  background-color: var(--tile-board-settled);
 }
 @media (prefers-reduced-motion: reduce) {
   .piece {

@@ -122,7 +122,6 @@
 }
 .wall {
   fill: none;
-  stroke: var(--ui-color-outline);
   stroke-width: 0.24;
 }
 

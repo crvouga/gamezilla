@@ -72,11 +72,13 @@
 }
 .board[data-battleship-surface="target"] .cell[data-tone="open"] {
   border-radius: var(--ui-radius-card);
-  background-image: radial-gradient(
-    circle at center,
-    var(--color-surface) 0 12%,
-    var(--color-background) 13%
-  );
+  background-image:
+    var(--ui-finish-slot),
+    radial-gradient(
+      circle at center,
+      var(--color-surface) 0 12%,
+      var(--color-background) 13%
+    );
 }
 .board[data-battleship-surface="target"]
   .cell:is([data-emphasis="preview"], [data-emphasis="pending"]) {
@@ -115,7 +117,7 @@
   --stern-right: var(--hull-end);
 }
 .board[data-battleship-surface="fleet"] .cell[data-tone="occupied"] {
-  background: var(--color-text);
+  background: var(--ui-finish-piece) var(--color-text);
   color: var(--color-background);
   border-color: var(--color-text-secondary);
 }

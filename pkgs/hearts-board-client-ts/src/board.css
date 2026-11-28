@@ -1,7 +1,8 @@
 /* An inset oval rail surrounds the four seats without consuming hand space. */
 [data-hearts-table] [data-table-felt] {
   isolation: isolate;
-  background: var(--ui-color-game-hearts-canvas);
+  background: var(--ui-finish-piece) var(--ui-color-game-hearts-canvas);
+  box-shadow: var(--ui-depth-raised);
   border-color: var(--ui-color-game-hearts-muted);
 }
 [data-hearts-table] [data-table-felt]::before {
@@ -11,7 +12,8 @@
   z-index: -1;
   inset: var(--ui-space-1);
   border-radius: 50%;
-  background: var(--ui-color-game-hearts-surface);
+  background: var(--ui-finish-slot) var(--ui-color-game-hearts-surface);
+  box-shadow: var(--ui-depth-slot);
   border: 1px solid var(--ui-color-game-hearts-muted);
 }
 [data-hearts-table] section[data-position] {
@@ -22,7 +24,7 @@
     var(--ui-color-game-hearts-accent);
 }
 [data-hearts-table] [role="toolbar"] {
-  background: var(--ui-color-surface-sunken);
+  background: var(--ui-finish-slot) var(--ui-color-surface-sunken);
   border-radius: var(--ui-radius-control);
 }
 [data-hearts-table] [data-pass-tray] {

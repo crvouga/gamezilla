@@ -233,7 +233,9 @@
    5:1 against their disc. */
 .cell[data-disc="1"] .disc,
 .cell[data-disc="2"] .disc {
-  box-shadow: inset 0 0 0 2px var(--ui-color-text-secondary);
+  box-shadow:
+    inset 0 0 0 2px var(--ui-color-text-secondary),
+    var(--ui-depth-piece);
 }
 .cell[data-disc="1"] .disc {
   background: var(--ui-color-destructive);
@@ -328,43 +330,27 @@
 /* Highlights on the upper lip and shadow on the lower lip give the rack
    depth without spending any of the seven columns' hit area. */
 .board {
-  --rack-glint: var(--ui-color-text-secondary);
-  --rack-shade: var(--ui-color-scrim);
-  background-image: linear-gradient(
-    to bottom,
-    var(--rack-glint) -28%,
-    transparent 14%
-  );
-  box-shadow:
-    inset 0 var(--ui-space-hairline) var(--rack-glint),
-    inset 0 calc(-1 * var(--ui-space-1)) var(--rack-shade);
+  background-image: var(--ui-finish-piece);
+  box-shadow: var(--ui-depth-raised);
 }
 
 .board [data-cell] {
-  box-shadow:
-    inset 0 var(--ui-space-1) var(--ui-space-1) var(--rack-shade),
-    0 var(--ui-space-hairline) var(--rack-glint);
+  background-image: var(--ui-finish-slot);
+  box-shadow: var(--ui-depth-slot);
 }
 
 /* A raised annulus on each checker surrounds its seat mark. The empty
    destination keeps its hollow, dashed treatment. */
 .board [data-cell]:not([data-disc="0"]) > span {
   position: relative;
-  background-image: linear-gradient(
-    155deg,
-    var(--rack-glint) -70%,
-    transparent 48%,
-    var(--rack-shade)
-  );
+  background-image: var(--ui-finish-piece);
 }
 
 .board [data-cell]:not([data-disc="0"]) > span::before {
   position: absolute;
   inset: 14%;
   border-radius: inherit;
-  box-shadow:
-    inset 0 var(--ui-space-hairline) var(--rack-shade),
-    0 var(--ui-space-hairline) var(--rack-glint);
+  box-shadow: var(--ui-depth-slot);
   content: "";
 }
 
