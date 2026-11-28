@@ -5,7 +5,6 @@ import { Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { ProgressBar } from '../progress-bar/index';
 import { createScreenSlot } from '../screen-slot';
-import statStyles from './game-stat.module.css';
 
 /**
  * One number a person tracks: what it is, the number in the `stat` role
@@ -52,7 +51,7 @@ export function GameStat(props: {
             {
               textStat: props.size !== 'compact',
               textLabel: props.size === 'compact',
-              [statStyles['compactValue'] ?? '']: props.size === 'compact',
+              'tabular-nums lining-nums': props.size === 'compact',
             },
           ]}
         >
@@ -61,7 +60,7 @@ export function GameStat(props: {
         <Show when={tag.present()}>{tag.content()}</Show>
       </span>
       <Show when={props.progress !== undefined}>
-        <div class={statStyles['statProgress']}>
+        <div class="w-full py-1">
           <ProgressBar
             size="sm"
             progress={props.progress}

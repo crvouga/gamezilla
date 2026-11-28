@@ -14,7 +14,6 @@ import {
   TrailsArt,
   WallsArt,
 } from '../illustration/index';
-import styles from './game-tile.module.css';
 
 /** The artwork identifying each game in the catalog and its menu. */
 export type GameTileMotif =
@@ -99,11 +98,11 @@ export function GameTitleLockup(props: {
 }): JSX.Element {
   return (
     <span
-      class={styles['lockup']}
+      class="inline-flex items-center gap-3 max-w-full align-middle"
       {...dataAttrs({ component: 'GameTitleLockup' })}
     >
       {props.tile}
-      <span class={styles['lockupName']}>{props.children}</span>
+      <span class="min-w-0">{props.children}</span>
     </span>
   );
 }

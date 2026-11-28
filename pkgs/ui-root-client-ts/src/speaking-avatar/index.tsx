@@ -14,7 +14,6 @@ import { type Accessor, createMemo, omit, Show, untrack } from 'solid-js';
 import type { SoundIndicatorState } from '../sound-indicator/index';
 import { SoundIndicator } from '../sound-indicator/index';
 import { SpeechBubble } from '../speech-bubble/index';
-import styles from './speaking-avatar.module.css';
 
 const MUTED_ROW_KEY = asKeyword('ui/speaking-avatar-muted');
 const MUTED_VALUE_ATTR = asKeyword('ui/value');
@@ -94,7 +93,7 @@ function resolveIndicatorState(
 function HeadImage(props: { svg: string; size: number }): JSX.Element {
   return (
     <img
-      class={styles['head']}
+      class="block shrink-0"
       src={svgToDataUri(props.svg)}
       alt=""
       width={props.size}

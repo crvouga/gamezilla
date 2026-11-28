@@ -24,7 +24,7 @@ const DEFAULT_ICON_COLOR = 'var(--ui-on-icon)';
 
 const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
-const sprite = new URL('./fluent-regular.svg', import.meta.url).href;
+const sprite = new URL('../../assets/fluent-icons/fluent-regular.svg', import.meta.url).href;
 
 export function createIcon(symbol: string): IconComponent {
   return function Icon(props: IconProps): JSX.Element {
