@@ -1,3 +1,4 @@
+import { HistoryArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
@@ -29,6 +30,7 @@ export function GameHistoryHomeScreenView(
     >
       <MenuSection>
         <MenuRow
+          leading={<HistoryArt />}
           title={<Trans>Game history</Trans>}
           caption={<Trans>Review your games, wins and draws</Trans>}
           onClick={() => props.onOpen(SHARED_GAME_SCREEN.historyGames)}
@@ -37,6 +39,7 @@ export function GameHistoryHomeScreenView(
           }}
         />
         <MenuRow
+          leading={<StatsArt />}
           title={<Trans>Puzzle stats</Trans>}
           caption={<Trans>Puzzle rating trend and game log</Trans>}
           onClick={() => props.onOpen(SHARED_GAME_SCREEN.puzzleStats)}

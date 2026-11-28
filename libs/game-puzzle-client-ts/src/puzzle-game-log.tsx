@@ -1,7 +1,7 @@
+import { HistoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { ListChecksIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
@@ -20,7 +20,7 @@ export function PuzzleGameLog(props: PuzzleGameLogProps): JSX.Element {
       fallback={
         <EmptyState
           variant="compact"
-          icon={ListChecksIcon}
+          icon={HistoryArt}
           title={<Trans>No puzzles played yet.</Trans>}
           body={<Trans>Solve a puzzle and it shows up here.</Trans>}
           dataSet={{ testid: 'chess-game-log-empty' }}

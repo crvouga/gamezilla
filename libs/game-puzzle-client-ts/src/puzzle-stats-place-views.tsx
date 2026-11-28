@@ -1,10 +1,10 @@
+import { HistoryArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { formatPuzzleRating } from '@libs/game-puzzle-shared-ts/rating';
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
-import { ActivityIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -75,6 +75,7 @@ function StatsRows(props: PuzzleStatsScreenViewProps): JSX.Element {
   return (
     <MenuSection>
       <MenuRow
+        leading={<StatsArt />}
         title={<Trans>Rating trend</Trans>}
         value={
           <Text variant="inherit" testId="chess-stats-rated-count">
@@ -85,6 +86,7 @@ function StatsRows(props: PuzzleStatsScreenViewProps): JSX.Element {
         dataSet={{ testid: 'chess-stats-open-trend' }}
       />
       <MenuRow
+        leading={<HistoryArt />}
         title={<Trans>Game log</Trans>}
         value={
           <Show
@@ -150,7 +152,7 @@ export function PuzzleStatsTrendView(
         fallback={
           <EmptyState
             variant="compact"
-            icon={ActivityIcon}
+            icon={StatsArt}
             title={<Trans>No rated puzzles yet.</Trans>}
             body={<Trans>Solve a puzzle and your rating starts moving.</Trans>}
             dataSet={{ testid: 'chess-stats-trend-empty' }}

@@ -1,7 +1,9 @@
 /** @jsxImportSource @solidjs/web */
+
 import { BadgedIcon } from '@pkgs/ui-root-client-ts/badged-icon';
 import type { IconProps } from '@pkgs/ui-root-client-ts/create-icon';
-import { BellIcon } from '@pkgs/ui-root-client-ts/icons';
+import { NotificationsArt } from '@pkgs/ui-root-client-ts/illustration';
+
 import type { JSX } from '@solidjs/web';
 
 import { useNotificationsUnreadCountChrome } from './notifications-unread-count-chrome';
@@ -21,7 +23,7 @@ export function NotificationsTabIcon(props: IconProps): JSX.Element {
   const unreadCount = useNotificationsUnreadCountChrome();
   return (
     <BadgedIcon badge={unreadBadge(unreadCount())}>
-      <BellIcon color={props.color} size={props.size ?? 24} />
+      <NotificationsArt size={props.size} />
     </BadgedIcon>
   );
 }

@@ -1,3 +1,4 @@
+import { MatchmakingArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
@@ -33,6 +34,7 @@ export function MultiplayerStatusView(
         </Match>
         <Match when={props.stage === 'unavailable'}>
           <EmptyState
+            icon={MatchmakingArt}
             variant="compact"
             role="status"
             title={<Trans>No game to watch here</Trans>}

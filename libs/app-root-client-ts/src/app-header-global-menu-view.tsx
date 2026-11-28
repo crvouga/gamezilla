@@ -5,12 +5,11 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import {
-  PaintbrushIcon,
   SettingsIcon,
-  UserIcon,
   Volume2Icon,
   VolumeXIcon,
 } from '@pkgs/ui-root-client-ts/icons';
+import { ProfileArt, ThemeArt } from '@pkgs/ui-root-client-ts/illustration';
 import type {
   OverflowMenuAction,
   OverflowMenuHeader,
@@ -117,7 +116,7 @@ function useGlobalMenuActions(
     {
       id: 'account',
       label: t`Account`,
-      icon: UserIcon,
+      leading: <ProfileArt />,
       onClick: go('/more/account'),
       endsGroup: true,
       dataSet: { testid: Handles.globalMenuAccount },
@@ -126,7 +125,7 @@ function useGlobalMenuActions(
       id: 'theme',
       label: t`Theme`,
       subtitle: themeCaption(),
-      icon: PaintbrushIcon,
+      leading: <ThemeArt />,
       onClick: go('/more/theme'),
     },
     {

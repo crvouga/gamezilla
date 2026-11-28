@@ -1,3 +1,4 @@
+import { PuzzleArt } from '@pkgs/ui-root-client-ts/illustration';
 import { workingContentDraft } from '@libs/game-puzzle-shared-ts/content-library';
 import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
@@ -52,6 +53,7 @@ export function ContentPackPreviewView(props: {
             when={props.items.length > 0}
             fallback={
               <EmptyState
+          icon={PuzzleArt}
                 variant="compact"
                 title={t`This pack has no puzzles yet`}
                 body={t`Open Puzzles to add a published puzzle or create a new draft.`}

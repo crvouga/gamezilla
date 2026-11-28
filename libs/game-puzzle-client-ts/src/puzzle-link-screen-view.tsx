@@ -1,10 +1,11 @@
+import { PuzzleArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { SearchIcon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
+import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { JSX } from '@solidjs/web';
 import { Match, Switch } from 'solid-js';
@@ -64,7 +65,7 @@ export function PuzzleLinkScreenView(
         </Match>
         <Match when={props.status === 'unavailable'}>
           <EmptyState
-            icon={SearchIcon}
+            icon={PuzzleArt}
             title={<Trans>This puzzle is no longer available</Trans>}
             body={
               <Trans>

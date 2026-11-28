@@ -22,7 +22,22 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** No game yet: play a bot at once, or set a game up with people. */
-export const NoGame: Story = {};
+export const NoGame: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    for (const name of [/Play a Friend/, /Play a bot/]) {
+      const button = await canvas.findByRole('button', { name });
+      const art = button.querySelector('img');
+      if (art === null) throw new Error('The illustrated choice needs its artwork.');
+      await art.decode();
+      await expect(art.naturalWidth).toBeGreaterThan(0);
+      await expect(art).toHaveAttribute('alt', '');
+      await expect(art).toHaveAttribute('aria-hidden', 'true');
+      await expect(art.getBoundingClientRect().width).toBe(32);
+      await expect(button.scrollWidth).toBeLessThanOrEqual(button.clientWidth + 1);
+    }
+  },
+};
 
 /**
  * No game yet, for a bigger game: the quick start plays against bots. The

@@ -41,7 +41,6 @@
     "@tanstack/virtual-core": "catalog:",
     "@ui-sdk/core": "catalog:",
     "@ui-sdk/solid": "catalog:",
-    "lucide": "catalog:",
     "prosemirror-commands": "catalog:",
     "prosemirror-history": "catalog:",
     "prosemirror-inputrules": "catalog:",

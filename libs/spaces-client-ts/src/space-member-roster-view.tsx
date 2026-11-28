@@ -7,6 +7,7 @@ import type { RoomActor } from '@pkgs/room-root-shared-ts/types';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
+import { FriendsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { createMemo, Show } from 'solid-js';
@@ -151,6 +152,7 @@ export function SpaceMemberRosterView(
         when={rows().length > 0}
         fallback={
           <EmptyState
+            icon={FriendsArt}
             variant="compact"
             title={<Trans>No one else is here yet</Trans>}
             body={<Trans>Share the space link to invite people.</Trans>}

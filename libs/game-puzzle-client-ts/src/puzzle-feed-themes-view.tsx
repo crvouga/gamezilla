@@ -1,3 +1,4 @@
+import { SearchArt } from '@pkgs/ui-root-client-ts/illustration';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
@@ -93,6 +94,7 @@ export function PuzzleFeedThemesView(
           when={shown().length > 0}
           fallback={
             <EmptyState
+          icon={SearchArt}
               variant="compact"
               title={<Trans>No matching themes</Trans>}
               body={<Trans>Try another word.</Trans>}

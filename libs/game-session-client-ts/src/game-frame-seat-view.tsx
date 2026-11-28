@@ -1,14 +1,13 @@
+import { BotArt, FriendsArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
-  BotIcon,
   DoorOpenIcon,
   LockIcon,
   LogOutIcon,
   SmartphoneIcon,
   UserIcon,
-  UserPlusIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -129,7 +128,7 @@ function HolderRows(
       />
       <Show when={props.offered.invitees}>
         <MenuRow
-          leading={<UserPlusIcon size={24} />}
+          leading={<FriendsArt />}
           title={<Trans>Someone in this space</Trans>}
           caption={<Trans>They get an invitation</Trans>}
           selected={kind() === 'invitation'}
@@ -141,7 +140,7 @@ function HolderRows(
         <FrameChoiceRow
           choices={props.choices}
           id={`custom-game-${side()}-bot`}
-          leading={<BotIcon size={24} />}
+          leading={<BotArt />}
           title={<Trans>A bot</Trans>}
           selected={kind() === 'bot'}
           operation={seatChoice(props, 'bot')}

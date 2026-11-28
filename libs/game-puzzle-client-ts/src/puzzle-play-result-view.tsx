@@ -1,3 +1,4 @@
+import { VictoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import { buildPuzzleActionBarPlan } from '@libs/game-puzzle-shared-ts/action-bar-plan';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { t } from '@lingui/core/macro';
@@ -297,6 +298,7 @@ export function PuzzleResultInfo(
     // The rating the puzzle made first, then the puzzle's own facts, one
     // line that scrolls sideways when it runs long.
     <StackHorizontal align="center" gap="md">
+      <Show when={props.status === 'solved'}><VictoryArt /></Show>
       <Show when={props.result.completion} keyed>
         {(completion) => (
           <PuzzleSummaryCard

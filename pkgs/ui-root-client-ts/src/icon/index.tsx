@@ -12,7 +12,7 @@ import type { IconComponent } from '../create-icon/index';
 export type IconGlyphProps = {
   /** The icon component to draw. */
   icon: IconComponent;
-  /** Default `lg` (24). */
+  /** Default `md` (20). */
   size?: IconSizeToken | undefined;
   /** Unset follows the surrounding surface. */
   tone?: ColorTone | undefined;
@@ -48,7 +48,7 @@ export function Icon(props: IconGlyphProps): JSX.Element {
   const Glyph = dynamic(() => props.icon);
   return (
     <Glyph
-      size={iconSize[props.size ?? 'lg']}
+      size={iconSize[props.size ?? 'md']}
       color={toneColor(props.tone)}
       strokeWidth={props.bold === true ? STROKE_BOLD : undefined}
       label={props.label}

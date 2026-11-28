@@ -4,11 +4,8 @@ import type {
   SignInMethodId,
 } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
-import {
-  DatabaseIcon,
-  SmartphoneIcon,
-  Trash2Icon,
-} from '@pkgs/ui-root-client-ts/icons';
+import { DatabaseIcon, Trash2Icon } from '@pkgs/ui-root-client-ts/icons';
+import { DeviceArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -119,7 +116,7 @@ export function AccountScreenView(props: AccountScreenViewProps): JSX.Element {
         <MenuRow
           title={t`Devices`}
           caption={t`Installs signed into this account`}
-          leading={<SmartphoneIcon size={ROW_ICON_SIZE} color="icon" />}
+          leading={<DeviceArt />}
           onClick={() => props.onOpenDevices()}
           dataSet={{ testid: Handles.accountDevices }}
         />

@@ -4,7 +4,7 @@ import {
   GameLobbyDock,
   GameModeCard,
 } from '@pkgs/ui-root-client-ts/game-lobby';
-import { BotIcon, UsersIcon } from '@pkgs/ui-root-client-ts/icons';
+import { BotArt, FriendsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { Text } from '@pkgs/ui-root-client-ts/text';
@@ -69,10 +69,10 @@ export function CustomGamesHomePlace(props: FramePlaceProps): JSX.Element {
               choices={choices}
               id="custom-game-create"
               navigates
-              leading={<UsersIcon size={24} />}
-              title={<Trans>Open table</Trans>}
+              leading={<FriendsArt />}
+              title={<Trans>Play a Friend</Trans>}
               caption={
-                <Trans>Let people in this space take the open seats</Trans>
+                <Trans>Open table · Let people in this space take the open seats</Trans>
               }
               operation={() => props.onChoose({ operation: 'create' })}
             />
@@ -129,7 +129,7 @@ export function CustomGamesHomePlace(props: FramePlaceProps): JSX.Element {
             choices={choices}
             id="custom-game-play-bot"
             navigates
-            leading={<BotIcon size={24} />}
+            leading={<BotArt />}
             title={
               <Show
                 when={props.sides.length > 2}

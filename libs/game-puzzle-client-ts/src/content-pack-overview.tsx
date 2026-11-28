@@ -1,3 +1,4 @@
+import { PuzzleArt } from '@pkgs/ui-root-client-ts/illustration';
 import {
   type PackPuzzleProgress,
   packProgress,
@@ -176,6 +177,7 @@ export function ContentPackOverview(props: {
                   when={pack().total > 0}
                   fallback={
                     <EmptyState
+          icon={PuzzleArt}
                       variant="compact"
                       title={t`This pack has no puzzles yet`}
                       body={t`Its author has not added a puzzle. Return to puzzles and choose another pack.`}

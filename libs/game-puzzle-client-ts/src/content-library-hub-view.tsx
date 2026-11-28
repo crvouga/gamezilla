@@ -1,3 +1,4 @@
+import { BooksArt, PuzzleArt, VictoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
@@ -39,6 +40,7 @@ function PlayRows(props: { view: View }): JSX.Element {
   return (
     <MenuSection title={<Trans>Play</Trans>}>
       <MenuRow
+        leading={<PuzzleArt />}
         title={t`Continue`}
         caption={t`Puzzles you started`}
         value={count(done(false), props.view.more.attempts)}
@@ -48,7 +50,8 @@ function PlayRows(props: { view: View }): JSX.Element {
       />
       <Show when={done(true) > 0 || props.view.more.attempts}>
         <MenuRow
-          title={t`Solved`}
+          leading={<VictoryArt />}
+        title={t`Solved`}
           caption={t`Puzzles you finished`}
           value={count(done(true), props.view.more.attempts)}
           disabled={creating(props.view)}
@@ -57,6 +60,7 @@ function PlayRows(props: { view: View }): JSX.Element {
         />
       </Show>
       <MenuRow
+        leading={<BooksArt />}
         title={t`Browse`}
         caption={t`Published puzzles and packs`}
         value={count(props.view.published.length, props.view.more.published)}

@@ -1,3 +1,4 @@
+import { BooksArt } from '@pkgs/ui-root-client-ts/illustration';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
@@ -85,6 +86,7 @@ export function ContentLibraryBrowseView(props: { view: View }): JSX.Element {
         when={props.view.published.length > 0}
         fallback={
           <EmptyState
+          icon={BooksArt}
             variant="compact"
             title={t`No published puzzles loaded`}
             body={t`Play a starter pack, create a private draft, or come back for new puzzles and packs.`}
@@ -150,6 +152,7 @@ function OwnedList(props: { view: View }): JSX.Element {
         when={props.view.drafts.length > 0}
         fallback={
           <EmptyState
+          icon={BooksArt}
             variant="compact"
             title={t`Nothing built yet`}
             body={t`Create a puzzle or a pack. Drafts stay private until you publish them.`}
@@ -242,6 +245,7 @@ export function ContentLibraryContinueView(props: { view: View }): JSX.Element {
       testid="content-library-continue"
       empty={
         <EmptyState
+          icon={BooksArt}
           variant="compact"
           title={t`Nothing to continue yet`}
           body={t`Puzzles you start from Browse wait here, at the move you left them.`}
@@ -266,6 +270,7 @@ export function ContentLibrarySolvedView(props: { view: View }): JSX.Element {
       testid="content-library-solved"
       empty={
         <EmptyState
+          icon={BooksArt}
           variant="compact"
           title={t`Nothing solved here yet`}
           body={t`Puzzles you finish are listed here, with the pack they belong to.`}
@@ -292,6 +297,7 @@ export function ContentLibraryPlaytestsView(props: {
       testid="content-library-playtests"
       empty={
         <EmptyState
+          icon={BooksArt}
           variant="compact"
           title={t`No playtests yet`}
           body={t`Start a playtest from a draft's Check and publish step. Practice runs don't count toward your progress.`}

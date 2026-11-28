@@ -43,7 +43,7 @@ function ChoiceIcon(props: {
 }): JSX.Element {
   const Picture = (): JSX.Element => {
     const Icon = props.choice.icon;
-    return <Icon size={props.size === 'tile' ? 24 : 20} />;
+    return <Icon />;
   };
   return (
     <span
@@ -101,7 +101,7 @@ function ChoicePrimary(props: { choice: GameMenuChoice }): JSX.Element {
   const confirmNavigation = useConfirmNavigation();
   const Picture = (): JSX.Element => {
     const Icon = props.choice.icon;
-    return <Icon size={24} />;
+    return <Icon />;
   };
   return (
     <SdkButton
