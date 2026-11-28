@@ -7,14 +7,14 @@ const portraitFile = new URL(
   '../../../../ui-root-client-ts/assets/mascot/portrait.svg',
   import.meta.url
 );
-const silhouette = readFileSync(portraitFile, 'utf8').match(
-  /<path[^>]+ d="([^"]+)"/
+const silhouette = /<path[^>]+ d="([^"]+)"/.exec(
+  readFileSync(portraitFile, 'utf8')
 )?.[1];
 if (!silhouette) throw new Error('Missing mascot silhouette');
 
 const screens = [
   'space-person-menu--add-bot',
-  'screens-game-home--with-puzzles-and-settings',
+  'screens-game-home--shared-choices',
   'screens-game-sessions-setup--host-ready-to-start',
   'screens-game-sessions-setup--bot-table',
   'screens-game-sessions-setup-seat--bot-difficulty',
