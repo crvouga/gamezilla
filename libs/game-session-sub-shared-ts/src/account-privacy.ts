@@ -13,7 +13,7 @@ const PERSONAL_TABLES = [
   'chess_multiplayer_ratings',
   'chess_multiplayer_setups',
   'chess_multiplayer_hands',
-  'chess_custom_game_seats',
+  'chess_game_session_seats',
 ] as const;
 export const GAME_SESSION_PRIVACY: AccountPrivacyContribution = {
   name: 'game history and preferences',
@@ -37,7 +37,7 @@ export const GAME_SESSION_PRIVACY: AccountPrivacyContribution = {
   erase: async (ctx) => {
     await eraseMultiplayer(ctx);
     // Where the person sat stays with nobody once the account is gone.
-    await ctx.tx.run(sql`UPDATE chess_custom_game_seats
+    await ctx.tx.run(sql`UPDATE chess_game_session_seats
       SET deleted_at = ${ctx.env.now().toISOString()}
       WHERE owner_id = ${ctx.env.actorId} AND deleted_at IS NULL`);
   },

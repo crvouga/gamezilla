@@ -68,7 +68,7 @@ export function useUnfinishedGame(): Accessor<UnfinishedGame | null> {
   const presentation = useGamePresentation();
   const seats = createQuery(
     () => sql<SeatRow>`
-      SELECT c.space_id FROM chess_custom_game_seats AS c
+      SELECT c.space_id FROM chess_game_session_seats AS c
       LEFT JOIN spaces AS s ON s.id = c.space_id
       WHERE c.owner_id = ${myId()} AND c.under_way = ${true}
         AND c.deleted_at IS NULL

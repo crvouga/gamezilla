@@ -21,11 +21,11 @@ import { z } from 'zod';
  */
 export const gameSessionSeats = defineTable({
   domain: GAME_PLATFORM_NAMESPACE,
-  name: 'chess_custom_game_seats',
+  name: 'chess_game_session_seats',
   columns: {
     owner_id: 'text',
     space_id: 'text',
-    custom_game_id: 'text',
+    game_session_id: 'text',
     under_way: 'boolean',
   },
   uniqueIndexes: [['owner_id', 'space_id']],
@@ -35,7 +35,7 @@ export const GAME_SESSION_SEATS_TABLES = [gameSessionSeats] as const;
 
 /** A row reaches only its owner's devices. */
 export const GAME_SESSION_SEATS_TOPIC_MAP = {
-  chess_custom_game_seats: {
+  chess_game_session_seats: {
     topics(row, ctx) {
       return [`user:${String(row['owner_id'] ?? ctx.actorId)}`];
     },
@@ -55,7 +55,7 @@ export function gameSessionSeatedPeople(game: GameSession): readonly string[] {
 
 export const noteGameSessionSeatsArgs = z.object({
   spaceId: z.string().min(1),
-  customGameId: z.string().min(1),
+  gameSessionId: z.string().min(1),
   /** Who sits in it, when it is under way. */
   people: z.array(z.string().min(1)).max(8),
   underWay: z.boolean(),
@@ -73,7 +73,7 @@ export function gameSessionSeatsNote(
   const underWay = gameSessionUnderWay(games);
   return {
     spaceId,
-    customGameId: game.id,
+    gameSessionId: game.id,
     people: underWay ? [...gameSessionSeatedPeople(game)] : [],
     underWay,
   };
@@ -87,7 +87,7 @@ export function gameSessionSeatsNoteHolds(
   const current = games.current;
   const playing =
     current !== null &&
-    current.id === note.customGameId &&
+    current.id === note.gameSessionId &&
     current.status === 'active';
   if (!note.underWay) return !playing;
   return (
@@ -103,32 +103,32 @@ export function gameSessionSeatsNoteHolds(
  * nobody is seated in it any more.
  */
 export const noteGameSessionSeatsMutation = defineMutation({
-  name: 'noteCustomGameSeats',
+  name: 'noteGameSessionSeats',
   args: noteGameSessionSeatsArgs,
   async run(ctx, args) {
     const iso = ctx.env.now().toISOString();
     if (!args.underWay) {
-      await ctx.tx.run(sql`UPDATE chess_custom_game_seats
+      await ctx.tx.run(sql`UPDATE chess_game_session_seats
         SET under_way = ${false}, updated_at = ${iso}
-        WHERE space_id = ${args.spaceId} AND custom_game_id = ${args.customGameId}
+        WHERE space_id = ${args.spaceId} AND game_session_id = ${args.gameSessionId}
           AND under_way = ${true}`);
       return;
     }
-    await ctx.tx.run(sql`UPDATE chess_custom_game_seats
+    await ctx.tx.run(sql`UPDATE chess_game_session_seats
       SET under_way = ${false}, updated_at = ${iso}
-      WHERE space_id = ${args.spaceId} AND custom_game_id <> ${args.customGameId}
+      WHERE space_id = ${args.spaceId} AND game_session_id <> ${args.gameSessionId}
         AND under_way = ${true}`);
     const people = [...new Set(args.people)];
     if (people.length === 0) return;
-    await ctx.tx.run(sql`INSERT INTO chess_custom_game_seats
-      (id, owner_id, space_id, custom_game_id, under_way, created_at, updated_at, deleted_at)
+    await ctx.tx.run(sql`INSERT INTO chess_game_session_seats
+      (id, owner_id, space_id, game_session_id, under_way, created_at, updated_at, deleted_at)
       VALUES ${join(
         people.map(
           (person) =>
-            sql`(${`${person}:${args.spaceId}`}, ${person}, ${args.spaceId}, ${args.customGameId}, ${true}, ${iso}, ${iso}, ${null})`
+            sql`(${`${person}:${args.spaceId}`}, ${person}, ${args.spaceId}, ${args.gameSessionId}, ${true}, ${iso}, ${iso}, ${null})`
         )
       )}
-      ON CONFLICT (id) DO UPDATE SET custom_game_id = excluded.custom_game_id,
+      ON CONFLICT (id) DO UPDATE SET game_session_id = excluded.game_session_id,
         under_way = excluded.under_way, updated_at = excluded.updated_at,
         deleted_at = excluded.deleted_at`);
   },
@@ -136,11 +136,11 @@ export const noteGameSessionSeatsMutation = defineMutation({
 
 /** The person's own seats, on every device of theirs. */
 export const gameSessionSeatsQuery = defineQuery({
-  name: 'customGameSeats',
+  name: 'gameSessionSeats',
   async run(ctx) {
     return {
-      chess_custom_game_seats: await ctx.db.query(
-        sql`SELECT * FROM chess_custom_game_seats WHERE owner_id = ${ctx.env.actorId}`
+      chess_game_session_seats: await ctx.db.query(
+        sql`SELECT * FROM chess_game_session_seats WHERE owner_id = ${ctx.env.actorId}`
       ),
     };
   },
