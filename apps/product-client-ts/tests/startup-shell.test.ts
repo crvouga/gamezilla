@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { join } from 'node:path';
 import { runInNewContext } from 'node:vm';
+import { eventConstructor } from '@pkgs/bun-test-solid-client-ts/native-event';
 import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/css-vars';
 import { startupShellIssues } from '@pkgs/ui-root-shared-ts/startup-shell-check';
 import { inlineDocumentFragments } from '@pkgs/vite-workspace-resolver-server-ts/inline-document-fragments';
@@ -35,12 +36,16 @@ test('opens Settings, changes appearance and accepts a private people search bef
   );
   const shell = first.querySelector('[data-startup-shell]');
   const script = shell?.nextElementSibling;
-  if (!shell || script?.tagName !== 'SCRIPT') throw new Error('Opening document missing');
+  if (!shell || script?.tagName !== 'SCRIPT')
+    throw new Error('Opening document missing');
   document.body.appendChild(document.importNode(shell, true));
   const fallback = document.querySelector('[data-startup-shell]');
   const clickLink = (path: string): void => {
-    const link = fallback?.querySelector<HTMLAnchorElement>(`a[href="${path}"]`);
-    if (!link || link.closest('[hidden]')) throw new Error(`No link to ${path}`);
+    const link = fallback?.querySelector<HTMLAnchorElement>(
+      `a[href="${path}"]`
+    );
+    if (!link || link.closest('[hidden]'))
+      throw new Error(`No link to ${path}`);
     link.click();
   };
   const preference = 'ui.prefs/color-scheme';
@@ -49,20 +54,32 @@ test('opens Settings, changes appearance and accepts a private people search bef
   try {
     history.replaceState(null, '', '/space/invitation');
     runInNewContext(script.textContent ?? '', {
-      document, window: document.defaultView, location, history, localStorage, PopStateEvent: document.defaultView?.PopStateEvent, CustomEvent: document.defaultView?.CustomEvent,
-      MutationObserver, matchMedia: () => ({ matches: false }),
+      document,
+      window,
+      location,
+      history,
+      localStorage,
+      PopStateEvent: eventConstructor(window),
+      CustomEvent,
+      MutationObserver,
+      matchMedia: () => ({ matches: false }),
     });
     expect(fallback?.querySelector('h1')?.textContent).not.toBe('Spaces');
     expect(location.pathname).toBe('/space/invitation');
     clickLink('/more');
     clickLink('/more/theme');
     const dark = fallback?.querySelector<HTMLInputElement>('[value="dark"]');
-    if (!dark || dark.closest('[hidden]')) throw new Error('Missing appearance choices');
+    if (!dark || dark.closest('[hidden]'))
+      throw new Error('Missing appearance choices');
     dark.click();
     expect(document.documentElement.dataset['theme']).toBe('dark');
-    expect(JSON.parse(localStorage.getItem(preference) ?? 'null')).toEqual({ 'ui.prefs/value': 'dark' });
+    expect(JSON.parse(localStorage.getItem(preference) ?? 'null')).toEqual({
+      'ui.prefs/value': 'dark',
+    });
     clickLink('/search');
-    const field = fallback?.querySelector<HTMLInputElement>('input[name="people-search"]');
+    const field = fallback?.querySelector<HTMLInputElement>(
+      'input[name="people-search"]'
+    );
     expect(location.pathname).toBe('/search');
     expect(document.activeElement).toBe(field ?? null);
     expect(field?.hasAttribute('data-sensitive')).toBe(true);

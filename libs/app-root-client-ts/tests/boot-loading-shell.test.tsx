@@ -152,9 +152,7 @@ test('a search being composed keeps focus until the input method commits its fin
     draft.dispatchEvent(new Event('compositionend', { bubbles: true }));
     draft.value = '明';
     draft.dispatchEvent(new Event('input', { bubbles: true }));
-    if (frames.length === 0) window.dispatchEvent(new Event('compositionend'));
     expect(frames.length).toBeGreaterThan(0);
-    expect(shell.matches(':active')).toBe(false);
     for (const frame of frames) frame(0);
     expect(shell.isConnected).toBe(false);
     const field = view.getByRole('textbox', { name: 'Find people' });

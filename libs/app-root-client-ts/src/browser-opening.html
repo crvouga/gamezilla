@@ -77,7 +77,7 @@
       try {
         localStorage.setItem('ui.prefs/color-scheme', JSON.stringify({ 'ui.prefs/value': preference }));
       } catch (_) {}
-      window.dispatchEvent(new CustomEvent('startup-theme-change', { detail: preference }));
+      shell.dispatchEvent(new CustomEvent('startup-theme-change', { detail: preference }));
     });
     showLocation();
     window.addEventListener('popstate', showLocation);

@@ -48,7 +48,7 @@ export function BrowserOpening(props: {
 }): JSX.Element {
   const root = untrack(() => props.root);
   // The inline opening document can be followed by its own inline script.
-  const opening = root.ownerDocument.querySelector<HTMLElement>(
+  let opening = root.ownerDocument.querySelector<HTMLElement>(
     '[data-startup-shell]'
   );
   if (opening === null) return props.children;
@@ -62,14 +62,16 @@ export function BrowserOpening(props: {
   });
   const resumeActivity = (): void => interactions.abort();
   const reveal = (): void => {
-    if (!opening.isConnected) return;
+    if (opening === null) return;
+    const previous = opening;
+    opening = null;
     const focused = document.activeElement;
-    const restore = opening.contains(focused);
+    const restore = previous.contains(focused);
     const id = focused?.getAttribute('data-testid') ?? null;
     themeEvents.abort();
-    opening.remove();
+    previous.remove();
     document.documentElement.removeAttribute('data-startup-preference');
-    if (!restoreOpeningSearch(opening, root, focused) && restore)
+    if (!restoreOpeningSearch(previous, root, focused) && restore)
       transferFocus(root, id);
     // Initial data can still be arriving. Give explicit actions their normal
     // progress feedback without turning those outstanding reads into spinners.
@@ -87,14 +89,15 @@ export function BrowserOpening(props: {
         setPreference(value);
     };
     readChoice();
-    window?.addEventListener('startup-theme-change', readChoice, {
+    opening?.addEventListener('startup-theme-change', readChoice, {
       signal: themeEvents.signal,
     });
   };
   return (
     <OpeningContext
       value={{
-        ready: () => finishOpeningGesture(opening, reveal),
+        ready: () =>
+          opening === null ? undefined : finishOpeningGesture(opening, reveal),
         quietActivity: () => !interactions.signal.aborted,
         bindTheme,
       }}

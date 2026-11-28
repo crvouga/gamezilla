@@ -34,7 +34,7 @@ export function finishOpeningGesture(
     'click',
     'focusout',
   ])
-    window.addEventListener(type, afterEvent, options);
+    opening.ownerDocument.addEventListener(type, afterEvent, options);
   window.addEventListener('blur', commit, { signal: events.signal });
   return () => {
     events.abort();
