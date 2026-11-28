@@ -1,6 +1,7 @@
 import { expect, userEvent, within } from 'storybook/test';
 import {
   assertClear,
+  assertRackClear,
   checkInitialWordWorkspace,
 } from './word-tiles-geometry.example';
 import { expectBoardMap } from './word-tiles-map.example';
@@ -135,6 +136,6 @@ async function checkPrecisionWorkspace(
     await expect(
       underBoard(canvasElement).getBoundingClientRect().width
     ).toBeGreaterThanOrEqual(132);
-  await assertClear(canvas.getByTestId('game-session-board-rack'));
+  await assertRackClear(canvas.getByTestId('game-session-board-rack'));
   await assertClear(canvas.getByTestId('game-session-board-submit'));
 }
