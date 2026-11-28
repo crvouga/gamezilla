@@ -20,7 +20,9 @@
     background-image: var(--ui-finish-well);
   }
 
-  .wellTrack {
+  .wellTrack,
+  [data-variant="pill"] > [role="tablist"] {
+    background-image: var(--ui-finish-slot);
     box-shadow: var(--ui-depth-slot);
   }
 
@@ -338,7 +340,7 @@
   .clickable.chip[aria-pressed="true"],
   .clickable.chip[aria-checked="true"] {
     border-color: var(--ui-color-primary-strong);
-    background: var(--ui-color-tint-subtle);
+    background: var(--ui-finish-slot) var(--ui-color-tint-subtle);
     color: var(--ui-color-on-primary-soft);
     --ui-on-fg: var(--ui-color-on-primary-soft);
     --ui-on-fg-muted: var(--ui-color-on-primary-soft);
@@ -408,7 +410,8 @@
   }
 
   .badge[data-intent="reward"][data-tone="solid"] {
-    background: var(--ui-color-reward);
+    background: var(--ui-finish-piece) var(--ui-color-reward);
+    box-shadow: var(--ui-depth-piece);
     color: var(--ui-color-on-primary);
   }
 
@@ -479,7 +482,7 @@
      `on-primary-soft` glyph. */
   .checkboxBox {
     border: calc(var(--ui-space-hairline) * 2) solid var(--ui-color-outline);
-    background: var(--ui-finish-well) var(--ui-color-surface-muted);
+    background: var(--ui-finish-slot) var(--ui-color-surface-muted);
     box-shadow: var(--ui-depth-slot);
     color: var(--ui-color-on-primary-soft);
     transition:
@@ -489,7 +492,8 @@
 
   .checkboxBox[data-filled="true"] {
     border-color: var(--ui-color-primary-strong);
-    background: var(--ui-color-tint-subtle);
+    background: var(--ui-finish-piece) var(--ui-color-tint-subtle);
+    box-shadow: var(--ui-depth-piece);
   }
 
   @media (hover: hover) and (pointer: fine) {
@@ -498,10 +502,20 @@
     }
   }
 
-  /* The chosen segment slides inside its track. */
+  /* A selected tab or segment sits above the track on the same molded face. */
+  [data-variant="pill"] > [role="tablist"] > [aria-selected="true"],
   .segmentIndicator {
-    background-image: var(--ui-finish-action);
-    box-shadow: var(--ui-depth-raised);
+    background-image: var(--ui-finish-piece);
+    box-shadow: var(--ui-depth-piece);
+  }
+
+  .clickable:enabled:active > .switchTrack > .switchThumb,
+  .clickable:enabled:active > .checkboxBox,
+  [data-variant="pill"] > [role="tablist"] > [role="tab"]:enabled:active {
+    box-shadow: var(--ui-depth-pressed);
+  }
+
+  .segmentIndicator {
     transition:
       left var(--ui-duration-normal) var(--ui-easing-standard),
       width var(--ui-duration-normal) var(--ui-easing-standard);

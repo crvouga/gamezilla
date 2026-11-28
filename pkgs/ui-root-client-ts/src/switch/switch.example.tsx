@@ -14,7 +14,7 @@ export default function SwitchExample(): JSX.Element {
     <ExampleRoot>
       <div class="box flex-col gap-3">
         <Switch label="Notifications" value={a()} onValueChange={setA} />
-        <Switch label="Dark mode (on)" value={b()} onValueChange={setB} />
+        <Switch label="Sound effects" value={b()} onValueChange={setB} />
         <Switch label="Disabled" value={c()} onValueChange={setC} disabled />
         <Switch
           label="Disabled · on"

@@ -1,4 +1,4 @@
-import { expect, type Locator, test } from '@playwright/test';
+import { expect, type Locator, type Page, test } from '@playwright/test';
 
 test.use({ viewport: { width: 1440, height: 900 } });
 
@@ -222,3 +222,82 @@ test('storybook integration: gallery play operates one visible set of controls',
   await expect(walls).toHaveCount(1);
   await expect(walls).toHaveAttribute('aria-pressed', 'false');
 });
+
+async function openControls(page: Page, story: string) {
+  await page.goto(`/iframe.html?id=${story}--states&viewMode=story`);
+  await expect(page.locator('#storybook-root')).toHaveAttribute(
+    'data-story-ready',
+    'true'
+  );
+}
+
+async function shadow(node: Locator) {
+  return node.evaluate((element) => getComputedStyle(element).boxShadow);
+}
+
+for (const width of [390, 1280]) {
+  test(`storybook integration: molded control materials at ${width}px`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize({ width, height: width === 390 ? 844 : 800 });
+    await openControls(page, 'components-inputs-switch');
+    const control = page.getByRole('switch', { name: 'Notifications' });
+    const thumb = control.locator('.switchThumb');
+    const resting = await shadow(thumb);
+    expect(resting).not.toBe('none');
+    const initial = await thumb.boundingBox();
+    await control.hover();
+    await page.mouse.down();
+    try {
+      await expect(thumb).not.toHaveCSS('box-shadow', resting);
+      expect(await thumb.boundingBox()).toEqual(initial);
+    } finally {
+      await page.mouse.up();
+    }
+    await expect(control).toBeChecked();
+    await expect(thumb).toHaveCSS('box-shadow', resting);
+    await page.screenshot({
+      path: info.outputPath(`switches-${width}.png`),
+      animations: 'disabled',
+    });
+
+    await openControls(page, 'components-disclosure-tabs');
+    const list = page.getByRole('tablist', { name: 'Range' });
+    const day = list.getByRole('tab', { name: 'Day' });
+    const month = list.getByRole('tab', { name: 'Month' });
+    const raised = await shadow(day);
+    expect(raised).not.toBe('none');
+    expect(await shadow(list)).not.toBe(raised);
+    await month.click();
+    await expect(month).toHaveAttribute('aria-selected', 'true');
+    await expect(month).toHaveCSS('box-shadow', raised);
+    await expect(day).toHaveCSS('box-shadow', 'none');
+    await page.screenshot({
+      path: info.outputPath(`tabs-${width}.png`),
+      animations: 'disabled',
+    });
+
+    await openControls(page, 'components-inputs-checkbox');
+    const check = page.getByRole('checkbox', { name: 'Accept terms' });
+    const mark = check.locator('[data-filled]');
+    const empty = await shadow(mark);
+    await check.click();
+    await expect(check).toBeChecked();
+    await expect(mark).not.toHaveCSS('box-shadow', empty);
+    await expect(mark).not.toHaveCSS('background-image', 'none');
+
+    await openControls(page, 'components-feedback-spinner');
+    const dial = page.getByRole('status').first();
+    const busy = page.getByRole('button', { name: 'Save' }).first();
+    await expect(dial).not.toHaveCSS('box-shadow', 'none');
+    await expect(busy).toHaveAttribute('aria-busy', 'true');
+    await expect(busy.locator('[data-activity-indicator]')).toHaveCSS(
+      'box-shadow',
+      'none'
+    );
+    await page.screenshot({
+      path: info.outputPath(`activity-${width}.png`),
+      animations: 'disabled',
+    });
+  });
+}
