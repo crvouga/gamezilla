@@ -24,37 +24,6 @@ function illustration(src: string) {
 export const VictoryArt = illustration(
   new URL('../../assets/fluent-emoji/trophy.svg', import.meta.url).href
 );
-export const ChessArt = illustration(
-  new URL('../../assets/fluent-emoji/chess-pawn.svg', import.meta.url).href
-);
-export const DiscsArt = illustration(
-  new URL('../../assets/fluent-emoji/red-circle.svg', import.meta.url).href
-);
-export const FleetArt = illustration(
-  new URL('../../assets/fluent-emoji/ship.svg', import.meta.url).href
-);
-export const CardsArt = illustration(
-  new URL('../../assets/fluent-emoji/heart-suit.svg', import.meta.url).href
-);
-export const WallsArt = illustration(
-  new URL('../../assets/fluent-emoji/brick.svg', import.meta.url).href
-);
-export const LettersArt = illustration(
-  new URL('../../assets/fluent-emoji/input-latin-letters.svg', import.meta.url)
-    .href
-);
-export const CratesArt = illustration(
-  new URL('../../assets/fluent-emoji/package.svg', import.meta.url).href
-);
-export const PathsArt = illustration(
-  new URL('../../assets/fluent-emoji/link.svg', import.meta.url).href
-);
-export const CourtArt = illustration(
-  new URL('../../assets/fluent-emoji/ping-pong.svg', import.meta.url).href
-);
-export const TrailsArt = illustration(
-  new URL('../../assets/fluent-emoji/motorcycle.svg', import.meta.url).href
-);
 const HuggingPeople = illustration(
   new URL('../../assets/fluent-emoji/people-hugging.svg', import.meta.url).href
 );
