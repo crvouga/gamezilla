@@ -1,4 +1,5 @@
 import type { ElementLayout, GestureOptions, TapPosition } from './driver';
+import type { KeyPhase } from './keys';
 
 /**
  * Runtime-agnostic node handle. DOM adapters use `Element`.
@@ -64,7 +65,7 @@ export interface RenderedApp {
    * into it first (unless focus is already inside), like a person clicking
    * into a control before typing.
    */
-  pressKey(domKey: string, target?: HostNode): Promise<void>;
+  pressKey(domKey: string, target?: HostNode, phase?: KeyPhase): Promise<void>;
 
   /** Scroll the element in a direction by `amount` pixels. */
   scroll(

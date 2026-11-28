@@ -65,8 +65,8 @@ export async function playPongJourney(
     await host.actAsGuest('guidePongBall', async (ui) => {
       await guidePongJourney(ui, other, false, start.courtHeight);
     });
-    // Refresh both paddles inside the game's 300 ms input lease.
-    await host.elapse(200);
+    // A held arrow travels less than half a paddle between samples.
+    await host.elapse(80);
   }
   throw new Error('Pong did not reach its target score within 90 seconds');
 }

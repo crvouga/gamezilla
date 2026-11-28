@@ -1,4 +1,4 @@
-import type { DriverKey } from './keys';
+import type { DriverKey, KeyPhase } from './keys';
 
 export type ScrollDirection = 'up' | 'down' | 'left' | 'right';
 
@@ -146,8 +146,8 @@ export type DriverNode = {
   /** Clear the current value of the element. */
   clear(): Promise<void>;
 
-  /** Press a portable key (enter, escape, …) while focused on this node. */
-  key(key: DriverKey): Promise<void>;
+  /** Press a key on the node, or send one phase to hold or release it during play. */
+  key(key: DriverKey, phase?: KeyPhase): Promise<void>;
 
   /**
    * Scroll within (or toward) the element.

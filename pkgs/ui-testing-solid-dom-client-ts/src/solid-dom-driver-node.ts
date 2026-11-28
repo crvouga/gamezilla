@@ -19,7 +19,7 @@ import {
 } from '@pkgs/ui-testing-root-shared-ts/driver-expect';
 import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared-ts/element-not-found-error';
 import { formatTestIdPath } from '@pkgs/ui-testing-root-shared-ts/format';
-import type { DriverKey } from '@pkgs/ui-testing-root-shared-ts/keys';
+import type { DriverKey, KeyPhase } from '@pkgs/ui-testing-root-shared-ts/keys';
 import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared-ts/keys';
 import type {
   HostNode,
@@ -116,11 +116,11 @@ export class SolidDomDriverNode implements DriverNode {
     dispatchSettled(input, new Event('change', { bubbles: true }));
   }
 
-  async key(key: DriverKey): Promise<void> {
+  async key(key: DriverKey, phase?: KeyPhase): Promise<void> {
     await this.host.activate();
     await this.host
       .requireApp()
-      .pressKey(DRIVER_KEY_TO_DOM[key], this.requireElement());
+      .pressKey(DRIVER_KEY_TO_DOM[key], this.requireElement(), phase);
   }
 
   async scroll(

@@ -24,7 +24,7 @@ import {
 } from '@pkgs/ui-testing-root-shared-ts/driver-expect';
 import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared-ts/element-not-found-error';
 import { formatTestIdPath } from '@pkgs/ui-testing-root-shared-ts/format';
-import type { DriverKey } from '@pkgs/ui-testing-root-shared-ts/keys';
+import type { DriverKey, KeyPhase } from '@pkgs/ui-testing-root-shared-ts/keys';
 import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared-ts/keys';
 import { TimeoutError } from '@pkgs/ui-testing-root-shared-ts/timeout-error';
 import { UiTestError } from '@pkgs/ui-testing-root-shared-ts/ui-test-error';
@@ -237,11 +237,12 @@ export class BunWebviewDriverNode implements DriverNode {
     );
   }
 
-  async key(key: DriverKey): Promise<void> {
+  async key(key: DriverKey, phase?: KeyPhase): Promise<void> {
     await pressBrowserKey(
       await this.view(),
       DRIVER_KEY_TO_DOM[key],
-      cssPath(this.path)
+      cssPath(this.path),
+      phase
     );
   }
 

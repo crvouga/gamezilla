@@ -1,0 +1,4 @@
+{
+  "summary": "The desktop multiplayer Pong journey clicked and released each target before a simulation tick could move the paddle. Alice lost the full match on the 1280-pixel court.",
+  "regressionTest": "libs/runtime-harness-ts/tests/pong-desktop-target.test.ts"
+}

@@ -175,6 +175,28 @@ function inputField(element: Element, text: string): void {
   );
 }
 
+function keyboardInput(
+  document: Document,
+  user: UserEvent
+): RenderedApp['pressKey'] {
+  return async (domKey, target, phase) => {
+    if (target !== undefined) focusInto(asElement(target));
+    if (phase) {
+      document.activeElement?.dispatchEvent(
+        new KeyboardEvent(phase, {
+          key: domKey === 'Control+k' ? 'k' : domKey,
+          ctrlKey: domKey === 'Control+k',
+          bubbles: true,
+          cancelable: true,
+        })
+      );
+    } else {
+      await user.keyboard(userEventKeyFromDom(domKey));
+    }
+    settle();
+  };
+}
+
 export function createSolidDomRenderedApp(
   scope: SolidDomAppScope
 ): SolidDomRenderedApp {
@@ -243,11 +265,7 @@ export function createSolidDomRenderedApp(
       writeFieldText(field, '');
       return Promise.resolve();
     },
-    pressKey: async (domKey, target) => {
-      if (target !== undefined) focusInto(asElement(target));
-      await user.keyboard(userEventKeyFromDom(domKey));
-      settle();
-    },
+    pressKey: keyboardInput(scope.document, user),
     scroll: (element, direction, amount) => {
       scrollBy(asElement(element), direction, amount);
       return Promise.resolve();

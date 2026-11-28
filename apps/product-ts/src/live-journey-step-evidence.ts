@@ -56,7 +56,7 @@ export function createJourneyStepRecorder(
 }
 
 /** Long multiplayer steps can start and finish a match before the step screenshot.
- * Capture its first visible board after a successful gesture on the active device. */
+ * Capture its first playable stage after a successful gesture on the active device. */
 export function createJourneyBoardCapture(
   scenarioId: string,
   store: ObjectStore
@@ -65,8 +65,9 @@ export function createJourneyBoardCapture(
   return async (view: JourneyStepView, action: string): Promise<void> => {
     if (captured) return;
     const visible = await view.evaluate(`Array.from(document.querySelectorAll(
-      '[data-game-board], [data-testid="game-session-board"], [data-testid="chess-puzzle-board-frame"], [data-testid="sokoban-board"], [data-testid="numberlink-board"]'
+      '[data-game-board], [data-testid="game-session-board"], [data-testid="chess-puzzle-board-frame"]'
     )).some(board => {
+      if (board.querySelector('[data-stage="reconnecting"]')) return false;
       const { width, height, top, bottom } = board.getBoundingClientRect();
       return width > 0 && height > 0 && top < innerHeight && bottom > 0;
     })`);

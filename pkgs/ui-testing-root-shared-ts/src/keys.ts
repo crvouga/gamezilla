@@ -22,6 +22,8 @@ export type DriverKey =
   | 'letterS'
   | 'letterD';
 
+export type KeyPhase = 'keydown' | 'keyup';
+
 /** DOM `KeyboardEvent.key` identifiers for each {@link DriverKey}. */
 export const DRIVER_KEY_TO_DOM: Record<DriverKey, string> = {
   enter: 'Enter',

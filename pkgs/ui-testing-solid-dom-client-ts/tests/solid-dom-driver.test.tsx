@@ -50,6 +50,25 @@ describe('SolidDomDriver', () => {
     driver = undefined;
   });
 
+  test('a held arrow reaches the focused court and releases independently', async () => {
+    const events: string[] = [];
+    driver = customDriver(() => (
+      <button
+        data-testid="court"
+        onKeyDown={(event) => events.push(`down ${event.key}`)}
+        onKeyUp={(event) => events.push(`up ${event.key}`)}
+      >
+        Court
+      </button>
+    ));
+    await driver.launch();
+    const court = driver.get('court');
+    await court.key('arrowDown', 'keydown');
+    expect(events).toEqual(['down ArrowDown']);
+    await court.key('arrowDown', 'keyup');
+    expect(events).toEqual(['down ArrowDown', 'up ArrowDown']);
+  });
+
   test('a scoped tap keeps the selected counter when child identifiers repeat', async () => {
     // regression: scoped-dom-tap-retargets-first-child
     driver = demoDriver();

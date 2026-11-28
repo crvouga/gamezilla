@@ -113,7 +113,8 @@ function recordingNode(node: DriverNode, ctx: Ctx): DriverNode {
     clear: () => step(ctx, ui('clear'), () => node.clear()),
     selectFile: (file) =>
       step(ctx, ui(`select file ${file.name}`), () => node.selectFile(file)),
-    key: (key: DriverKey) => step(ctx, ui(`key ${key}`), () => node.key(key)),
+    key: (key, phase) =>
+      step(ctx, ui(`${phase ?? 'key'} ${key}`), () => node.key(key, phase)),
     scroll: (direction: ScrollDirection, amount?: number) =>
       step(ctx, ui(`scroll ${direction}`), () =>
         node.scroll(direction, amount)
