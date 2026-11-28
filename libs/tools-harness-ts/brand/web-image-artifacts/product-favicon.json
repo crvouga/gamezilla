@@ -1,6 +1,7 @@
 {
   "path": "apps/product-ts/public/favicon.ico",
-  "width": 32,
-  "height": 32,
-  "splash": false
+  "width": 16,
+  "height": 16,
+  "splash": false,
+  "transparent": true
 }

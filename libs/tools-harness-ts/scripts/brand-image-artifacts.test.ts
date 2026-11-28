@@ -30,6 +30,8 @@ test('every web install image and source icon belongs to the generated catalog',
       .map((name) => `${source}/${name}`),
     'apps/product-client-ts/public/favicon.ico',
     'apps/product-ts/public/favicon.ico',
+    'apps/product-client-swift/src/assets.xcassets/app-icon.appiconset/app-icon.png',
+    'apps/product-client-swift/src/assets.xcassets/brand-mark.imageset/mark.svg',
   ];
   const declared = [
     ...BRAND_IMAGE_ARTIFACTS.map((artifact) => artifact.path),
@@ -97,6 +99,19 @@ describe('configured brand artwork', () => {
         true
       );
     });
+
+  test('browser favicons contain a transparent 16 px PNG at the declared offset', async () => {
+    for (const path of ['apps/product-client-ts', 'apps/product-ts']) {
+      const ico = readFileSync(join(ROOT, path, 'public/favicon.ico'));
+      expect([...ico.subarray(6, 8)]).toEqual([16, 16]);
+      const png = ico.subarray(ico.readUInt32LE(18));
+      expect(await sharp(png).metadata()).toMatchObject({
+        width: 16,
+        height: 16,
+        hasAlpha: true,
+      });
+    }
+  });
 
   test('header artwork carries the configured SVG and accessible product name', () => {
     const identity = syntheticIdentity();

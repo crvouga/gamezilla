@@ -32,13 +32,15 @@ export async function renderBrandImage(
   const side = Math.min(artifact.width, artifact.height);
   const markSize = Math.max(
     1,
-    Math.floor(side * (artifact.splash ? 0.28 : 0.8))
+    Math.floor(
+      side * (artifact.path.endsWith('.ico') ? 1 : artifact.splash ? 0.28 : 0.8)
+    )
   );
   const mark = await sharp(Buffer.from(renderBrandMark(identity)))
     .resize(markSize, markSize)
     .png()
     .toBuffer();
-  const png = await sharp({
+  const composite = sharp({
     create: {
       width: artifact.width,
       height: artifact.height,
@@ -47,10 +49,10 @@ export async function renderBrandImage(
         ? { r: 0, g: 0, b: 0, alpha: 0 }
         : identity.brand.backgroundColor,
     },
-  })
-    .composite(
-      artifact.backgroundOnly ? [] : [{ input: mark, gravity: 'centre' }]
-    )
+  }).composite(
+    artifact.backgroundOnly ? [] : [{ input: mark, gravity: 'centre' }]
+  );
+  const png = await (artifact.transparent ? composite : composite.removeAlpha())
     .png({ compressionLevel: 6, adaptiveFiltering: false })
     .toBuffer();
   return artifact.path.endsWith('.ico')

@@ -7,6 +7,7 @@
 
 import type { ProductIdentity } from '@libs/product-identity-shared-ts/product-identity';
 import type { BrandArtifact } from './brand-artifacts.ts';
+import { renderBrandMark } from './brand-mark.ts';
 
 const GENERATOR =
   'bun run libs/tools-harness-ts/scripts/generate-brand-artifacts.ts';
@@ -66,6 +67,10 @@ function renderXcconfig(identity: ProductIdentity): string {
 }
 
 export const APPLE_BRAND_ARTIFACTS: readonly BrandArtifact[] = [
+  {
+    path: 'apps/product-client-swift/src/assets.xcassets/brand-mark.imageset/mark.svg',
+    render: renderBrandMark,
+  },
   {
     path: 'apps/product-client-swift/src/product-identity.generated.swift',
     render: renderSwift,

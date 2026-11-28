@@ -1,9 +1,13 @@
 import SwiftUI
 
-/// The first screen: the product name on an otherwise empty surface.
+/// The first screen shows the configured product mark and name.
 struct RootView: View {
   var body: some View {
     VStack {
+      Image(decorative: "brand-mark")
+        .resizable()
+        .scaledToFit()
+        .frame(width: 64, height: 64)
       Text(ProductIdentity.displayName)
         .font(.largeTitle.bold())
         .accessibilityAddTraits(.isHeader)
