@@ -138,7 +138,8 @@
     line-height: var(--ui-leading-base);
   }
 
-  .fab {
+  /* Keep the button metrics above the later .clickable font and size reset. */
+  .clickable.fab {
     height: var(--ui-control-size-lg);
     min-height: var(--ui-control-size-lg);
     min-width: var(--ui-control-size-lg);
