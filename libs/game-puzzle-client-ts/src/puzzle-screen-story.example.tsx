@@ -90,7 +90,7 @@ export function StoryReviewBoard(props: {
         />
       }
     >
-      {(size) => props.board(size)}
+      {(size) => props.board(size())}
     </BoardFit>
   );
 }
@@ -387,7 +387,7 @@ function StoryPuzzlePlay(props: {
           position={props.scene.fen}
           testId="chess-puzzle-board"
           marks={props.scene.marks}
-          size={size}
+          size={size()}
           lastAction={props.scene.lastAction ?? null}
         />
       )}

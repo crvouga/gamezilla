@@ -30,7 +30,7 @@ export default function BoardFitExample(): JSX.Element {
           height="bounded"
           footer={<P variant="caption">{'1. e4 e5 2. Nf3'}</P>}
         >
-          {(size) => <ExampleBoard size={size} />}
+          {(size) => <ExampleBoard size={size()} />}
         </BoardFit>
       </ExampleSection>
     </ExampleRoot>

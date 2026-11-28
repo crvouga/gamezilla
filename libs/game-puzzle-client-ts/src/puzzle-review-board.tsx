@@ -141,7 +141,7 @@ function PuzzleReview(props: {
         </>
       }
     >
-      {(size) => <ReviewBoardSurface model={model} size={size} />}
+      {(size) => <ReviewBoardSurface model={model} size={size()} />}
     </BoardFit>
   );
 }

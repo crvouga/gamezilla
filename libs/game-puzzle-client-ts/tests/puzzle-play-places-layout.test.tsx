@@ -3,6 +3,7 @@
 
 import { afterEach, expect, test } from 'bun:test';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
+import { flush } from 'solid-js';
 import {
   filledCommands,
   mountPlay,
@@ -314,4 +315,16 @@ test('result: a skip after a wrong move says what the attempt cost, once', () =>
       .getAllByTestId('chess-puzzle-feed-rating-change')
       .map((tag) => tag.textContent)
   ).toEqual(['-9']);
+});
+
+// regression: puzzle-desktop-resize-clears-selection
+test('a desktop puzzle retains its board when the column is measured again', () => {
+  mountPlay('play', {}, 1280);
+  const board = screen.getByTestId('board');
+  const frame = board.parentElement;
+  if (!frame) throw new Error('Missing puzzle board frame');
+  frame.getBoundingClientRect = () => new DOMRect(0, 0, 462, 462);
+  frame.dispatchEvent(new Event('ui-testing:element-layout'));
+  flush();
+  expect(screen.getByTestId('board') === board).toBe(true);
 });
