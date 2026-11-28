@@ -31,7 +31,6 @@ import { AppCommands } from './app-commands';
 import { AppUpdateRequiredBanner } from './app-update-required';
 import { useEmbeddedApp } from './embedded-app-context';
 import { PerfHudOverlay } from './perf-hud-overlay';
-import { PwaUpdatePromptBanner } from './update-prompt';
 
 function AppCommandRegistry(props: {
   readonly children: JSX.Element;
@@ -52,7 +51,6 @@ function AppCommandRegistry(props: {
               inputDataSet={{ testid: Handles.commandPaletteInput }}
             />
             {props.children}
-            <PwaUpdatePromptBanner />
           </CommandRegistryProvider>
         </KeyboardShortcutScope>
       }

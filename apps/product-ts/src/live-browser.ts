@@ -69,23 +69,6 @@ export async function readLocation(
   return typeof href === 'string' ? href : '';
 }
 
-/** Wait for precache installation before the device loses its connection. */
-const SHELL_STATE_SCRIPT = `(function () {
-  var sw = navigator.serviceWorker;
-  if (!sw) throw new Error('the browser has no service worker support');
-  return sw.ready.then(function (reg) {
-    if (!reg.active) throw new Error('the offline shell has no active worker');
-    return 'active';
-  });
-})()`;
-
-export async function waitForCachedShell(
-  view: Pick<Bun.WebView, 'evaluate'>
-): Promise<void> {
-  const state = await view.evaluate(SHELL_STATE_SCRIPT);
-  if (state !== 'active') throw new Error('the offline shell is not ready');
-}
-
 /**
  * The device has no network. Chrome exposes this through CDP
  * (`Network.emulateNetworkConditions`); other engines have no equivalent.
@@ -93,7 +76,6 @@ export async function waitForCachedShell(
 export async function emulateOffline(
   view: Pick<Bun.WebView, 'evaluate' | 'cdp'>
 ): Promise<void> {
-  await waitForCachedShell(view);
   await view.cdp('Network.emulateNetworkConditions', {
     offline: true,
     latency: 0,

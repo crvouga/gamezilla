@@ -69,7 +69,6 @@ export async function dropSqliteTables(
  */
 async function recoverStagedRebuilds(
   client: SqlClient,
-  foreignKeysWasOn: boolean,
   owns: (table: string) => boolean
 ): Promise<void> {
   const rows = await client.query<{ name: string }>(
@@ -87,6 +86,7 @@ async function recoverStagedRebuilds(
     }
   });
   if (staged.length === 0) return;
+  const foreignKeysWasOn = await readForeignKeysEnabled(client);
   await setPragma(client, 'PRAGMA foreign_keys = OFF');
   await setPragma(client, 'PRAGMA legacy_alter_table = ON');
   try {
@@ -131,9 +131,9 @@ async function setPragma(client: SqlClient, statement: string): Promise<void> {
  */
 async function runRebuild(
   client: SqlClient,
-  statements: readonly Sql<unknown>[],
-  foreignKeysWasOn: boolean
+  statements: readonly Sql<unknown>[]
 ): Promise<void> {
+  const foreignKeysWasOn = await readForeignKeysEnabled(client);
   await setPragma(client, 'PRAGMA foreign_keys = OFF');
   await setPragma(client, 'PRAGMA legacy_alter_table = ON');
   try {
@@ -167,10 +167,8 @@ export function sqlite(
     async reconcile(): Promise<void> {
       const declared = schema._declared;
       const declaredNames = new Set(Object.keys(declared.tables));
-      const foreignKeysWasOn = await readForeignKeysEnabled(client);
       await recoverStagedRebuilds(
         client,
-        foreignKeysWasOn,
         (table) => ownership === 'whole-db' || declaredNames.has(table)
       );
       // Do not wrap in `client.transaction()`: SQLite auto-commits DDL
@@ -190,7 +188,7 @@ export function sqlite(
       for (const op of plan.operations) {
         const statements = emitClientOperation(op, declared);
         if (op.kind === 'rebuild_table') {
-          await runRebuild(client, statements, foreignKeysWasOn);
+          await runRebuild(client, statements);
           continue;
         }
         for (const stmt of statements) {

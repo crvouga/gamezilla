@@ -10,6 +10,9 @@ test('closing the database releases pool handles before the next open reacquires
     constructor() {
       events.push('open');
     }
+    exec(statement: string) {
+      expect(statement).toContain('synchronous=NORMAL');
+    }
     isOpen() {
       return this.opened;
     }

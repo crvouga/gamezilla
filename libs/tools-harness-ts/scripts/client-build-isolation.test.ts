@@ -8,7 +8,7 @@ const root = join(import.meta.dirname, '../../..');
 test('each release check builds only its own web client', () => {
   const query = `query {
     product: package(name: "@apps/product-ts") {
-      tasks(filter: {equal: {field: NAME, value: "verify:offline-shell"}}) {
+      tasks(filter: {equal: {field: NAME, value: "verify:worker-retirement"}}) {
         items { allDependencies { items { fullName } } }
       }
     }

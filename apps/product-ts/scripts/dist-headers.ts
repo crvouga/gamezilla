@@ -34,7 +34,8 @@ export function distHeadersFile(files: readonly string[]): string {
   for (const file of files) {
     const slash = file.indexOf('/');
     if (slash === -1) {
-      if (!isDocument(file) && file !== '_headers') plainFiles.push(file);
+      if (!isDocument(file) && file !== '_headers' && file !== 'sw.js')
+        plainFiles.push(file);
       continue;
     }
     const top = file.slice(0, slash);

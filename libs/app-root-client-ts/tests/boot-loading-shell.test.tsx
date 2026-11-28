@@ -163,3 +163,32 @@ test('a search being composed keeps focus until the input method commits its fin
     dispose();
   }
 });
+
+// regression: opening-spaces-action
+test('an opening New space request activates the mounted action once', () => {
+  const [ready, setReady] = createSignal(false);
+  let starts = 0;
+  const { button, dispose } = openDocument(() => (
+    <Show when={ready()}>
+      <OpeningContent>
+        <button
+          data-testid="space-create"
+          onClick={() => {
+            starts++;
+          }}
+        >
+          New space
+        </button>
+      </OpeningContent>
+    </Show>
+  ));
+  try {
+    button.setAttribute('data-startup-create', '');
+    button.disabled = true;
+    setReady(true);
+    flush();
+    expect(starts).toBe(1);
+  } finally {
+    dispose();
+  }
+});

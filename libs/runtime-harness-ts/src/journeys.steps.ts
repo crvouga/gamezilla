@@ -138,7 +138,8 @@ Given('the device is offline', async (w) => {
   await w.journey.offline();
 });
 
-When('the app reopens', async (w) => {
+When('the connection returns and they reopen the app', async (w) => {
+  await w.journey.online();
   await w.journey.reopen();
 });
 

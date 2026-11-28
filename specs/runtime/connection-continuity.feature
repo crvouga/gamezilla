@@ -13,11 +13,12 @@ Feature: Keep using the app while a connection is missing
       And Alice is still on Settings
       And Alice can reach every control offered there
 
-    Scenario: Reopening offline keeps the saved preferences available
+    Scenario: Reopening after reconnecting keeps the saved preferences available
       Given Alice has chosen the dark theme
       And Alice has a place in the app and saved preferences
       And Alice is offline
-      When Alice closes and reopens the app
+      When the connection comes back
+      And Alice closes and reopens the app
       Then Alice has the same place in the app and saved preferences
       And Alice's app is dark
 

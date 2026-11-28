@@ -72,6 +72,9 @@ export function BrowserOpening(props: {
       focused?.getAttribute('data-testid') ??
       null;
     themeEvents.abort();
+    const createRequested = previous.querySelector(
+      '[data-startup-create]:disabled'
+    );
     previous.remove();
     document.documentElement.removeAttribute('data-startup-preference');
     if (!restoreOpeningSearch(previous, root, focused) && restore)
@@ -82,6 +85,9 @@ export function BrowserOpening(props: {
     root.addEventListener('click', resumeActivity, options);
     root.addEventListener('keydown', resumeActivity, options);
     window?.addEventListener('popstate', resumeActivity, options);
+    if (createRequested && window?.location.pathname === '/') {
+      root.querySelector<HTMLElement>('[data-testid="space-create"]')?.click();
+    }
   };
   const bindTheme = (setPreference: (value: ThemePreference) => void): void => {
     const readChoice = (): void => {

@@ -66,7 +66,17 @@ test('opens Settings, changes appearance and accepts a private people search bef
     });
     expect(fallback?.querySelector('h1')?.textContent).not.toBe('Spaces');
     expect(location.pathname).toBe('/space/invitation');
+    clickLink('/');
+    const create = fallback?.querySelector<HTMLButtonElement>(
+      '[data-startup-create]'
+    );
+    if (!create || create.closest('[hidden]'))
+      throw new Error('Missing New space');
+    create.click();
+    expect(create.disabled).toBe(true);
+    expect(create.textContent).toBe('Opening…');
     clickLink('/more');
+    expect(create.disabled).toBe(false);
     clickLink('/more/theme');
     const dark = fallback?.querySelector<HTMLInputElement>('[value="dark"]');
     if (!dark || dark.closest('[hidden]'))

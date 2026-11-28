@@ -260,7 +260,7 @@ test('every job that injects secrets does it in setup, after the install', () =>
 test('build hashes its toolchain, shared compiler configs and output-affecting env', () => {
   const tasks = readTurboTasks(root);
   const build = tasks['build']!;
-  const offlineShell = tasks['@apps/product-ts#verify:offline-shell']!;
+  const offlineShell = tasks['@apps/product-ts#verify:worker-retirement']!;
   expect(readRootTurbo(root).globalDependencies).toContain('mise.toml');
   // Vite embeds the entire public env object for import.meta.env reads.
   for (const name of ['VITE_*', 'ANALYZE']) {

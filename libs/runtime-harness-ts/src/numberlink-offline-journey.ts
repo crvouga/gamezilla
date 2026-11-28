@@ -78,14 +78,14 @@ async function playWhileOffline(
       await expectJourneyCompletion(device, 'Completion saved');
     }
   );
+  await host.peerDevice.online();
   await host.peerDevice.reopen();
   await openNumberlinkSpace(
     { openLink: host.openGuest, act: host.actAsGuest },
     link
   );
-  await host.actAsGuest('reopenNumberlinkWithoutConnection', async (ui) => {
+  await host.actAsGuest('reopenNumberlinkAfterReconnecting', async (ui) => {
     const device = { ui, timeoutMs: JOURNEY_WAIT_MS };
-    await ui.get('content-offline').expect.visible(device);
     await openJourneyAttempt(device, attemptId, 'solved');
     await expectJourneyCompletion(device, 'Completion saved');
   });
@@ -106,9 +106,8 @@ export async function keepNumberlinkOfflineWork(
   await host.peerDevice.offline();
   const draft = await authorWhileOffline(host, available, owned);
   const attemptId = await playWhileOffline(host, peerLink);
-  await reopenOfflineNumberlinkDraft(host, hostLink, draft);
   await host.online();
-  await host.peerDevice.online();
+  await reopenOfflineNumberlinkDraft(host, hostLink, draft);
   const published = await publishOfflineNumberlinkDraft(host, draft);
   await host.peerDevice.anotherSignedInDevice();
   await openNumberlinkSpace(
