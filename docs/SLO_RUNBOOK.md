@@ -93,6 +93,14 @@ The certificate Synthetic Monitoring was shown for the app, the API or the
 broker expires within 14 days (push) or 3 days (page). See the README's
 [certificate runbook](../libs/observability-server-ts/README.md#a-certificate-people-are-shown-expires).
 
+## first-opening-is-immediately-usable
+
+Open the Health browser evidence for `journeys.first-opening`. Inspect the navigation time, the first visible control, what happened when the check selected Settings, and whether that choice survived startup. Check document response latency if the initial controls appeared late. If a loading indicator appeared later, inspect the handoff to the app and its local database. [Opening objectives](../specs/journeys/using-the-tabs.openslo.yaml)
+
+## reopening-is-immediately-usable
+
+Open the Health browser evidence for `journeys.reopening`. The check uses a device that has already opened the app. Compare the first-opening result from the same run, then inspect service-worker navigation, restoration of local settings and the handoff to the selected screen. [Opening objectives](../specs/journeys/using-the-tabs.openslo.yaml)
+
 ## the-app-is-always-reachable
 
 **Measures.** Grafana Synthetic Monitoring opens `https://www.<host>/` (it

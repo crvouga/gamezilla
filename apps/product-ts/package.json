@@ -47,7 +47,7 @@
     "test:fuzz": "bun run scripts/test-fuzz.ts",
     "test:max": "bun ./scripts/test-max.ts",
     "test:release-journeys": "bun run scripts/test-release-journeys.ts",
-    "test:release-journeys:critical": "bun run scripts/test-release-journeys.ts specs/journeys/join-and-offline.feature",
+    "test:release-journeys:critical": "bun run scripts/test-release-journeys.ts specs/journeys/join-and-offline.feature specs/journeys/first-opening.feature specs/journeys/reopening.feature",
     "test:release-journeys:0": "bun run scripts/test-release-journeys.ts --part=0/3",
     "test:release-journeys:1": "bun run scripts/test-release-journeys.ts --part=1/3",
     "test:release-journeys:2": "bun run scripts/test-release-journeys.ts --part=2/3",

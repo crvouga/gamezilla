@@ -264,6 +264,7 @@ export function SearchScreenView(props: SearchScreenViewProps): JSX.Element {
       controls={
         <>
           <TextInput
+            name="people-search"
             value={props.query}
             onChangeText={(query) => props.onQueryChange(query)}
             placeholder={t`Search people by username`}

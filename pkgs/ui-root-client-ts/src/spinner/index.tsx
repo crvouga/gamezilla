@@ -10,9 +10,12 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { ColorTone } from '@pkgs/ui-root-shared-ts/token-names';
 import type { JSX } from '@solidjs/web';
-import { For } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { spaced } from '../layout-classes';
-import { useSharedSpinnerDelay } from '../spinner-context/index';
+import {
+  quietActivityAtMount,
+  useSharedSpinnerDelay,
+} from '../spinner-context/index';
 import { toneClass } from '../text-classes';
 import styles from './spinner.module.css';
 
@@ -59,13 +62,10 @@ function colorClass(color: SpinnerColor): string {
  * radiating from the center, the opacity stepping around the ring once a
  * second in twelve discrete steps (UIActivityIndicatorView). Every loading
  * indicator in the product is this component: `Button`'s loading face,
- * `LoadingState`, the FAB, the boot screens (which embed the same markup
- * statically).
+ * `LoadingState` and the FAB.
  *
  * - `size`: `sm` (16, inside controls and rows), `md` (24, default, inline
- *   in a section), `lg` (40, alone on a whole screen). Boot and every
- *   whole-screen `LoadingState` use `lg`, so the indicator never changes
- *   size as boot hands off to a screen's own load.
+ *   in a section), `lg` (40, alone on a whole screen).
  * - `color`: a text tone; defaults to `secondary`. `current` takes the
  *   surrounding text color (inside a filled button).
  * - `label`: the accessible name ("Loading…" when unset). `decorative`
@@ -84,47 +84,60 @@ function colorClass(color: SpinnerColor): string {
  */
 export function Spinner(props: SpinnerProps): JSX.Element {
   const { t } = useLingui();
+  const quiet = quietActivityAtMount();
   const delay = useSharedSpinnerDelay();
   return (
-    <span
-      class={spaced([
-        'box items-center justify-center',
-        SIZE[props.size ?? 'md'],
-        colorClass(props.color ?? 'secondary'),
-      ])}
-      {...dataAttrs({
-        component: 'Spinner',
-        size: props.size ?? 'md',
-        ...props.dataSet,
-      })}
-      role={props.decorative === true ? undefined : 'status'}
-      aria-label={
-        props.decorative === true ? undefined : (props.label ?? t`Loading…`)
+    <Show
+      when={!quiet}
+      fallback={
+        <Show when={props.decorative !== true}>
+          <span role="status" class="text textCaption">
+            {props.label ?? t`Loading…`}
+          </span>
+        </Show>
       }
-      aria-live={props.decorative === true ? undefined : 'polite'}
-      aria-hidden={props.decorative === true ? 'true' : undefined}
     >
-      <svg
-        class={`${styles['petals']} size-full`}
-        viewBox={ACTIVITY_VIEWBOX}
-        fill="currentColor"
-        aria-hidden="true"
-        style={delay === undefined ? undefined : { 'animation-delay': delay }}
+      <span
+        class={spaced([
+          'box items-center justify-center',
+          SIZE[props.size ?? 'md'],
+          colorClass(props.color ?? 'secondary'),
+        ])}
+        {...dataAttrs({
+          component: 'Spinner',
+          size: props.size ?? 'md',
+          ...props.dataSet,
+        })}
+        data-activity-indicator=""
+        role={props.decorative === true ? undefined : 'status'}
+        aria-label={
+          props.decorative === true ? undefined : (props.label ?? t`Loading…`)
+        }
+        aria-live={props.decorative === true ? undefined : 'polite'}
+        aria-hidden={props.decorative === true ? 'true' : undefined}
       >
-        <For each={ACTIVITY_PETAL_SHAPES}>
-          {(petal) => (
-            <rect
-              x={petal.x}
-              y={petal.y}
-              width={petal.width}
-              height={petal.height}
-              rx={petal.radius}
-              transform={petalTransform(petal)}
-              opacity={petal.opacity}
-            />
-          )}
-        </For>
-      </svg>
-    </span>
+        <svg
+          class={`${styles['petals']} size-full`}
+          viewBox={ACTIVITY_VIEWBOX}
+          fill="currentColor"
+          aria-hidden="true"
+          style={delay === undefined ? undefined : { 'animation-delay': delay }}
+        >
+          <For each={ACTIVITY_PETAL_SHAPES}>
+            {(petal) => (
+              <rect
+                x={petal.x}
+                y={petal.y}
+                width={petal.width}
+                height={petal.height}
+                rx={petal.radius}
+                transform={petalTransform(petal)}
+                opacity={petal.opacity}
+              />
+            )}
+          </For>
+        </svg>
+      </span>
+    </Show>
   );
 }

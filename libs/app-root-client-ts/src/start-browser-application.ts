@@ -54,7 +54,7 @@ function element<K extends keyof HTMLElementTagNameMap>(
 }
 
 /**
- * Replaces an indefinitely spinning bootstrap shell with an actionable error.
+ * Replaces the opening document with an actionable error.
  * Plain DOM in English: the app bundle (and its translations) failed to load.
  * Development names the Vite cause and the error; production says what to do.
  */
@@ -70,6 +70,7 @@ export function showBrowserStartupFailure(args: {
   );
   if (shell === null) return;
 
+  shell.setAttribute('role', 'alert');
   shell.setAttribute('aria-label', `${PRODUCT_NAME} failed to start`);
   shell.classList.add('startup-shell-failed');
 

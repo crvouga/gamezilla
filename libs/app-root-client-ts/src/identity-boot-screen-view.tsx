@@ -5,6 +5,7 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import { BootLoadingShell } from './boot-loading-shell';
+import { OpeningContent } from './browser-opening';
 
 export type IdentityBootScreenViewProps = {
   /** `pending` while the local identity binds; `stuck` past its deadline. */
@@ -23,16 +24,18 @@ export function IdentityBootScreenView(
   const { t } = useLingui();
   return (
     <Show when={props.status === 'stuck'} fallback={<BootLoadingShell />}>
-      <ErrorState
-        title={<Trans>App failed to start</Trans>}
-        body={
-          <Trans>
-            Your account could not be loaded. Check your connection and reload
-            the app.
-          </Trans>
-        }
-        retry={{ label: t`Reload app`, onClick: () => props.onReload() }}
-      />
+      <OpeningContent>
+        <ErrorState
+          title={<Trans>App failed to start</Trans>}
+          body={
+            <Trans>
+              Your account could not be loaded. Check your connection and reload
+              the app.
+            </Trans>
+          }
+          retry={{ label: t`Reload app`, onClick: () => props.onReload() }}
+        />
+      </OpeningContent>
     </Show>
   );
 }

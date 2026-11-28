@@ -25,6 +25,8 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/specs/journeys/join-and-offline.feature",
+        "$TURBO_ROOT$/specs/journeys/first-opening.feature",
+        "$TURBO_ROOT$/specs/journeys/reopening.feature",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
@@ -200,6 +202,7 @@
         "@libs/sub-shared-ts#src",
         "@libs/synthetic-population-server-ts#src",
         "@libs/synthetic-population-shared-ts#src",
+        "@libs/test-ids-shared-ts#src",
         "@pkgs/aedes-server-ts#src",
         "@pkgs/assert-crash-browser-client-ts#src",
         "@pkgs/assert-root-shared-ts#src",

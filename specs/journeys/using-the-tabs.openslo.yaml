@@ -1,0 +1,94 @@
+# live
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: first-opening-checks-passing
+  displayName: People can use the tabs as soon as the app first opens
+spec:
+  description: >-
+    In each check the team opens the app on a fresh device and chooses
+    Settings at once. Time starts when the person opens the app and ends
+    when Settings is visible. Seeing an opening screen at any point, taking
+    one second or longer, or losing the person's choice fails the check.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: Checks in which the person reached Settings in time and saw no opening screen.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: Every check of opening the app on a fresh device.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: first-opening-is-immediately-usable
+  displayName: The app is usable as soon as it first opens
+  labels:
+    tier: "0"
+spec:
+  description: >-
+    Every checked opening on a fresh device must meet the promise.
+    A missed check gives the team no evidence about that opening.
+  service: runtime
+  indicatorRef: first-opening-checks-passing
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: Every checked opening meets the promise
+      target: 1
+      timeSliceTarget: 1
+      timeSliceWindow: 1h
+---
+apiVersion: openslo/v1
+kind: SLI
+metadata:
+  name: reopening-checks-passing
+  displayName: People can use the tabs as soon as the app reopens
+spec:
+  description: >-
+    In each check the team opens the app on a device that has opened it before and chooses
+    Settings at once. Time starts when the person opens the app and ends
+    when Settings is visible. Seeing an opening screen at any point, taking
+    one second or longer, or losing the person's choice fails the check.
+  ratioMetric:
+    counter: false
+    good:
+      metricSource:
+        type: product
+        spec:
+          measures: Checks in which the person reached Settings in time and saw no opening screen.
+    total:
+      metricSource:
+        type: product
+        spec:
+          measures: Every check of opening the app on a device that has opened it before.
+---
+apiVersion: openslo/v1
+kind: SLO
+metadata:
+  name: reopening-is-immediately-usable
+  displayName: The app is usable as soon as it reopens
+  labels:
+    tier: "0"
+spec:
+  description: >-
+    Every checked opening on a device that has opened it before must meet the promise.
+    A missed check gives the team no evidence about that opening.
+  service: runtime
+  indicatorRef: reopening-checks-passing
+  timeWindow:
+    - duration: 7d
+      isRolling: true
+  budgetingMethod: Timeslices
+  objectives:
+    - displayName: Every checked opening meets the promise
+      target: 1
+      timeSliceTarget: 1
+      timeSliceWindow: 1h

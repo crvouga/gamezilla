@@ -223,7 +223,8 @@ function policyIssues(file: ObjectiveFile): readonly string[] {
         `${where} must be budgeted by Timeslices: each sample is one run of a check`
       );
     }
-    alertedObjective(slo);
+    // A 100% target pages on one violation through integrityRules.
+    if (alertedObjective(slo).target === 1) continue;
     const tiers = tiersFor(slo);
     for (const issue of bundleIssues(slo, standardAlerts({ slo, tiers }))) {
       issues.push(`${where}: ${issue}`);

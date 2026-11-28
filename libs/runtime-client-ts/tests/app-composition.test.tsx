@@ -25,7 +25,7 @@ function screenNode(screenId: string): Element | null {
 
 function bootChromeNode(): Element | null {
   return document.querySelector(
-    '[data-component="BootLoadingShell"], [data-component="LocalDatabaseBootErrorScreen"]'
+    `[data-testid="${Handles.bootLoading}"], [data-component="LocalDatabaseBootErrorScreen"]`
   );
 }
 

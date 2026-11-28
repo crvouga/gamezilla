@@ -47,6 +47,20 @@ export function colorVar(name: ColorTokenName): string {
   return `var(--ui-color-${kebab(name)})`;
 }
 
+/** Inline just the palette variables used by a document's first-paint CSS. */
+export function withDocumentPalette(css: string): string {
+  const names = COLOR_TOKEN_NAMES.filter((name) =>
+    css.includes(colorVar(name))
+  );
+  const schemes = (['dark', 'light'] as const).map((scheme) => {
+    const declarations = names.map(
+      (name) => `--ui-color-${kebab(name)}:${COLOR_PALETTE[scheme][name]}`
+    );
+    return `html[data-theme="${scheme}"]{${declarations.join(';')}}`;
+  });
+  return [...schemes, css].join('\n');
+}
+
 /** Palette-shaped map whose values are CSS variable references. */
 export const CSS_VAR_COLORS: ColorTokens = Object.fromEntries(
   COLOR_TOKEN_NAMES.map((name) => [name, colorVar(name)])

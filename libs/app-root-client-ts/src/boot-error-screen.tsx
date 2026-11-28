@@ -12,6 +12,7 @@ import {
   type LocalDatabaseBootErrorKind,
   LocalDatabaseBootErrorScreenView,
 } from './boot-error-screen-view';
+import { OpeningContent } from './browser-opening';
 
 /** Synthetic error when open hangs past the UI watchdog (stale worker / SW). */
 export const BOOT_STUCK_MESSAGE =
@@ -58,12 +59,14 @@ export function LocalDatabaseBootErrorScreen(props: {
   };
 
   return (
-    <LocalDatabaseBootErrorScreenView
-      kind={kind()}
-      message={props.error.message}
-      onReload={reloadApp}
-      onReset={onReset}
-      onReportBug={() => requestBugReport()}
-    />
+    <OpeningContent>
+      <LocalDatabaseBootErrorScreenView
+        kind={kind()}
+        message={props.error.message}
+        onReload={reloadApp}
+        onReset={onReset}
+        onReportBug={() => requestBugReport()}
+      />
+    </OpeningContent>
   );
 }

@@ -4,7 +4,9 @@ import { brandHtmlPlugin } from '@libs/product-brand-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
 import { feedbackDevPlugin } from '@pkgs/feedback-server-ts/vite';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
+import { withDocumentPalette } from '@pkgs/ui-root-shared-ts/css-vars';
 import { artifactProtection } from '@pkgs/vite-workspace-resolver-server-ts/artifact-protection';
+import { inlineDocumentFragments } from '@pkgs/vite-workspace-resolver-server-ts/inline-document-fragments';
 import { preloadDynamicEntry } from '@pkgs/vite-workspace-resolver-server-ts/preload-dynamic-entry';
 import {
   DEFAULT_WORKSPACE_SCOPES,
@@ -40,6 +42,19 @@ const FROZEN = process.env['PRODUCT_DEV_FROZEN'] === '1';
 export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
     // `index.html` spells `%BRAND_NAME%`; the identity fills it in.
+    inlineDocumentFragments(
+      {
+        'browser-opening.html': resolve(
+          repoRoot,
+          'libs/app-root-client-ts/src/browser-opening.html'
+        ),
+        'browser-opening.css': resolve(
+          repoRoot,
+          'pkgs/ui-root-client-ts/src/browser-opening.css'
+        ),
+      },
+      withDocumentPalette
+    ),
     brandHtmlPlugin(),
     artifactProtection(),
     feedbackDevPlugin({ repoRoot }),

@@ -23,6 +23,7 @@ import {
   generateGrafanaSlos,
   renderGrafanaSlos,
 } from '@libs/observability-server-ts/slo-grafana';
+import { alertedObjective } from '@pkgs/openslo-shared-ts/alert-policy';
 import { renderAlertDocuments } from '@pkgs/openslo-shared-ts/alert-yaml';
 import { parseOpenSlo } from '@pkgs/openslo-shared-ts/parse';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
@@ -89,8 +90,28 @@ describe('the generated artifacts', () => {
 describe('every Grafana SLO', () => {
   const generated = () => generateGrafanaSlos(docs()).slos;
 
-  test('has an objective file behind it, and every judged objective has one', () => {
-    expect(generated().map((s) => s.key)).toEqual(slos().map((s) => s.name));
+  // regression: zero-budget-opening-objectives
+  test('every objective has a budget dashboard or a direct violation page', () => {
+    const objectives = slos();
+    const budgeted = objectives.filter(
+      (slo) => alertedObjective(slo).target < 1
+    );
+    const strict = objectives.filter(
+      (slo) => alertedObjective(slo).target === 1
+    );
+    expect(generated().map((slo) => slo.key)).toEqual(
+      budgeted.map((slo) => slo.name)
+    );
+    for (const slo of strict) {
+      expect(rules()).toContainEqual(
+        expect.objectContaining({
+          covers: slo.name,
+          name: `${slo.displayName ?? slo.name}: integrity violation`,
+          route: 'page',
+          for: '0s',
+        })
+      );
+    }
   });
 
   test('is never declared by hand in OpenTofu', () => {

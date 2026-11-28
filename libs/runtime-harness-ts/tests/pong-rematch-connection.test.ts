@@ -60,6 +60,7 @@ test('accepting a rematch waits for the connection before the command', async ()
     now: unused,
     elapse: unused,
     open: unused,
+    openAndChooseSettings: unused,
     openPeer: unused,
     act,
     actAsGuest: act,

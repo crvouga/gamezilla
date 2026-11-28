@@ -19,7 +19,6 @@ import { OriginAvailabilityProvider } from '@pkgs/http-client-client-ts/solid';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { AppRouterProvider } from '@pkgs/ui-root-client-ts/app-router';
-import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { useNavigate } from '@solidjs/router';
 import type { JSX } from '@solidjs/web';
@@ -29,6 +28,8 @@ import { AppHeaderIslandHost } from './app-header-island';
 import { AppProvidersOuter, AppProvidersSession } from './app-providers';
 import { useAppSubs } from './app-subs-context';
 import { AppThemeProvider } from './app-theme-provider';
+import { BootLoadingShell } from './boot-loading-shell';
+import { OpeningContent } from './browser-opening';
 import { ConnectionNotice } from './connection-notice';
 import { EmbeddedHrefPersistence } from './embedded-href-persistence';
 import { originAvailabilityFor } from './origin-availability-for-env';
@@ -101,8 +102,8 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                       >
                         <AppProvidersSession>
                           {/* Lazy routes load their chunk behind one loading state. */}
-                          <Loading fallback={<LoadingState />}>
-                            {props.children}
+                          <Loading fallback={<BootLoadingShell />}>
+                            <OpeningContent>{props.children}</OpeningContent>
                           </Loading>
                         </AppProvidersSession>
                       </AppFrame>

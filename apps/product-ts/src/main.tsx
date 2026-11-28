@@ -6,6 +6,7 @@
  */
 
 import { bootBrowserObservability } from '@libs/app-root-client-ts/boot-browser-observability';
+import { BrowserOpening } from '@libs/app-root-client-ts/browser-opening';
 import { createClient } from '@libs/app-root-client-ts/create-client';
 import { wallClientEnv } from '@libs/app-root-client-ts/wall-client-env';
 import { wallOfflineNetworkController } from '@libs/app-root-client-ts/wall-offline-network';
@@ -59,5 +60,12 @@ function AppBoot(): JSX.Element {
 }
 
 root.replaceChildren();
-const dispose = renderApplication(() => <AppBoot />, root);
+const dispose = renderApplication(
+  () => (
+    <BrowserOpening root={root}>
+      <AppBoot />
+    </BrowserOpening>
+  ),
+  root
+);
 if (import.meta.hot) import.meta.hot.dispose(dispose);

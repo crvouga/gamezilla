@@ -7,7 +7,7 @@ import {
 } from 'storybook-solidjs-vite';
 import { IdentityBootScreenView } from './identity-boot-screen-view';
 
-/** The shell fills the viewport and pins its indicator there; give it one. */
+/** Give the session status its normal viewport. */
 const withViewport = createJSXDecorator((Story) => (
   <StackVertical minHeight="screen">
     <Story />
@@ -26,7 +26,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** The account normally binds at once; until then, the one boot indicator. */
+/** Session status until the account binds. */
 export const Pending: Story = {};
 
 /** Binding outlived its deadline: never a hang, always a way forward. */
