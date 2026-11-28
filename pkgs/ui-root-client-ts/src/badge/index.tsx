@@ -10,6 +10,7 @@ import { StatusDot } from '../status-dot/index';
 export type BadgeIntent =
   | 'neutral'
   | 'brand'
+  | 'reward'
   | 'success'
   | 'warning'
   | 'destructive'
@@ -88,7 +89,7 @@ function BadgeHost(props: {
  * the tone changes: `subtle` (the default) is the intent's wash with its
  * colored label, for every status and fact; `solid` is the intent's fill
  * with its on-color, for counts. `brand` (tint) is for what is new or
- * chosen; `neutral` for plain facts.
+ * chosen; `reward` marks an earned place or streak; `neutral` for plain facts.
  *
  * Three tags are fixed, so every screen says them the same way:
  * - {@link HostBadge}: `Host`, a neutral tag.

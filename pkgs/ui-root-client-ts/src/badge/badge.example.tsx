@@ -15,6 +15,7 @@ import { ExampleSection } from '../../storybook/fixtures/example-section';
 
 const INTENTS: readonly { intent: BadgeIntent; label: string }[] = [
   { intent: 'brand', label: 'Brand' },
+  { intent: 'reward', label: 'Streak' },
   { intent: 'success', label: 'Success' },
   { intent: 'warning', label: 'Warning' },
   { intent: 'destructive', label: 'Destructive' },

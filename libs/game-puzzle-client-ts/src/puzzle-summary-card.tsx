@@ -11,7 +11,7 @@ function SummaryMeta(props: { completion: PuzzleCompletion }): JSX.Element {
     <Show when={props.completion.streak > 1}>
       <StackHorizontal>
         <Badge
-          intent="success"
+          intent="reward"
           label={<Trans>{props.completion.streak} puzzle streak</Trans>}
         />
       </StackHorizontal>

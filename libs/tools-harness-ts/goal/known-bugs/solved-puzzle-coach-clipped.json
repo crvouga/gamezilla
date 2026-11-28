@@ -1,0 +1,4 @@
+{
+  "summary": "At 390px the solved puzzle's trophy took most of the coach message line, clipping the explanation of the checkmate.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/screen-art-review/tabletop.checks.ts"
+}
