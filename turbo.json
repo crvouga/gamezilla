@@ -1713,6 +1713,15 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
+    "//#task:deps:complexity": {
+      "cache": false
+    },
+    "//#task:deps:duplicates": {
+      "cache": false
+    },
+    "//#task:deps:unused": {
+      "cache": false
+    },
     "//#task:deps:graph": {
       "cache": false,
       "passThroughEnv": ["*"]

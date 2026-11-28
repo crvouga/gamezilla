@@ -7,22 +7,17 @@
  */
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { join } from 'node:path';
-import type { Tier } from './workspace-package-import-graph';
+import { dirname, join } from 'node:path';
+import { parseArgs } from 'node:util';
 import {
-  buildPackageImportGraph,
-  discoverPackagesWithTier,
+  type PackageEdges,
+  packageEdges,
+  packageReport,
   REPO_ROOT,
 } from './workspace-package-import-graph';
 
 const OUT_DIR = join(REPO_ROOT, 'tmp');
 const OUT_HTML = join(OUT_DIR, 'package-deps-graph.html');
-
-const TIER_CLASS: Record<Tier, string> = {
-  apps: 'tierApps',
-  libs: 'tierLibs',
-  pkgs: 'tierPkgs',
-};
 
 function mermaidNodeId(shortName: string): string {
   const base = shortName.replace(/[^a-zA-Z0-9_]/g, '_');
@@ -30,45 +25,18 @@ function mermaidNodeId(shortName: string): string {
   return /^\d/.test(id) ? `pkg_${id}` : id;
 }
 
-/** Packages that appear as source or target of at least one edge. */
-function connectedNames(
-  names: string[],
-  graph: ReturnType<typeof buildPackageImportGraph>
-): Set<string> {
+function buildMermaidSource(graph: PackageEdges): {
+  source: string;
+  omitted: number;
+} {
   const connected = new Set<string>();
-  for (const from of names) {
-    const targets = graph.get(from);
-    if (!targets?.size) continue;
-    connected.add(from);
-    for (const to of targets.keys()) connected.add(to);
+  for (const [name, targets] of graph) {
+    if (targets.length > 0) connected.add(name);
+    for (const target of targets) connected.add(target);
   }
-  return connected;
-}
-
-function buildMermaidSource(): { source: string; omitted: number } {
-  const packages = discoverPackagesWithTier();
-  if (packages.size === 0) {
-    throw new Error(
-      'No @apps|@libs|@pkgs/* packages found under apps/, libs/, pkgs/.'
-    );
-  }
-  const dirs = new Map(
-    [...packages.entries()].map(([name, info]) => [name, info.dir])
-  );
-  const graph = buildPackageImportGraph(dirs);
-  const allNames = [...packages.keys()].sort();
-  const connected = connectedNames(allNames, graph);
-  const names = allNames.filter((n) => connected.has(n));
-  const omitted = allNames.length - names.length;
-
-  const idFor = new Map<string, string>();
-  const tierFor = new Map<string, Tier>();
-  for (const name of names) {
-    idFor.set(name, mermaidNodeId(name));
-    const info = packages.get(name);
-    if (info) tierFor.set(name, info.tier);
-  }
-
+  const names = [...connected].sort();
+  const omitted = graph.size - names.length;
+  const idFor = new Map(names.map((name) => [name, mermaidNodeId(name)]));
   const lines: string[] = ['flowchart TD'];
   for (const name of names) {
     const id = idFor.get(name);
@@ -78,20 +46,9 @@ function buildMermaidSource(): { source: string; omitted: number } {
     lines.push(`  ${id}["${label}"]`);
   }
 
-  const seen = new Set<string>();
-  for (const from of names) {
-    const targets = graph.get(from);
-    if (!targets) continue;
-    for (const to of [...targets.keys()].sort()) {
-      const key = `${from}->${to}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      const fromId = idFor.get(from);
-      const toId = idFor.get(to);
-      if (!fromId || !toId) continue;
-      lines.push(`  ${fromId} --> ${toId}`);
-    }
-  }
+  for (const from of names)
+    for (const to of graph.get(from) ?? [])
+      lines.push(`  ${idFor.get(from)} --> ${idFor.get(to)}`);
 
   lines.push(
     '',
@@ -100,22 +57,15 @@ function buildMermaidSource(): { source: string; omitted: number } {
     '  classDef tierPkgs fill:#8957e5,stroke:#d2a8ff,color:#e6edf3'
   );
 
-  const byTier = new Map<Tier, string[]>();
-  for (const name of names) {
-    const tier = tierFor.get(name);
-    const id = idFor.get(name);
-    if (!tier || !id) continue;
-    let ids = byTier.get(tier);
-    if (!ids) {
-      ids = [];
-      byTier.set(tier, ids);
-    }
-    ids.push(id);
-  }
-  for (const tier of ['apps', 'libs', 'pkgs'] as const) {
-    const ids = byTier.get(tier);
-    if (!ids?.length) continue;
-    lines.push(`  class ${ids.join(',')} ${TIER_CLASS[tier]}`);
+  for (const [scope, theme] of [
+    ['apps', 'tierApps'],
+    ['libs', 'tierLibs'],
+    ['pkgs', 'tierPkgs'],
+  ] as const) {
+    const ids = names
+      .filter((name) => name.startsWith(`@${scope}/`))
+      .map((name) => idFor.get(name));
+    if (ids.length) lines.push(`  class ${ids.join(',')} ${theme}`);
   }
 
   return { source: lines.join('\n'), omitted };
@@ -264,8 +214,43 @@ function tryOpen(path: string): void {
 }
 
 function main(): void {
+  const { values } = parseArgs({
+    options: {
+      json: { type: 'boolean' },
+      all: { type: 'boolean' },
+      output: { type: 'string' },
+      summary: { type: 'boolean' },
+      declared: { type: 'boolean' },
+      package: { type: 'string' },
+    },
+  });
+  if (values.all && values.declared)
+    throw new Error('Select either --all or --declared');
+  const graph = packageEdges(
+    REPO_ROOT,
+    values.declared ? 'declared' : values.all ? 'all' : 'src'
+  );
+  if (
+    values.package !== undefined ||
+    values.all ||
+    values.output ||
+    values.summary ||
+    values.json ||
+    values.declared
+  ) {
+    const data =
+      values.json && !values.package && !values.summary
+        ? Object.fromEntries(graph)
+        : packageReport(graph, values.package);
+    const json = JSON.stringify(data, null, 2);
+    if (values.output) {
+      mkdirSync(dirname(values.output), { recursive: true });
+      writeFileSync(values.output, json + '\n');
+    } else console.log(json);
+    return;
+  }
   mkdirSync(OUT_DIR, { recursive: true });
-  const { source, omitted } = buildMermaidSource();
+  const { source, omitted } = buildMermaidSource(graph);
   writeFileSync(OUT_HTML, buildHtml(source), 'utf8');
   const omittedNote =
     omitted > 0

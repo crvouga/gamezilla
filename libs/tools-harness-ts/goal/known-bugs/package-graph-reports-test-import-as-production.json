@@ -1,0 +1,4 @@
+{
+  "summary": "The production package diagram included test imports while missing side-effect imports.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-package-import-graph.test.ts"
+}
